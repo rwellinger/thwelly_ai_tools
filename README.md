@@ -7,3 +7,8 @@
 
 ## Test ob ollama verfügbar
     curl http://10.0.1.120:11434/api/tags
+
+
+## Backup
+    docker cp ollama-webui:/app/backend/data/webui.db ./backup/webui.db
+    docker cp ollama-webui:/app/backend/data/vector_db/chroma.sqlite3 ./backup/chroma.sqlite3
