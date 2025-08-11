@@ -1,0 +1,26 @@
+services:
+  nginx:
+    container_name: webui-proxy
+    image: nginx:1.23.3
+    restart: unless-stopped
+    depends_on:
+      - webui
+    ports:
+      - '80:80'
+      - '443:443'
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./certs/webui.crt:/etc/ssl/certs/webui.crt:ro
+      - ./certs/webui.key:/etc/ssl/private/webui.key:ro
+  webui:
+    container_name: ollama-webui
+    image: ghcr.io/open-webui/open-webui:0.6.18
+    restart: unless-stopped
+    volumes:
+      - webui_data:/app/backend/data
+    environment:
+      - OLLAMA_API_BASE_URL=http://10.0.1.120:11434
+      - OPENAI_API_BASE_URL=http://10.0.1.120:11434
+
+volumes:
+  webui_data: null

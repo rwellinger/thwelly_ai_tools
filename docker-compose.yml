@@ -1,0 +1,61 @@
+services:
+  # PostgreSQL-Datenbank
+  db:
+    image: postgres:16
+    container_name: ollama-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: webui
+      POSTGRES_PASSWORD: webui99  # 🔒 UNBEDINGT ÄNDERN!
+      POSTGRES_DB: webui_db
+    volumes:
+      - postgres_data:/var/lib/postgresql/data  # <- Docker Volume statt Host-Pfad
+    networks:
+      - webui-net
+
+  # Open WebUI Service
+  webui:
+    image: ghcr.io/open-webui/open-webui:0.6.18
+    container_name: ollama-webui
+    restart: unless-stopped
+    depends_on:
+      - db
+    environment:
+      - OLLAMA_API_BASE_URL=http://10.0.1.120:11434  # Ihre Ollama-Instanz
+      - OPENAI_API_BASE_URL=http://10.0.1.120:11434
+      # PostgreSQL-Konfiguration
+      - DATA_STORE=postgres
+      - POSTGRES_HOST=db
+      - POSTGRES_USER=webui
+      - POSTGRES_PASSWORD=webui99  # 🔒 Wie oben definiert
+      - POSTGRES_DB=webui_db
+      - POSTGRES_PORT=5432
+    volumes:
+      - webui_data:/var/app/openui-data  # Für Uploads/Cache (optional)
+    networks:
+      - webui-net
+
+  # Nginx Reverse Proxy mit SSL
+  nginx:
+    image: nginx:1.23.3
+    container_name: webui-proxy
+    restart: unless-stopped
+    depends_on:
+      - webui
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./certs/webui.crt:/etc/ssl/certs/webui.crt:ro  # SSL-Zertifikat
+      - ./certs/webui.key:/etc/ssl/private/webui.key:ro  # SSL-Key
+    networks:
+      - webui-net
+
+# Netzwerk & Volumes
+volumes:
+  postgres_data:  # Neu: Docker-managed Volume für PostgreSQL
+  webui_data:     # App-interne Daten (Cache/Uploads)
+
+networks:
+  webui-net:  # Isoliertes Netzwerk für sichere Kommunikation
