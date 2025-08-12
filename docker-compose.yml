@@ -4,11 +4,10 @@ services:
     container_name: ollama-webui
     restart: unless-stopped
     environment:
-      # Ollama (lokal)
       - OLLAMA_API_BASE_URL=http://10.0.1.120:11434
-      # OpenAI (Dummy – Key später in UI ändern)
       - OPENAI_API_BASE_URL=https://api.openai.com/v1
       - OPENAI_API_KEY=DUMMY
+      - OLLAMA_KEEP_ALIVE=86400
     volumes:
       - webui_data:/app/backend/data
     networks:

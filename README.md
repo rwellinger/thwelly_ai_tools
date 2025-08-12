@@ -12,3 +12,11 @@
 ## Backup
     docker cp ollama-webui:/app/backend/data/webui.db ./backup/webui.db
     docker cp ollama-webui:/app/backend/data/vector_db/chroma.sqlite3 ./backup/chroma.sqlite3
+
+
+## Generate Self Certificate
+
+mkcert macstudio macstudionas b8d439ec68266ac2f5404b61d152668c1.asuscomm.com 10.0.1.120 localhost
+
+mv macstudio+4-key.pem webui.key
+mv macstudio+4.pem webui.crt
