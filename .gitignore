@@ -2,3 +2,4 @@ certs
 backup
 logs
 data
+docker_images
