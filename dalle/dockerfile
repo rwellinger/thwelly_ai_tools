@@ -4,12 +4,14 @@ FROM python:3.13-slim
 # Setze das Arbeitsverzeichnis
 WORKDIR /app
 
-# Kopiere die requirements.txt und die Python-Skripte ins Container-Image
-COPY requirements.txt ./
-COPY . .
+# Kopiere die requirements.txt ins Container-Image
+COPY ./requirements.txt ./
 
 # Installiere die Abhängigkeiten
 RUN pip install --no-cache-dir -r requirements.txt
+
+# Kopiere den gesamten Projektinhalt ins Container-Image
+COPY . .
 
 # Setze Umgebungsvariablen für Flask
 ENV FLASK_APP=dalle3-server.py
@@ -18,5 +20,5 @@ ENV FLASK_RUN_HOST=0.0.0.0
 # Exponiere den gewünschten Port
 EXPOSE 5050
 
-# Starte die Flask-Anwendung
-CMD ["flask", "run", "--port=5050"]
+# Starte die Gunicorn-Anwendung
+CMD ["gunicorn", "-w", "4", "-b", "0.0.0.0:5050", "dalle3-server:app"]
