@@ -1,5 +1,7 @@
 services:
   flask-app:
+    container_name: dalle3-server
+    restart: unless-stopped
     build: .
     ports:
       - "5050:5050"  # Exposer Localport 5050 auf Containerport 5050
