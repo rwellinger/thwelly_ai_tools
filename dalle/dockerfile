@@ -13,10 +13,6 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Kopiere den gesamten Projektinhalt ins Container-Image
 COPY . .
 
-# Setze Umgebungsvariablen für Flask
-ENV FLASK_APP=dalle3-server.py
-ENV FLASK_RUN_HOST=0.0.0.0
-
 # Exponiere den gewünschten Port
 EXPOSE 5050
 
