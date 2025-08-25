@@ -3,7 +3,7 @@
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>DALL E 3 - Prompt Generator</title>
+        <title>DALL.E 3 - Prompt Generator</title>
         <style>
         body {
             font-family: Arial, sans-serif;
@@ -14,15 +14,15 @@
         }
 
         textarea {
-            width: 100%;         /* Füllt 100% des verfügbaren Platzes aus */
-            height: 200px;      /* Höhe für den Textbereich */
-            font-size: 14px;    /* Angemessene Schriftgröße */
-            padding: 10px;      /* Innenabstand hinzufügen */
+            width: 100%;          /* Füllt 100% des verfügbaren Platzes aus */
+            height: 200px;       /* Höhe für den Textbereich */
+            font-size: 14px;     /* Angemessene Schriftgröße */
+            padding: 10px;       /* Innenabstand hinzufügen */
             border: 1px solid #ccc; /* Rahmen für bessere Sichtbarkeit */
-            border-radius: 4px; /* Abgerundete Ecken */
-            box-sizing: border-box; /* Box-Sizing für die korrekte Kalkulation der Breite/Höhe */
-            resize: vertical;    /* Ermöglicht vertikales Resizing */
-            outline: none;       /* Entfernt die standardmäßige Fokussierung */
+            border-radius: 4px;  /* Abgerundete Ecken */
+            box-sizing: border-box; /* Berücksichtigt Padding und Border in der Breite */
+            resize: vertical;     /* Ermöglicht vertikales Resizing */
+            outline: none;        /* Entfernt den Fokusraster */
         }
 
         button {
@@ -45,10 +45,10 @@
     </style>
     </head>
     <body>
-        <h1>DALL E 3 - Prompt Generator</h1>
+        <h1>DALL.E 3 - Prompt Generator</h1>
         <form id="promptForm">
             <textarea name="prompt" id="prompt"
-                placeholder="Enter your prompt here..."></textarea><br>
+                placeholder="Enter your prompt here..." required></textarea><br>
             <button type="submit">Submit</button>
         </form>
         <div id="loading" style="display:none;">Please wait, the request is
@@ -57,16 +57,20 @@
 
         <script>
         document.getElementById('promptForm').onsubmit = async function(event) {
-            event.preventDefault(); // Prevents the default form submission behavior
+            if (!document.getElementById('prompt').value) {
+                alert("Please enter a prompt."); // Zusätzliche Warnung, falls erforderlich
+                return; // Verhindert das Absenden des Formulars
+            }
+            event.preventDefault(); // Verhindert das Standardverhalten des Formulars
 
             const prompt = document.getElementById('prompt').value;
 
-            // Show loading animation
+            // Zeige die Ladeanimation
             document.getElementById('loading').style.display = 'block';
-            document.getElementById('result').innerHTML = ''; // Clear previous result
+            document.getElementById('result').innerHTML = ''; // Leere das vorherige Ergebnis
 
             try {
-                const response = await fetch('/api/generate', { // Here is the API path in use
+                const response = await fetch('/api/generate', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
@@ -76,7 +80,7 @@
 
                 if (response.ok) {
                     const result = await response.json();
-                    // Extract the link and path
+                    // Extrahiere den Link und den Pfad
                     const imageUrl = result.url;
                     const savedPath = result.saved_path;
                     document.getElementById('result').innerHTML = `
@@ -90,7 +94,7 @@
             } catch (error) {
                 document.getElementById('result').innerText = 'Network error: ' + error.message;
             } finally {
-                // Hide loading animation
+                // Verstecke die Ladeanimation
                 document.getElementById('loading').style.display = 'none';
             }
         };
