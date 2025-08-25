@@ -19,9 +19,9 @@ def ensure_images_dir() -> Path:
     images_path = Path(__file__).parent / "images"
     try:
         images_path.mkdir(parents=True, exist_ok=True)
-        print(f"✅ Ordner '{images_path}' erstellt oder existiert bereits.", file=sys.stderr)
+        print(f"✅ Folder '{images_path}' created or exist allready.", file=sys.stderr)
     except Exception as e:
-        print(f"❌ Fehler beim Erstellen des Ordners: {e}", file=sys.stderr)
+        print(f"❌ Error on create folder: {e}", file=sys.stderr)
         raise
     return images_path
 
@@ -29,7 +29,7 @@ def ensure_images_dir() -> Path:
 def generate():
     raw_json = request.get_json(silent=True)
     if not raw_json or 'prompt' not in raw_json:
-        return jsonify({"error": "Kein 'prompt' im JSON."}), 400
+        return jsonify({"error": "No 'prompt' in JSON."}), 400
 
     prompt = raw_json['prompt']
     print(f"📝 Prompt: {prompt}", file=sys.stderr)
@@ -49,7 +49,7 @@ def generate():
     try:
         resp = requests.post(os.getenv("OPENAI_URL"), headers=headers, json=payload, timeout=30)
     except Exception as e:
-        return jsonify({"error": f"Netzwerk-Fehler: {e}"}), 500
+        return jsonify({"error": f"Network-Error: {e}"}), 500
 
     if resp.status_code != 200:
         return jsonify({"error": resp.json()}), resp.status_code
@@ -62,7 +62,7 @@ def generate():
         img_resp = requests.get(image_url, stream=True, timeout=30)
         img_resp.raise_for_status()
     except Exception as e:
-        return jsonify({"error": f"Download‑Fehler: {e}"}), 500
+        return jsonify({"error": f"Download-Error: {e}"}), 500
 
     images_dir = ensure_images_dir()
     safe_prompt = "".join(c if c.isalnum() or c in "-_" else "_" for c in prompt)[:50]
@@ -74,9 +74,9 @@ def generate():
             for chunk in img_resp.iter_content(chunk_size=8192):
                 if chunk:
                     f.write(chunk)
-        print(f"📁 Bild gespeichert unter: {image_path}", file=sys.stderr)
+        print(f"📁 Image stored here: {image_path}", file=sys.stderr)
     except Exception as e:
-        return jsonify({"error": f"Fehler beim Schreiben des Bildes: {e}"}), 500
+        return jsonify({"error": f"Error on persist image: {e}"}), 500
 
     return jsonify({
         "url": image_url,
