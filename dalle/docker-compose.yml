@@ -1,0 +1,9 @@
+services:
+  flask-app:
+    build: .
+    ports:
+      - "5050:5050"  # Exposer Localport 5050 auf Containerport 5050
+    env_file: .env    # nutzt .env für Umgebungsvariablen
+    volumes:
+      - .:/app             # Bindet das Arbeitsverzeichnis ins Containerverzeichnis
+      - ./images:/app/images  # Bindet das lokale images Verzeichnis ins Containerverzeichnis

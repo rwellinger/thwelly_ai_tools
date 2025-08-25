@@ -3,3 +3,7 @@ backup
 logs
 data
 docker_images
+dalle/.env
+dalle/images
+dalle/__pycache__
+ollama/nginx/.htpasswd
