@@ -28,6 +28,7 @@ services:
       - ./certs/webui.crt:/etc/ssl/certs/webui.crt:ro
       - ./certs/webui.key:/etc/ssl/private/webui.key:ro
       - ./logs:/var/log/nginx
+      - ./html:/usr/share/nginx/html
     networks:
       - webui-net
 
