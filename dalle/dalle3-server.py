@@ -7,6 +7,7 @@ from pathlib import Path
 from flask import Flask, request, jsonify, send_from_directory
 from dotenv import load_dotenv
 import time 
+import hashlib
 
 # 1️⃣ Lade .env
 load_dotenv()
@@ -60,7 +61,7 @@ def generate():
     }
     
     try:
-        resp = requests.post(os.getenv("OPENAI_URL"), headers=headers, json=payload, timeout=30)
+        resp = requests.post(os.path.join(os.getenv("OPENAI_URL"), "generations"), headers=headers, json=payload, timeout=30)
         resp.raise_for_status()
     except Exception as e:
         return jsonify({"error": f"Network-Error: {e}"}), 500
@@ -80,8 +81,8 @@ def generate():
         return jsonify({"error": f"Download-Error: {e}"}), 500
 
     images_dir = ensure_images_dir()
-    safe_prompt = "".join(c if c.isalnum() or c in "-_" else "_" for c in prompt)[:50]
-    filename = f"{safe_prompt}_{int(time.time())}.png"
+    prompt_hash = hashlib.md5(prompt.encode()).hexdigest()[:10]
+    filename = f"{prompt_hash}_{int(time.time())}.png"    
     image_path = images_dir / filename
 
     try:
