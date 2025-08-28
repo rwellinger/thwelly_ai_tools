@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 import os
 import sys
-import json
 import requests
 from pathlib import Path
 from flask import Flask, request, jsonify, send_from_directory
