@@ -101,6 +101,10 @@ def generate():
         "saved_path": str(image_path)
     })
 
+@app.route("/health")
+def health():
+    return jsonify(status="ok"), 200
+
 # ---------------------------------------------------------------
 # Server-Start
 # ---------------------------------------------------------------

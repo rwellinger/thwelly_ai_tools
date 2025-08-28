@@ -1,6 +1,6 @@
 services:
   webui:
-    image: ghcr.io/open-webui/open-webui:0.6.25
+    image: ghcr.io/open-webui/open-webui:0.6.26
     container_name: ollama-webui
     restart: unless-stopped
     environment:
@@ -32,6 +32,12 @@ services:
       - ./nginx/.htpasswd:/etc/nginx/.htpasswd:ro
     networks:
       - webui-net
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost/nginx_status"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
 
 volumes:
   webui_data:

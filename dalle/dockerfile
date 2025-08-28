@@ -10,6 +10,11 @@ COPY ./requirements.txt ./
 # Installiere die Abhängigkeiten
 RUN pip install --no-cache-dir -r requirements.txt
 
+# CURL installieren
+RUN apt-get update && \
+    apt-get install -y curl && \
+    rm -rf /var/lib/apt/lists/*
+
 # Kopiere den gesamten Projektinhalt ins Container-Image
 COPY . .
 
