@@ -6,9 +6,9 @@ Github:
     https://github.com/ollama/ollama
 
 Ollama muss lokal auf dem MAC laufen! Via Docker läuft zwr auch, aber dann ist es extrem langsam. Wieso? Weil dann die GPUs vom M1 nicht zum Einsatz kommen.
-Das geht nur mit der Nativen Mac Version. Des weiteren nicht via "brew" installieren, wegen Update. Aufpassen, da gab es bei Version 1.11.5 und 1.11.6 ein Problem. Kein Listen mehr vorhanden.
+Mitlerweile ist die Version 0.11.8 drausen. Die funktioniert wieder. Sie hat einige OSS Performance Fixes drinnen. Wichtig ist, dass es via LaunchDeamon gestartet wird.
 
-    wget https://github.com/ollama/ollama/releases/download/v0.11.4/ollama-darwin.tgz
+    wget https://github.com/ollama/ollama/releases/download/v0.11.8/ollama-darwin.tgz
 
 Testen und abwarten ob eine nächste Version funktioniert.
 
