@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN"
+        "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
     <dict>
         <key>Label</key>
@@ -19,6 +20,7 @@
         <string>/Users/robertw/.ollama/logs/ollama-error.log</string>
         <key>EnvironmentVariables</key>
         <dict>
+            <!-- Core‑Params -->
             <key>HOME</key>
             <string>/Users/robertw</string>
             <key>OLLAMA_HOST</key>
@@ -27,6 +29,10 @@
             <string>*</string>
             <key>OLLAMA_KEEP_ALIVE</key>
             <string>86400</string>
+            <key>OLLAMA_DEVICE</key>
+            <string>metal</string>
+            <key>OLLAMA_MAX_MEMORY</key>
+            <string>13GiB</string>
             <key>PATH</key>
             <string>/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin</string>
         </dict>
