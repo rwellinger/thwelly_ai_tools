@@ -1,11 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="robots" content="noindex">
-    <title>DALL.E 3 - Prompt Generator</title>
-    <style>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="robots" content="noindex">
+        <title>DALL.E 3 - Graphics Generator</title>
+        <style>
         body {
             font-family: Arial, sans-serif;
             margin: 20px;
@@ -47,26 +47,28 @@
             margin-top: 20px;
         }
     </style>
-</head>
-<body>
-    <h1>DALL.E 3 - Prompt Generator</h1>
-    <form id="promptForm">
-        <textarea name="prompt" id="prompt" placeholder="Enter your prompt here..." required></textarea><br>
-        
-        <label for="size">Select Image Size:</label>
-        <select name="size" id="size" required>
-            <option value="1024x1024">Square (1024x1024)</option>
-            <option value="1792x1024">Landscape (1792x1024)</option>
-            <option value="1024x1792">Portrait (1024x1792)</option>
-        </select><br>
-        
-        <button type="submit">Submit</button>
-    </form>
-    
-    <div id="loading" style="display:none;">Please wait, the request is being processed...</div>
-    <div id="result"></div>
+    </head>
+    <body>
+        <h1>DALL.E 3 - Graphics Generator</h1>
+        <form id="promptForm">
+            <textarea name="prompt" id="prompt"
+                placeholder="Enter your prompt here..." required></textarea><br>
 
-    <script>
+            <label for="size">Select Image Size:</label>
+            <select name="size" id="size" required>
+                <option value="1024x1024">Square (1024x1024)</option>
+                <option value="1792x1024">Landscape (1792x1024)</option>
+                <option value="1024x1792">Portrait (1024x1792)</option>
+            </select><br>
+
+            <button type="submit">Submit</button>
+        </form>
+
+        <div id="loading" style="display:none;">Please wait, the request is
+            being processed...</div>
+        <div id="result"></div>
+
+        <script>
         document.getElementById('promptForm').onsubmit = async function(event) {
             event.preventDefault(); // Prevent the default form submission behavior
 
@@ -108,5 +110,10 @@
             }
         };
     </script>
-</body>
+
+        <footer>
+            <p>&copy; 2025 Robert Wellinger, Switzerland, <b>One Image ca. 0.05 cents</b></p>
+        </footer>
+
+    </body>
 </html>
