@@ -6,7 +6,6 @@ env/
 
 # Ignoriere temporäre Dateien und Verzeichnisse (z.B. von IDEs)
 __pycache__/
-*.pyc
 *.pyo
 *.pyd
 

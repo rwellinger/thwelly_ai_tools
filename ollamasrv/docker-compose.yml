@@ -1,7 +1,7 @@
 services:
   webui:
     image: ghcr.io/open-webui/open-webui:0.6.26
-    container_name: ollama-webui
+    container_name: ollamasrv-webui
     restart: unless-stopped
     environment:
       - OLLAMA_API_BASE_URL=http://10.0.1.120:11434

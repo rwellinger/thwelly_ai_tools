@@ -1,0 +1,53 @@
+services:
+  redis:
+    image: redis:alpine
+    container_name: redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    command: redis-server --appendonly yes
+
+  aiproxy-app:
+    container_name: airproxy-server
+    restart: unless-stopped
+    build: .
+    ports:
+      - "5050:5050"
+    env_file: .env
+    environment:
+      - REDIS_URL=redis://redis:6379
+      - CELERY_BROKER_URL=redis://redis:6379
+      - CELERY_RESULT_BACKEND=redis://redis:6379
+    volumes:
+      - .:/app
+      - ./images:/app/images
+    depends_on:
+      - redis
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5050/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
+  celery-worker:
+    container_name: celery-worker
+    restart: unless-stopped
+    build: .
+    command: celery -A taskmgr worker --loglevel=info --concurrency=1
+    user: "1000:1000"
+    depends_on:
+      - redis
+      - aiproxy-app
+    env_file: .env
+    environment:
+      - REDIS_URL=redis://redis:6379
+      - CELERY_BROKER_URL=redis://redis:6379
+      - CELERY_RESULT_BACKEND=redis://redis:6379
+    volumes:
+      - .:/app
+
+volumes:
+  redis-data:

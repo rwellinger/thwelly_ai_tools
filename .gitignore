@@ -2,13 +2,13 @@
 .vscode
 .DS_Store
 
-dalle/.env
-dalle/images
-dalle/__pycache__
+aiproxysrv/.env
+aiproxysrv/images
+aiproxysrv/__pycache__
 
-ollama/nginx/.htpasswd
-ollama/certs
-ollama/backup
-ollama/logs
-ollama/data
-ollama/docker_images
+ollamasrv/nginx/.htpasswd
+ollamasrv/certs
+ollamasrv/backup
+ollamasrv/logs
+ollamasrv/data
+ollamasrv/docker_images

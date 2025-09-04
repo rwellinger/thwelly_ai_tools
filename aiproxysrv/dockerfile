@@ -1,0 +1,34 @@
+# Verwende ein Python-Image als Basis 
+FROM python:3.13-slim
+
+# 1. Non‑root User anlegen
+RUN useradd -m -u 1000 celeryuser
+
+# 2. Arbeitsverzeichnis anlegen (root) und dann Ownership ancelen
+RUN mkdir -p /app && chown -R celeryuser:celeryuser /app
+WORKDIR /app
+
+# 3. Projekt‑Code als root kopieren (so haben die Dateien root‑Ownership)
+COPY . .
+
+# 4. Jetzt als celeryuser wechseln
+USER celeryuser
+
+# 5. requirements‑Datei kopieren und Abhängigkeiten installieren
+COPY requirements.txt .
+
+USER root
+RUN pip install --no-cache-dir -r requirements.txt
+
+# 6. CURL installieren (root nötig, daher vor USER)
+USER root
+RUN apt-get update && \
+    apt-get install -y curl && \
+    rm -rf /var/lib/apt/lists/*
+
+# 7. Zurück zu celeryuser
+USER celeryuser
+
+# 8. Port exposen & Default‑Command
+EXPOSE 5050
+CMD ["gunicorn", "-w", "4", "-b", "0.0.0.0:5050", "aiproxy-server:app"]
