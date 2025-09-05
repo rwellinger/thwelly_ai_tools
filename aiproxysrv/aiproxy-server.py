@@ -2,7 +2,7 @@ import os
 import sys
 import requests
 from pathlib import Path
-from flask import Flask, request, jsonify, send_from_directory
+from flask import Flask, request, jsonify, send_from_directory, Blueprint
 from dotenv import load_dotenv
 from taskmgr import celery_app, generate_song_task
 import time
@@ -31,26 +31,27 @@ def ensure_images_dir() -> Path:
 
 
 # ---------------------------------------------------------------
-# 👉 Route Health Check
+# Global API
 # ---------------------------------------------------------------
-@app.route("/health")
+api_v1 = Blueprint("api_v1", __name__, url_prefix="/api/v1")
+
+@api_v1.route("/health")
 def health():
     return jsonify(status="ok"), 200
 
 
 # ---------------------------------------------------------------
-# 👉 Route zum Serven gespeicherter Bilder
+# DALL.E API - Image Generator
 # ---------------------------------------------------------------
-@app.route('/images/<path:filename>')
+api_image_v1 = Blueprint("api_image_v1", __name__, url_prefix="/api/v1/images")
+
+@api_image_v1.route('/<path:filename>')
 def serve_image(filename):
     images_dir = ensure_images_dir()
     return send_from_directory(images_dir, filename)
 
 
-# ---------------------------------------------------------------
-# 👉 Route generate new image by text
-# ---------------------------------------------------------------
-@app.route('/image/generate', methods=['POST'])
+@api_image_v1.route('/generate', methods=['POST'])
 def generate():
     raw_json = request.get_json(silent=True)
 
@@ -117,7 +118,13 @@ def generate():
     })
 
 
-@app.route("/song/celery-health", methods=["GET"])
+# ---------------------------------------------------------------
+# Mureka Song Generator
+# ---------------------------------------------------------------
+api_song_v1 = Blueprint("api_song_v1", __name__, url_prefix="/api/v1/song")
+
+
+@api_song_v1.route("/celery-health", methods=["GET"])
 def celery_health():
     """Überprüft Celery Connectivity"""
     try:
@@ -131,7 +138,7 @@ def celery_health():
         return jsonify({"status": "error", "message": str(e)}), 500
 
 
-@app.route("/song/mureka-account", methods=["GET"])
+@api_song_v1.route("/mureka-account", methods=["GET"])
 def mureka_account():
     """Abfrage der MUREKA Account-Informationen"""
     if not MUREKA_API_KEY:
@@ -167,10 +174,7 @@ def mureka_account():
         }), 500
 
 
-# ---------------------------------------------------------------
-# 👉 Route Song Generate
-# ---------------------------------------------------------------
-@app.route("/song/generate", methods=["POST"])
+@api_song_v1.route("/generate", methods=["POST"])
 def song_generate():
     """
     Erwartet JSON:
@@ -216,10 +220,7 @@ def song_generate():
     }), 202
 
 
-# ---------------------------------------------------------------
-# 👉 Route Song Status
-# ---------------------------------------------------------------
-@app.route("/song/status/<task_id>", methods=["GET"])
+@api_song_v1.route("/status/<task_id>", methods=["GET"])
 def song_status(task_id):
     result = celery_app.AsyncResult(task_id)
 
@@ -261,7 +262,7 @@ def song_status(task_id):
         }), 200
 
 
-@app.route("/song/force-complete/<job_id>", methods=["POST"])
+@api_song_v1.route("/force-complete/<job_id>", methods=["POST"])
 def force_complete_task(job_id):
     """Erzwingt den Abschluss eines Tasks mit direktem MUREKA Check"""
     try:
@@ -298,10 +299,7 @@ def force_complete_task(job_id):
         return jsonify({"error": str(e)}), 500
 
 
-# ---------------------------------------------------------------
-# 👉 Route zum Abbrechen eines Tasks
-# ---------------------------------------------------------------
-@app.route("/song/cancel/<task_id>", methods=["POST"])
+@api_song_v1.route("/cancel/<task_id>", methods=["POST"])
 def cancel_task(task_id):
     """Bricht einen laufenden Task ab"""
     try:
@@ -327,10 +325,7 @@ def cancel_task(task_id):
         }), 500
 
 
-# ---------------------------------------------------------------
-# 👉 Route zum Löschen eines Task-Results
-# ---------------------------------------------------------------
-@app.route("/song/delete/<task_id>", methods=["DELETE"])
+@api_song_v1.route("/delete/<task_id>", methods=["DELETE"])
 def delete_task_result(task_id):
     """Löscht das Ergebnis eines abgeschlossenen Tasks"""
     try:
@@ -345,10 +340,7 @@ def delete_task_result(task_id):
         }), 500
 
 
-# ---------------------------------------------------------------
-# 👉 Route für MUREKA Queue Status
-# ---------------------------------------------------------------
-@app.route("/song/queue-status", methods=["GET"])
+@api_song_v1.route("/queue-status", methods=["GET"])
 def queue_status():
     """Zeigt den aktuellen Warteschlangen-Status"""
     try:
@@ -376,19 +368,26 @@ def queue_status():
 def not_found(error):
     return jsonify({"error": "Resource not found"}), 404
 
-
 @app.errorhandler(500)
 def internal_error(error):
     return jsonify({"error": "Internal server error"}), 500
 
 
 # ---------------------------------------------------------------
+# Register Blueprints
+# ---------------------------------------------------------------
+app.register_blueprint(api_v1)
+app.register_blueprint(api_image_v1)
+app.register_blueprint(api_song_v1)
+
+# ---------------------------------------------------------------
 # Server-Start
 # ---------------------------------------------------------------
 if __name__ == '__main__':
-    port = int(os.getenv("OPENAI_PORT", 5000))
+    port = int(os.getenv("OPENAI_PORT", 5050))
+    host = os.getenv("OPENAI_HOST", "0.0.0.0")
     print(f"🚀 Flask-Server läuft auf http://0.0.0.0:{port}", file=sys.stderr)
     print(f"🎵 MUREKA Endpoint: {os.getenv('MUREKA_ENDPOINT', 'Not configured')}", file=sys.stderr)
     print(f"💰 MUREKA Billing: {MUREKA_BILLING_URL}", file=sys.stderr)
 
-    app.run(host="0.0.0.0", port=port, debug=os.getenv("DEBUG", "false").lower() == "true")
+    app.run(host=host, port=port, debug=os.getenv("DEBUG", "false").lower() == "true")

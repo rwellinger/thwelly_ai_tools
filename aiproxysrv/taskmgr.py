@@ -16,8 +16,8 @@ load_dotenv()
 # --------------------------------------------------
 celery_app = Celery(
     "taskmgr",
-    broker=os.getenv("CELERY_BROKER_URL", "redis://localhost:6379"),
-    backend=os.getenv("CELERY_RESULT_BACKEND", "redis://localhost:6379"),
+    broker=os.getenv("CELERY_BROKER_URL"),
+    backend=os.getenv("CELERY_RESULT_BACKEND"),
 )
 
 celery_app.conf.broker_connection_retry_on_startup = True
