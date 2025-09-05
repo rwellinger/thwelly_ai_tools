@@ -7,6 +7,8 @@ services:
       - "6379:6379"
     volumes:
       - redis-data:/data
+    networks:
+      - webui-net
     command: redis-server --appendonly yes
 
   aiproxy-app:
@@ -23,6 +25,8 @@ services:
     volumes:
       - .:/app
       - ./images:/app/images
+    networks:
+      - webui-net
     depends_on:
       - redis
     healthcheck:
@@ -48,6 +52,13 @@ services:
       - CELERY_RESULT_BACKEND=redis://redis:6379
     volumes:
       - .:/app
+    networks:
+      - webui-net
 
 volumes:
   redis-data:
+
+networks:
+  webui-net:
+    external: true
+    name: webui-network
