@@ -6,9 +6,10 @@ aiproxysrv/.env
 aiproxysrv/images
 aiproxysrv/__pycache__
 
-ollamasrv/nginx/.htpasswd
-ollamasrv/certs
 ollamasrv/backup
-ollamasrv/logs
 ollamasrv/data
 ollamasrv/docker_images
+
+revproxy/nginx/.htpasswd
+revproxy/certs
+revproxy/logs

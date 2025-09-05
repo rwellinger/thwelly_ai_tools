@@ -36,19 +36,6 @@ Sofort Stop:
 
 
 ## Install Open WebUI
+Sicherstellen das Docker und Docker-Compose installiert wurden. Dann kann der Service gestartet werden.
 
-### Install Docker
-
-    colima start --arch aarch64 --cpu 4 --memory 4 --disk 80 --vm-type=vz
-
-
-### Generate Self Certificate
-
-mkcert macstudio macstudionas <Server-IP> localhost
-
-mv macstudio+4-key.pem webui.key
-mv macstudio+4.pem webui.crt
-
-### Protected Aeria für Prompt
-
-    htpasswd -c ./nginx/.htpasswd username
+    docker-compose up -d
