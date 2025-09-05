@@ -1,5 +1,4 @@
 import os
-import json
 import requests
 import time
 from celery import Celery
@@ -8,7 +7,6 @@ from typing import Dict, Any
 from celery.exceptions import SoftTimeLimitExceeded
 from dotenv import load_dotenv
 
-# Lade Umgebungsvariablen
 load_dotenv()
 
 # --------------------------------------------------
@@ -28,7 +26,7 @@ celery_app.conf.worker_prefetch_multiplier = 1
 celery_app.conf.task_acks_late = True
 
 # --------------------------------------------------
-# MUREKA Konfiguration
+# MUREKA Config
 # --------------------------------------------------
 MUREKA_GENERATE_ENDPOINT = os.getenv("MUREKA_GENERATE_ENDPOINT")
 MUREKA_STATUS_ENDPOINT = os.getenv("MUREKA_STATUS_ENDPOINT")
@@ -37,7 +35,6 @@ MUREKA_TIMEOUT = int(os.getenv("MUREKA_TIMEOUT", "30"))
 MUREKA_POLL_INTERVAL = int(os.getenv("MUREKA_POLL_INTERVAL", "15"))
 MUREKA_MAX_POLL_ATTEMPTS = int(os.getenv("MUREKA_MAX_POLL_ATTEMPTS", "240"))  # 60 Minuten
 
-# Einfaches In-Memory Slot Management
 current_requests = 0
 active_tasks = {}
 
@@ -46,7 +43,6 @@ active_tasks = {}
 # Helper: Simple Slot Management
 # --------------------------------------------------
 def acquire_mureka_slot(task_id: str) -> bool:
-    """Versuch einen Slot für MUREKA zu bekommen"""
     global current_requests
     try:
         if current_requests >= 1:
@@ -60,7 +56,6 @@ def acquire_mureka_slot(task_id: str) -> bool:
 
 
 def release_mureka_slot(task_id: str):
-    """Gibt den MUREKA Slot wieder frei"""
     global current_requests
     try:
         if current_requests > 0:
@@ -72,7 +67,6 @@ def release_mureka_slot(task_id: str):
 
 
 def wait_for_mureka_slot(task_id: str, max_wait: int = 3600) -> bool:
-    """Wartet auf einen freien MUREKA Slot"""
     start_time = time.time()
 
     while time.time() - start_time < max_wait:
@@ -86,13 +80,12 @@ def wait_for_mureka_slot(task_id: str, max_wait: int = 3600) -> bool:
 # Helper: MUREKA‑Requests
 # --------------------------------------------------
 def start_mureka_generation(payload: dict) -> Dict[str, Any]:
-    """Startet die Song-Generierung bei MUREKA"""
     headers = {
         "Authorization": f"Bearer {MUREKA_API_KEY}",
         "Content-Type": "application/json",
     }
 
-    print(f"🚀 Starting MUREKA generation")
+    print(f"Starting MUREKA generation")
 
     resp = requests.post(
         MUREKA_GENERATE_ENDPOINT,
@@ -104,21 +97,17 @@ def start_mureka_generation(payload: dict) -> Dict[str, Any]:
 
     response_data = resp.json()
     job_id = response_data.get("id")
-    print(f"✅ MUREKA generation started. Job ID: {job_id}")
+    print(f"MUREKA generation started. Job ID: {job_id}")
     return response_data
 
 
 def check_mureka_status(job_id: str) -> Dict[str, Any]:
-    """
-    Prüft Status eines MUREKA Jobs
-    Endpoint: https://api.mureka.ai/v1/finetuning/query/{task_id}
-    """
     headers = {
         "Authorization": f"Bearer {MUREKA_API_KEY}",
     }
 
     status_url = f"{MUREKA_STATUS_ENDPOINT}/{job_id}"
-    print(f"🔍 Checking MUREKA status: {status_url}")
+    print(f"Checking MUREKA status: {status_url}")
 
     resp = requests.get(
         status_url,
@@ -128,14 +117,11 @@ def check_mureka_status(job_id: str) -> Dict[str, Any]:
     resp.raise_for_status()
 
     status_data = resp.json()
-    print(f"📊 MUREKA status for job {job_id}: {status_data.get('status')}")
+    print(f"MUREKA status for job {job_id}: {status_data.get('status')}")
     return status_data
 
 
 def wait_for_mureka_completion(task, job_id: str) -> Dict[str, Any]:
-    """
-    Wartet auf den Abschluss eines MUREKA Jobs
-    """
     max_attempts = MUREKA_MAX_POLL_ATTEMPTS
     poll_interval = MUREKA_POLL_INTERVAL
 
@@ -144,7 +130,6 @@ def wait_for_mureka_completion(task, job_id: str) -> Dict[str, Any]:
             status_response = check_mureka_status(job_id)
             current_status = status_response.get("status", "unknown")
 
-            # Update Celery task status
             task.update_state(
                 state='PROGRESS',
                 meta={
@@ -157,32 +142,32 @@ def wait_for_mureka_completion(task, job_id: str) -> Dict[str, Any]:
             )
 
             if current_status == "succeeded":
-                print(f"🎉 MUREKA job completed: {job_id}")
+                print(f"MUREKA job completed: {job_id}")
                 return status_response
 
             elif current_status == "failed":
                 error_reason = status_response.get("failed_reason", "Unknown error")
-                print(f"❌ MUREKA job failed: {job_id} - {error_reason}")
+                print(f"MUREKA job failed: {job_id} - {error_reason}")
                 raise Exception(f"Job failed: {error_reason}")
 
             elif current_status in ["processing", "started", "queued", "running"]:
                 # Gib Fortschrittsinformationen aus
-                print(f"⏳ MUREKA job {job_id}: {current_status}")
+                print(f"MUREKA job {job_id}: {current_status}")
                 time.sleep(poll_interval)
 
             else:
-                print(f"❓ Unknown MUREKA status: {current_status} for job {job_id}")
+                print(f"Unknown MUREKA status: {current_status} for job {job_id}")
                 time.sleep(poll_interval)
 
         except HTTPError as e:
             if e.response.status_code in [429, 502, 503, 504]:
                 # Temporäre Fehler - weiter versuchen
                 wait_time = poll_interval * 2
-                print(f"⚠️ Temporary error ({e.response.status_code}), retrying in {wait_time}s")
+                print(f"Temporary error ({e.response.status_code}), retrying in {wait_time}s")
                 time.sleep(wait_time)
                 continue
             else:
-                print(f"❌ HTTP error checking status: {e}")
+                print(f"HTTP error checking status: {e}")
                 raise
 
     raise Exception(f"Timeout after {max_attempts} polling attempts ({(max_attempts * poll_interval) // 60} minutes)")
@@ -193,16 +178,12 @@ def wait_for_mureka_completion(task, job_id: str) -> Dict[str, Any]:
 # --------------------------------------------------
 @celery_app.task(bind=True, max_retries=3, default_retry_delay=60)
 def generate_song_task(self, payload: dict) -> dict:
-    """
-    Haupt-Task für Song-Generierung mit MUREKA
-    """
     task_id = self.request.id
-    print(f"🎵 Starting song generation task: {task_id}")
+    print(f"Starting song generation task: {task_id}")
 
     try:
-        # Warte auf freien MUREKA Slot
         if not wait_for_mureka_slot(task_id):
-            print(f"⏳ Task {task_id} waiting for MUREKA slot")
+            print(f"Task {task_id} waiting for MUREKA slot")
             raise self.retry(exc=Exception("No available MUREKA slot"), countdown=60)
 
         # Slot acquired - update status
@@ -211,7 +192,7 @@ def generate_song_task(self, payload: dict) -> dict:
             meta={'status': 'SLOT_ACQUIRED', 'message': 'Acquired MUREKA slot'}
         )
 
-        print(f"✅ Slot acquired for task {task_id}, starting MUREKA generation")
+        print(f"Slot acquired for task {task_id}, starting MUREKA generation")
 
         # Starte die Generierung bei MUREKA
         initial_response = start_mureka_generation(payload)
@@ -229,7 +210,7 @@ def generate_song_task(self, payload: dict) -> dict:
             }
         )
 
-        print(f"🔍 Waiting for completion of job: {job_id}")
+        print(f"Waiting for completion of job: {job_id}")
         final_result = wait_for_mureka_completion(self, job_id)
 
         # Erfolgreich abgeschlossen
@@ -242,7 +223,7 @@ def generate_song_task(self, payload: dict) -> dict:
         }
 
     except SoftTimeLimitExceeded:
-        print(f"⏰ Task {task_id} timeout exceeded")
+        print(f"Task {task_id} timeout exceeded")
         release_mureka_slot(task_id)
         return {
             "status": "ERROR",
@@ -251,18 +232,18 @@ def generate_song_task(self, payload: dict) -> dict:
         }
 
     except HTTPError as e:
-        print(f"❌ HTTP error in task {task_id}: {e}")
+        print(f"HTTP error in task {task_id}: {e}")
         release_mureka_slot(task_id)
 
         if e.response.status_code == 429:
             retry_after = int(e.response.headers.get('Retry-After', 60))
-            print(f"⚠️ Rate limited, retrying in {retry_after}s")
+            print(f"Rate limited, retrying in {retry_after}s")
             raise self.retry(exc=e, countdown=retry_after)
         else:
             return handle_http_error(self, e)
 
     except Exception as exc:
-        print(f"❌ Error in task {task_id}: {exc}")
+        print(f"Error in task {task_id}: {exc}")
         release_mureka_slot(task_id)
         raise self.retry(exc=exc, countdown=60)
 
@@ -277,7 +258,6 @@ def generate_song_task(self, payload: dict) -> dict:
 # Error Handling
 # --------------------------------------------------
 def handle_http_error(task, error: HTTPError) -> dict:
-    """Behandelt HTTP-Fehler"""
     resp = error.response
     status_code = resp.status_code
 
@@ -307,7 +287,6 @@ def handle_http_error(task, error: HTTPError) -> dict:
 
 
 def handle_general_error(task, error: Exception) -> dict:
-    """Behandelt allgemeine Fehler"""
     return {
         "status": "ERROR",
         "http_code": None,

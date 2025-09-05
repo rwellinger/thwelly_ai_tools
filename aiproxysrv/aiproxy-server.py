@@ -4,7 +4,7 @@ import requests
 from pathlib import Path
 from flask import Flask, request, jsonify, send_from_directory, Blueprint
 from dotenv import load_dotenv
-from taskmgr import celery_app, generate_song_task
+from taskmgr import celery_app, generate_song_task, MUREKA_STATUS_ENDPOINT
 import time
 import hashlib
 
@@ -12,26 +12,18 @@ load_dotenv()
 
 app = Flask(__name__)
 
-# MUREKA Konfiguration
+# ---------------------------------------------------------------
+# MUREKA Config
+# ---------------------------------------------------------------
 MUREKA_API_KEY = os.getenv("MUREKA_API_KEY")
 MUREKA_BILLING_URL = os.getenv("MUREKA_BILLING_URL")
-
-def ensure_images_dir() -> Path:
-    """Erstellt den images-Ordner, wenn er nicht existiert."""
-    images_path = Path(__file__).parent / "images"
-    try:
-        images_path.mkdir(parents=True, exist_ok=True)
-        print(f"✅ Folder '{images_path}' created or exists already.", file=sys.stderr)
-    except Exception as e:
-        print(f"❌ Error on create folder: {e}", file=sys.stderr)
-        raise
-    return images_path
 
 
 # ---------------------------------------------------------------
 # Global API
 # ---------------------------------------------------------------
 api_v1 = Blueprint("api_v1", __name__, url_prefix="/api/v1")
+
 
 @api_v1.route("/health")
 def health():
@@ -42,6 +34,16 @@ def health():
 # DALL.E API - Image Generator
 # ---------------------------------------------------------------
 api_image_v1 = Blueprint("api_image_v1", __name__, url_prefix="/api/v1/image")
+
+def ensure_images_dir() -> Path:
+    images_path = Path(__file__).parent / "images"
+    try:
+        images_path.mkdir(parents=True, exist_ok=True)
+        print(f"Folder '{images_path}' created or exists already.", file=sys.stderr)
+    except Exception as e:
+        print(f"Error on create folder: {e}", file=sys.stderr)
+        raise
+    return images_path
 
 @api_image_v1.route('/<path:filename>')
 def serve_image(filename):
@@ -59,8 +61,8 @@ def generate():
     prompt = raw_json['prompt']
     size = raw_json['size']
 
-    print(f"📝 Prompt: {prompt}", file=sys.stderr)
-    print(f"📝 Size:   {size}", file=sys.stderr)
+    print(f"Prompt: {prompt}", file=sys.stderr)
+    print(f"Size:   {size}", file=sys.stderr)
 
     headers = {
         'Authorization': f'Bearer {os.getenv("OPENAI_API_KEY")}',
@@ -75,8 +77,8 @@ def generate():
     }
 
     try:
-        resp = requests.post(os.path.join(os.getenv("OPENAI_URL"), "generations"), headers=headers, json=payload,
-                             timeout=30)
+        resp = requests.post(os.path.join(os.getenv("OPENAI_URL"), "generations"),
+                             headers=headers, json=payload, timeout=30)
         resp.raise_for_status()
     except Exception as e:
         return jsonify({"error": f"Network-Error: {e}"}), 500
@@ -104,16 +106,16 @@ def generate():
             for chunk in img_resp.iter_content(chunk_size=8192):
                 if chunk:
                     f.write(chunk)
-        print(f"📁 Image stored here: {image_path}", file=sys.stderr)
+        print(f"Image stored here: {image_path}", file=sys.stderr)
     except Exception as e:
         return jsonify({"error": f"Error on persist image: {e}"}), 500
 
-    local_url = f"{request.host_url}images/{filename}"
-
+    local_url = f"{request.host_url}/image/{filename}"
     return jsonify({
         "url": local_url,
         "saved_path": str(image_path)
     })
+
 
 
 # ---------------------------------------------------------------
@@ -121,10 +123,8 @@ def generate():
 # ---------------------------------------------------------------
 api_song_v1 = Blueprint("api_song_v1", __name__, url_prefix="/api/v1/song")
 
-
 @api_song_v1.route("/celery-health", methods=["GET"])
 def celery_health():
-    """Überprüft Celery Connectivity"""
     try:
         inspector = celery_app.control.inspect()
         stats = inspector.stats()
@@ -174,14 +174,6 @@ def mureka_account():
 
 @api_song_v1.route("/generate", methods=["POST"])
 def song_generate():
-    """
-    Erwartet JSON:
-    {
-        "lyrics": "...",
-        "model": "...",
-        "prompt": "..."
-    }
-    """
     payload = request.get_json(force=True)
 
     if not payload.get("lyrics") or not payload.get("prompt"):
@@ -204,11 +196,11 @@ def song_generate():
                     "account_info": account_data
                 }), 402  # Payment Required
     except Exception as e:
-        print(f"⚠️ Could not check MUREKA account balance: {e}", file=sys.stderr)
+        print(f"Could not check MUREKA account balance: {e}", file=sys.stderr)
 
-    print(f"🎵 Starting song generation", file=sys.stderr)
-    print(f"📋 Lyrics length: {len(payload.get('lyrics', ''))} characters", file=sys.stderr)
-    print(f"🎹 Prompt: {payload.get('prompt', '')}", file=sys.stderr)
+    print(f"Starting song generation", file=sys.stderr)
+    print(f"Lyrics length: {len(payload.get('lyrics', ''))} characters", file=sys.stderr)
+    print(f"Prompt: {payload.get('prompt', '')}", file=sys.stderr)
 
     task = generate_song_task.delay(payload)
 
@@ -262,11 +254,9 @@ def song_status(task_id):
 
 @api_song_v1.route("/force-complete/<job_id>", methods=["POST"])
 def force_complete_task(job_id):
-    """Erzwingt den Abschluss eines Tasks mit direktem MUREKA Check"""
     try:
-        # Hole Ergebnis direkt von MUREKA
         headers = {"Authorization": f"Bearer {MUREKA_API_KEY}"}
-        status_url = f"https://api.mureka.ai/v1/song/query/{job_id}"
+        status_url = f"{MUREKA_STATUS_ENDPOINT}/{job_id}"
 
         response = requests.get(status_url, headers=headers, timeout=10)
         response.raise_for_status()
@@ -299,7 +289,6 @@ def force_complete_task(job_id):
 
 @api_song_v1.route("/cancel/<task_id>", methods=["POST"])
 def cancel_task(task_id):
-    """Bricht einen laufenden Task ab"""
     try:
         result = celery_app.AsyncResult(task_id)
 
@@ -325,7 +314,6 @@ def cancel_task(task_id):
 
 @api_song_v1.route("/delete/<task_id>", methods=["DELETE"])
 def delete_task_result(task_id):
-    """Löscht das Ergebnis eines abgeschlossenen Tasks"""
     try:
         celery_app.AsyncResult(task_id).forget()
         return jsonify({
@@ -340,7 +328,6 @@ def delete_task_result(task_id):
 
 @api_song_v1.route("/queue-status", methods=["GET"])
 def queue_status():
-    """Zeigt den aktuellen Warteschlangen-Status"""
     try:
         import redis
         redis_client = redis.from_url(os.getenv("REDIS_URL", "redis://localhost:6379/0"))
@@ -384,8 +371,8 @@ app.register_blueprint(api_song_v1)
 if __name__ == '__main__':
     port = int(os.getenv("OPENAI_PORT", 5050))
     host = os.getenv("OPENAI_HOST", "0.0.0.0")
-    print(f"🚀 Flask-Server läuft auf http://0.0.0.0:{port}", file=sys.stderr)
-    print(f"🎵 MUREKA Endpoint: {os.getenv('MUREKA_ENDPOINT', 'Not configured')}", file=sys.stderr)
-    print(f"💰 MUREKA Billing: {MUREKA_BILLING_URL}", file=sys.stderr)
+    print(f"Flask-Server läuft auf http://0.0.0.0:{port}", file=sys.stderr)
+    print(f"MUREKA Endpoint: {os.getenv('MUREKA_ENDPOINT', 'Not configured')}", file=sys.stderr)
+    print(f"MUREKA Billing: {MUREKA_BILLING_URL}", file=sys.stderr)
 
     app.run(host=host, port=port, debug=os.getenv("DEBUG", "false").lower() == "true")
