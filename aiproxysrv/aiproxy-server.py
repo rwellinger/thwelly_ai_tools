@@ -353,10 +353,13 @@ def queue_status():
 def not_found(error):
     return jsonify({"error": "Resource not found"}), 404
 
+@app.errorhandler(429)
+def subscription_error(error):
+    return jsonify({"error": str(error)}), 429
+
 @app.errorhandler(500)
 def internal_error(error):
     return jsonify({"error": "Internal server error"}), 500
-
 
 # ---------------------------------------------------------------
 # Register Blueprints

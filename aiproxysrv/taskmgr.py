@@ -145,13 +145,12 @@ def wait_for_mureka_completion(task, job_id: str) -> Dict[str, Any]:
                 print(f"MUREKA job completed: {job_id}")
                 return status_response
 
-            elif current_status == "failed":
-                error_reason = status_response.get("failed_reason", "Unknown error")
+            elif current_status in ["failed", "cancelled"]:
+                error_reason = status_response.get("failed_reason", "Song processing failed")
                 print(f"MUREKA job failed: {job_id} - {error_reason}")
                 raise Exception(f"Job failed: {error_reason}")
 
-            elif current_status in ["processing", "started", "queued", "running"]:
-                # Gib Fortschrittsinformationen aus
+            elif current_status in ["preparing", "queued", "running", "timeouted"]:
                 print(f"MUREKA job {job_id}: {current_status}")
                 time.sleep(poll_interval)
 

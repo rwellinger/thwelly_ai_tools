@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MUREKA</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        textarea {
+            width: 100%;
+            height: 200px;
+            font-size: 14px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+            resize: vertical;
+            outline: none;
+            margin-top: 10px; /* Abstand nach oben */
+            margin-bottom: 20px; /* Abstand nach unten */
+        }
+
+        select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            margin-top: 10px; /* Abstand nach oben */
+            margin-bottom: 20px; /* Abstand nach unten */
+        }
+
+        button {
+            margin-top: 20px;
+            padding: 10px 15px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        #loading {
+            margin-top: 10px;
+            font-size: 1.2em;
+            color: blue;
+        }
+
+        #result {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+<h1>MUREKA - Song Generator</h1>
+<form id="songForm">
+    <label for="lyrics">Lyrics:</label>
+    <textarea id="lyrics" name="lyrics" required></textarea><br>
+    <label for="prompt">Style Prompt:</label>
+    <textarea id="prompt" name="prompt" required></textarea><br>
+    <label for="model">Model:</label>
+    <select id="model" name="model">
+        <option value="auto" selected>Auto</option>
+        <option value="mureka-7">Mureka 7</option>
+        <option value="mureka-6">Mureka 6</option>
+        <option value="mureka-o1">Mureka o1</option>
+    </select><br>
+    <button type="button" onclick="generateSong()">Generate Song</button>
+</form>
+<div id="loading"></div>
+<div id="result"></div>
+<script>
+    async function fetchWithTimeout(resource, options = {}) {
+        const {timeout = 30000} = options;
+        const controller = new AbortController();
+        const id = setTimeout(() => controller.abort(), timeout);
+        try {
+            const response = await fetch(resource, {
+                ...options,
+                signal: controller.signal
+            });
+            clearTimeout(id);
+            return response;
+        } catch (error) {
+            clearTimeout(id);
+            if (error.name === 'AbortError') {
+                throw new Error('Request timed out');
+            }
+            throw error;
+        }
+    }
+
+    async function generateSong() {
+        const lyrics = document.getElementById('lyrics').value;
+        const prompt = document.getElementById('prompt').value;
+        const model = document.getElementById('model').value;
+        document.getElementById('loading').style.display = 'block';
+        document.getElementById('loading').innerText = 'Starting song generation...';
+        document.getElementById('result').innerHTML = ''; // Clear previous results
+        try {
+            const response = await fetchWithTimeout('/api/song/generate', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    lyrics: lyrics,
+                    model: model,
+                    prompt: prompt
+                }),
+                timeout: 60000 // 1-minute timeout for initial request
+            });
+            const data = await response.json();
+            if (data.task_id) {
+                checkSongStatus(data.task_id);
+            } else {
+                document.getElementById('result').innerText = 'Error initiating song generation.';
+            }
+        } catch (error) {
+            document.getElementById('result').innerText = `Error: ${error.message}`;
+        }
+    }
+
+    async function checkSongStatus(taskId) {
+        const statusUrl = `/api/song/status/${taskId}`;
+        let completed = false;
+        let interval = 5000; // Start mit 5 Sekunden
+        document.getElementById('loading').style.display = 'block';
+        while (!completed) {
+            try {
+                const response = await fetchWithTimeout(statusUrl, {timeout: 60000}); // 1-minute timeout
+                const data = await response.json();
+                if (data.status === 'SUCCESS') {
+                    const resultData = data.result.result;
+                    const durationMilliseconds = resultData.choices[0].duration;
+                    const totalSeconds = Math.floor(durationMilliseconds / 1000);
+                    const minutes = Math.floor(totalSeconds / 60);
+                    const seconds = totalSeconds % 60;
+
+                    const formattedMinutes = String(minutes).padStart(2, '0');
+                    const formattedSeconds = String(seconds).padStart(2, '0');
+
+                    document.getElementById('result').innerHTML = `
+                        <p>Status: ${data.status}</p>
+                        <p>Task ID: ${data.task_id}</p>
+                        <p>Duration: ${formattedMinutes}:${formattedSeconds}</p>
+                        <a href="${resultData.choices[0].flac_url}">Download FLAC</a>
+                    `;
+                    completed = true;
+                } else {
+                    document.getElementById('result').innerText = `Processing... Status: ${data.progress.mureka_status}`;
+                    interval = Math.min(interval * 1.5, 60000); // Exponentielles Backoff
+                    await new Promise(resolve => setTimeout(resolve, interval));
+                }
+            } catch (error) {
+                document.getElementById('result').innerText = `Error fetching status: ${error.message}`;
+                completed = true; // Schleife bei Fehler beenden
+            }
+        }
+        document.getElementById('loading').style.display = 'none';
+    }
+</script>
+</body>
+</html>
