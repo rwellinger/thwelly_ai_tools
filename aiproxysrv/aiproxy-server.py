@@ -8,10 +8,8 @@ from taskmgr import celery_app, generate_song_task
 import time
 import hashlib
 
-# 1️⃣ Lade .env
 load_dotenv()
 
-# 2️⃣ Konfiguriere Flask-App
 app = Flask(__name__)
 
 # MUREKA Konfiguration
