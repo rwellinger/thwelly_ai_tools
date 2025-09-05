@@ -12,7 +12,6 @@ services:
       - ./certs/webui.key:/etc/ssl/private/webui.key:ro
       - ./logs:/var/log/nginx
       - ./html:/usr/share/nginx/html
-      - ./nginx/.htpasswd:/etc/nginx/.htpasswd:ro
     networks:
       - webui-net
     healthcheck:
