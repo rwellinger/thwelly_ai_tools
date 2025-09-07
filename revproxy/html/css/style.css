@@ -33,9 +33,9 @@ nav a:hover {
 }
 
 textarea {
-    width: 100%;
-    height: 200px;
-    font-size: 14px;
+    width: 95%;
+    height: 150px;
+    font-size: 12px;
     padding: 10px;
     border: 1px solid #ccc;
     border-radius: 4px;
@@ -44,7 +44,8 @@ textarea {
 }
 
 select {
-    width: 100%;
+    width: 95%;
+    font-size: 12px;
     padding: 10px;
     border: 1px solid #ccc;
     border-radius: 4px;
@@ -134,4 +135,31 @@ footer {
 
 .footer-links i {
     margin-right: 0.3rem;
+}
+
+.info-box {
+    padding: 10px;
+    margin-bottom: 20px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    background-color: #f9f9f9;
+}
+
+.result-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.result-table th, .result-table td {
+    border: 1px solid #ccc;
+    padding: 8px;
+    text-align: left;
+}
+
+.result-table th {
+    background-color: #f2f2f2;
+}
+
+.result-table tr:nth-child(even) {
+    background-color: #f9f9f9;
 }
