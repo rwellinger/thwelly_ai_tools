@@ -3,235 +3,38 @@
 <head>
     <meta charset="UTF-8">
     <title>MUREKA - Song Generator</title>
-    <style>
-        body {
-            font-family: system-ui, Arial, sans-serif;
-            margin: 20px;
-            max-width: 800px;
-            margin: auto;
-            background: #fafafa;
-            color: #222;
-        }
-
-        header {
-            background: #333;
-            color: #fff;
-            padding: 1rem;
-            text-align: center;
-        }
-
-        nav {
-            display: flex;
-            justify-content: center;
-            gap: 1.5rem;
-        }
-
-        nav a {
-            color: #fff;
-            text-decoration: none;
-            padding: .5rem 1rem;
-            border-radius: 4px;
-        }
-
-        nav a:hover {
-            background: rgba(255, 255, 255, .1);
-            text-decoration: underline;
-        }
-
-        textarea {
-            width: 100%;
-            height: 200px;
-            font-size: 14px;
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            margin: 10px 0;
-            resize: vertical;
-        }
-
-        select {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            margin: 10px 0;
-        }
-
-        button {
-            margin-top: 20px;
-            padding: 10px 15px;
-            font-size: 16px;
-            cursor: pointer;
-        }
-
-        button:hover {
-            background: #555;
-        }
-
-        #loading {
-            margin-top: 10px;
-            font-size: 1.2em;
-            color: #007bff;
-        }
-
-        /* ===== Result Box ===== */
-        #result {
-            margin-top: 20px;
-        }
-
-        .result-box {
-            background: #fff;
-            border: 1px solid #ddd;
-            border-radius: 6px;
-            padding: 1rem;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, .05);
-            font-size: 14px;
-            line-height: 1.5;
-        }
-
-        .result-box h3 {
-            margin-top: 0;
-            font-size: 1.2rem;
-            color: #333;
-        }
-
-        .result-box p {
-            margin: 0.4rem 0;
-        }
-
-        .result-box a {
-            color: #007bff;
-            text-decoration: none;
-        }
-
-        .result-box a:hover {
-            text-decoration: underline;
-        }
-
-        .result-box pre {
-            background: #f8f8f8;
-            border: 1px solid #e1e1e1;
-            border-radius: 4px;
-            padding: 0.5rem;
-            font-size: 0.9rem;
-            margin: 0.5rem 0;
-        }
-    </style>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <script src="/js/songgen.js" defer></script>
 </head>
 <body>
-<h1>MUREKA - Song Generator</h1>
-<header>
-    <nav>
-        <a href="/"><i class="fas fa-home"></i> AI WebUI</a>
-        <a href="/imagegen"><i class="fas fa-image"></i> DALL.E</a>
-        <a href="/songgen"><i class="fas fa-music"></i> MUREKA</a>
-    </nav>
-</header>
-<form id="songForm">
-    <textarea id="lyrics" name="lyrics" placeholder="Enter lyrics here..." required></textarea>
-    <textarea id="prompt" name="prompt" placeholder="Enter Music Style Prompt here..." required></textarea>
-    <label for="model">Model:</label>
-    <select id="model" name="model" required>
-        <option value="auto" selected>Auto</option>
-        <option value="mureka-7">Mureka 7</option>
-        <option value="mureka-6">Mureka 6</option>
-        <option value="mureka-o1">Mureka o1</option>
-    </select>
-    <button type="submit">Generate Song</button>
-</form>
-<br>
-<div id="loading"></div>
-<div id="result"></div>
-<script>
-    async function fetchWithTimeout(resource, options = {}) {
-        const {timeout = 30000} = options;
-        const controller = new AbortController();
-        const id = setTimeout(() => controller.abort(), timeout);
-        try {
-            const response = await fetch(resource, {...options, signal: controller.signal});
-            clearTimeout(id);
-            return response;
-        } catch (e) {
-            clearTimeout(id);
-            if (e.name === 'AbortError') throw new Error('Request timed out');
-            throw e;
-        }
-    }
-
-    document.getElementById('songForm').addEventListener('submit', async e => {
-        e.preventDefault();
-        if (!e.target.checkValidity()) {
-            e.target.reportValidity();
-            return;
-        }
-        await generateSong();
-    });
-
-    async function generateSong() {
-        const lyrics = document.getElementById('lyrics').value.trim();
-        const prompt = document.getElementById('prompt').value.trim();
-        const model = document.getElementById('model').value;
-        document.getElementById('loading').style.display = 'block';
-        document.getElementById('loading').innerText = 'Starting song generation...';
-        document.getElementById('result').innerHTML = '';
-        try {
-            const resp = await fetchWithTimeout('/api/song/generate', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({lyrics, model, prompt}),
-                timeout: 60000
-            });
-            const data = await resp.json();
-            if (data.task_id) checkSongStatus(data.task_id);
-            else document.getElementById('result').innerText = 'Error initiating song generation.';
-        } catch (err) {
-            document.getElementById('result').innerText = `Error: ${err.message}`;
-        }
-    }
-
-        async function checkSongStatus(taskId) {
-            const statusUrl = `/api/song/status/${taskId}`;
-            let completed = false;
-            let interval = 5000; // Start mit 5 Sekunden
-            document.getElementById('loading').style.display = 'block';
-            while (!completed) {
-                try {
-                    const response = await fetchWithTimeout(statusUrl, { timeout: 60000 }); // 1-minute timeout
-                    const data = await response.json();
-                    if (data.status === 'SUCCESS') {
-                        const resultData = data.result.result;
-                        document.getElementById('result').innerHTML = resultData.choices.map(choice => {
-                            const durationMilliseconds = choice.duration;
-                            const totalSeconds = Math.floor(durationMilliseconds / 1000);
-                            const minutes = Math.floor(totalSeconds / 60);
-                            const seconds = totalSeconds % 60;
-                            const formattedMinutes = String(minutes).padStart(2, '0');
-                            const formattedSeconds = String(seconds).padStart(2, '0');
-                            const flacFilename = choice.flac_url.split('/').pop();
-                            return `
-                                <div class="choice-box">
-                                    <p>Duration: ${formattedMinutes}:${formattedSeconds}</p>
-                                    <a href="${choice.flac_url}">${flacFilename}</a>
-                                </div>
-                            `;
-                        }).join('');
-                        completed = true;
-                    } else {
-                        document.getElementById('loading').innerText = `Processing... Status: ${data.progress.mureka_status}`;
-                        interval = Math.min(interval * 1.5, 60000); // Exponentielles Backoff
-                        await new Promise(resolve => setTimeout(resolve, interval));
-                    }
-                } catch (error) {
-                    document.getElementById('result').innerText = `Error fetching status: ${error.message}`;
-                    completed = true; // Schleife bei Fehler beenden
-                }
-            }
-            document.getElementById('loading').style.display = 'none';
-        }
-</script>
-<br>
+    <h1>MUREKA - Song Generator</h1>
+    <header>
+        <nav>
+            <a href="/"><i class="fas fa-home"></i> AI WebUI</a>
+            <a href="/imagegen"><i class="fas fa-image"></i> DALL.E</a>
+            <a href="/songgen"><i class="fas fa-music"></i> MUREKA</a>
+            <a href="/songprof"><i class="fas fa-user"></i> MU-ACCOUNT</a>
+        </nav>
+    </header>
+    <form id="songForm">
+        <textarea id="lyrics" name="lyrics" placeholder="Enter lyrics here..." required></textarea>
+        <textarea id="prompt" name="prompt" placeholder="Enter Music Style Prompt here..." required></textarea>
+        <label for="model">Model:</label>
+        <select id="model" name="model" required>
+            <option value="auto" selected>Auto</option>
+            <option value="mureka-7">Mureka 7</option>
+            <option value="mureka-6">Mureka 6</option>
+            <option value="mureka-o1">Mureka o1</option>
+        </select>
+        <button type="submit">Generate Song</button>
+    </form>
+    <br>
+    <div id="loading"></div>
+    <div id="result"></div>
+    <br>
 </body>
-<footer style="background:#333;color:#fff;text-align:center;padding:1rem;">
+<footer>
     <p>&copy; 2025 Robert Wellinger, Switzerland, <b>One Song ca. 0.15 cents</b></p>
 </footer>
 </html>

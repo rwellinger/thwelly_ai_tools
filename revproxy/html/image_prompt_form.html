@@ -5,194 +5,48 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="robots" content="noindex">
     <title>DALL.E 3 - Graphics Generator</title>
-    <style>
-        body {
-            font-family: system-ui, Arial, sans-serif;
-            margin: 20px;
-            max-width: 800px;
-            margin-left: auto;
-            margin-right: auto;
-            color: #222;
-            background: #fafafa;
-        }
-
-        header {
-            background: #333;
-            color: #fff;
-            padding: 1rem;
-            text-align: center;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            position: relative;
-        }
-
-        .social-icons a {
-            color: #fff;
-            text-decoration: none;
-        }
-
-        nav {
-            display: flex;
-            justify-content: center;
-            gap: 1.5rem;
-            padding: 0.5rem 0;
-        }
-
-        nav a {
-            color: #fff;
-            margin: 0 0.5rem;
-            text-decoration: none;
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-            padding: 0.5rem 1rem;
-            border-radius: 4px;
-            transition: all 0.3s ease;
-        }
-
-        nav a:hover {
-            text-decoration: underline;
-            background: rgba(255, 255, 255, 0.1);
-        }
-
-        textarea {
-            width: 100%;
-            height: 200px;
-            font-size: 14px;
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            box-sizing: border-box;
-            resize: vertical;
-            outline: none;
-            margin-top: 10px; /* Abstand nach oben */
-            margin-bottom: 20px; /* Abstand nach unten */
-        }
-
-        select {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            margin-top: 10px; /* Abstand nach oben */
-            margin-bottom: 20px; /* Abstand nach unten */
-        }
-
-        button {
-            margin-top: 20px;
-            padding: 10px 15px;
-            font-size: 16px;
-            cursor: pointer;
-        }
-
-        button:hover {
-            background: #555;
-        }
-
-        #loading {
-            margin-top: 10px;
-            font-size: 1.2em;
-            color: blue;
-        }
-
-        #result {
-            margin-top: 20px;
-        }
-
-        footer {
-            background: #333;
-            color: #fff;
-            text-align: center;
-            padding: 1rem;
-        }
-
-    </style>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <script src="/js/imagegen.js" defer></script>
 </head>
 <body>
-<h1>DALL.E 3 - Graphics Generator</h1>
-<header>
-      <nav>
-        <a href="/">
-          <i class="fas fa-home"></i>
-          <span>AI WebUI Home</span>
-        </a>
-        <a href="/imagegen">
-          <i class="fas fa-image"></i>
-          <span>DALL.E</span>
-        </a>
-        <a href="/songgen">
-          <i class="fas fa-music"></i>
-          <span>MUREKA</span>
-        </a>
-      </nav>
-</header>
-<form id="promptForm">
-    <br>
-    <textarea name="prompt" id="prompt" placeholder="Enter your prompt here..." required></textarea>
-    <br>
-    <label for="size">Select Image Size:</label>
-    <select name="size" id="size" required>
-        <option value="1024x1024">Square (1024x1024)</option>
-        <option value="1792x1024">Landscape (1792x1024)</option>
-        <option value="1024x1792">Portrait (1024x1792)</option>
-    </select>
-    <br>
-    <button type="submit">Submit</button>
-</form>
+    <h1>DALL.E 3 - Graphics Generator</h1>
+    <header>
+          <nav>
+            <a href="/">
+              <i class="fas fa-home"></i>
+              <span>AI WebUI</span>
+            </a>
+            <a href="/imagegen">
+              <i class="fas fa-image"></i>
+              <span>DALL.E</span>
+            </a>
+            <a href="/songgen">
+              <i class="fas fa-music"></i>
+              <span>MUREKA</span>
+            </a>
+          </nav>
+    </header>
+    <form id="promptForm">
+        <br>
+        <textarea name="prompt" id="prompt" placeholder="Enter your prompt here..." required></textarea>
+        <br>
+        <label for="size">Select Image Size:</label>
+        <select name="size" id="size" required>
+            <option value="1024x1024">Square (1024x1024)</option>
+            <option value="1792x1024">Landscape (1792x1024)</option>
+            <option value="1024x1792">Portrait (1024x1792)</option>
+        </select>
+        <br>
+        <button type="submit">Submit</button>
+    </form>
 
-<div id="loading" style="display:none;">Please wait, the request is
-    being processed...
-</div>
-<div id="result"></div>
-
-<script>
-    document.getElementById('promptForm').onsubmit = async function (event) {
-        event.preventDefault(); // Prevent the default form submission behavior
-
-        const prompt = document.getElementById('prompt').value;
-        const size = document.getElementById('size').value; // Hole die ausgewählte Größe vom Dropdown
-
-        // Show loading animation
-        document.getElementById('loading').style.display = 'block';
-        document.getElementById('result').innerHTML = ''; // Clear previous result
-
-        try {
-            const response = await fetch('/api/generate', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({prompt: prompt, size: size}) // Sende den Prompt zusammen mit der ausgewählten Größe
-            });
-
-            if (response.ok) {
-                const result = await response.json();
-                // Extract the link and path
-                const imageUrl = result.url;
-                const savedPath = result.saved_path;
-                document.getElementById('result').innerHTML = `
-                        <h2>Image successfully generated!</h2>
-                        <p>Saved at: ${savedPath}</p>
-                        <a href="${imageUrl}" target="_blank">Click here to view the image</a>
-                    `;
-            } else {
-                const errorData = await response.json();
-                document.getElementById('result').innerText = 'Error: ' + errorData.error.message || response.statusText;
-            }
-        } catch (error) {
-            document.getElementById('result').innerText = 'Network error: ' + error.message;
-        } finally {
-            // Hide loading animation
-            document.getElementById('loading').style.display = 'none';
-        }
-    };
-</script>
-
+    <div id="loading" style="display:none;">Please wait, the request is
+        being processed...
+    </div>
+    <div id="result"></div>
+</body>
 <footer>
     <p>&copy; 2025 Robert Wellinger, Switzerland, <b>One Image ca. 0.05 cents</b></p>
 </footer>
-
-</body>
 </html>
