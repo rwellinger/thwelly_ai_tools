@@ -8,6 +8,7 @@ env/
 __pycache__/
 *.pyo
 *.pyd
+src/aiproxysrv.egg-info
 
 # Ignoriere Versionskontrollsysteme
 .git

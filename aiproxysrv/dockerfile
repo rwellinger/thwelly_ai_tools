@@ -16,4 +16,4 @@ RUN apt-get update && \
     rm -rf /var/lib/apt/lists/*
 
 EXPOSE 5050
-CMD ["gunicorn", "-w", "4", "-b", "0.0.0.0:5050", "aiproxy-server:app"]
+CMD ["gunicorn", "-w", "4", "-b", "0.0.0.0:5050", "wsgi:app"]
