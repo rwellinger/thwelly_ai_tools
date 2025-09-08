@@ -9,6 +9,7 @@ __pycache__/
 *.pyo
 *.pyd
 src/aiproxysrv.egg-info
+dump.rdb
 
 # Ignoriere Versionskontrollsysteme
 .git
