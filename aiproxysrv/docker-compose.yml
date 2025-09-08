@@ -10,9 +10,14 @@ services:
     networks:
       - webui-net
     command: redis-server --appendonly yes
+    healthcheck:
+        test: ["CMD", "redis-cli", "ping"]
+        interval: 10s
+        timeout: 5s
+        retries: 3
 
   aiproxy-app:
-    container_name: airproxy-server
+    container_name: aiproxysrv
     restart: unless-stopped
     build: .
     ports:
@@ -54,7 +59,6 @@ services:
       - .:/app
     networks:
       - webui-net
-
 volumes:
   redis-data:
 

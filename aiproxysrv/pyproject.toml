@@ -1,0 +1,18 @@
+[build-system]
+requires = ["setuptools>=61", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "aiproxysrv"
+version = "0.1.0"
+dependencies = [
+    "Flask==2.3.3",
+    "Werkzeug==2.3.8",
+    "requests==2.32.5",
+    "python-dotenv==1.1.1",
+    "gunicorn==23.0.0",
+    "celery==5.4.0",
+    "redis==5.0.1"
+]
+[tool.setuptools.packages.find]
+where = ["src"]
