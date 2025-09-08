@@ -1,130 +1,19 @@
+"""
+Song Generation Routes mit MUREKA
+"""
 import os
 import sys
 import requests
-from pathlib import Path
-from flask import Flask, request, jsonify, send_from_directory, Blueprint
-from dotenv import load_dotenv
-from taskmgr import celery_app, generate_song_task, MUREKA_STATUS_ENDPOINT
 import time
-import hashlib
+from flask import Blueprint, request, jsonify
+from config.settings import MUREKA_API_KEY, MUREKA_BILLING_URL, MUREKA_STATUS_ENDPOINT, REDIS_URL
+from celery_app import celery_app, generate_song_task, get_slot_status
 
-load_dotenv()
-
-app = Flask(__name__)
-
-# ---------------------------------------------------------------
-# MUREKA Config
-# ---------------------------------------------------------------
-MUREKA_API_KEY = os.getenv("MUREKA_API_KEY")
-MUREKA_BILLING_URL = os.getenv("MUREKA_BILLING_URL")
-
-
-# ---------------------------------------------------------------
-# Global API
-# ---------------------------------------------------------------
-api_v1 = Blueprint("api_v1", __name__, url_prefix="/api/v1")
-
-
-@api_v1.route("/health")
-def health():
-    return jsonify(status="ok"), 200
-
-
-# ---------------------------------------------------------------
-# DALL.E API - Image Generator
-# ---------------------------------------------------------------
-api_image_v1 = Blueprint("api_image_v1", __name__, url_prefix="/api/v1/image")
-
-def ensure_images_dir() -> Path:
-    images_path = Path(__file__).parent / "images"
-    try:
-        images_path.mkdir(parents=True, exist_ok=True)
-        print(f"Folder '{images_path}' created or exists already.", file=sys.stderr)
-    except Exception as e:
-        print(f"Error on create folder: {e}", file=sys.stderr)
-        raise
-    return images_path
-
-@api_image_v1.route('/<path:filename>')
-def serve_image(filename):
-    images_dir = ensure_images_dir()
-    return send_from_directory(images_dir, filename)
-
-
-@api_image_v1.route('/generate', methods=['POST'])
-def generate():
-    raw_json = request.get_json(silent=True)
-
-    if not raw_json or 'prompt' not in raw_json or 'size' not in raw_json:
-        return jsonify({"error": "No 'prompt' or 'size' in JSON."}), 400
-
-    prompt = raw_json['prompt']
-    size = raw_json['size']
-
-    print(f"Prompt: {prompt}", file=sys.stderr)
-    print(f"Size:   {size}", file=sys.stderr)
-
-    headers = {
-        'Authorization': f'Bearer {os.getenv("OPENAI_API_KEY")}',
-        'Content-Type': 'application/json'
-    }
-
-    payload = {
-        'model': os.getenv("OPENAI_MODEL"),
-        'prompt': prompt,
-        'size': size,
-        'n': 1
-    }
-
-    try:
-        resp = requests.post(os.path.join(os.getenv("OPENAI_URL"), "generations"),
-                             headers=headers, json=payload, timeout=30)
-        resp.raise_for_status()
-    except Exception as e:
-        return jsonify({"error": f"Network-Error: {e}"}), 500
-
-    if resp.status_code != 200:
-        print("DALL·E Response:", resp.text, file=sys.stderr)
-        return jsonify({"error": resp.json()}), resp.status_code
-
-    resp_json = resp.json()
-    image_url = resp_json['data'][0]['url']
-
-    try:
-        img_resp = requests.get(image_url, stream=True, timeout=30)
-        img_resp.raise_for_status()
-    except Exception as e:
-        return jsonify({"error": f"Download-Error: {e}"}), 500
-
-    images_dir = ensure_images_dir()
-    prompt_hash = hashlib.md5(prompt.encode()).hexdigest()[:10]
-    filename = f"{prompt_hash}_{int(time.time())}.png"
-    image_path = images_dir / filename
-
-    try:
-        with open(image_path, 'wb') as f:
-            for chunk in img_resp.iter_content(chunk_size=8192):
-                if chunk:
-                    f.write(chunk)
-        print(f"Image stored here: {image_path}", file=sys.stderr)
-    except Exception as e:
-        return jsonify({"error": f"Error on persist image: {e}"}), 500
-
-    local_url = f"{request.host_url}/image/{filename}"
-    return jsonify({
-        "url": local_url,
-        "saved_path": str(image_path)
-    })
-
-
-
-# ---------------------------------------------------------------
-# Mureka Song Generator
-# ---------------------------------------------------------------
 api_song_v1 = Blueprint("api_song_v1", __name__, url_prefix="/api/v1/song")
 
 @api_song_v1.route("/celery-health", methods=["GET"])
 def celery_health():
+    """Überprüft Celery Worker Status"""
     try:
         inspector = celery_app.control.inspect()
         stats = inspector.stats()
@@ -174,6 +63,7 @@ def mureka_account():
 
 @api_song_v1.route("/generate", methods=["POST"])
 def song_generate():
+    """Startet Song-Generierung"""
     payload = request.get_json(force=True)
 
     if not payload.get("lyrics") or not payload.get("prompt"):
@@ -206,12 +96,13 @@ def song_generate():
 
     return jsonify({
         "task_id": task.id,
-        "status_url": f"{request.host_url}song/status/{task.id}"
+        "status_url": f"{request.host_url}api/v1/song/status/{task.id}"
     }), 202
 
 
 @api_song_v1.route("/status/<task_id>", methods=["GET"])
 def song_status(task_id):
+    """Überprüft Status einer Song-Generierung"""
     result = celery_app.AsyncResult(task_id)
 
     if result.state == 'PENDING':
@@ -254,6 +145,7 @@ def song_status(task_id):
 
 @api_song_v1.route("/force-complete/<job_id>", methods=["POST"])
 def force_complete_task(job_id):
+    """Erzwingt Completion eines Tasks"""
     try:
         headers = {"Authorization": f"Bearer {MUREKA_API_KEY}"}
         status_url = f"{MUREKA_STATUS_ENDPOINT}/{job_id}"
@@ -289,6 +181,7 @@ def force_complete_task(job_id):
 
 @api_song_v1.route("/cancel/<task_id>", methods=["POST"])
 def cancel_task(task_id):
+    """Cancelt einen Task"""
     try:
         result = celery_app.AsyncResult(task_id)
 
@@ -314,6 +207,7 @@ def cancel_task(task_id):
 
 @api_song_v1.route("/delete/<task_id>", methods=["DELETE"])
 def delete_task_result(task_id):
+    """Löscht Task-Ergebnis"""
     try:
         celery_app.AsyncResult(task_id).forget()
         return jsonify({
@@ -328,54 +222,9 @@ def delete_task_result(task_id):
 
 @api_song_v1.route("/queue-status", methods=["GET"])
 def queue_status():
+    """Gibt Queue-Status zurück"""
     try:
-        import redis
-        redis_client = redis.from_url(os.getenv("REDIS_URL", "redis://localhost:6379/0"))
-
-        current_requests = int(redis_client.get("mureka:current_requests") or 0)
-        waiting_tasks = len(redis_client.keys("mureka:task:*"))
-
-        return jsonify({
-            "current_requests": current_requests,
-            "max_concurrent": 1,
-            "waiting_tasks": waiting_tasks,
-            "available": current_requests < 1
-        }), 200
-
+        slot_status = get_slot_status()
+        return jsonify(slot_status), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500
-
-
-# ---------------------------------------------------------------
-# Error Handler
-# ---------------------------------------------------------------
-@app.errorhandler(404)
-def not_found(error):
-    return jsonify({"error": "Resource not found"}), 404
-
-@app.errorhandler(429)
-def subscription_error(error):
-    return jsonify({"error": str(error)}), 429
-
-@app.errorhandler(500)
-def internal_error(error):
-    return jsonify({"error": "Internal server error"}), 500
-
-# ---------------------------------------------------------------
-# Register Blueprints
-# ---------------------------------------------------------------
-app.register_blueprint(api_v1)
-app.register_blueprint(api_image_v1)
-app.register_blueprint(api_song_v1)
-
-# ---------------------------------------------------------------
-# Server-Start
-# ---------------------------------------------------------------
-if __name__ == '__main__':
-    port = int(os.getenv("OPENAI_PORT", 5050))
-    host = os.getenv("OPENAI_HOST", "0.0.0.0")
-    print(f"Flask-Server läuft auf http://0.0.0.0:{port}", file=sys.stderr)
-    print(f"MUREKA Endpoint: {os.getenv('MUREKA_ENDPOINT', 'Not configured')}", file=sys.stderr)
-    print(f"MUREKA Billing: {MUREKA_BILLING_URL}", file=sys.stderr)
-
-    app.run(host=host, port=port, debug=os.getenv("DEBUG", "false").lower() == "true")

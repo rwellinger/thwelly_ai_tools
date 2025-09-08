@@ -5,6 +5,8 @@
 aiproxysrv/.env
 aiproxysrv/images
 aiproxysrv/__pycache__
+aiproxysrv/backup
+aiproxysrv/src/aiproxysrv.egg-info
 
 ollamasrv/backup
 ollamasrv/data

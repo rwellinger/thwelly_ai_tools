@@ -29,7 +29,7 @@ services:
       - CELERY_RESULT_BACKEND=redis://redis:6379
     volumes:
       - .:/app
-      - ./images:/app/images
+      - images-data:/images
     networks:
       - webui-net
     depends_on:
@@ -45,7 +45,7 @@ services:
     container_name: celery-worker
     restart: unless-stopped
     build: .
-    command: celery -A taskmgr worker --loglevel=info --concurrency=1
+    command: celery -A celery_app.celery_config:celery_app worker --loglevel=info --concurrency=1
     user: "1000:1000"
     depends_on:
       - redis
@@ -61,6 +61,7 @@ services:
       - webui-net
 volumes:
   redis-data:
+  images-data:
 
 networks:
   webui-net:
