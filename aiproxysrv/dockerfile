@@ -1,5 +1,7 @@
 FROM python:3.10-slim AS base
 
+RUN mkdir /images
+
 WORKDIR /app
 
 COPY requirements.txt .

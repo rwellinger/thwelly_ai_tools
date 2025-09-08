@@ -13,23 +13,10 @@ from config.settings import OPENAI_API_KEY, OPENAI_URL, OPENAI_MODEL
 api_image_v1 = Blueprint("api_image_v1", __name__, url_prefix="/api/v1/image")
 
 
-def ensure_images_dir() -> Path:
-    """Stellt sicher, dass das images Verzeichnis existiert"""
-    images_path = Path(__file__).parent.parent / "images"
-    try:
-        images_path.mkdir(parents=True, exist_ok=True)
-        print(f"Folder '{images_path}' created or exists already.", file=sys.stderr)
-    except Exception as e:
-        print(f"Error on create folder: {e}", file=sys.stderr)
-        raise
-    return images_path
-
-
 @api_image_v1.route('/<path:filename>')
 def serve_image(filename):
     """Serviert gespeicherte Bilder"""
-    images_dir = ensure_images_dir()
-    return send_from_directory(images_dir, filename)
+    return send_from_directory("/images", filename)
 
 
 @api_image_v1.route('/generate', methods=['POST'])
@@ -82,7 +69,7 @@ def generate():
     except Exception as e:
         return jsonify({"error": f"Download-Error: {e}"}), 500
 
-    images_dir = ensure_images_dir()
+    images_dir = Path("/images")
     prompt_hash = hashlib.md5(prompt.encode()).hexdigest()[:10]
     filename = f"{prompt_hash}_{int(time.time())}.png"
     image_path = images_dir / filename
@@ -96,7 +83,7 @@ def generate():
     except Exception as e:
         return jsonify({"error": f"Error on persist image: {e}"}), 500
 
-    local_url = f"{request.host_url}api/v1/image/{filename}"
+    local_url = f"{request.host_url}image/{filename}"
     return jsonify({
         "url": local_url,
         "saved_path": str(image_path)
