@@ -1,13 +1,13 @@
 .idea
 .vscode
 .DS_Store
+dump.rdb
 
 aiproxysrv/.env
 aiproxysrv/images
 aiproxysrv/__pycache__
 aiproxysrv/backup
 aiproxysrv/src/aiproxysrv.egg-info
-aiproxysrv/dump.rdb
 
 ollamasrv/backup
 ollamasrv/data
