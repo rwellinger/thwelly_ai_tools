@@ -1,3 +1,54 @@
+/* ---------- 1. Persistenz‑Hilfsmittel ---------- */
+const STORAGE_KEY = 'songFormData';
+
+/**
+ * Lese gespeicherte Daten aus localStorage
+ * @returns {Object}
+ */
+function loadFormData() {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    return raw ? JSON.parse(raw) : {};
+}
+
+/**
+ * Speichere aktuelles Formular‑State in localStorage
+ */
+function saveFormData() {
+    const data = {
+        lyrics: document.getElementById('lyrics').value,
+        prompt: document.getElementById('prompt').value,
+        model: document.getElementById('model').value
+    };
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+}
+
+/**
+ * Lösche alle gespeicherten Daten
+ */
+function clearFormData() {
+    localStorage.removeItem(STORAGE_KEY);
+}
+
+/* ---------- 2. Beim Laden der Seite ---------- */
+document.addEventListener('DOMContentLoaded', () => {
+    const data = loadFormData();
+    if (data.lyrics) document.getElementById('lyrics').value = data.lyrics;
+    if (data.prompt) document.getElementById('prompt').value = data.prompt;
+    if (data.model) document.getElementById('model').value = data.model;
+});
+
+/* ---------- 3. Eingabewerte merken ---------- */
+document.getElementById('songForm').addEventListener('input', saveFormData);
+
+/* ---------- 4. Reset‑Button‑Handler ---------- */
+document.getElementById('resetBtn').addEventListener('click', () => {
+    // Formular wirklich zurücksetzen
+    document.getElementById('songForm').reset();
+    // Speicherinhalt löschen
+    clearFormData();
+});
+
+/* ---------- 5. Rest deines bestehenden Codes ---------- */
 async function fetchWithTimeout(resource, options = {}) {
     const {timeout = 30000} = options;
     const controller = new AbortController();
@@ -12,7 +63,6 @@ async function fetchWithTimeout(resource, options = {}) {
         throw e;
     }
 }
-
 document.getElementById('songForm').addEventListener('submit', async e => {
     e.preventDefault();
     if (!e.target.checkValidity()) {
@@ -21,7 +71,6 @@ document.getElementById('songForm').addEventListener('submit', async e => {
     }
     await generateSong();
 });
-
 async function generateSong() {
     const lyrics = document.getElementById('lyrics').value.trim();
     const prompt = document.getElementById('prompt').value.trim();
@@ -43,24 +92,19 @@ async function generateSong() {
         document.getElementById('result').innerText = `Error: ${err.message}`;
     }
 }
-
 async function checkSongStatus(taskId) {
     const statusUrl = `/api/song/status/${taskId}`;
     let completed = false;
     let interval = 5000; // Start mit 5 Sekunden
     document.getElementById('loading').style.display = 'block';
-
     while (!completed) {
         try {
             const response = await fetchWithTimeout(statusUrl, {timeout: 60000});
             const data = await response.json();
-
             if (data.status === 'SUCCESS') {
                 const resultData = data.result.result;
-
                 const id = resultData.id;
                 const modelUsed = resultData.model;
-
                 // Generiere die HTML-Struktur
                 const infoHtml = `
                     <div class="info-box">
@@ -99,7 +143,6 @@ async function checkSongStatus(taskId) {
                         </tbody>
                     </table>
                 `;
-
                 document.getElementById('result').innerHTML = infoHtml;
                 completed = true;
             } else {
