@@ -5,7 +5,8 @@ import sys
 import requests
 import time
 from flask import Blueprint, request, jsonify
-from config.settings import MUREKA_API_KEY, MUREKA_BILLING_URL, MUREKA_STATUS_ENDPOINT, REDIS_URL
+from config.settings import MUREKA_API_KEY, MUREKA_BILLING_URL, MUREKA_STATUS_ENDPOINT, REDIS_URL, \
+    MUREKA_STEM_GENERATE_ENDPOINT
 from celery_app import celery_app, generate_song_task, get_slot_status
 from .json_helpers import prune
 
@@ -97,6 +98,52 @@ def song_generate():
         "task_id": task.id,
         "status_url": f"{request.host_url}api/v1/song/status/{task.id}"
     }), 202
+
+
+@api_song_v1.route("/stem/generate", methods=["POST"])
+def stems_generator():
+    """Erstelle stems anhand einer MP3"""
+    payload = request.get_json(force=True)
+    if not payload.get("url"):
+        return jsonify({
+            "error": "Missing required field: 'url' is required"
+        }), 400
+
+    try:
+        headers = {"Authorization": f"Bearer {MUREKA_API_KEY}"}
+        account_response = requests.get(MUREKA_BILLING_URL, headers=headers, timeout=10)
+
+        if account_response.status_code == 200:
+            account_data = account_response.json()
+            balance = account_data.get("balance", 0)
+
+            if balance <= 0:
+                return jsonify({
+                    "error": "Insufficient MUREKA balance",
+                    "account_info": account_data
+                }), 402  # Payment Required
+    except Exception as e:
+        print(f"Could not check MUREKA account balance: {e}", file=sys.stderr)
+
+    print(f"Starting stem generation", file=sys.stderr)
+    print(f"Url: {payload.get('url', '')}", file=sys.stderr)
+
+    try:
+        headers = {"Authorization": f"Bearer {MUREKA_API_KEY}"}
+
+        """ Das erstellen der Stems kann eine Weile dauern. 5 Minuten (300) Timeout daher """
+        response = requests.post(MUREKA_STEM_GENERATE_ENDPOINT, headers=headers, timeout=(10, 300), json=payload)
+        response.raise_for_status()
+        result = response.json()
+
+        return jsonify({
+            "status": "SUCCESS",
+            "result": result,
+            "completed_at": time.time()
+        }), 200
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 
 @api_song_v1.route("/query/<job_id>", methods=["GET"])

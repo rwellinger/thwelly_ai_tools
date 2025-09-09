@@ -1,7 +1,7 @@
 services:
   nginx:
     image: nginx:1.23.3
-    container_name: webui-proxy
+    container_name: forward-proxy
     restart: unless-stopped
     ports:
       - "80:80"
