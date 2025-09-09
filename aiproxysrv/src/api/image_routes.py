@@ -12,7 +12,6 @@ from config.settings import OPENAI_API_KEY, OPENAI_URL, OPENAI_MODEL
 
 api_image_v1 = Blueprint("api_image_v1", __name__, url_prefix="/api/v1/image")
 
-
 @api_image_v1.route('/<path:filename>')
 def serve_image(filename):
     """Serviert gespeicherte Bilder"""

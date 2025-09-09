@@ -70,12 +70,15 @@ async function checkSongStatus(taskId) {
                     <table class="result-table">
                         <thead>
                             <tr>
+                                <th>Song Id</th>
                                 <th>Duration</th>
                                 <th>FLAC File</th>
+                                <th>MP3 File</th>
                             </tr>
                         </thead>
                         <tbody>
                             ${resultData.choices.map(choice => {
+                                const song_id = choice.id
                                 const durationMilliseconds = choice.duration;
                                 const totalSeconds = Math.floor(durationMilliseconds / 1000);
                                 const minutes = Math.floor(totalSeconds / 60);
@@ -83,10 +86,13 @@ async function checkSongStatus(taskId) {
                                 const formattedMinutes = String(minutes).padStart(2, '0');
                                 const formattedSeconds = String(seconds).padStart(2, '0');
                                 const flacFilename = choice.flac_url.split('/').pop();
+                                const mp3Filename = choice.url.split('/').pop()
                                 return `
                                     <tr>
+                                        <td>${song_id}</td>
                                         <td>${formattedMinutes}:${formattedSeconds}</td>
                                         <td><a href="${choice.flac_url}">${flacFilename}</a></td>
+                                        <td><a href="${choice.url}">${mp3Filename}</a></td>
                                     </tr>
                                 `;
                             }).join('')}

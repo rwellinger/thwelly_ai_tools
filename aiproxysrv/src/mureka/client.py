@@ -13,7 +13,7 @@ from config.settings import (
     MUREKA_POLL_INTERVAL,
     MUREKA_MAX_POLL_ATTEMPTS
 )
-
+from api.json_helpers import prune
 
 def start_mureka_generation(payload: dict) -> Dict[str, Any]:
     """Startet eine MUREKA Generierung"""
@@ -82,7 +82,9 @@ def wait_for_mureka_completion(task, job_id: str) -> Dict[str, Any]:
 
             if current_status == "succeeded":
                 print(f"MUREKA job completed: {job_id}")
-                return status_response
+                keys_to_remove = {"lyrics_sections"}
+                cleaned_json = prune(status_response, keys_to_remove)
+                return cleaned_json
 
             elif current_status in ["failed", "cancelled"]:
                 error_reason = status_response.get("failed_reason", "Song processing failed")
