@@ -3,7 +3,8 @@ Flask App mit allen Blueprints
 """
 from flask import Flask, jsonify, Blueprint
 from .image_routes import api_image_v1
-from .song_routes import api_song_v1
+from .song_routes import api_song_v1, api_song_task_v1
+from .redis_routes import api_redis_v1
 
 
 def create_app():
@@ -34,5 +35,7 @@ def create_app():
     app.register_blueprint(api_v1)
     app.register_blueprint(api_image_v1)
     app.register_blueprint(api_song_v1)
+    app.register_blueprint(api_song_task_v1)
+    app.register_blueprint(api_redis_v1)
 
     return app

@@ -124,7 +124,44 @@ def song_info(job_id):
         return jsonify({"error": str(e)}), 500
 
 
-@api_song_v1.route("/status/<task_id>", methods=["GET"])
+@api_song_v1.route("/force-complete/<job_id>", methods=["POST"])
+def force_complete_task(job_id):
+    """Erzwingt Completion eines Tasks"""
+    try:
+        headers = {"Authorization": f"Bearer {MUREKA_API_KEY}"}
+        status_url = f"{MUREKA_STATUS_ENDPOINT}/{job_id}"
+
+        response = requests.get(status_url, headers=headers, timeout=10)
+        response.raise_for_status()
+        mureka_result = response.json()
+
+        from celery.result import AsyncResult
+        result = AsyncResult(job_id)
+
+        success_payload = {
+            "status": "SUCCESS",
+            "task_id": job_id,
+            "job_id": job_id,
+            "result": mureka_result,
+            "completed_at": time.time()
+        }
+
+        result.backend.store_result(result.id, success_payload, "SUCCESS")
+
+        return jsonify({
+            "task_id": job_id,
+            "status": "FORCED_COMPLETION",
+            "mureka_status": mureka_result.get("status"),
+            "message": "Task manually completed with MUREKA result"
+        }), 200
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+api_song_task_v1 = Blueprint("api_song_task_v1", __name__, url_prefix="/api/v1/song/task")
+
+@api_song_task_v1.route("/status/<task_id>", methods=["GET"])
 def song_status(task_id):
     """Überprüft Status einer Song-Generierung"""
     result = celery_app.AsyncResult(task_id)
@@ -167,42 +204,7 @@ def song_status(task_id):
         }), 200
 
 
-@api_song_v1.route("/force-complete/<job_id>", methods=["POST"])
-def force_complete_task(job_id):
-    """Erzwingt Completion eines Tasks"""
-    try:
-        headers = {"Authorization": f"Bearer {MUREKA_API_KEY}"}
-        status_url = f"{MUREKA_STATUS_ENDPOINT}/{job_id}"
-
-        response = requests.get(status_url, headers=headers, timeout=10)
-        response.raise_for_status()
-        mureka_result = response.json()
-
-        from celery.result import AsyncResult
-        result = AsyncResult(job_id)
-
-        success_payload = {
-            "status": "SUCCESS",
-            "task_id": job_id,
-            "job_id": job_id,
-            "result": mureka_result,
-            "completed_at": time.time()
-        }
-
-        result.backend.store_result(result.id, success_payload, "SUCCESS")
-
-        return jsonify({
-            "task_id": job_id,
-            "status": "FORCED_COMPLETION",
-            "mureka_status": mureka_result.get("status"),
-            "message": "Task manually completed with MUREKA result"
-        }), 200
-
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
-
-
-@api_song_v1.route("/cancel/<task_id>", methods=["POST"])
+@api_song_task_v1.route("/cancel/<task_id>", methods=["POST"])
 def cancel_task(task_id):
     """Cancelt einen Task"""
     try:
@@ -228,7 +230,7 @@ def cancel_task(task_id):
         }), 500
 
 
-@api_song_v1.route("/delete/<task_id>", methods=["DELETE"])
+@api_song_task_v1.route("/delete/<task_id>", methods=["DELETE"])
 def delete_task_result(task_id):
     """Löscht Task-Ergebnis"""
     try:
@@ -243,7 +245,7 @@ def delete_task_result(task_id):
         }), 500
 
 
-@api_song_v1.route("/queue-status", methods=["GET"])
+@api_song_task_v1.route("/queue-status", methods=["GET"])
 def queue_status():
     """Gibt Queue-Status zurück"""
     try:
