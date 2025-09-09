@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>MUREKA – Song View</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <script src="/js/songview.js" defer></script>
+</head>
+<body>
+<h1>MUREKA – Song View</h1>
+<header>
+    <nav>
+        <a href="/"><i class="fas fa-home"></i> AI WebUI</a>
+        <a href="/imagegen"><i class="fas fa-image"></i> DALL.E</a>
+        <a href="/songgen"><i class="fas fa-music"></i> MU Gen</a>
+        <a href="/songview"><i class="fas fa-note"></i> MU View</a>
+        <a href="/songprof"><i class="fas fa-user"></i> MU User</a>
+    </nav>
+</header>
+
+<form id="viewForm">
+    <br>
+    <input type="text" id="jobId" name="jobId" placeholder="Enter job id..." required>
+    <br>
+    <button type="submit">Show Result</button>
+</form>
+<br>
+<div id="loading"></div>
+<div id="result"></div>
+<br>
+</body>
+<footer>
+    <p>&copy; 2025 Robert Wellinger, Switzerland, <b>One Song ca. 0.15 cents</b></p>
+</footer>
+</html>
