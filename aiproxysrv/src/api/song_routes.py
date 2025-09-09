@@ -1,13 +1,13 @@
 """
 Song Generation Routes mit MUREKA
 """
-import os
 import sys
 import requests
 import time
 from flask import Blueprint, request, jsonify
 from config.settings import MUREKA_API_KEY, MUREKA_BILLING_URL, MUREKA_STATUS_ENDPOINT, REDIS_URL
 from celery_app import celery_app, generate_song_task, get_slot_status
+from .json_helpers import prune
 
 api_song_v1 = Blueprint("api_song_v1", __name__, url_prefix="/api/v1/song")
 
@@ -71,7 +71,6 @@ def song_generate():
             "error": "Missing required fields: 'lyrics' and 'prompt' are required"
         }), 400
 
-    # Prüfe Account-Status vor Generierung
     try:
         headers = {"Authorization": f"Bearer {MUREKA_API_KEY}"}
         account_response = requests.get(MUREKA_BILLING_URL, headers=headers, timeout=10)
@@ -100,7 +99,69 @@ def song_generate():
     }), 202
 
 
-@api_song_v1.route("/status/<task_id>", methods=["GET"])
+@api_song_v1.route("/query/<job_id>", methods=["GET"])
+def song_info(job_id):
+    """Get Song structure direct from MUREKA again who was generated successfully"""
+    try:
+        headers = {"Authorization": f"Bearer {MUREKA_API_KEY}"}
+        song_info_url = f"{MUREKA_STATUS_ENDPOINT}/{job_id}"
+
+        response = requests.get(song_info_url, headers=headers, timeout=10)
+        response.raise_for_status()
+        mureka_result = response.json()
+        keys_to_remove = {"lyrics_sections"}
+        cleaned_json = prune(mureka_result, keys_to_remove)
+
+        return jsonify({
+            "status": "SUCCESS",
+            "task_id": job_id,
+            "job_id": job_id,
+            "result": cleaned_json,
+            "completed_at": time.time()
+        }), 200
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@api_song_v1.route("/force-complete/<job_id>", methods=["POST"])
+def force_complete_task(job_id):
+    """Erzwingt Completion eines Tasks"""
+    try:
+        headers = {"Authorization": f"Bearer {MUREKA_API_KEY}"}
+        status_url = f"{MUREKA_STATUS_ENDPOINT}/{job_id}"
+
+        response = requests.get(status_url, headers=headers, timeout=10)
+        response.raise_for_status()
+        mureka_result = response.json()
+
+        from celery.result import AsyncResult
+        result = AsyncResult(job_id)
+
+        success_payload = {
+            "status": "SUCCESS",
+            "task_id": job_id,
+            "job_id": job_id,
+            "result": mureka_result,
+            "completed_at": time.time()
+        }
+
+        result.backend.store_result(result.id, success_payload, "SUCCESS")
+
+        return jsonify({
+            "task_id": job_id,
+            "status": "FORCED_COMPLETION",
+            "mureka_status": mureka_result.get("status"),
+            "message": "Task manually completed with MUREKA result"
+        }), 200
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+api_song_task_v1 = Blueprint("api_song_task_v1", __name__, url_prefix="/api/v1/song/task")
+
+@api_song_task_v1.route("/status/<task_id>", methods=["GET"])
 def song_status(task_id):
     """Überprüft Status einer Song-Generierung"""
     result = celery_app.AsyncResult(task_id)
@@ -143,43 +204,7 @@ def song_status(task_id):
         }), 200
 
 
-@api_song_v1.route("/force-complete/<job_id>", methods=["POST"])
-def force_complete_task(job_id):
-    """Erzwingt Completion eines Tasks"""
-    try:
-        headers = {"Authorization": f"Bearer {MUREKA_API_KEY}"}
-        status_url = f"{MUREKA_STATUS_ENDPOINT}/{job_id}"
-
-        response = requests.get(status_url, headers=headers, timeout=10)
-        response.raise_for_status()
-        mureka_result = response.json()
-
-        # Setze das Ergebnis im Celery Backend
-        from celery.result import AsyncResult
-        result = AsyncResult(job_id)
-
-        success_payload = {
-            "status": "SUCCESS",
-            "task_id": job_id,
-            "job_id": job_id,
-            "result": mureka_result,
-            "completed_at": time.time()
-        }
-
-        result.backend.store_result(result.id, success_payload, "SUCCESS")
-
-        return jsonify({
-            "task_id": job_id,
-            "status": "FORCED_COMPLETION",
-            "mureka_status": mureka_result.get("status"),
-            "message": "Task manually completed with MUREKA result"
-        }), 200
-
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
-
-
-@api_song_v1.route("/cancel/<task_id>", methods=["POST"])
+@api_song_task_v1.route("/cancel/<task_id>", methods=["POST"])
 def cancel_task(task_id):
     """Cancelt einen Task"""
     try:
@@ -205,7 +230,7 @@ def cancel_task(task_id):
         }), 500
 
 
-@api_song_v1.route("/delete/<task_id>", methods=["DELETE"])
+@api_song_task_v1.route("/delete/<task_id>", methods=["DELETE"])
 def delete_task_result(task_id):
     """Löscht Task-Ergebnis"""
     try:
@@ -220,7 +245,7 @@ def delete_task_result(task_id):
         }), 500
 
 
-@api_song_v1.route("/queue-status", methods=["GET"])
+@api_song_task_v1.route("/queue-status", methods=["GET"])
 def queue_status():
     """Gibt Queue-Status zurück"""
     try:
