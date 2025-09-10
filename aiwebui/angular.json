@@ -16,6 +16,7 @@
             "outputPath": "../revproxy/html/aiwebui",
             "index": "src/index.html",
             "browser": "src/main.ts",
+            "baseHref": "/aiwebui/",
             "polyfills": [
               "zone.js"
             ],
