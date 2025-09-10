@@ -1,10 +1,10 @@
-import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
-import { CommonModule } from '@angular/common';
-import { SongService } from '../services/song.service';
-import { HeaderComponent } from '../shared/header/header.component';
-import { FooterComponent } from '../shared/footer/footer.component';
-import { ApiConfigService } from '../services/api-config.service';
+import {Component, OnInit} from '@angular/core';
+import {FormBuilder, FormGroup, ReactiveFormsModule} from '@angular/forms';
+import {CommonModule} from '@angular/common';
+import {SongService} from '../services/song.service';
+import {HeaderComponent} from '../shared/header/header.component';
+import {FooterComponent} from '../shared/footer/footer.component';
+import {ApiConfigService} from '../services/api-config.service';
 
 @Component({
   selector: 'app-song-view',
@@ -24,7 +24,8 @@ export class SongViewComponent implements OnInit {
     private fb: FormBuilder,
     private songService: SongService,
     private apiConfig: ApiConfigService
-  ) {}
+  ) {
+  }
 
   ngOnInit() {
     (window as any).angularComponentRef = this;
@@ -117,7 +118,8 @@ export class SongViewComponent implements OnInit {
             <td>${formattedMinutes}:${formattedSeconds}</td>
             <td><a href="${choice.flac_url}">FLAC-Download</a></td>
             <td><a href="${choice.url}">MP3-Download</a></td>
-            <td><button onclick="window.angularComponentRef.generateStem('${choice.url}')">Generate</button></td>
+            <td><button type="button" style="background-color: #007bff; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-size: 14px;"
+                onclick="window.angularComponentRef.generateStem('${choice.url}')">Generate</button></td>
         </tr>
       `;
     }).join('');
@@ -148,8 +150,8 @@ export class SongViewComponent implements OnInit {
     try {
       const response = await fetch(this.apiConfig.endpoints.song.stems, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ url: mp3Url })
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({url: mp3Url})
       });
 
       if (!response.ok) {
