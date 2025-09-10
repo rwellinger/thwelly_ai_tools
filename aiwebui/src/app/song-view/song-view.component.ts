@@ -27,6 +27,7 @@ export class SongViewComponent implements OnInit {
   ) {}
 
   ngOnInit() {
+    (window as any).angularComponentRef = this;
     this.viewForm = this.fb.group({
       taskSelect: ['']
     });
@@ -116,7 +117,7 @@ export class SongViewComponent implements OnInit {
             <td>${formattedMinutes}:${formattedSeconds}</td>
             <td><a href="${choice.flac_url}">FLAC-Download</a></td>
             <td><a href="${choice.url}">MP3-Download</a></td>
-            <td><button (click)="generateStem('${choice.url}')">Generate</button></td>
+            <td><button onclick="window.angularComponentRef.generateStem('${choice.url}')">Generate</button></td>
         </tr>
       `;
     }).join('');
