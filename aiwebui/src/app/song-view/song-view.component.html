@@ -16,7 +16,37 @@
 
 <br>
 <div id="loading" *ngIf="isLoading">{{ loadingMessage }}</div>
-<div id="result" [innerHTML]="result"></div>
+
+<div *ngIf="result && !resultData">{{ result }}</div>
+
+<div *ngIf="resultData" class="info-box">
+    <p><strong>ID:</strong> {{ resultData.id }}</p>
+    <p><strong>Model used:</strong> {{ resultData.model }}</p>
+    <p><strong>Created:</strong> {{ resultData.createdAtFormatted }}</p>
+    <p><strong>Duration:</strong> {{ resultData.formattedDuration }} Minutes</p>
+</div>
+
+<table *ngIf="choices.length > 0" class="result-table">
+    <thead>
+        <tr>
+            <th>Song Id</th>
+            <th>Duration</th>
+            <th>FLAC File</th>
+            <th>MP3 File</th>
+            <th>Stem</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr *ngFor="let choice of choices">
+            <td>{{ choice.id }}</td>
+            <td>{{ choice.formattedDuration }}</td>
+            <td><a [href]="choice.flac_url">FLAC-Download</a></td>
+            <td><a [href]="choice.url">MP3-Download</a></td>
+            <td><button [disabled]="isLoading" type="button" (click)="generateStem(choice.url)">Generate</button></td>
+        </tr>
+    </tbody>
+</table>
+
 <br>
 
 <app-footer></app-footer>

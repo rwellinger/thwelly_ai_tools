@@ -20,6 +20,8 @@ export class SongViewComponent implements OnInit {
   isLoading = false;
   loadingMessage = '';
   result = '';
+  resultData: any = null;
+  choices: any[] = [];
 
   constructor(
     private fb: FormBuilder,
@@ -63,11 +65,15 @@ export class SongViewComponent implements OnInit {
       const data = await this.songService.checkSongStatus(taskId);
 
       if (data.status === 'SUCCESS' && data.result) {
-        this.result = this.renderResultTask(data.result);
+        this.renderResultTask(data.result);
       } else if (data.status === 'FAILED') {
         this.result = 'Job failed.';
+        this.resultData = null;
+        this.choices = [];
       } else {
         this.result = `Unknown status: ${data.status}`;
+        this.resultData = null;
+        this.choices = [];
       }
     } catch (error: any) {
       this.result = `Error: ${error.message}`;
@@ -77,71 +83,44 @@ export class SongViewComponent implements OnInit {
     }
   }
 
-  renderResultTask(data: any): string {
+  renderResultTask(data: any): void {
     if (!data || !data.result || !data.result.choices || !Array.isArray(data.result.choices)) {
-      return '<p>Not yet loaded...</p>';
+      this.result = 'Not yet loaded...';
+      this.resultData = null;
+      this.choices = [];
+      return;
     }
 
     const result = data.result;
-    const id = result.id;
-    const modelUsed = result.model;
-    const createdAt = result.created_at;
-    const finishedAt = result.finished_at;
-    const createdAtMs = createdAt * 1000;
-    const finishedAtMs = finishedAt * 1000;
-    const durationMs = finishedAtMs - createdAtMs;
+    this.resultData = {
+      id: result.id,
+      model: result.model,
+      createdAt: result.created_at,
+      finishedAt: result.finished_at,
+      formattedDuration: this.formatDuration(result.finished_at - result.created_at),
+      createdAtFormatted: new Date(result.finished_at * 1000).toUTCString()
+    };
+
+    this.choices = result.choices.map((choice: any) => ({
+      ...choice,
+      formattedDuration: this.formatDurationFromMs(choice.duration)
+    }));
+
+    this.result = '';
+  }
+
+  private formatDuration(durationSeconds: number): string {
+    const totalSeconds = Math.floor(durationSeconds);
+    const minutes = Math.floor(totalSeconds / 60);
+    const seconds = totalSeconds % 60;
+    return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+  }
+
+  private formatDurationFromMs(durationMs: number): string {
     const totalSeconds = Math.floor(durationMs / 1000);
     const minutes = Math.floor(totalSeconds / 60);
     const seconds = totalSeconds % 60;
-    const formattedDuration = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
-
-    const infoHtml = `
-      <div class="info-box">
-          <p><strong>ID:</strong> ${id}</p>
-          <p><strong>Model used:</strong> ${modelUsed}</p>
-          <p><strong>Created:</strong> ${new Date(finishedAtMs).toUTCString()}</p>
-          <p><strong>Duration:</strong> ${formattedDuration} Minutes</p>
-      </div>
-    `;
-
-    const tableRows = result.choices.map((choice: any) => {
-      const song_id = choice.id;
-      const durationMs = choice.duration;
-      const totalSeconds = Math.floor(durationMs / 1000);
-      const minutes = Math.floor(totalSeconds / 60);
-      const seconds = totalSeconds % 60;
-      const formattedMinutes = String(minutes).padStart(2, '0');
-      const formattedSeconds = String(seconds).padStart(2, '0');
-
-      return `
-        <tr>
-            <td>${song_id}</td>
-            <td>${formattedMinutes}:${formattedSeconds}</td>
-            <td><a href="${choice.flac_url}">FLAC-Download</a></td>
-            <td><a href="${choice.url}">MP3-Download</a></td>
-            <td><button type="button" style="background-color: #007bff; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-size: 14px;"
-                onclick="window.angularComponentRef.generateStem('${choice.url}')">Generate</button></td>
-        </tr>
-      `;
-    }).join('');
-
-    return `
-      ${infoHtml}
-      <table class="result-table">
-          <thead>
-              <tr>
-                  <th>Song Id</th>
-                  <th>Duration</th>
-                  <th>FLAC File</th>
-                  <th>MP3 File</th>
-                  <th>Stem</th>
-              </tr>
-          </thead>
-          <tbody>
-              ${tableRows}
-          </tbody>
-      </table>
-    `;
+    return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
   }
 
   async generateStem(mp3Url: string) {

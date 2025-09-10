@@ -13,7 +13,10 @@ def create_app():
     app = Flask(__name__)
     
     # Configure CORS to allow requests from Angular frontend
-    CORS(app, origins=["http://localhost:4200"])
+    CORS(app,
+         origins=["http://localhost:4200"],
+         methods=["GET", "POST", "DELETE"],
+         allow_headers=["Content-Type, Authorization"])
 
     # Global API Blueprint
     api_v1 = Blueprint("api_v1", __name__, url_prefix="/api/v1")
