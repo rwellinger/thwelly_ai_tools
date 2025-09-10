@@ -1,4 +1,4 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, OnInit, ViewEncapsulation} from '@angular/core';
 import {FormBuilder, FormGroup, ReactiveFormsModule} from '@angular/forms';
 import {CommonModule} from '@angular/common';
 import {SongService} from '../services/song.service';
@@ -11,7 +11,8 @@ import {ApiConfigService} from '../services/api-config.service';
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule, HeaderComponent, FooterComponent],
   templateUrl: './song-view.component.html',
-  styleUrl: './song-view.component.css'
+  styleUrl: './song-view.component.css',
+  encapsulation: ViewEncapsulation.None
 })
 export class SongViewComponent implements OnInit {
   viewForm!: FormGroup;
