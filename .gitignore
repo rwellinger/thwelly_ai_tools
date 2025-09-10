@@ -22,3 +22,6 @@ revproxy/nginx/.htpasswd
 revproxy/certs
 revproxy/logs
 revproxy/html/aiwebui
+/appendonlydir/appendonly.aof.1.base.rdb
+/appendonlydir/appendonly.aof.1.incr.aof
+/appendonlydir/appendonly.aof.manifest
