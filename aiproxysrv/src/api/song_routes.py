@@ -37,11 +37,8 @@ def mureka_account():
             "Authorization": f"Bearer {MUREKA_API_KEY}"
         }
 
-        response = requests.get(
-            MUREKA_BILLING_URL,
-            headers=headers,
-            timeout=10
-        )
+        print("Request URL", MUREKA_BILLING_URL)
+        response = requests.get(MUREKA_BILLING_URL, headers=headers, timeout=10)
         response.raise_for_status()
 
         account_data = response.json()
@@ -72,21 +69,10 @@ def song_generate():
             "error": "Missing required fields: 'lyrics' and 'prompt' are required"
         }), 400
 
-    try:
-        headers = {"Authorization": f"Bearer {MUREKA_API_KEY}"}
-        account_response = requests.get(MUREKA_BILLING_URL, headers=headers, timeout=10)
-
-        if account_response.status_code == 200:
-            account_data = account_response.json()
-            balance = account_data.get("balance", 0)
-
-            if balance <= 0:
-                return jsonify({
-                    "error": "Insufficient MUREKA balance",
-                    "account_info": account_data
-                }), 402  # Payment Required
-    except Exception as e:
-        print(f"Could not check MUREKA account balance: {e}", file=sys.stderr)
+    if not check_balance():
+        return jsonify({
+            "error": "Insufficient MUREKA balance"
+        }), 402  # Payment Required
 
     print(f"Starting song generation", file=sys.stderr)
     print(f"Lyrics length: {len(payload.get('lyrics', ''))} characters", file=sys.stderr)
@@ -100,33 +86,26 @@ def song_generate():
     }), 202
 
 
+
 @api_song_v1.route("/stem/generate", methods=["POST"])
 def stems_generator():
     """Erstelle stems anhand einer MP3"""
     payload = request.get_json(force=True)
-    if not payload.get("url"):
+
+    url = payload.get("url", None)
+    if not url:
         return jsonify({
             "error": "Missing required field: 'url' is required"
         }), 400
 
-    try:
-        headers = {"Authorization": f"Bearer {MUREKA_API_KEY}"}
-        account_response = requests.get(MUREKA_BILLING_URL, headers=headers, timeout=10)
-
-        if account_response.status_code == 200:
-            account_data = account_response.json()
-            balance = account_data.get("balance", 0)
-
-            if balance <= 0:
-                return jsonify({
-                    "error": "Insufficient MUREKA balance",
-                    "account_info": account_data
-                }), 402  # Payment Required
-    except Exception as e:
-        print(f"Could not check MUREKA account balance: {e}", file=sys.stderr)
+    if not check_balance():
+        return jsonify({
+            "error": "Insufficient MUREKA balance"
+        }), 402  # Payment Required
 
     print(f"Starting stem generation", file=sys.stderr)
-    print(f"Url: {payload.get('url', '')}", file=sys.stderr)
+    print(f"Request URL: {MUREKA_STEM_GENERATE_ENDPOINT}", file=sys.stderr)
+    print(f"Url: {url}", file=sys.stderr)
 
     try:
         headers = {"Authorization": f"Bearer {MUREKA_API_KEY}"}
@@ -143,6 +122,7 @@ def stems_generator():
         }), 200
 
     except Exception as e:
+        print(f"Error on create stem: {e}", file=sys.stderr)
         return jsonify({"error": str(e)}), 500
 
 
@@ -151,6 +131,8 @@ def song_info(job_id):
     """Get Song structure direct from MUREKA again who was generated successfully"""
     try:
         headers = {"Authorization": f"Bearer {MUREKA_API_KEY}"}
+
+        print("Request URL", MUREKA_STATUS_ENDPOINT)
         song_info_url = f"{MUREKA_STATUS_ENDPOINT}/{job_id}"
 
         response = requests.get(song_info_url, headers=headers, timeout=10)
@@ -168,6 +150,7 @@ def song_info(job_id):
         }), 200
 
     except Exception as e:
+        print(f"Error on get song: {e}", file=sys.stderr)
         return jsonify({"error": str(e)}), 500
 
 
@@ -178,6 +161,7 @@ def force_complete_task(job_id):
         headers = {"Authorization": f"Bearer {MUREKA_API_KEY}"}
         status_url = f"{MUREKA_STATUS_ENDPOINT}/{job_id}"
 
+        print("Request URL", MUREKA_STATUS_ENDPOINT)
         response = requests.get(status_url, headers=headers, timeout=10)
         response.raise_for_status()
         mureka_result = response.json()
@@ -203,6 +187,7 @@ def force_complete_task(job_id):
         }), 200
 
     except Exception as e:
+        print(f"Error on force complete task: {e}", file=sys.stderr)
         return jsonify({"error": str(e)}), 500
 
 
@@ -214,6 +199,7 @@ def song_status(task_id):
     result = celery_app.AsyncResult(task_id)
 
     if result.state == 'PENDING':
+        print(f"{task_id} PENDING", file=sys.stderr)
         return jsonify({
             "task_id": task_id,
             "status": "PENDING",
@@ -221,6 +207,7 @@ def song_status(task_id):
         }), 200
 
     elif result.state == 'PROGRESS':
+        print(f"{task_id} PROGRESS", file=sys.stderr)
         progress_info = result.info if isinstance(result.info, dict) else {}
         return jsonify({
             "task_id": task_id,
@@ -229,6 +216,7 @@ def song_status(task_id):
         }), 200
 
     elif result.state == 'SUCCESS':
+        print(f"{task_id} SUCCESS", file=sys.stderr)
         task_result = result.result
         return jsonify({
             "task_id": task_id,
@@ -237,6 +225,7 @@ def song_status(task_id):
         }), 200
 
     elif result.state == 'FAILURE':
+        print(f"{task_id} FAILURE", file=sys.stderr)
         return jsonify({
             "task_id": task_id,
             "status": "FAILURE",
@@ -244,6 +233,7 @@ def song_status(task_id):
         }), 200
 
     else:
+        print(f"{task_id} UKNOWN", file=sys.stderr)
         return jsonify({
             "task_id": task_id,
             "status": result.state,
@@ -272,6 +262,7 @@ def cancel_task(task_id):
             }), 400
 
     except Exception as e:
+        print(f"Error on cancel task: {e}", file=sys.stderr)
         return jsonify({
             "error": f"Failed to cancel task: {str(e)}"
         }), 500
@@ -287,6 +278,7 @@ def delete_task_result(task_id):
             "message": "Task result deleted successfully"
         }), 200
     except Exception as e:
+        print(f"Error on delete task: {e}", file=sys.stderr)
         return jsonify({
             "error": f"Failed to delete task result: {str(e)}"
         }), 500
@@ -299,4 +291,28 @@ def queue_status():
         slot_status = get_slot_status()
         return jsonify(slot_status), 200
     except Exception as e:
+        print(f"Error on get queue status: {e}", file=sys.stderr)
         return jsonify({"error": str(e)}), 500
+
+
+def check_balance():
+    """Check Balance"""
+    try:
+        print(f"Request URL: {MUREKA_BILLING_URL}", file=sys.stderr)
+        headers = {"Authorization": f"Bearer {MUREKA_API_KEY}"}
+        account_response = requests.get(MUREKA_BILLING_URL, headers=headers, timeout=10)
+
+        if account_response.status_code == 200:
+            account_data = account_response.json()
+            balance = account_data.get("balance", 0)
+
+            if balance <= 0:
+                print(f"Insufficient MUREKA balance: {balance}", file=sys.stderr)
+                return False
+            else:
+                print(f"Account OK : {balance}", file=sys.stderr)
+                return True
+
+    except Exception as e:
+        print(f"Could not check MUREKA balance: {e}", file=sys.stderr)
+        return False

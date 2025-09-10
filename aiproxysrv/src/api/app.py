@@ -14,9 +14,8 @@ def create_app():
     
     # Configure CORS to allow requests from Angular frontend
     CORS(app,
-         origins=["http://localhost:4200"],
-         methods=["GET", "POST", "DELETE"],
-         allow_headers=["Content-Type, Authorization"])
+         origins="*",
+         methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"])
 
     # Global API Blueprint
     api_v1 = Blueprint("api_v1", __name__, url_prefix="/api/v1")

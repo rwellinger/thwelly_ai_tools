@@ -22,12 +22,17 @@ export class SongViewComponent implements OnInit {
   result = '';
   resultData: any = null;
   choices: any[] = [];
+  stemDownloadUrl: string | null = null;
 
   constructor(
     private fb: FormBuilder,
     private songService: SongService,
     private apiConfig: ApiConfigService
   ) {
+  }
+
+  private delay(ms: number): Promise<void> {
+    return new Promise(resolve => setTimeout(resolve, ms));
   }
 
   ngOnInit() {
@@ -60,6 +65,7 @@ export class SongViewComponent implements OnInit {
     this.isLoading = true;
     this.loadingMessage = 'Fetching result…';
     this.result = '';
+    this.stemDownloadUrl = null;
 
     try {
       const data = await this.songService.checkSongStatus(taskId);
@@ -128,11 +134,17 @@ export class SongViewComponent implements OnInit {
     this.loadingMessage = 'Generating stems...';
 
     try {
-      const response = await fetch(this.apiConfig.endpoints.song.stems, {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({url: mp3Url})
-      });
+      const response = await Promise.race([
+        fetch(this.apiConfig.endpoints.song.stems, {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({url: mp3Url})
+        }),
+        this.delay(120000).then(() => {
+          throw new Error('Timeout after 2 minutes');
+        })
+      ]);
+
 
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
@@ -141,13 +153,13 @@ export class SongViewComponent implements OnInit {
       const data = await response.json();
 
       if (data.status === 'SUCCESS' && data.result && data.result.zip_url) {
-        this.result += `
-          <p><strong>Download Stems: </strong><a href="${data.result.zip_url}" target="_blank">Download</a></p>
-        `;
+        this.stemDownloadUrl = data.result.zip_url;
       } else {
+        this.stemDownloadUrl = null;
         this.result += '<p>Stem generation failed or incomplete.</p>';
       }
     } catch (error: any) {
+      this.stemDownloadUrl = null;
       this.result += `<p>Error generating stem: ${error.message}</p>`;
       console.error('Error generating stem:', error);
     } finally {
