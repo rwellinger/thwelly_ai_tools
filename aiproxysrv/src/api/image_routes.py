@@ -83,7 +83,7 @@ def generate():
     except Exception as e:
         return jsonify({"error": f"Error on persist image: {e}"}), 500
 
-    local_url = f"{request.host_url}image/{filename}"
+    local_url = f"{request.host_url}/api/v1/image/{filename}"
     return jsonify({
         "url": local_url,
         "saved_path": str(image_path)

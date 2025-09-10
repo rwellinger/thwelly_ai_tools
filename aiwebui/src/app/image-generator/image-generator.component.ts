@@ -16,6 +16,8 @@ export class ImageGeneratorComponent implements OnInit {
   promptForm!: FormGroup;
   isLoading = false;
   result = '';
+  generatedImageUrl = '';
+  showImageModal = false;
 
   constructor(
     private fb: FormBuilder,
@@ -48,7 +50,8 @@ export class ImageGeneratorComponent implements OnInit {
         const data = await response.json();
         
         if (data.url) {
-          this.result = `<img src="${data.url}" alt="Generated Image" style="max-width: 100%; height: auto;">`;
+          this.generatedImageUrl = data.url;
+          this.result = 'Image generated successfully!';
         } else {
           this.result = 'Error generating image.';
         }
@@ -58,5 +61,24 @@ export class ImageGeneratorComponent implements OnInit {
         this.isLoading = false;
       }
     }
+  }
+
+  downloadImage() {
+    if (this.generatedImageUrl) {
+      const link = document.createElement('a');
+      link.href = this.generatedImageUrl;
+      link.download = `generated-image-${Date.now()}.png`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+  }
+
+  openImageModal() {
+    this.showImageModal = true;
+  }
+
+  closeImageModal() {
+    this.showImageModal = false;
   }
 }

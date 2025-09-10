@@ -11,7 +11,7 @@ export class ApiConfigService {
   readonly endpoints = {
     song: {
       generate: `${this.baseUrl}/api/v1/song/generate`,
-      status: (taskId: string) => `${this.baseUrl}/api/v1/song/status/${taskId}`,
+      status: (taskId: string) => `${this.baseUrl}/api/v1/song/task/status/${taskId}`,
       tasks: `${this.baseUrl}/api/v1/song/tasks`,
       stems: `${this.baseUrl}/api/v1/song/stems`
     },
@@ -21,7 +21,7 @@ export class ApiConfigService {
       tasks: `${this.baseUrl}/api/v1/image/tasks`
     },
     redis: {
-      keys: `${this.baseUrl}/api/v1/redis/keys`
+      keys: `${this.baseUrl}/api/v1/redis/list/keys`
     },
     billing: {
       info: `${this.baseUrl}/api/v1/song/mureka-account`

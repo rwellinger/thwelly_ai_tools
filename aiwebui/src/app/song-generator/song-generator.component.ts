@@ -129,6 +129,10 @@ export class SongGeneratorComponent implements OnInit {
           
           this.result = infoHtml;
           completed = true;
+        } else if (data.status === 'FAILURE') {
+          const errorMessage = data.result?.error || data.result || 'Song generation failed';
+          this.result = `<div class="error-box">Error: ${errorMessage}</div>`;
+          completed = true;
         } else {
           const murekaStatus = data.progress?.mureka_status || "Initialize";
           this.loadingMessage = `Processing (${murekaStatus}) ... Please wait until finished.`;

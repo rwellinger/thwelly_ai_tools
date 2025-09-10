@@ -20,3 +20,4 @@ ollamasrv/docker_images
 revproxy/nginx/.htpasswd
 revproxy/certs
 revproxy/logs
+revproxy/html/aiwebui
