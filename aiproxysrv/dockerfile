@@ -5,7 +5,7 @@ RUN mkdir /images
 WORKDIR /app
 
 COPY requirements.txt .
-COPY .env .
+COPY .env_docker .env
 
 RUN pip install --no-cache-dir -r requirements.txt
 

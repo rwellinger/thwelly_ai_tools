@@ -1,0 +1,56 @@
+<h1>DALL.E 3 - Graphics Generator</h1>
+<app-header></app-header>
+
+<form [formGroup]="promptForm" (ngSubmit)="onSubmit()">
+    <br>
+    <textarea 
+        formControlName="prompt" 
+        placeholder="Enter your prompt here..." 
+        required>
+    </textarea>
+    <br>
+    <label for="size">Select Image Size:</label>
+    <select formControlName="size" required>
+        <option value="1024x1024">Square (1024x1024)</option>
+        <option value="1792x1024">Landscape (1792x1024)</option>
+        <option value="1024x1792">Portrait (1024x1792)</option>
+    </select>
+    <br>
+    <button type="submit" [disabled]="promptForm.invalid || isLoading">Submit</button>
+</form>
+
+<div id="loading" *ngIf="isLoading">Please wait, the request is being processed...</div>
+<div id="result">{{ result }}</div>
+
+<div *ngIf="generatedImageUrl" class="image-actions">
+    <button (click)="downloadImage()" class="action-button download-btn">
+        📥 Download Image
+    </button>
+    <button (click)="openImageModal()" class="action-button preview-btn">
+        👁️ Preview Image
+    </button>
+</div>
+
+<div *ngIf="showImageModal" class="modal-overlay" (click)="closeImageModal()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+            <h3>Image Preview</h3>
+            <button class="close-button" (click)="closeImageModal()">×</button>
+        </div>
+        <div class="modal-body">
+            <img [src]="generatedImageUrl" alt="Generated Image" class="preview-image">
+        </div>
+        <div class="modal-footer">
+            <button (click)="downloadImage()" class="action-button download-btn">
+                📥 Download
+            </button>
+            <button (click)="closeImageModal()" class="action-button close-btn">
+                Close
+            </button>
+        </div>
+    </div>
+</div>
+
+<br>
+
+<app-footer></app-footer>

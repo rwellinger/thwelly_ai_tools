@@ -21,5 +21,7 @@ celery_app.conf.update(
     task_acks_late=True,
 
     # Tasks automatisch entdecken
-    include=['celery_app.tasks']
+    include=['celery_app.tasks'],
+    # Tasks auch explizit importieren beim App-Start
+    imports=['celery_app.tasks']
 )

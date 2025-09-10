@@ -1,0 +1,56 @@
+<h1>MUREKA – Song View</h1>
+<app-header></app-header>
+
+<form [formGroup]="viewForm" (ngSubmit)="onSubmit()">
+    <br>
+    <label for="taskSelect"></label>
+    <select formControlName="taskSelect" style="width: 250px;">
+        <option value="">Wähle eine Task‑ID …</option>
+        <option *ngFor="let task of tasks" [value]="task.task_id">
+            {{ task.task_id }}
+        </option>
+    </select>
+    <br>
+    <button type="submit" [disabled]="!viewForm.get('taskSelect')?.value || isLoading">Show Result</button>
+</form>
+
+<br>
+<div id="loading" *ngIf="isLoading">{{ loadingMessage }}</div>
+
+<div *ngIf="result && !resultData">{{ result }}</div>
+
+<div *ngIf="resultData" class="info-box">
+    <p><strong>ID:</strong> {{ resultData.id }}</p>
+    <p><strong>Model used:</strong> {{ resultData.model }}</p>
+    <p><strong>Created:</strong> {{ resultData.createdAtFormatted }}</p>
+    <p><strong>Duration:</strong> {{ resultData.formattedDuration }} Minutes</p>
+</div>
+
+<table *ngIf="choices.length > 0" class="result-table">
+    <thead>
+        <tr>
+            <th>Song Id</th>
+            <th>Duration</th>
+            <th>FLAC File</th>
+            <th>MP3 File</th>
+            <th>Stem</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr *ngFor="let choice of choices">
+            <td>{{ choice.id }}</td>
+            <td>{{ choice.formattedDuration }}</td>
+            <td><a [href]="choice.flac_url">FLAC-Download</a></td>
+            <td><a [href]="choice.url">MP3-Download</a></td>
+            <td><button [disabled]="isLoading" type="button" (click)="generateStem(choice.url)">Generate</button></td>
+        </tr>
+    </tbody>
+</table>
+
+<div *ngIf="stemDownloadUrl" class="stem-download">
+    <p><strong>Download Stems: </strong><a [href]="stemDownloadUrl" target="_blank">Download</a></p>
+</div>
+
+<br>
+
+<app-footer></app-footer>

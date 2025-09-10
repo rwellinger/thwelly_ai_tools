@@ -40,6 +40,9 @@ OPENAI_API_KEY=
 OPENAI_URL=https://api.openai.com/v1/images
 OPENAI_MODEL=dall-e-3
 
+# Image storage directory (defaults to "./images" in debug mode, "/images" in production)
+# IMAGES_DIR=./images
+
 # ==================================================
 # APPLICATION SETTINGS
 # ==================================================

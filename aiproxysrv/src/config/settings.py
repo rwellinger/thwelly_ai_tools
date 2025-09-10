@@ -39,6 +39,11 @@ OPENAI_HOST = os.getenv("OPENAI_HOST", "0.0.0.0")
 DEBUG = os.getenv("DEBUG", "false").lower() == "true"
 
 # --------------------------------------------------
+# Image Storage Config
+# --------------------------------------------------
+IMAGES_DIR = os.getenv("IMAGES_DIR", "./images" if DEBUG else "/images")
+
+# --------------------------------------------------
 # Redis Config (falls verwendet)
 # --------------------------------------------------
 REDIS_URL = os.getenv("REDIS_URL", "redis://localhost:6379/0")
