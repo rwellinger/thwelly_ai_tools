@@ -58,7 +58,7 @@ export class SongViewComponent implements OnInit {
 
     try {
       const data = await this.songService.checkSongStatus(taskId);
-      
+
       if (data.status === 'SUCCESS' && data.result) {
         this.result = this.renderResultTask(data.result);
       } else if (data.status === 'FAILED') {
@@ -109,14 +109,14 @@ export class SongViewComponent implements OnInit {
       const seconds = totalSeconds % 60;
       const formattedMinutes = String(minutes).padStart(2, '0');
       const formattedSeconds = String(seconds).padStart(2, '0');
-      
+
       return `
         <tr>
             <td>${song_id}</td>
             <td>${formattedMinutes}:${formattedSeconds}</td>
             <td><a href="${choice.flac_url}">FLAC-Download</a></td>
             <td><a href="${choice.url}">MP3-Download</a></td>
-            <td><button onclick="generateStem('${choice.url}')">Generate</button></td>
+            <td><button (click)="generateStem('${choice.url}')">Generate</button></td>
         </tr>
       `;
     }).join('');
