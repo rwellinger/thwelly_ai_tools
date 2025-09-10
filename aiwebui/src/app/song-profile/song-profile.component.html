@@ -1,0 +1,14 @@
+<h1>MUREKA - Billing Information</h1>
+<app-header></app-header>
+
+<div id="loading" *ngIf="isLoading">Fetching billing information...</div>
+<div id="billingInfo" class="info-box" *ngIf="!isLoading && billingInfo">
+    <h3>Account Information</h3>
+    <p><strong>Balance:</strong> ${{ billingInfo.balance }}</p>
+    <p><strong>Total Spending:</strong> ${{ billingInfo.totalSpending }}</p>
+    <p><strong>Concurrent Request Limit:</strong> {{ billingInfo.requestLimit }}</p>
+    <p><strong>Status:</strong> {{ billingInfo.status }}</p>
+</div>
+<br>
+
+<app-footer></app-footer>

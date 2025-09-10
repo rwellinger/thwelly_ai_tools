@@ -1,0 +1,22 @@
+<h1>MUREKA – Song View</h1>
+<app-header></app-header>
+
+<form [formGroup]="viewForm" (ngSubmit)="onSubmit()">
+    <br>
+    <label for="taskSelect"></label>
+    <select formControlName="taskSelect" style="width: 250px;">
+        <option value="">Wähle eine Task‑ID …</option>
+        <option *ngFor="let task of tasks" [value]="task.task_id">
+            {{ task.task_id }}
+        </option>
+    </select>
+    <br>
+    <button type="submit" [disabled]="!viewForm.get('taskSelect')?.value || isLoading">Show Result</button>
+</form>
+
+<br>
+<div id="loading" *ngIf="isLoading">{{ loadingMessage }}</div>
+<div id="result" [innerHTML]="result"></div>
+<br>
+
+<app-footer></app-footer>

@@ -1,0 +1,33 @@
+<h1>MUREKA - Song Generator</h1>
+<app-header></app-header>
+
+<form [formGroup]="songForm" (ngSubmit)="onSubmit()">
+    <textarea 
+        formControlName="lyrics" 
+        placeholder="Enter lyrics here..." 
+        required>
+    </textarea>
+    <textarea 
+        formControlName="prompt" 
+        placeholder="Enter Music Style Prompt here..." 
+        required>
+    </textarea>
+    
+    <label for="model">Model:</label>
+    <select formControlName="model" required>
+        <option value="auto" selected>Auto</option>
+        <option value="mureka-7">Mureka 7</option>
+        <option value="mureka-6">Mureka 6</option>
+        <option value="mureka-o1">Mureka o1</option>
+    </select>
+    
+    <button type="submit" [disabled]="songForm.invalid || isLoading">Generate Song</button>
+    <button type="button" (click)="resetForm()">Reset</button>
+</form>
+
+<br>
+<div id="loading" *ngIf="isLoading">{{ loadingMessage }}</div>
+<div id="result" [innerHTML]="result"></div>
+<br>
+
+<app-footer></app-footer>

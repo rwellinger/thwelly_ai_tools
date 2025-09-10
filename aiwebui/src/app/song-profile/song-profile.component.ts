@@ -1,0 +1,41 @@
+import { Component, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { HeaderComponent } from '../shared/header/header.component';
+import { FooterComponent } from '../shared/footer/footer.component';
+import { ApiConfigService } from '../services/api-config.service';
+
+@Component({
+  selector: 'app-song-profile',
+  standalone: true,
+  imports: [CommonModule, HeaderComponent, FooterComponent],
+  templateUrl: './song-profile.component.html',
+  styleUrl: './song-profile.component.css'
+})
+export class SongProfileComponent implements OnInit {
+  isLoading = true;
+  billingInfo: any = null;
+
+  constructor(private apiConfig: ApiConfigService) {}
+
+  ngOnInit() {
+    this.loadBillingInfo();
+  }
+
+  async loadBillingInfo() {
+    try {
+      const response = await fetch(this.apiConfig.endpoints.billing.info);
+      const data = await response.json();
+      this.billingInfo = data;
+    } catch (error) {
+      console.error('Error loading billing info:', error);
+      this.billingInfo = {
+        balance: 'N/A',
+        totalSpending: 'N/A',
+        requestLimit: 'N/A',
+        status: 'Error loading data'
+      };
+    } finally {
+      this.isLoading = false;
+    }
+  }
+}

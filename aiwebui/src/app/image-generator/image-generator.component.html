@@ -1,0 +1,26 @@
+<h1>DALL.E 3 - Graphics Generator</h1>
+<app-header></app-header>
+
+<form [formGroup]="promptForm" (ngSubmit)="onSubmit()">
+    <br>
+    <textarea 
+        formControlName="prompt" 
+        placeholder="Enter your prompt here..." 
+        required>
+    </textarea>
+    <br>
+    <label for="size">Select Image Size:</label>
+    <select formControlName="size" required>
+        <option value="1024x1024">Square (1024x1024)</option>
+        <option value="1792x1024">Landscape (1792x1024)</option>
+        <option value="1024x1792">Portrait (1024x1792)</option>
+    </select>
+    <br>
+    <button type="submit" [disabled]="promptForm.invalid || isLoading">Submit</button>
+</form>
+
+<div id="loading" *ngIf="isLoading">Please wait, the request is being processed...</div>
+<div id="result" [innerHTML]="result"></div>
+<br>
+
+<app-footer></app-footer>
