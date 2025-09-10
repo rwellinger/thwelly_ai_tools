@@ -2,6 +2,7 @@
 Flask App mit allen Blueprints
 """
 from flask import Flask, jsonify, Blueprint
+from flask_cors import CORS
 from .image_routes import api_image_v1
 from .song_routes import api_song_v1, api_song_task_v1
 from .redis_routes import api_redis_v1
@@ -10,6 +11,9 @@ from .redis_routes import api_redis_v1
 def create_app():
     """Flask App Factory"""
     app = Flask(__name__)
+    
+    # Configure CORS to allow requests from Angular frontend
+    CORS(app, origins=["http://localhost:4200"])
 
     # Global API Blueprint
     api_v1 = Blueprint("api_v1", __name__, url_prefix="/api/v1")

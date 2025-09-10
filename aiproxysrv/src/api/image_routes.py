@@ -8,14 +8,14 @@ import time
 import hashlib
 from pathlib import Path
 from flask import Blueprint, request, jsonify, send_from_directory
-from config.settings import OPENAI_API_KEY, OPENAI_URL, OPENAI_MODEL
+from config.settings import OPENAI_API_KEY, OPENAI_URL, OPENAI_MODEL, IMAGES_DIR
 
 api_image_v1 = Blueprint("api_image_v1", __name__, url_prefix="/api/v1/image")
 
 @api_image_v1.route('/<path:filename>')
 def serve_image(filename):
     """Serviert gespeicherte Bilder"""
-    return send_from_directory("/images", filename)
+    return send_from_directory(IMAGES_DIR, filename)
 
 
 @api_image_v1.route('/generate', methods=['POST'])
@@ -68,7 +68,8 @@ def generate():
     except Exception as e:
         return jsonify({"error": f"Download-Error: {e}"}), 500
 
-    images_dir = Path("/images")
+    images_dir = Path(IMAGES_DIR)
+    images_dir.mkdir(parents=True, exist_ok=True)  # Stelle sicher, dass das Verzeichnis existiert
     prompt_hash = hashlib.md5(prompt.encode()).hexdigest()[:10]
     filename = f"{prompt_hash}_{int(time.time())}.png"
     image_path = images_dir / filename

@@ -10,21 +10,21 @@ export class ApiConfigService {
   // API Endpoints
   readonly endpoints = {
     song: {
-      generate: `${this.baseUrl}/api/song/generate`,
-      status: (taskId: string) => `${this.baseUrl}/api/song/status/${taskId}`,
-      tasks: `${this.baseUrl}/api/song/tasks`,
-      stems: `${this.baseUrl}/api/song/stems`
+      generate: `${this.baseUrl}/api/v1/song/generate`,
+      status: (taskId: string) => `${this.baseUrl}/api/v1/song/status/${taskId}`,
+      tasks: `${this.baseUrl}/api/v1/song/tasks`,
+      stems: `${this.baseUrl}/api/v1/song/stems`
     },
     image: {
-      generate: `${this.baseUrl}/api/image/generate`,
-      status: (taskId: string) => `${this.baseUrl}/api/image/status/${taskId}`,
-      tasks: `${this.baseUrl}/api/image/tasks`
+      generate: `${this.baseUrl}/api/v1/image/generate`,
+      status: (taskId: string) => `${this.baseUrl}/api/v1/image/status/${taskId}`,
+      tasks: `${this.baseUrl}/api/v1/image/tasks`
     },
     redis: {
-      keys: `${this.baseUrl}/api/redis/keys`
+      keys: `${this.baseUrl}/api/v1/redis/keys`
     },
     billing: {
-      info: `${this.baseUrl}/api/billing/info`
+      info: `${this.baseUrl}/api/v1/song/mureka-account`
     }
   };
 

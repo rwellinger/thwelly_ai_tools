@@ -4,9 +4,11 @@
 <div id="loading" *ngIf="isLoading">Fetching billing information...</div>
 <div id="billingInfo" class="info-box" *ngIf="!isLoading && billingInfo">
     <h3>Account Information</h3>
-    <p><strong>Balance:</strong> ${{ billingInfo.balance }}</p>
-    <p><strong>Total Spending:</strong> ${{ billingInfo.totalSpending }}</p>
-    <p><strong>Concurrent Request Limit:</strong> {{ billingInfo.requestLimit }}</p>
+    <p><strong>Account ID:</strong> {{ billingInfo.account_info?.account_id }}</p>
+    <p><strong>Balance:</strong> ${{ (billingInfo.account_info?.balance || 0) / 100 }}</p>
+    <p><strong>Total Spending:</strong> ${{ (billingInfo.account_info?.total_spending || 0) / 100 }}</p>
+    <p><strong>Total Recharge:</strong> ${{ (billingInfo.account_info?.total_recharge || 0) / 100 }}</p>
+    <p><strong>Concurrent Request Limit:</strong> {{ billingInfo.account_info?.concurrent_request_limit }}</p>
     <p><strong>Status:</strong> {{ billingInfo.status }}</p>
 </div>
 <br>
