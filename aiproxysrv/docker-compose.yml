@@ -20,7 +20,6 @@ services:
     container_name: aiproxysrv
     restart: unless-stopped
     build: .
-    command: /bin/bash -c "alembic -c /app/alembic.ini upgrade head && gunicorn -w 4 -b 0.0.0.0:5050 wsgi:app"
     ports:
       - "5050:5050"
     env_file: .env
