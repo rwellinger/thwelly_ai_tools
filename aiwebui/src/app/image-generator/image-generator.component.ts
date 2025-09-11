@@ -48,7 +48,7 @@ export class ImageGeneratorComponent implements OnInit {
         });
 
         const data = await response.json();
-        
+
         if (data.url) {
           this.generatedImageUrl = data.url;
           this.result = 'Image generated successfully!';
@@ -67,6 +67,7 @@ export class ImageGeneratorComponent implements OnInit {
     if (this.generatedImageUrl) {
       const link = document.createElement('a');
       link.href = this.generatedImageUrl;
+      link.target = '_blank';
       link.download = `generated-image-${Date.now()}.png`;
       document.body.appendChild(link);
       link.click();
