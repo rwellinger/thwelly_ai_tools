@@ -6,10 +6,12 @@ WORKDIR /app
 
 COPY requirements.txt .
 COPY .env_docker .env
+COPY alembic.ini.docker alembic.ini
 
 RUN pip install --no-cache-dir -r requirements.txt
 
 COPY pyproject.toml .
+
 COPY src/ ./src/
 RUN pip install -e .
 
