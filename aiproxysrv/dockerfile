@@ -16,10 +16,13 @@ COPY src/ ./src/
 RUN pip install -e .
 
 RUN apt-get update && \
-    apt-get install -y curl && \
+    apt-get install -y curl postgresql-client && \
     rm -rf /var/lib/apt/lists/*
 
-RUN alembic upgrade head
-
 EXPOSE 5050
-CMD ["gunicorn", "-w", "4", "-b", "0.0.0.0:5050", "wsgi:app"]
+
+# Create entrypoint script
+COPY docker-entrypoint.sh /docker-entrypoint.sh
+RUN chmod +x /docker-entrypoint.sh
+
+CMD ["/docker-entrypoint.sh"]
