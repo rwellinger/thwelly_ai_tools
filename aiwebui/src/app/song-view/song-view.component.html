@@ -10,13 +10,13 @@
             {{ task.task_id }}
         </option>
     </select>
-    <button type="submit" [disabled]="!viewForm.get('taskSelect')?.value || isLoading">Show Result</button>
-    <button type="button" [disabled]="!viewForm.get('taskSelect')?.value || isLoading" (click)="deleteTask()">Delete</button>
+    <button type="submit" [disabled]="!viewForm.get('taskSelect')?.value || isLoading">
+        <i class="fas fa-eye"></i> Show Result
+    </button>
+    <button type="button" [disabled]="!viewForm.get('taskSelect')?.value || isLoading" (click)="deleteTask()">
+        <i class="fas fa-trash"></i> Delete
+    </button>
 </form>
-
-<div id="loading" *ngIf="isLoading">{{ loadingMessage }}</div>
-
-<div *ngIf="successMessage" style="color: green; font-weight: bold; margin: 10px 0;">{{ successMessage }}</div>
 
 <div *ngIf="result && !resultData">{{ result }}</div>
 
@@ -41,14 +41,19 @@
     <tr *ngFor="let choice of choices">
         <td>{{ choice.id }}</td>
         <td>{{ choice.formattedDuration }}</td>
-        <td><a [href]="choice.flac_url">FLAC-Download</a></td>
+        <td><a [href]="choice.flac_url">
+            <i class="fas fa-download"></i> Download
+        </a>
         <td>
             <button type="button" (click)="playAudio(choice.url, choice.id)">
+                <i class="fas fa-music"></i>
                 {{ currentlyPlaying === choice.id ? 'Hide Player' : 'Show Player' }}
             </button>
         </td>
         <td>
-            <button [disabled]="isLoading" type="button" (click)="generateStem(choice.url)">Generate</button>
+            <button [disabled]="isLoading" type="button" (click)="generateStem(choice.url)">
+                <i class="fas fa-brain"></i> Generate
+            </button>
         </td>
     </tr>
     </tbody>
@@ -66,7 +71,9 @@
 </div>
 
 <div *ngIf="stemDownloadUrl" class="stem-download">
-    <p><strong>Download Stems: </strong><a [href]="stemDownloadUrl" target="_blank">Download</a></p>
+    <p><strong>Download Stems: </strong><a [href]="stemDownloadUrl" target="_blank">
+        <i class="fas fa-download"></i> Download
+    </a></p>
 </div>
 
 <app-footer></app-footer>

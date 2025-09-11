@@ -4,11 +4,13 @@ import { CommonModule } from '@angular/common';
 import { HeaderComponent } from '../shared/header/header.component';
 import { FooterComponent } from '../shared/footer/footer.component';
 import { ApiConfigService } from '../services/api-config.service';
+import { NotificationService } from '../services/notification.service';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
 
 @Component({
   selector: 'app-image-generator',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, HeaderComponent, FooterComponent],
+  imports: [CommonModule, ReactiveFormsModule, HeaderComponent, FooterComponent, MatSnackBarModule],
   templateUrl: './image-generator.component.html',
   styleUrl: './image-generator.component.css'
 })
@@ -21,7 +23,8 @@ export class ImageGeneratorComponent implements OnInit {
 
   constructor(
     private fb: FormBuilder,
-    private apiConfig: ApiConfigService
+    private apiConfig: ApiConfigService,
+    private notificationService: NotificationService
   ) {}
 
   ngOnInit() {
@@ -35,6 +38,7 @@ export class ImageGeneratorComponent implements OnInit {
     if (this.promptForm.valid) {
       this.isLoading = true;
       this.result = '';
+      this.notificationService.loading('Generating image...');
 
       try {
         const formValue = this.promptForm.value;
@@ -51,12 +55,12 @@ export class ImageGeneratorComponent implements OnInit {
 
         if (data.url) {
           this.generatedImageUrl = data.url;
-          this.result = 'Image generated successfully!';
+          this.notificationService.success('Image generated successfully!');
         } else {
-          this.result = 'Error generating image.';
+          this.notificationService.error('Error generating image.');
         }
       } catch (error: any) {
-        this.result = `Error: ${error.message}`;
+        this.notificationService.error(`Error: ${error.message}`);
       } finally {
         this.isLoading = false;
       }

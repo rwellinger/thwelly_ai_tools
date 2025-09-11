@@ -136,6 +136,26 @@ button:hover {
     background: #555;
 }
 
+form button[type="button"] {
+    background-color: #f44336;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+form button[type="button"]:hover:not(:disabled) {
+    background-color: maroon;
+}
+
+form button[type="button"]:disabled {
+    background-color: #6c757d;
+    cursor: not-allowed;
+}
+
+
 label {
     font-size: medium;
     margin-right: 20px;
