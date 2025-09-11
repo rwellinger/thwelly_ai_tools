@@ -21,7 +21,8 @@ export class ApiConfigService {
       tasks: `${this.baseUrl}/api/v1/image/tasks`
     },
     redis: {
-      keys: `${this.baseUrl}/api/v1/redis/list/keys`
+      keys: `${this.baseUrl}/api/v1/redis/list/keys`,
+      deleteTask: (taskId: string) => `${this.baseUrl}/api/v1/redis/${taskId}`
     },
     billing: {
       info: `${this.baseUrl}/api/v1/song/mureka-account`

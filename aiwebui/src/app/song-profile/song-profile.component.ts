@@ -3,11 +3,13 @@ import { CommonModule } from '@angular/common';
 import { HeaderComponent } from '../shared/header/header.component';
 import { FooterComponent } from '../shared/footer/footer.component';
 import { ApiConfigService } from '../services/api-config.service';
+import { NotificationService } from '../services/notification.service';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
 
 @Component({
   selector: 'app-song-profile',
   standalone: true,
-  imports: [CommonModule, HeaderComponent, FooterComponent],
+  imports: [CommonModule, HeaderComponent, FooterComponent, MatSnackBarModule],
   templateUrl: './song-profile.component.html',
   styleUrl: './song-profile.component.css'
 })
@@ -15,9 +17,13 @@ export class SongProfileComponent implements OnInit {
   isLoading = true;
   billingInfo: any = null;
 
-  constructor(private apiConfig: ApiConfigService) {}
+  constructor(
+    private apiConfig: ApiConfigService,
+    private notificationService: NotificationService
+  ) {}
 
   ngOnInit() {
+    this.notificationService.loading('Loading billing info...');
     this.loadBillingInfo();
   }
 
@@ -26,8 +32,9 @@ export class SongProfileComponent implements OnInit {
       const response = await fetch(this.apiConfig.endpoints.billing.info);
       const data = await response.json();
       this.billingInfo = data;
+      this.notificationService.success('Billing info loaded successfully!');
     } catch (error) {
-      console.error('Error loading billing info:', error);
+      this.notificationService.error('Error loading billing info');
       this.billingInfo = {
         balance: 'N/A',
         totalSpending: 'N/A',

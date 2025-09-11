@@ -13,34 +13,33 @@
         <option value="1792x1024">Landscape (1792x1024)</option>
         <option value="1024x1792">Portrait (1024x1792)</option>
     </select>
-    <button type="submit" [disabled]="promptForm.invalid || isLoading">Generate Image</button>
+    <button type="submit" [disabled]="promptForm.invalid || isLoading">
+        <i class="fas fa-brain"></i> Generate Image
+    </button>
 </form>
 
-<div id="loading" *ngIf="isLoading">Please wait, the request is being processed...</div>
 <div id="result">{{ result }}</div>
 
 <div *ngIf="generatedImageUrl" class="image-actions">
     <button (click)="downloadImage()" class="action-button download-btn">
-        📥 Download Image
+        <i class="fas fa-download"></i> Download Image
     </button>
     <button (click)="openImageModal()" class="action-button preview-btn">
-        👁️ Preview Image
+        <i class="fas fa-image"></i> Preview Image
     </button>
 </div>
 
 <div *ngIf="showImageModal" class="modal-overlay" (click)="closeImageModal()">
     <div class="modal-content" (click)="$event.stopPropagation()">
         <div class="modal-header">
-            <button class="close-button" (click)="closeImageModal()">×</button>
+            <button class="close-button" (click)="closeImageModal()">
+                <i class="fas fa-square-xmark"></i> Preview Image
+            </button>
         </div>
         <div class="modal-body">
             <img [src]="generatedImageUrl" alt="Generated Image" class="preview-image">
         </div>
-        <div class="modal-footer">
-            <button (click)="closeImageModal()" class="action-button close-btn">
-                Close
-            </button>
-        </div>
     </div>
 </div>
+
 <app-footer></app-footer>

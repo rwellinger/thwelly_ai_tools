@@ -111,7 +111,7 @@ form button[type="submit"] {
     padding: 10px 20px;
     border-radius: 4px;
     cursor: pointer;
-    font-size: 16px;
+    font-size: 14px;
 }
 
 form button[type="submit"]:hover:not(:disabled) {
@@ -119,6 +119,25 @@ form button[type="submit"]:hover:not(:disabled) {
 }
 
 form button[type="submit"]:disabled {
+    background-color: #6c757d;
+    cursor: not-allowed;
+}
+
+form button[type="button"] {
+    background-color: #f44336;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+form button[type="button"]:hover:not(:disabled) {
+    background-color: maroon;
+}
+
+form button[type="button"]:disabled {
     background-color: #6c757d;
     cursor: not-allowed;
 }

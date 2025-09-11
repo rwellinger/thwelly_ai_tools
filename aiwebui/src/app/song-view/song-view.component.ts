@@ -5,11 +5,13 @@ import {SongService} from '../services/song.service';
 import {HeaderComponent} from '../shared/header/header.component';
 import {FooterComponent} from '../shared/footer/footer.component';
 import {ApiConfigService} from '../services/api-config.service';
+import { NotificationService } from '../services/notification.service';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
 
 @Component({
   selector: 'app-song-view',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, HeaderComponent, FooterComponent],
+  imports: [CommonModule, ReactiveFormsModule, HeaderComponent, FooterComponent, MatSnackBarModule],
   templateUrl: './song-view.component.html',
   styleUrl: './song-view.component.css',
   encapsulation: ViewEncapsulation.None
@@ -21,6 +23,7 @@ export class SongViewComponent implements OnInit {
   loadingMessage = '';
   result = '';
   resultData: any = null;
+  successMessage = '';
   choices: any[] = [];
   stemDownloadUrl: string | null = null;
   currentlyPlaying: string | null = null;
@@ -29,7 +32,8 @@ export class SongViewComponent implements OnInit {
   constructor(
     private fb: FormBuilder,
     private songService: SongService,
-    private apiConfig: ApiConfigService
+    private apiConfig: ApiConfigService,
+    private notificationService: NotificationService
   ) {
   }
 
@@ -52,15 +56,15 @@ export class SongViewComponent implements OnInit {
       const data = await response.json();
       this.tasks = data.tasks || [];
     } catch (error: any) {
+      this.notificationService.error(`Error loading tasks: ${error.message}`);
       this.result = `Error loading tasks: ${error.message}`;
-      console.error('Error loading task IDs:', error);
     }
   }
 
   async onSubmit() {
     const taskId = this.viewForm.get('taskSelect')?.value;
     if (!taskId) {
-      console.error('No task ID selected.');
+      this.notificationService.error('No task ID selected.');
       return;
     }
 
@@ -68,24 +72,28 @@ export class SongViewComponent implements OnInit {
     this.loadingMessage = 'Fetching result…';
     this.result = '';
     this.stemDownloadUrl = null;
+    this.notificationService.loading('Fetching result...');
 
     try {
       const data = await this.songService.checkSongStatus(taskId);
 
       if (data.status === 'SUCCESS' && data.result) {
         this.renderResultTask(data.result);
+        this.notificationService.success('Task result loaded successfully!');
       } else if (data.status === 'FAILED') {
+        this.notificationService.error('Job failed.');
         this.result = 'Job failed.';
         this.resultData = null;
         this.choices = [];
       } else {
+        this.notificationService.error(`Error Status: ${data.status}`);
         this.result = `Error Status: ${data.status}`;
         this.resultData = null;
         this.choices = [];
       }
     } catch (error: any) {
+      this.notificationService.error(`ExError: ${error.message}`);
       this.result = `ExError: ${error.message}`;
-      console.error('Fetch error:', error);
     } finally {
       this.isLoading = false;
     }
@@ -134,6 +142,7 @@ export class SongViewComponent implements OnInit {
   async generateStem(mp3Url: string) {
     this.isLoading = true;
     this.loadingMessage = 'Generating stems...';
+    this.notificationService.loading('Generating stems...');
 
     try {
       const response = await Promise.race([
@@ -156,14 +165,16 @@ export class SongViewComponent implements OnInit {
 
       if (data.status === 'SUCCESS' && data.result && data.result.zip_url) {
         this.stemDownloadUrl = data.result.zip_url;
+        this.notificationService.success('Stems generated successfully!');
       } else {
         this.stemDownloadUrl = null;
+        this.notificationService.error('Stem generation failed or incomplete.');
         this.result += '<p>Stem generation failed or incomplete.</p>';
       }
     } catch (error: any) {
       this.stemDownloadUrl = null;
+      this.notificationService.error(`Error generating stem: ${error.message}`);
       this.result += `<p>Error generating stem: ${error.message}</p>`;
-      console.error('Error generating stem:', error);
     } finally {
       this.isLoading = false;
     }
@@ -184,6 +195,54 @@ export class SongViewComponent implements OnInit {
   }
 
   onCanPlayThrough() {
-    console.log('Audio is ready to play');
+    this.notificationService.info('Audio is ready to play');
+  }
+
+  async deleteTask() {
+    const taskId = this.viewForm.get('taskSelect')?.value;
+    if (!taskId) {
+      this.notificationService.error('No task ID selected.');
+      return;
+    }
+
+    this.isLoading = true;
+    this.loadingMessage = 'Deleting task...';
+    this.successMessage = '';
+    this.notificationService.loading('Deleting task...');
+
+    try {
+      const response = await fetch(this.apiConfig.endpoints.redis.deleteTask(taskId), {
+        method: 'DELETE',
+        headers: {'Content-Type': 'application/json'}
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+
+      if (data.status === 'SUCCESS') {
+        this.notificationService.success('Task successfully deleted!');
+        this.successMessage = 'Task successfully deleted!';
+        this.viewForm.get('taskSelect')?.setValue('');
+        this.result = '';
+        this.resultData = null;
+        this.choices = [];
+        await this.loadTasks();
+        
+        setTimeout(() => {
+          this.successMessage = '';
+        }, 3000);
+      } else {
+        this.notificationService.error(`Delete failed: ${data.status}`);
+        this.result = `Delete failed: ${data.status}`;
+      }
+    } catch (error: any) {
+      this.notificationService.error(`Error deleting task: ${error.message}`);
+      this.result = `Error deleting task: ${error.message}`;
+    } finally {
+      this.isLoading = false;
+    }
   }
 }
