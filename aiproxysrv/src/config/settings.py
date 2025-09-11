@@ -47,3 +47,12 @@ IMAGES_DIR = os.getenv("IMAGES_DIR", "./images" if DEBUG else "/images")
 # Redis Config (falls verwendet)
 # --------------------------------------------------
 REDIS_URL = os.getenv("REDIS_URL", "redis://localhost:6379/0")
+
+# --------------------------------------------------
+# Database Config
+# --------------------------------------------------
+DATABASE_URL = os.getenv("DATABASE_URL", 
+    "postgresql://aiproxy:aiproxy123@localhost:5432/aiproxysrv" if DEBUG 
+    else "postgresql://aiproxy:aiproxy123@postgres:5432/aiproxysrv"
+)
+DATABASE_ECHO = os.getenv("DATABASE_ECHO", "false").lower() == "true"

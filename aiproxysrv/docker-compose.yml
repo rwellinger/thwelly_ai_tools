@@ -1,4 +1,24 @@
 services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: postgres
+    restart: unless-stopped
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_DB=aiproxysrv
+      - POSTGRES_USER=aiproxy
+      - POSTGRES_PASSWORD=aiproxy123
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    networks:
+      - webui-net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U aiproxy -d aiproxysrv"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
   redis:
     image: redis:alpine
     container_name: redis
@@ -33,6 +53,7 @@ services:
     networks:
       - webui-net
     depends_on:
+      - postgres
       - redis
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:5050/api/v1/health"]
@@ -48,6 +69,7 @@ services:
     command: celery -A celery_app.celery_config:celery_app worker --loglevel=info --concurrency=1
     user: "1000:1000"
     depends_on:
+      - postgres
       - redis
       - aiproxy-app
     env_file: .env
@@ -60,6 +82,7 @@ services:
     networks:
       - webui-net
 volumes:
+  postgres-data:
   redis-data:
   images-data:
 
