@@ -1,26 +1,34 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewEncapsulation } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { SongService } from '../services/song.service';
 import { HeaderComponent } from '../shared/header/header.component';
 import { FooterComponent } from '../shared/footer/footer.component';
+import { ApiConfigService } from '../services/api-config.service';
 
 @Component({
   selector: 'app-song-generator',
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule, HeaderComponent, FooterComponent],
   templateUrl: './song-generator.component.html',
-  styleUrl: './song-generator.component.css'
+  styleUrl: './song-generator.component.css',
+  encapsulation: ViewEncapsulation.None
 })
 export class SongGeneratorComponent implements OnInit {
   songForm!: FormGroup;
   isLoading = false;
   loadingMessage = '';
   result = '';
+  currentlyPlaying: string | null = null;
+  audioUrl: string | null = null;
+  resultData: any = null;
+  choices: any[] = [];
+  stemDownloadUrl: string | null = null;
 
   constructor(
     private fb: FormBuilder,
-    private songService: SongService
+    private songService: SongService,
+    private apiConfig: ApiConfigService
   ) {}
 
   ngOnInit() {
@@ -84,50 +92,7 @@ export class SongGeneratorComponent implements OnInit {
         const data = await this.songService.checkSongStatus(taskId);
         
         if (data.status === 'SUCCESS') {
-          const resultData = data.result.result;
-          const id = resultData.id;
-          const modelUsed = resultData.model;
-
-          const infoHtml = `
-            <div class="info-box">
-                <strong>ID:</strong> ${id}<br>
-                <strong>Model used:</strong> ${modelUsed}
-            </div>
-            <table class="result-table">
-                <thead>
-                    <tr>
-                        <th>Song Id</th>
-                        <th>Duration</th>
-                        <th>FLAC File</th>
-                        <th>MP3 File</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    ${resultData.choices.map((choice: any) => {
-                      const song_id = choice.id;
-                      const durationMilliseconds = choice.duration;
-                      const totalSeconds = Math.floor(durationMilliseconds / 1000);
-                      const minutes = Math.floor(totalSeconds / 60);
-                      const seconds = totalSeconds % 60;
-                      const formattedMinutes = String(minutes).padStart(2, '0');
-                      const formattedSeconds = String(seconds).padStart(2, '0');
-                      const flacFilename = choice.flac_url.split('/').pop();
-                      const mp3Filename = choice.url.split('/').pop();
-                      
-                      return `
-                        <tr>
-                            <td>${song_id}</td>
-                            <td>${formattedMinutes}:${formattedSeconds}</td>
-                            <td><a href="${choice.flac_url}">${flacFilename}</a></td>
-                            <td><a href="${choice.url}">${mp3Filename}</a></td>
-                        </tr>
-                      `;
-                    }).join('')}
-                </tbody>
-            </table>
-          `;
-          
-          this.result = infoHtml;
+          this.renderResultTask(data.result);
           completed = true;
         } else if (data.status === 'FAILURE') {
           const errorMessage = data.result?.error || data.result || 'Song generation failed';
@@ -146,5 +111,104 @@ export class SongGeneratorComponent implements OnInit {
     }
     
     this.isLoading = false;
+  }
+
+  renderResultTask(data: any): void {
+    if (!data || !data.result || !data.result.choices || !Array.isArray(data.result.choices)) {
+      this.result = 'Not yet loaded...';
+      this.resultData = null;
+      this.choices = [];
+      return;
+    }
+
+    const result = data.result;
+    this.resultData = {
+      id: result.id,
+      model: result.model,
+      createdAt: result.created_at,
+      finishedAt: result.finished_at,
+      formattedDuration: this.formatDuration(result.finished_at - result.created_at),
+      createdAtFormatted: new Date(result.finished_at * 1000).toUTCString()
+    };
+
+    this.choices = result.choices.map((choice: any) => ({
+      ...choice,
+      formattedDuration: this.formatDurationFromMs(choice.duration)
+    }));
+
+    this.result = '';
+  }
+
+  private formatDuration(durationSeconds: number): string {
+    const totalSeconds = Math.floor(durationSeconds);
+    const minutes = Math.floor(totalSeconds / 60);
+    const seconds = totalSeconds % 60;
+    return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+  }
+
+  private formatDurationFromMs(durationMs: number): string {
+    const totalSeconds = Math.floor(durationMs / 1000);
+    const minutes = Math.floor(totalSeconds / 60);
+    const seconds = totalSeconds % 60;
+    return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+  }
+
+  playAudio(mp3Url: string, songId: string) {
+    if (this.currentlyPlaying === songId) {
+      this.stopAudio();
+    } else {
+      this.audioUrl = mp3Url;
+      this.currentlyPlaying = songId;
+    }
+  }
+
+  stopAudio() {
+    this.audioUrl = null;
+    this.currentlyPlaying = null;
+  }
+
+  onCanPlayThrough() {
+    console.log('Audio is ready to play');
+  }
+
+  private delay(ms: number): Promise<void> {
+    return new Promise(resolve => setTimeout(resolve, ms));
+  }
+
+  async generateStem(mp3Url: string) {
+    this.isLoading = true;
+    this.loadingMessage = 'Generating stems...';
+
+    try {
+      const response = await Promise.race([
+        fetch(this.apiConfig.endpoints.song.stems, {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({url: mp3Url})
+        }),
+        this.delay(120000).then(() => {
+          throw new Error('Timeout after 2 minutes');
+        })
+      ]);
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+
+      if (data.status === 'SUCCESS' && data.result && data.result.zip_url) {
+        this.stemDownloadUrl = data.result.zip_url;
+      } else {
+        this.stemDownloadUrl = null;
+        this.result += '<p>Stem generation failed or incomplete.</p>';
+      }
+    } catch (error: any) {
+      this.stemDownloadUrl = null;
+      this.result += `<p>Error generating stem: ${error.message}</p>`;
+      console.error('Error generating stem:', error);
+    } finally {
+      this.isLoading = false;
+    }
   }
 }

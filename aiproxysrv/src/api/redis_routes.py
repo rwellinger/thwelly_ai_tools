@@ -1,5 +1,6 @@
 from flask import Blueprint, jsonify
 import redis
+import json
 
 from config.settings import CELERY_BROKER_URL
 
@@ -38,24 +39,39 @@ def list_celery_tasks_route():
 @api_redis_v1.route("/list/keys", methods=["GET"])
 def list_redis_keys():
     """
-    Gibt nur die Keys zurück
+    Gibt alle Celery‑Meta‑Keys zurück, sortiert nach `created_at`.
     """
     try:
-        # 1. Verbindung zu Redis
         r = redis.from_url(CELERY_BROKER_URL)
-        pattern = "celery-task-meta-*"
 
+        pattern = "celery-task-meta-*"
         tasks = []
-        for key in r.scan_iter(match=pattern):
-            key_str = key.decode()
-            task_id = key_str[len("celery-task-meta-"):]
+
+        for key_bytes in r.scan_iter(match=pattern):
+            key_str = key_bytes.decode()
+            task_id = key_str.removeprefix("celery-task-meta-")
+
+            meta_json = r.get(key_bytes)
+            if not meta_json:
+                continue
+
+            meta = json.loads(meta_json)
+
+            if meta.get("status") != "SUCCESS":
+                continue
+
+            result = meta.get("result", {}).get("result")
+            created_at = result.get("created_at") if result else ""
 
             tasks.append({
                 "key": key_str,
                 "task_id": task_id,
+                "created_at": created_at
             })
 
+        tasks.sort(key=lambda t: t["created_at"], reverse=True)
         return jsonify({"tasks": tasks}), 200
 
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
+    except Exception as exc:
+        print("failed to list redis keys: {}".format(exc))
+        return jsonify({"error": str(exc)}), 500
