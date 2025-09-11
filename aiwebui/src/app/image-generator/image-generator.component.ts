@@ -6,11 +6,12 @@ import { FooterComponent } from '../shared/footer/footer.component';
 import { ApiConfigService } from '../services/api-config.service';
 import { NotificationService } from '../services/notification.service';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
+import {MatIcon} from "@angular/material/icon";
 
 @Component({
   selector: 'app-image-generator',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, HeaderComponent, FooterComponent, MatSnackBarModule],
+    imports: [CommonModule, ReactiveFormsModule, HeaderComponent, FooterComponent, MatSnackBarModule, MatIcon],
   templateUrl: './image-generator.component.html',
   styleUrl: './image-generator.component.css'
 })
