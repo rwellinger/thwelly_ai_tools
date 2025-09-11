@@ -75,3 +75,33 @@ def list_redis_keys():
     except Exception as exc:
         print("failed to list redis keys: {}".format(exc))
         return jsonify({"error": str(exc)}), 500
+
+
+@api_redis_v1.route("/<task_id>", methods=["DELETE"])
+def delete_redis_key(task_id):
+    """
+    Lösche einen Key aus Redis.
+    """
+    try:
+        r = redis.from_url(CELERY_BROKER_URL)
+        pattern = "celery-task-meta-"
+        celery_task_id = f"{pattern}{task_id}"
+        deleted = r.delete(celery_task_id)
+        if deleted:
+            return jsonify(
+                {"task_id": celery_task_id,
+                 "status": "SUCCESS"
+                 }), 200
+        else:
+            return jsonify(
+                {"task_id": celery_task_id,
+                 "status": "NOT FOUND"
+                 }), 404
+
+
+    except Exception as exc:
+        print("failed to delete redis key: {}".format(exc))
+        return jsonify(
+            {"task_id": task_id,
+             "status": "ERROR"
+             }), 422

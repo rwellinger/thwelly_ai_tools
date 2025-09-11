@@ -11,9 +11,12 @@
         </option>
     </select>
     <button type="submit" [disabled]="!viewForm.get('taskSelect')?.value || isLoading">Show Result</button>
+    <button type="button" [disabled]="!viewForm.get('taskSelect')?.value || isLoading" (click)="deleteTask()">Delete</button>
 </form>
 
 <div id="loading" *ngIf="isLoading">{{ loadingMessage }}</div>
+
+<div *ngIf="successMessage" style="color: green; font-weight: bold; margin: 10px 0;">{{ successMessage }}</div>
 
 <div *ngIf="result && !resultData">{{ result }}</div>
 

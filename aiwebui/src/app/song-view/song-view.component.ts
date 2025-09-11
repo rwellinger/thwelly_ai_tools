@@ -21,6 +21,7 @@ export class SongViewComponent implements OnInit {
   loadingMessage = '';
   result = '';
   resultData: any = null;
+  successMessage = '';
   choices: any[] = [];
   stemDownloadUrl: string | null = null;
   currentlyPlaying: string | null = null;
@@ -185,5 +186,50 @@ export class SongViewComponent implements OnInit {
 
   onCanPlayThrough() {
     console.log('Audio is ready to play');
+  }
+
+  async deleteTask() {
+    const taskId = this.viewForm.get('taskSelect')?.value;
+    if (!taskId) {
+      console.error('No task ID selected.');
+      return;
+    }
+
+    this.isLoading = true;
+    this.loadingMessage = 'Deleting task...';
+    this.successMessage = '';
+
+    try {
+      const response = await fetch(this.apiConfig.endpoints.redis.deleteTask(taskId), {
+        method: 'DELETE',
+        headers: {'Content-Type': 'application/json'}
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+
+      if (data.status === 'SUCCESS') {
+        this.successMessage = 'Task successfully deleted!';
+        this.viewForm.get('taskSelect')?.setValue('');
+        this.result = '';
+        this.resultData = null;
+        this.choices = [];
+        await this.loadTasks();
+        
+        setTimeout(() => {
+          this.successMessage = '';
+        }, 3000);
+      } else {
+        this.result = `Delete failed: ${data.status}`;
+      }
+    } catch (error: any) {
+      this.result = `Error deleting task: ${error.message}`;
+      console.error('Delete error:', error);
+    } finally {
+      this.isLoading = false;
+    }
   }
 }

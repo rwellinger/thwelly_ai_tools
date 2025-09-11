@@ -12,6 +12,7 @@ __pycache__
 *.aof.1.base.rdb
 *.aof.1.incr.aof
 *.aof.manifest
+*.bak
 
 aiproxysrv/.env
 aiproxysrv/.env_docker
