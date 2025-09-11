@@ -15,6 +15,7 @@ dump.rdb
 .git
 .gitignore
 .env
+alembic.ini
 
 # Ignoriere die lokale .idea/App-Settings von JetBrains
 .idea/
