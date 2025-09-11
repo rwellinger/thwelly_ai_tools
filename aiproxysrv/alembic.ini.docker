@@ -44,7 +44,7 @@ version_num_format = %%04d
 # are written from script.py.mako
 # output_encoding = utf-8
 
-sqlalchemy.url = postgresql://aiproxy:aiproxy123@postgres:5432/aiproxysrv
+sqlalchemy.url = postgresql://aiproxy:aiproxy123@localhost:5432/aiproxysrv
 
 
 [post_write_hooks]
