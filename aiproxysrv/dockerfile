@@ -6,11 +6,10 @@ RUN mkdir /images
 WORKDIR /app
 
 # Copy Files
-COPY requirements.txt .
 COPY .env_docker .env
 COPY alembic.ini.docker alembic.ini
-COPY pyproject.toml .
 COPY src/ ./src/
+COPY pyproject.toml .
 
 # Install curl
 RUN apt-get update && \
