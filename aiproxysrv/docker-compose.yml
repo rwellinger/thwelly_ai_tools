@@ -1,24 +1,4 @@
 services:
-  postgres:
-    image: postgres:15-alpine
-    container_name: postgres
-    restart: unless-stopped
-    ports:
-      - "5432:5432"
-    environment:
-      - POSTGRES_DB=aiproxysrv
-      - POSTGRES_USER=aiproxy
-      - POSTGRES_PASSWORD=aiproxy123
-    volumes:
-      - postgres-data:/var/lib/postgresql/data
-    networks:
-      - webui-net
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U aiproxy -d aiproxysrv"]
-      interval: 10s
-      timeout: 5s
-      retries: 3
-
   redis:
     image: redis:alpine
     container_name: redis
@@ -36,6 +16,26 @@ services:
         timeout: 5s
         retries: 3
 
+  celery-worker:
+    container_name: celery-worker
+    restart: unless-stopped
+    build: .
+    command: celery -A celery_app.celery_config:celery_app worker --loglevel=info --concurrency=1
+    user: "1000:1000"
+    depends_on:
+      - redis
+    env_file: .env
+    environment:
+      - REDIS_URL=redis://redis:6379
+      - CELERY_BROKER_URL=redis://redis:6379
+      - CELERY_RESULT_BACKEND=redis://redis:6379
+      - DATABASE_URL=postgresql://aiproxy:aiproxy123@10.0.1.120:5432/aiproxysrv
+      - DEBUG=false
+    volumes:
+      - .:/app
+    networks:
+      - webui-net
+
   aiproxy-app:
     container_name: aiproxysrv
     restart: unless-stopped
@@ -47,21 +47,16 @@ services:
       - REDIS_URL=redis://redis:6379
       - CELERY_BROKER_URL=redis://redis:6379
       - CELERY_RESULT_BACKEND=redis://redis:6379
-      - DATABASE_URL=postgresql://aiproxy:aiproxy123@postgres:5432/aiproxysrv
+      - DATABASE_URL=postgresql://aiproxy:aiproxy123@10.0.1.120:5432/aiproxysrv
       - DEBUG=false
     volumes:
       - .:/app
       - images-data:/images
     networks:
       - webui-net
-    links:
-      - postgres
-      - redis
     depends_on:
-      postgres:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
+      - redis
+      - celery-worker
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:5050/api/v1/health"]
       interval: 30s
@@ -69,25 +64,6 @@ services:
       retries: 3
       start_period: 30s
 
-  celery-worker:
-    container_name: celery-worker
-    restart: unless-stopped
-    build: .
-    command: celery -A celery_app.celery_config:celery_app worker --loglevel=info --concurrency=1
-    user: "1000:1000"
-    depends_on:
-      - postgres
-      - redis
-      - aiproxy-app
-    env_file: .env
-    environment:
-      - REDIS_URL=redis://redis:6379
-      - CELERY_BROKER_URL=redis://redis:6379
-      - CELERY_RESULT_BACKEND=redis://redis:6379
-    volumes:
-      - .:/app
-    networks:
-      - webui-net
 volumes:
   postgres-data:
   redis-data:
