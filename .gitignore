@@ -6,13 +6,17 @@ dump.rdb
 package-lock.json
 package.json
 node_modules
+__pycache__
+
+*.egg-info
+*.aof.1.base.rdb
+*.aof.1.incr.aof
+*.aof.manifest
 
 aiproxysrv/.env
 aiproxysrv/.env_docker
 aiproxysrv/images
-aiproxysrv/__pycache__
 aiproxysrv/backup
-aiproxysrv/src/aiproxysrv.egg-info
 
 ollamasrv/backup
 ollamasrv/data
@@ -22,6 +26,3 @@ revproxy/nginx/.htpasswd
 revproxy/certs
 revproxy/logs
 revproxy/html/aiwebui
-/appendonlydir/appendonly.aof.1.base.rdb
-/appendonlydir/appendonly.aof.1.incr.aof
-/appendonlydir/appendonly.aof.manifest
