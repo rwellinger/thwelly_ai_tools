@@ -1,3 +1,16 @@
+button {
+    margin-top: 20px;
+    padding: 10px 15px;
+    font-size: 16px;
+    cursor: pointer;
+    margin-left: 20px;
+    margin-right: 20px;
+}
+
+button:hover {
+    background: #555;
+}
+
 /* Info Box Styling */
 .info-box {
     background-color: #f8f9fa;
@@ -122,6 +135,22 @@ h1 {
     color: #333;
     margin-bottom: 20px;
 }
+
+button {
+   margin-right: 20px;
+}
+
+label {
+    font-size: medium;
+    margin-right: 20px;
+}
+
+select {
+    margin-left: 10px;
+    width: min-content;
+    font-size: medium;
+}
+
 
 /* audio-player.component.css */
 .audio-wrapper {

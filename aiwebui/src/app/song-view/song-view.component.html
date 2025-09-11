@@ -3,18 +3,16 @@
 
 <form [formGroup]="viewForm" (ngSubmit)="onSubmit()">
     <br>
-    <label for="taskSelect">Select generated song by Task ID:</label>
+    <label for="taskSelect">Task ID:</label>
     <select formControlName="taskSelect">
-        <option value="">Select a task id …</option>
+        <option value="">Please select a value …</option>
         <option *ngFor="let task of tasks" [value]="task.task_id">
             {{ task.task_id }}
         </option>
     </select>
-    <br>
     <button type="submit" [disabled]="!viewForm.get('taskSelect')?.value || isLoading">Show Result</button>
 </form>
 
-<br>
 <div id="loading" *ngIf="isLoading">{{ loadingMessage }}</div>
 
 <div *ngIf="result && !resultData">{{ result }}</div>
