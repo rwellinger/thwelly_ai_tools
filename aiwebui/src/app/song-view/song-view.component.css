@@ -122,3 +122,22 @@ h1 {
     color: #333;
     margin-bottom: 20px;
 }
+
+/* audio-player.component.css */
+.audio-wrapper {
+  display: flex;
+  margin-top: 20px;
+  margin-bottom: 20px;
+  justify-content: center;   /* horizontal */
+  align-items: center;       /* vertikal */
+  padding: 0 10rem;
+}
+
+.stem-download {
+  display: flex;
+  margin-top: 20px;
+  margin-bottom: 20px;
+  justify-content: center;   /* horizontal */
+  align-items: center;       /* vertikal */
+  padding: 0 10rem;
+}

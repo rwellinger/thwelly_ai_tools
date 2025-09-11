@@ -23,6 +23,8 @@ export class SongViewComponent implements OnInit {
   resultData: any = null;
   choices: any[] = [];
   stemDownloadUrl: string | null = null;
+  currentlyPlaying: string | null = null;
+  audioUrl: string | null = null;
 
   constructor(
     private fb: FormBuilder,
@@ -165,5 +167,23 @@ export class SongViewComponent implements OnInit {
     } finally {
       this.isLoading = false;
     }
+  }
+
+  playAudio(mp3Url: string, songId: string) {
+    if (this.currentlyPlaying === songId) {
+      this.stopAudio();
+    } else {
+      this.audioUrl = mp3Url;
+      this.currentlyPlaying = songId;
+    }
+  }
+
+  stopAudio() {
+    this.audioUrl = null;
+    this.currentlyPlaying = null;
+  }
+
+  onCanPlayThrough() {
+    console.log('Audio is ready to play');
   }
 }
