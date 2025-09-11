@@ -1,11 +1,20 @@
 README.md
+images
+docker-compose-postgres.yaml
+docker-compose.yml
+dockerfile
+.dockerignore
+
 
 # Ignoriere virtuelle Umgebungen
 venv/
 env/
+.claude
+env_template
+
 
 # Ignoriere temporäre Dateien und Verzeichnisse (z.B. von IDEs)
-__pycache__/
+__pycache__
 *.pyo
 *.pyd
 src/aiproxysrv.egg-info

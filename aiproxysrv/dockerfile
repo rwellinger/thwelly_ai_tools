@@ -1,24 +1,26 @@
 FROM python:3.10-slim AS base
 
+# Create image directory
 RUN mkdir /images
 
 WORKDIR /app
 
+# Copy Files
 COPY requirements.txt .
 COPY .env_docker .env
 COPY alembic.ini.docker alembic.ini
-
-RUN pip install --no-cache-dir -r requirements.txt
-
 COPY pyproject.toml .
-
 COPY src/ ./src/
-RUN pip install -e .
 
+# Install curl
 RUN apt-get update && \
     apt-get install -y curl && \
     rm -rf /var/lib/apt/lists/*
 
+# Install PIP Dependencies
+RUN pip install -e .
+
+# Check Database Migration
 RUN alembic upgrade head
 
 EXPOSE 5050
