@@ -3,11 +3,20 @@ set -e
 
 # Wait for PostgreSQL to be ready
 echo "Waiting for PostgreSQL..."
-while ! pg_isready -h postgres -p 5432 -U aiproxy -d aiproxysrv; do
-  echo "PostgreSQL is not ready - sleeping"
-  sleep 2
+for i in {1..30}; do
+  if pg_isready -h postgres -p 5432 -U aiproxy -d aiproxysrv; then
+    echo "PostgreSQL is ready!"
+    break
+  fi
+  echo "PostgreSQL is not ready - attempt $i/30"
+  sleep 3
 done
-echo "PostgreSQL is ready!"
+
+# Final check
+if ! pg_isready -h postgres -p 5432 -U aiproxy -d aiproxysrv; then
+  echo "PostgreSQL is still not ready after 90 seconds. Exiting."
+  exit 1
+fi
 
 # Run database migrations
 echo "Running database migrations..."
