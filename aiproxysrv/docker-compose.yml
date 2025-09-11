@@ -48,6 +48,8 @@ services:
       - REDIS_URL=redis://redis:6379
       - CELERY_BROKER_URL=redis://redis:6379
       - CELERY_RESULT_BACKEND=redis://redis:6379
+      - DATABASE_URL=postgresql://aiproxy:aiproxy123@postgres:5432/aiproxysrv
+      - DEBUG=false
     volumes:
       - .:/app
       - images-data:/images
