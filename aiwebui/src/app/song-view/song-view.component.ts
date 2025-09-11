@@ -77,12 +77,12 @@ export class SongViewComponent implements OnInit {
         this.resultData = null;
         this.choices = [];
       } else {
-        this.result = `Unknown status: ${data.status}`;
+        this.result = `Error Status: ${data.status}`;
         this.resultData = null;
         this.choices = [];
       }
     } catch (error: any) {
-      this.result = `Error: ${error.message}`;
+      this.result = `ExError: ${error.message}`;
       console.error('Fetch error:', error);
     } finally {
       this.isLoading = false;
