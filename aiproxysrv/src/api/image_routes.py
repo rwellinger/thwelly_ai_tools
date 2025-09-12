@@ -1,90 +1,78 @@
 """
-DALL-E Image Generation Routes
+DALL-E Image Generation Routes - Clean version
 """
-import os
 import sys
-import requests
-import time
-import hashlib
-from pathlib import Path
+import traceback
 from flask import Blueprint, request, jsonify, send_from_directory
-from config.settings import OPENAI_API_KEY, OPENAI_URL, OPENAI_MODEL, IMAGES_DIR
+from config.settings import IMAGES_DIR
+from api.image_controller import ImageController
 
 api_image_v1 = Blueprint("api_image_v1", __name__, url_prefix="/api/v1/image")
 
+# Controller instance
+image_controller = ImageController()
+
+
 @api_image_v1.route('/<path:filename>')
 def serve_image(filename):
-    """Serviert gespeicherte Bilder"""
-    return send_from_directory(IMAGES_DIR, filename)
+    """Serve stored images"""
+    try:
+        print(f"Serving image: {filename}", file=sys.stderr)
+        return send_from_directory(IMAGES_DIR, filename)
+    except Exception as e:
+        print(f"Error serving image {filename}: {type(e).__name__}: {e}", file=sys.stderr)
+        print(f"Stacktrace: {traceback.format_exc()}", file=sys.stderr)
+        return jsonify({"error": "Image not found"}), 404
 
 
 @api_image_v1.route('/generate', methods=['POST'])
 def generate():
-    """Generiert ein Bild mit DALL-E"""
+    """Generate image with DALL-E"""
     raw_json = request.get_json(silent=True)
+    
+    if not raw_json:
+        return jsonify({"error": "No JSON provided"}), 400
+    
+    prompt = raw_json.get('prompt')
+    size = raw_json.get('size')
+    
+    response_data, status_code = image_controller.generate_image(
+        prompt=prompt,
+        size=size,
+        host_url=request.host_url
+    )
+    
+    return jsonify(response_data), status_code
 
-    if not raw_json or 'prompt' not in raw_json or 'size' not in raw_json:
-        return jsonify({"error": "No 'prompt' or 'size' in JSON."}), 400
 
-    prompt = raw_json['prompt']
-    size = raw_json['size']
-
-    print(f"Prompt: {prompt}", file=sys.stderr)
-    print(f"Size:   {size}", file=sys.stderr)
-
-    headers = {
-        'Authorization': f'Bearer {OPENAI_API_KEY}',
-        'Content-Type': 'application/json'
-    }
-
-    payload = {
-        'model': OPENAI_MODEL,
-        'prompt': prompt,
-        'size': size,
-        'n': 1
-    }
-
+@api_image_v1.route('/list', methods=['GET'])
+def list_images():
+    """Get list of generated images with pagination"""
+    # Parse query parameters
     try:
-        resp = requests.post(
-            os.path.join(OPENAI_URL, "generations"),
-            headers=headers,
-            json=payload,
-            timeout=30
-        )
-        resp.raise_for_status()
-    except Exception as e:
-        return jsonify({"error": f"Network-Error: {e}"}), 500
+        limit = int(request.args.get('limit', 20))
+        offset = int(request.args.get('offset', 0))
+        
+        # Validate parameters
+        if limit <= 0 or limit > 100:
+            return jsonify({"error": "Limit must be between 1 and 100"}), 400
+        if offset < 0:
+            return jsonify({"error": "Offset must be >= 0"}), 400
+            
+    except ValueError:
+        return jsonify({"error": "Invalid limit or offset parameter"}), 400
+    
+    response_data, status_code = image_controller.get_images(
+        limit=limit,
+        offset=offset
+    )
+    
+    return jsonify(response_data), status_code
 
-    if resp.status_code != 200:
-        print("DALL·E Response:", resp.text, file=sys.stderr)
-        return jsonify({"error": resp.json()}), resp.status_code
 
-    resp_json = resp.json()
-    image_url = resp_json['data'][0]['url']
-
-    try:
-        img_resp = requests.get(image_url, stream=True, timeout=30)
-        img_resp.raise_for_status()
-    except Exception as e:
-        return jsonify({"error": f"Download-Error: {e}"}), 500
-
-    images_dir = Path(IMAGES_DIR)
-    images_dir.mkdir(parents=True, exist_ok=True)  # Stelle sicher, dass das Verzeichnis existiert
-    prompt_hash = hashlib.md5(prompt.encode()).hexdigest()[:10]
-    filename = f"{prompt_hash}_{int(time.time())}.png"
-    image_path = images_dir / filename
-
-    try:
-        with open(image_path, 'wb') as f:
-            for chunk in img_resp.iter_content(chunk_size=8192):
-                if chunk:
-                    f.write(chunk)
-        print(f"Image stored here: {image_path}", file=sys.stderr)
-    except Exception as e:
-        return jsonify({"error": f"Error on persist image: {e}"}), 500
-
-    local_url = f"{request.host_url}/api/v1/image/{filename}"
-    return jsonify({
-        "url": local_url,
-        "saved_path": str(image_path)
-    })
+@api_image_v1.route('/<int:image_id>', methods=['GET'])
+def get_image(image_id):
+    """Get single image by ID"""
+    response_data, status_code = image_controller.get_image_by_id(image_id)
+    
+    return jsonify(response_data), status_code

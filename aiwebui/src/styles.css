@@ -1,10 +1,11 @@
 /* You can add global styles to this file, and also import other style files */
+@import '@angular/material/prebuilt-themes/indigo-pink.css';
 
 /* Migrated styles from revproxy/html/css/style.css */
 body {
     font-family: system-ui, Arial, sans-serif;
     margin: 20px;
-    max-width: 1024px;
+    max-width: 75%;
     margin: auto;
     background: #fafafa;
     color: #222;

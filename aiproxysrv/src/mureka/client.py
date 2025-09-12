@@ -1,6 +1,8 @@
 """
 MUREKA API Client
 """
+import sys
+import traceback
 import requests
 import time
 from typing import Dict, Any
@@ -22,20 +24,30 @@ def start_mureka_generation(payload: dict) -> Dict[str, Any]:
         "Content-Type": "application/json",
     }
 
-    print(f"Starting MUREKA generation")
+    print(f"Starting MUREKA generation - Endpoint: {MUREKA_GENERATE_ENDPOINT}", file=sys.stderr)
+    
+    try:
+        resp = requests.post(
+            MUREKA_GENERATE_ENDPOINT,
+            headers=headers,
+            json=payload,
+            timeout=MUREKA_TIMEOUT,
+        )
+        print(f"MUREKA API Response Status: {resp.status_code}", file=sys.stderr)
+        resp.raise_for_status()
 
-    resp = requests.post(
-        MUREKA_GENERATE_ENDPOINT,
-        headers=headers,
-        json=payload,
-        timeout=MUREKA_TIMEOUT,
-    )
-    resp.raise_for_status()
-
-    response_data = resp.json()
-    job_id = response_data.get("id")
-    print(f"MUREKA generation started. Job ID: {job_id}")
-    return response_data
+        response_data = resp.json()
+        job_id = response_data.get("id")
+        print(f"MUREKA generation started successfully. Job ID: {job_id}", file=sys.stderr)
+        return response_data
+    except HTTPError as e:
+        print(f"MUREKA API HTTP Error: {e}", file=sys.stderr)
+        print(f"Response content: {e.response.text if e.response else 'No response'}", file=sys.stderr)
+        raise
+    except Exception as e:
+        print(f"MUREKA generation error: {type(e).__name__}: {e}", file=sys.stderr)
+        print(f"Stacktrace: {traceback.format_exc()}", file=sys.stderr)
+        raise
 
 
 def check_mureka_status(job_id: str) -> Dict[str, Any]:
@@ -45,18 +57,28 @@ def check_mureka_status(job_id: str) -> Dict[str, Any]:
     }
 
     status_url = f"{MUREKA_STATUS_ENDPOINT}/{job_id}"
-    print(f"Checking MUREKA status: {status_url}")
+    print(f"Checking MUREKA status: {status_url}", file=sys.stderr)
 
-    resp = requests.get(
-        status_url,
-        headers=headers,
-        timeout=30,
-    )
-    resp.raise_for_status()
+    try:
+        resp = requests.get(
+            status_url,
+            headers=headers,
+            timeout=30,
+        )
+        print(f"MUREKA Status API Response: {resp.status_code}", file=sys.stderr)
+        resp.raise_for_status()
 
-    status_data = resp.json()
-    print(f"MUREKA status for job {job_id}: {status_data.get('status')}")
-    return status_data
+        status_data = resp.json()
+        print(f"MUREKA status for job {job_id}: {status_data.get('status')}", file=sys.stderr)
+        return status_data
+    except HTTPError as e:
+        print(f"MUREKA Status API HTTP Error: {e}", file=sys.stderr)
+        print(f"Response content: {e.response.text if e.response else 'No response'}", file=sys.stderr)
+        raise
+    except Exception as e:
+        print(f"MUREKA status check error: {type(e).__name__}: {e}", file=sys.stderr)
+        print(f"Stacktrace: {traceback.format_exc()}", file=sys.stderr)
+        raise
 
 
 def wait_for_mureka_completion(task, job_id: str) -> Dict[str, Any]:
@@ -103,11 +125,18 @@ def wait_for_mureka_completion(task, job_id: str) -> Dict[str, Any]:
             if e.response.status_code in [429, 502, 503, 504]:
                 # Temporäre Fehler - weiter versuchen
                 wait_time = poll_interval * 2
-                print(f"Temporary error ({e.response.status_code}), retrying in {wait_time}s")
+                print(f"Temporary MUREKA error ({e.response.status_code}), retrying in {wait_time}s", file=sys.stderr)
+                print(f"Response content: {e.response.text if e.response else 'No response'}", file=sys.stderr)
                 time.sleep(wait_time)
                 continue
             else:
-                print(f"HTTP error checking status: {e}")
+                print(f"HTTP error checking MUREKA status: {e}", file=sys.stderr)
+                print(f"Response content: {e.response.text if e.response else 'No response'}", file=sys.stderr)
+                print(f"Stacktrace: {traceback.format_exc()}", file=sys.stderr)
                 raise
+        except Exception as e:
+            print(f"Unexpected error in MUREKA polling: {type(e).__name__}: {e}", file=sys.stderr)
+            print(f"Stacktrace: {traceback.format_exc()}", file=sys.stderr)
+            raise
 
     raise Exception(f"Timeout after {max_attempts} polling attempts ({(max_attempts * poll_interval) // 60} minutes)")

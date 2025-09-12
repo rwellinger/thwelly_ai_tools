@@ -1,17 +1,24 @@
 # ==================================================
 # CELERY CONFIGURATION
 # ==================================================
-CELERY_BROKER_URL=redis://localhost:6379
-CELERY_RESULT_BACKEND=redis://localhost:6379
+CELERY_BROKER_URL=redis://redis:6379
+CELERY_RESULT_BACKEND=redis://redis:6379
+
+# ==================================================
+# Image storage directory (defaults to "./images" in
+# debug mode, "/images" in production)
+# ==================================================
+IMAGES_DIR=/Users/robertw/Workspace/mac_ki_service/aiproxysrv/images
+
 
 # ==================================================
 # MUREKA API CONFIGURATION
 # ==================================================
+MUREKA_API_KEY=
 MUREKA_GENERATE_ENDPOINT=https://api.mureka.ai/v1/song/generate
-MUREKA_STEM_GENERATE_ENDPOINT=https://api.mureka.ai/v1/song/stem
 MUREKA_STATUS_ENDPOINT=https://api.mureka.ai/v1/song/query
 MUREKA_BILLING_URL=https://api.mureka.ai/v1/account/billing
-MUREKA_API_KEY=
+MUREKA_STEM_GENERATE_ENDPOINT=https://api.mureka.ai/v1/song/stem
 MUREKA_MODEL=auto
 
 # Timeout für MUREKA Requests (in Sekunden)
@@ -32,22 +39,27 @@ REDIS_URL=redis://localhost:6379
 # FLASK SERVER CONFIGURATION
 # ==================================================
 OPENAI_PORT=5050
+OPENAI_HOST=0.0.0.0
 
 # ==================================================
-# OPENAI/DALL-E CONFIGURATION (falls benötigt)
+# OPENAI/DALL-E CONFIGURATION
 # ==================================================
 OPENAI_API_KEY=
 OPENAI_URL=https://api.openai.com/v1/images
 OPENAI_MODEL=dall-e-3
 
-# Image storage directory (defaults to "./images" in debug mode, "/images" in production)
-# IMAGES_DIR=./images
-
 # ==================================================
 # APPLICATION SETTINGS
 # ==================================================
 # Debug Mode (true/false)
-DEBUG=false
+DEBUG=true
 
-# Host Binding
-HOST=0.0.0.0
+# ==================================================
+# Database PostgreSQL
+# ==================================================
+DATABASE_URL=postgresql://aiproxy:***@localhost:5432/aiproxysrv
+POSTGRES_HOST=localhost
+POSTGRES_PORT=5432
+POSTGRES_DB=aiproxysrv
+POSTGRES_USER=aiproxy
+POSTGRES_PASSWORD=
