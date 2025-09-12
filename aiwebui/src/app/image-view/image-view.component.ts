@@ -8,7 +8,7 @@ import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { DisplayNamePipe } from '../pipes/display-name.pipe';
 
 interface ImageData {
-  id: number;
+  id: string;
   filename: string;
   model_used: string;
   prompt: string;
