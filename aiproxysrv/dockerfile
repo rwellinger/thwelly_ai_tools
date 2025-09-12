@@ -6,8 +6,8 @@ RUN mkdir /images
 WORKDIR /app
 
 # Copy Files
-COPY .env_docker .env
-COPY alembic.ini.docker alembic.ini
+COPY .env .env
+COPY alembic.ini alembic.ini
 COPY src/ ./src/
 COPY pyproject.toml .
 
