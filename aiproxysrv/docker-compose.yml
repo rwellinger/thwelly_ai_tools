@@ -29,7 +29,6 @@ services:
       - REDIS_URL=redis://redis:6379
       - CELERY_BROKER_URL=redis://redis:6379
       - CELERY_RESULT_BACKEND=redis://redis:6379
-      - DATABASE_URL=postgresql://aiproxy:aiproxy123@10.0.1.120:5432/aiproxysrv
       - DEBUG=false
     volumes:
       - .:/app
@@ -47,7 +46,6 @@ services:
       - REDIS_URL=redis://redis:6379
       - CELERY_BROKER_URL=redis://redis:6379
       - CELERY_RESULT_BACKEND=redis://redis:6379
-      - DATABASE_URL=postgresql://aiproxy:aiproxy123@10.0.1.120:5432/aiproxysrv
       - DEBUG=false
     volumes:
       - .:/app
