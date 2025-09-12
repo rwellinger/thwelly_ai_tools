@@ -63,6 +63,41 @@ def force_complete_task(job_id):
     return jsonify(response_data), status_code
 
 
+@api_song_v1.route("/list", methods=["GET"])
+def list_songs():
+    """Get list of songs with pagination"""
+    # Parse query parameters
+    try:
+        limit = int(request.args.get('limit', 20))
+        offset = int(request.args.get('offset', 0))
+        status = request.args.get('status', None)  # Optional status filter
+
+        # Validate parameters
+        if limit <= 0 or limit > 100:
+            return jsonify({"error": "Limit must be between 1 and 100"}), 400
+        if offset < 0:
+            return jsonify({"error": "Offset must be >= 0"}), 400
+
+    except ValueError:
+        return jsonify({"error": "Invalid limit or offset parameter"}), 400
+
+    response_data, status_code = song_controller.get_songs(
+        limit=limit,
+        offset=offset,
+        status=status
+    )
+
+    return jsonify(response_data), status_code
+
+
+@api_song_v1.route("/<song_id>", methods=["GET"])
+def get_song(song_id):
+    """Get single song by ID with all choices"""
+    response_data, status_code = song_controller.get_song_by_id(song_id)
+
+    return jsonify(response_data), status_code
+
+
 api_song_task_v1 = Blueprint("api_song_task_v1", __name__, url_prefix="/api/v1/song/task")
 
 @api_song_task_v1.route("/status/<task_id>", methods=["GET"])

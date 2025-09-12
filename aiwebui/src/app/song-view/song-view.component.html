@@ -1,67 +1,161 @@
 <h1>MUREKA – Song View</h1>
 <app-header></app-header>
 
-<form [formGroup]="viewForm" (ngSubmit)="onSubmit()">
-    <br>
-    <label for="taskSelect">Task ID:</label>
-    <select formControlName="taskSelect">
-        <option value="">Please select a value …</option>
-        <option *ngFor="let task of tasks" [value]="task.task_id">
-            {{ task.task_id }}
-        </option>
-    </select>
-    <button type="submit" [disabled]="!viewForm.get('taskSelect')?.value || isLoading">
-        <i class="fas fa-eye"></i> Show Result
+<div class="controls">
+    <button type="button" (click)="loadSongs()" [disabled]="isLoading">
+        <i class="fas fa-refresh"></i> Refresh
     </button>
-    <button type="button" [disabled]="!viewForm.get('taskSelect')?.value || isLoading" (click)="deleteTask()">
-        <i class="fas fa-trash"></i> Delete
+    <button type="button" (click)="clearSelection()" [disabled]="!selectedSong">
+        <i class="fas fa-times"></i> Clear Selection
     </button>
-</form>
-
-<div *ngIf="result && !resultData">{{ result }}</div>
-
-<div *ngIf="resultData" class="info-box">
-    <p><strong>ID:</strong> {{ resultData.id }}</p>
-    <p><strong>Model used:</strong> {{ resultData.model }}</p>
-    <p><strong>Created:</strong> {{ resultData.createdAtFormatted }}</p>
-    <p><strong>Duration:</strong> {{ resultData.formattedDuration }} Minutes</p>
 </div>
 
-<table *ngIf="choices.length > 0" class="result-table">
-    <thead>
-    <tr>
-        <th>Song Id</th>
-        <th>Duration</th>
-        <th>FLAC File</th>
-        <th>MP3 File</th>
-        <th>Stem</th>
-    </tr>
-    </thead>
-    <tbody>
-    <tr *ngFor="let choice of choices">
-        <td>{{ choice.id }}</td>
-        <td>{{ choice.formattedDuration }}</td>
-        <td><a [href]="choice.flac_url">
-            <i class="fas fa-download"></i> Download
-        </a>
-        <td>
-            <button type="button" (click)="playAudio(choice.mp3_url, choice.id)">
-                <i class="fas fa-music"></i>
-                {{ currentlyPlaying === choice.id ? 'Hide Player' : 'Show Player' }}
-            </button>
-        </td>
-        <td>
-            <button [disabled]="isLoading" type="button" (click)="generateStem(choice.mp3_url)">
-                <i class="fas fa-brain"></i> Generate
-            </button>
-        </td>
-    </tr>
-    </tbody>
-</table>
+<div class="song-list" *ngIf="songs.length > 0">
+    <h2>Available Songs ({{ pagination.total }} total)</h2>
 
-<div class="audio-wrapper">
+    <table class="result-table">
+        <thead>
+        <tr>
+            <th>Lyrics Preview</th>
+            <th>Style Prompt</th>
+            <th>Model</th>
+            <th>Created</th>
+            <th>Choices</th>
+            <th>Actions</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr *ngFor="let song of songs"
+            [class.selected]="selectedSong?.id === song.id">
+            <td>{{ song.lyrics | displayName }}</td>
+            <td>{{ song.prompt | displayName }}</td>
+            <td>{{ song.model }}</td>
+            <td>{{ formatDate(song.created_at) }}</td>
+            <td class="choices-count">{{ song.choices_count }}</td>
+            <td>
+                <button type="button"
+                        (click)="selectSong(song)"
+                        [disabled]="isLoading"
+                        [class.active]="selectedSong?.id === song.id">
+                    <i class="fas fa-eye"></i>
+                    {{ selectedSong?.id === song.id ? 'Selected' : 'View' }}
+                </button>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+
+    <div class="pagination-controls">
+        <button type="button"
+                (click)="previousPage()"
+                [disabled]="pagination.offset === 0 || isLoading">
+            <i class="fas fa-arrow-left"></i> Previous
+        </button>
+        <span class="pagination-info">
+            Page {{ Math.floor(pagination.offset / pagination.limit) + 1 }} of {{ Math.ceil(pagination.total / pagination.limit) }}
+            ({{ pagination.total }} songs total)
+        </span>
+        <button type="button"
+                (click)="nextPage()"
+                [disabled]="!pagination.has_more || isLoading">
+            Next <i class="fas fa-arrow-right"></i>
+        </button>
+    </div>
+</div>
+
+<div *ngIf="songs.length === 0 && !isLoadingSongs" class="no-songs-message">
+    <p>No songs found in the database.</p>
+</div>
+
+<div *ngIf="isLoadingSongs" class="loading-message">
+    <i class="fas fa-spinner fa-spin"></i> Loading songs...
+</div>
+
+<!-- Song Details Section -->
+<div *ngIf="selectedSong" class="song-details-section">
+    <h2>Song Details</h2>
+    
+    <div class="song-info-box">
+        <div class="song-meta-info">
+            <p><strong>Title:</strong> {{ getSongTitle(selectedSong) }}</p>
+            <p><strong>Model:</strong> {{ selectedSong.model }}</p>
+            <p><strong>Status:</strong> <span [class]="'status-' + selectedSong.status.toLowerCase()">{{ selectedSong.status }}</span></p>
+            <p><strong>Created:</strong> {{ formatDate(selectedSong.created_at) }}</p>
+            <p *ngIf="selectedSong.completed_at"><strong>Completed:</strong> {{ formatDate(selectedSong.completed_at) }}</p>
+        </div>
+        
+        <div class="song-lyrics">
+            <h3>Lyrics:</h3>
+            <pre class="lyrics-content">{{ selectedSong.lyrics }}</pre>
+        </div>
+        
+        <div class="song-prompt">
+            <h3>Style Prompt:</h3>
+            <p class="prompt-content">{{ selectedSong.prompt }}</p>
+        </div>
+    </div>
+    
+    <!-- Song Choices -->
+    <div *ngIf="selectedSong.choices && selectedSong.choices.length > 0" class="choices-section">
+        <h3>Generated Variations ({{ selectedSong.choices_count }})</h3>
+        
+        <table class="choices-table">
+            <thead>
+                <tr>
+                    <th>Choice</th>
+                    <th>Duration</th>
+                    <th>FLAC File</th>
+                    <th>MP3 File</th>
+                    <th>Stem Generation</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let choice of selectedSong.choices; let i = index">
+                    <td>#{{ (choice.choice_index ?? i) + 1 }}</td>
+                    <td>{{ choice.formattedDuration }}</td>
+                    <td>
+                        <a [href]="choice.flac_url" *ngIf="choice.flac_url" target="_blank">
+                            <i class="fas fa-download"></i> Download FLAC
+                        </a>
+                        <span *ngIf="!choice.flac_url" class="not-available">N/A</span>
+                    </td>
+                    <td>
+                        <button type="button" 
+                                *ngIf="choice.mp3_url"
+                                (click)="playAudio(choice.mp3_url, choice.id)"
+                                [class.active]="currentlyPlaying === choice.id">
+                            <i class="fas fa-music"></i>
+                            {{ currentlyPlaying === choice.id ? 'Hide Player' : 'Play' }}
+                        </button>
+                        <span *ngIf="!choice.mp3_url" class="not-available">N/A</span>
+                    </td>
+                    <td>
+                        <button type="button" 
+                                *ngIf="choice.mp3_url"
+                                [disabled]="isLoading" 
+                                (click)="generateStem(choice.mp3_url)">
+                            <i class="fas fa-brain"></i> Generate Stems
+                        </button>
+                        <span *ngIf="!choice.mp3_url" class="not-available">N/A</span>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    
+    <div *ngIf="!selectedSong.choices || selectedSong.choices.length === 0" class="no-choices">
+        <p>No song choices available for this song.</p>
+    </div>
+</div>
+
+<div *ngIf="!selectedSong && !isLoadingSongs" class="no-selection">
+    <p>Select a song from the list above to view details.</p>
+</div>
+
+<!-- Audio Player -->
+<div class="audio-wrapper" *ngIf="audioUrl">
+    <h3>Audio Player</h3>
     <audio #player
-           *ngIf="audioUrl"
            [src]="audioUrl"
            controls
            preload="metadata"
@@ -70,10 +164,22 @@
     </audio>
 </div>
 
+<!-- Stem Download -->
 <div *ngIf="stemDownloadUrl" class="stem-download">
-    <p><strong>Download Stems: </strong><a [href]="stemDownloadUrl" target="_blank">
-        <i class="fas fa-download"></i> Download
-    </a></p>
+    <div class="success-message">
+        <h3>Stems Generated Successfully!</h3>
+        <p><a [href]="stemDownloadUrl" target="_blank" class="download-link">
+            <i class="fas fa-download"></i> Download Stems ZIP
+        </a></p>
+    </div>
+</div>
+
+<!-- Loading States -->
+<div *ngIf="isLoading" class="loading-overlay">
+    <div class="loading-content">
+        <i class="fas fa-spinner fa-spin"></i>
+        <p>{{ loadingMessage }}</p>
+    </div>
 </div>
 
 <app-footer></app-footer>

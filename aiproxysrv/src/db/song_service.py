@@ -292,6 +292,150 @@ class SongService:
         except Exception as e:
             print(f"Error getting choice by mureka_choice_id {mureka_choice_id}: {e}", file=sys.stderr)
             return None
+    
+    def get_songs_paginated(self, limit: int = 20, offset: int = 0, status: str = None) -> List[Song]:
+        """
+        Get songs with pagination and optional status filter
+        
+        Args:
+            limit: Number of songs to return (default 20)
+            offset: Number of songs to skip (default 0)  
+            status: Optional status filter (SUCCESS, PENDING, FAILURE, etc.)
+            
+        Returns:
+            List of Song instances with loaded choices
+        """
+        try:
+            db = next(get_db())
+            try:
+                query = (db.query(Song)
+                        .options(joinedload(Song.choices))
+                        .order_by(Song.created_at.desc()))
+                
+                # Apply status filter if provided
+                if status:
+                    query = query.filter(Song.status == status)
+                
+                songs = query.limit(limit).offset(offset).all()
+                print(f"Retrieved {len(songs)} songs with pagination (limit={limit}, offset={offset}, status={status})", file=sys.stderr)
+                return songs
+            finally:
+                db.close()
+        except Exception as e:
+            print(f"Error getting paginated songs: {e}", file=sys.stderr)
+            print(f"Stacktrace: {traceback.format_exc()}", file=sys.stderr)
+            return []
+    
+    def get_total_songs_count(self, status: str = None) -> int:
+        """
+        Get total count of songs
+        
+        Args:
+            status: Optional status filter
+            
+        Returns:
+            Total number of songs matching the criteria
+        """
+        try:
+            db = next(get_db())
+            try:
+                query = db.query(Song)
+                
+                if status:
+                    query = query.filter(Song.status == status)
+                    
+                count = query.count()
+                print(f"Total songs count: {count} (status={status})", file=sys.stderr)
+                return count
+            finally:
+                db.close()
+        except Exception as e:
+            print(f"Error getting total songs count: {e}", file=sys.stderr)
+            return 0
+    
+    def get_song_by_id(self, song_id) -> Optional[Song]:
+        """
+        Get song by ID with loaded choices
+        
+        Args:
+            song_id: UUID of the song
+            
+        Returns:
+            Song instance with loaded choices, or None if not found
+        """
+        try:
+            db = next(get_db())
+            try:
+                song = (db.query(Song)
+                       .options(joinedload(Song.choices))
+                       .filter(Song.id == song_id)
+                       .first())
+                print(f"Retrieved song by ID {song_id}: {'Found' if song else 'Not found'}", file=sys.stderr)
+                if song:
+                    print(f"Song has {len(song.choices)} choices", file=sys.stderr)
+                return song
+            finally:
+                db.close()
+        except Exception as e:
+            print(f"Error getting song by ID {song_id}: {e}", file=sys.stderr)
+            return None
+    
+    def get_recent_songs(self, limit: int = 10) -> List[Song]:
+        """
+        Get most recently created songs
+        
+        Args:
+            limit: Number of songs to return
+            
+        Returns:
+            List of Song instances with loaded choices
+        """
+        try:
+            db = next(get_db())
+            try:
+                songs = (db.query(Song)
+                        .options(joinedload(Song.choices))
+                        .order_by(Song.created_at.desc())
+                        .limit(limit)
+                        .all())
+                print(f"Retrieved {len(songs)} recent songs", file=sys.stderr)
+                return songs
+            finally:
+                db.close()
+        except Exception as e:
+            print(f"Error getting recent songs: {e}", file=sys.stderr)
+            return []
+    
+    def delete_song_by_id(self, song_id) -> bool:
+        """
+        Delete song and all its choices by ID
+        
+        Args:
+            song_id: UUID of the song
+            
+        Returns:
+            True if successful, False otherwise
+        """
+        try:
+            db = next(get_db())
+            try:
+                song = db.query(Song).filter(Song.id == song_id).first()
+                if song:
+                    db.delete(song)  # Cascade will delete choices
+                    db.commit()
+                    print(f"Song {song_id} deleted successfully", file=sys.stderr)
+                    return True
+                return False
+            except SQLAlchemyError as e:
+                db.rollback()
+                print(f"Database error deleting song {song_id}: {e}", file=sys.stderr)
+                raise
+            finally:
+                db.close()
+        except Exception as e:
+            print(f"Error deleting song {song_id}: {type(e).__name__}: {e}", file=sys.stderr)
+            print(f"Stacktrace: {traceback.format_exc()}", file=sys.stderr)
+            return False
 
 
 # Global service instance

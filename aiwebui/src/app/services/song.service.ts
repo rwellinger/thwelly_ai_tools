@@ -62,4 +62,20 @@ export class SongService {
     const response = await this.fetchWithTimeout(this.apiConfig.endpoints.song.tasks, { timeout: 30000 });
     return response.json();
   }
+
+  async getSongs(limit: number = 20, offset: number = 0, status?: string): Promise<any> {
+    const response = await this.fetchWithTimeout(
+      this.apiConfig.endpoints.song.list(limit, offset, status), 
+      { timeout: 30000 }
+    );
+    return response.json();
+  }
+
+  async getSongById(songId: string): Promise<any> {
+    const response = await this.fetchWithTimeout(
+      this.apiConfig.endpoints.song.detail(songId), 
+      { timeout: 30000 }
+    );
+    return response.json();
+  }
 }

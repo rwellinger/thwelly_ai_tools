@@ -1,5 +1,4 @@
 import {Component, OnInit, ViewEncapsulation} from '@angular/core';
-import {FormBuilder, FormGroup, ReactiveFormsModule} from '@angular/forms';
 import {CommonModule} from '@angular/common';
 import {SongService} from '../services/song.service';
 import {HeaderComponent} from '../shared/header/header.component';
@@ -7,30 +6,48 @@ import {FooterComponent} from '../shared/footer/footer.component';
 import {ApiConfigService} from '../services/api-config.service';
 import { NotificationService } from '../services/notification.service';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
+import { DisplayNamePipe } from '../pipes/display-name.pipe';
 
 @Component({
   selector: 'app-song-view',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, HeaderComponent, FooterComponent, MatSnackBarModule],
+  imports: [CommonModule, HeaderComponent, FooterComponent, MatSnackBarModule, DisplayNamePipe],
   templateUrl: './song-view.component.html',
   styleUrl: './song-view.component.css',
   encapsulation: ViewEncapsulation.None
 })
 export class SongViewComponent implements OnInit {
-  viewForm!: FormGroup;
-  tasks: any[] = [];
+  // Songs list and pagination
+  songs: any[] = [];
+  selectedSong: any = null;
+  pagination: any = {
+    total: 0,
+    limit: 20,
+    offset: 0,
+    has_more: false
+  };
+  
+  // UI state
   isLoading = false;
+  isLoadingSongs = false;
   loadingMessage = '';
-  result = '';
-  resultData: any = null;
   successMessage = '';
-  choices: any[] = [];
-  stemDownloadUrl: string | null = null;
+  
+  // Audio and features
   currentlyPlaying: string | null = null;
   audioUrl: string | null = null;
+  stemDownloadUrl: string | null = null;
+
+  // Modal state
+  showModal = false;
+  modalTitle = '';
+  modalContent = '';
+  modalType: 'lyrics' | 'prompt' | '' = '';
+
+  // Make Math available in template
+  Math = Math;
 
   constructor(
-    private fb: FormBuilder,
     private songService: SongService,
     private apiConfig: ApiConfigService,
     private notificationService: NotificationService
@@ -43,114 +60,172 @@ export class SongViewComponent implements OnInit {
 
   ngOnInit() {
     (window as any).angularComponentRef = this;
-    this.viewForm = this.fb.group({
-      taskSelect: ['']
-    });
-
-    this.loadTasks();
+    this.loadSongs();
   }
 
-  async loadTasks() {
+  async loadSongs() {
+    this.isLoadingSongs = true;
     try {
-      const response = await this.songService.fetchWithTimeout(this.apiConfig.endpoints.redis.keys);
-      const data = await response.json();
-      this.tasks = data.tasks || [];
-    } catch (error: any) {
-      this.notificationService.error(`Error loading tasks: ${error.message}`);
-      this.result = `Error loading tasks: ${error.message}`;
-    }
-  }
-
-  async onSubmit() {
-    const taskId = this.viewForm.get('taskSelect')?.value;
-    if (!taskId) {
-      this.notificationService.error('No task ID selected.');
-      return;
-    }
-
-    this.isLoading = true;
-    this.loadingMessage = 'Fetching result…';
-    this.result = '';
-    this.stemDownloadUrl = null;
-    this.notificationService.loading('Fetching result...');
-
-    try {
-      const data = await this.songService.checkSongStatus(taskId);
-
-      if (data.status === 'SUCCESS') {
-        this.renderResultTask(data.result || data);
-        this.notificationService.success('Task result loaded successfully!');
-      } else if (data.status === 'FAILURE' || data.status === 'FAILED') {
-        const errorMessage = data.error || 'Job failed.';
-        this.notificationService.error(`Job failed: ${errorMessage}`);
-        this.result = `Job failed: ${errorMessage}`;
-        this.resultData = null;
-        this.choices = [];
-      } else {
-        this.notificationService.error(`Error Status: ${data.status}`);
-        this.result = `Error Status: ${data.status}`;
-        this.resultData = null;
-        this.choices = [];
+      const data = await this.songService.getSongs(this.pagination.limit, this.pagination.offset, 'SUCCESS');
+      this.songs = data.songs || [];
+      this.pagination = data.pagination || this.pagination;
+      
+      // Auto-select first song if available and none selected
+      if (this.songs.length > 0 && !this.selectedSong) {
+        await this.selectSong(this.songs[0]);
       }
     } catch (error: any) {
-      this.notificationService.error(`ExError: ${error.message}`);
-      this.result = `ExError: ${error.message}`;
+      this.notificationService.error(`Error loading songs: ${error.message}`);
+    } finally {
+      this.isLoadingSongs = false;
+    }
+  }
+
+  async selectSong(song: any) {
+    this.isLoading = true;
+    this.loadingMessage = 'Loading song details...';
+    this.stemDownloadUrl = null;
+    this.selectedSong = null;
+    this.stopAudio();
+    
+    try {
+      // If song already has choices, use it directly
+      if (song.choices && song.choices.length > 0) {
+        this.selectedSong = song;
+        this.notificationService.success('Song details loaded!');
+      } else {
+        // Otherwise fetch full details
+        const data = await this.songService.getSongById(song.id);
+        this.selectedSong = data;
+        this.notificationService.success('Song details loaded!');
+      }
+    } catch (error: any) {
+      this.notificationService.error(`Error loading song: ${error.message}`);
+      this.selectedSong = null;
     } finally {
       this.isLoading = false;
     }
   }
 
-  renderResultTask(data: any): void {
-    let result;
+  // Pagination methods
+  async nextPage() {
+    if (!this.pagination.has_more) return;
     
-    if (data && data.result && data.result.choices) {
-      result = data.result;
-    } else if (data && data.choices) {
-      result = data;
+    this.pagination.offset += this.pagination.limit;
+    await this.loadSongs();
+  }
+  
+  async previousPage() {
+    if (this.pagination.offset === 0) return;
+    
+    this.pagination.offset = Math.max(0, this.pagination.offset - this.pagination.limit);
+    await this.loadSongs();
+  }
+  
+  async loadMore() {
+    if (!this.pagination.has_more) return;
+    
+    this.isLoadingSongs = true;
+    try {
+      const newOffset = this.pagination.offset + this.pagination.limit;
+      const data = await this.songService.getSongs(this.pagination.limit, newOffset, 'SUCCESS');
+      
+      // Append new songs to existing list
+      this.songs = [...this.songs, ...(data.songs || [])];
+      this.pagination = data.pagination || this.pagination;
+      this.pagination.offset = newOffset;
+    } catch (error: any) {
+      this.notificationService.error(`Error loading more songs: ${error.message}`);
+    } finally {
+      this.isLoadingSongs = false;
+    }
+  }
+
+  // Utility methods
+  getSongPreview(song: any): string {
+    if (!song.lyrics) return 'No lyrics';
+    // Use similar logic to DisplayNamePipe but for 20 chars
+    const lyrics = song.lyrics.trim();
+    return lyrics.length > 20 ? lyrics.substring(0, 17) + '...' : lyrics;
+  }
+  
+  getSongTitle(song: any): string {
+    return song.prompt || 'Untitled Song';
+  }
+  
+  formatDate(dateString: string): string {
+    return new Date(dateString).toLocaleDateString();
+  }
+
+  clearSelection() {
+    this.selectedSong = null;
+    this.stopAudio();
+    this.stemDownloadUrl = null;
+  }
+
+  // Modal methods
+  showLyrics(song: any) {
+    this.modalTitle = `Lyrics - ${this.getSongTitle(song)}`;
+    this.modalContent = song.lyrics || 'No lyrics available';
+    this.modalType = 'lyrics';
+    this.showModal = true;
+  }
+
+  showPrompt(song: any) {
+    this.modalTitle = `Style Prompt - ${this.getSongTitle(song)}`;
+    this.modalContent = song.prompt || 'No style prompt available';
+    this.modalType = 'prompt';
+    this.showModal = true;
+  }
+
+  closeModal() {
+    this.showModal = false;
+    this.modalTitle = '';
+    this.modalContent = '';
+    this.modalType = '';
+  }
+
+  async copyToClipboard() {
+    try {
+      await navigator.clipboard.writeText(this.modalContent);
+      this.notificationService.success('Content copied to clipboard!');
+    } catch (error) {
+      // Fallback for older browsers
+      const textArea = document.createElement('textarea');
+      textArea.value = this.modalContent;
+      document.body.appendChild(textArea);
+      textArea.focus();
+      textArea.select();
+      try {
+        document.execCommand('copy');
+        this.notificationService.success('Content copied to clipboard!');
+      } catch (err) {
+        this.notificationService.error('Failed to copy to clipboard');
+      }
+      document.body.removeChild(textArea);
+    }
+  }
+
+  // Audio player methods
+  playAudio(mp3Url: string, choiceId: string) {
+    if (this.currentlyPlaying === choiceId) {
+      this.stopAudio();
     } else {
-      this.result = 'Not yet loaded...';
-      this.resultData = null;
-      this.choices = [];
-      return;
+      this.audioUrl = mp3Url;
+      this.currentlyPlaying = choiceId;
     }
-
-    if (!result.choices || !Array.isArray(result.choices)) {
-      this.result = 'Not yet loaded...';
-      this.resultData = null;
-      this.choices = [];
-      return;
-    }
-    this.resultData = {
-      id: result.id,
-      model: result.model,
-      createdAt: result.created_at,
-      finishedAt: result.finished_at,
-      formattedDuration: this.formatDuration(result.finished_at - result.created_at),
-      createdAtFormatted: new Date(result.finished_at * 1000).toUTCString()
-    };
-
-    this.choices = result.choices.map((choice: any) => ({
-      ...choice,
-      formattedDuration: this.formatDurationFromMs(choice.duration)
-    }));
-
-    this.result = '';
   }
 
-  private formatDuration(durationSeconds: number): string {
-    const totalSeconds = Math.floor(durationSeconds);
-    const minutes = Math.floor(totalSeconds / 60);
-    const seconds = totalSeconds % 60;
-    return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+  stopAudio() {
+    this.audioUrl = null;
+    this.currentlyPlaying = null;
   }
 
-  private formatDurationFromMs(durationMs: number): string {
-    const totalSeconds = Math.floor(durationMs / 1000);
-    const minutes = Math.floor(totalSeconds / 60);
-    const seconds = totalSeconds % 60;
-    return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+  onCanPlayThrough() {
+    this.notificationService.info('Audio is ready to play');
   }
 
+  // Stem generation method
   async generateStem(mp3Url: string) {
     this.isLoading = true;
     this.loadingMessage = 'Generating stems...';
@@ -168,7 +243,6 @@ export class SongViewComponent implements OnInit {
         })
       ]);
 
-
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
@@ -181,80 +255,19 @@ export class SongViewComponent implements OnInit {
       } else {
         this.stemDownloadUrl = null;
         this.notificationService.error('Stem generation failed or incomplete.');
-        this.result += '<p>Stem generation failed or incomplete.</p>';
       }
     } catch (error: any) {
       this.stemDownloadUrl = null;
       this.notificationService.error(`Error generating stem: ${error.message}`);
-      this.result += `<p>Error generating stem: ${error.message}</p>`;
     } finally {
       this.isLoading = false;
     }
   }
 
-  playAudio(mp3Url: string, songId: string) {
-    if (this.currentlyPlaying === songId) {
-      this.stopAudio();
-    } else {
-      this.audioUrl = mp3Url;
-      this.currentlyPlaying = songId;
-    }
-  }
-
-  stopAudio() {
-    this.audioUrl = null;
-    this.currentlyPlaying = null;
-  }
-
-  onCanPlayThrough() {
-    this.notificationService.info('Audio is ready to play');
-  }
-
-  async deleteTask() {
-    const taskId = this.viewForm.get('taskSelect')?.value;
-    if (!taskId) {
-      this.notificationService.error('No task ID selected.');
-      return;
-    }
-
-    this.isLoading = true;
-    this.loadingMessage = 'Deleting task...';
-    this.successMessage = '';
-    this.notificationService.loading('Deleting task...');
-
-    try {
-      const response = await fetch(this.apiConfig.endpoints.redis.deleteTask(taskId), {
-        method: 'DELETE',
-        headers: {'Content-Type': 'application/json'}
-      });
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      const data = await response.json();
-
-      if (data.status === 'SUCCESS') {
-        this.notificationService.success('Task successfully deleted!');
-        this.successMessage = 'Task successfully deleted!';
-        this.viewForm.get('taskSelect')?.setValue('');
-        this.result = '';
-        this.resultData = null;
-        this.choices = [];
-        await this.loadTasks();
-        
-        setTimeout(() => {
-          this.successMessage = '';
-        }, 3000);
-      } else {
-        this.notificationService.error(`Delete failed: ${data.status}`);
-        this.result = `Delete failed: ${data.status}`;
-      }
-    } catch (error: any) {
-      this.notificationService.error(`Error deleting task: ${error.message}`);
-      this.result = `Error deleting task: ${error.message}`;
-    } finally {
-      this.isLoading = false;
-    }
+  private formatDurationFromMs(durationMs: number): string {
+    const totalSeconds = Math.floor(durationMs / 1000);
+    const minutes = Math.floor(totalSeconds / 60);
+    const seconds = totalSeconds % 60;
+    return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
   }
 }
