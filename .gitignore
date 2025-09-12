@@ -18,6 +18,8 @@ aiproxysrv/.env
 aiproxysrv/.env_docker
 aiproxysrv/images
 aiproxysrv/backup
+aiproxysrv/alembic.ini
+aiproxysrv/alembic.ini.docker
 
 ollamasrv/backup
 ollamasrv/data
