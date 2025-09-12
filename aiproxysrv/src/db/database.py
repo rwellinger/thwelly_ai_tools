@@ -1,11 +1,16 @@
 """Database configuration and engine setup"""
 import sys
+import re
 from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from config.settings import DATABASE_URL, DATABASE_ECHO
 
-print(f"Connecting to database: {DATABASE_URL[:50]}...", file=sys.stderr)
+def sanitize_url_for_logging(url):
+    """Remove password from URL for safe logging"""
+    return re.sub(r'://([^:]+):([^@]+)@', r'://\1:***@', url)
+
+print(f"Connecting to database: {sanitize_url_for_logging(DATABASE_URL)}", file=sys.stderr)
 try:
     engine = create_engine(DATABASE_URL, echo=DATABASE_ECHO)
     print("Database engine created successfully", file=sys.stderr)
