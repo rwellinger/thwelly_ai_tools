@@ -8,7 +8,7 @@ node_modules
 __pycache__
 *.bak
 aiproxysrv/.env
-aiproxysrv/.env_docker
+/aiproxysrv/.env_postgres
 aiproxysrv/images
 aiproxysrv/backup
 aiproxysrv/alembic.ini

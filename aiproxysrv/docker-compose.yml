@@ -5,10 +5,7 @@ services:
     restart: unless-stopped
     ports:
       - "5432:5432"
-    environment:
-      - POSTGRES_DB=aiproxysrv
-      - POSTGRES_USER=aiproxy
-      - POSTGRES_PASSWORD=aiproxy123
+    env_file: .env_postgres
     volumes:
       - postgres-data:/var/lib/postgresql/data
     networks:
