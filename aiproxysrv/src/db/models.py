@@ -1,5 +1,7 @@
 """Database models"""
 from sqlalchemy import Column, Integer, String, DateTime, Text, Float, ForeignKey
+from sqlalchemy.dialects.postgresql import UUID
+import uuid
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 from db.database import Base
@@ -21,7 +23,7 @@ class Song(Base):
     __table_args__ = {'extend_existing': True}
     
     # Primary identifiers
-    id = Column(Integer, primary_key=True, index=True)
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, index=True)
     task_id = Column(String(255), nullable=False, unique=True, index=True)  # Celery Task ID
     job_id = Column(String(255), nullable=True, index=True)  # MUREKA Job ID
     
@@ -56,8 +58,8 @@ class SongChoice(Base):
     __tablename__ = "song_choices"
     
     # Primary identifiers
-    id = Column(Integer, primary_key=True, index=True)
-    song_id = Column(Integer, ForeignKey("songs.id"), nullable=False, index=True)
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, index=True)
+    song_id = Column(UUID(as_uuid=True), ForeignKey("songs.id"), nullable=False, index=True)
     
     # MUREKA choice data
     mureka_choice_id = Column(String(255), nullable=True)  # MUREKA's choice ID
@@ -89,7 +91,7 @@ class GeneratedImage(Base):
     """Model for storing generated image metadata"""
     __tablename__ = "generated_images"
 
-    id = Column(Integer, primary_key=True, index=True)
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, index=True)
     prompt = Column(Text, nullable=False)
     size = Column(String(20), nullable=False)
     filename = Column(String(255), nullable=False, unique=True)

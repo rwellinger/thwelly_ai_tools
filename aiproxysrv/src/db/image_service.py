@@ -100,7 +100,7 @@ class ImageService:
             db.close()
     
     @staticmethod
-    def get_image_by_id(image_id: int) -> Optional[GeneratedImage]:
+    def get_image_by_id(image_id) -> Optional[GeneratedImage]:
         """Get image metadata by ID"""
         db = SessionLocal()
         try:
@@ -109,7 +109,7 @@ class ImageService:
             db.close()
     
     @staticmethod
-    def delete_image_metadata(image_id: int) -> bool:
+    def delete_image_metadata(image_id) -> bool:
         """Delete image metadata by ID"""
         db = SessionLocal()
         try:

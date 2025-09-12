@@ -265,7 +265,7 @@ class SongService:
             print(f"Stacktrace: {traceback.format_exc()}", file=sys.stderr)
             return {"error": str(e)}
     
-    def get_song_choices(self, song_id: int) -> List[SongChoice]:
+    def get_song_choices(self, song_id) -> List[SongChoice]:
         """Get all choices for a specific song"""
         try:
             db = next(get_db())
