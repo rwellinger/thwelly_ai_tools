@@ -17,5 +17,9 @@ export const routes: Routes = [
     {
         path: 'imagegen',
         loadComponent: () => import('./image-generator/image-generator.component').then(m => m.ImageGeneratorComponent)
+    },
+    {
+        path: 'imageview',
+        loadComponent: () => import('./image-view/image-view.component').then(m => m.ImageViewComponent)
     }
 ];

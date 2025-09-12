@@ -18,7 +18,9 @@ export class ApiConfigService {
     image: {
       generate: `${this.baseUrl}/api/v1/image/generate`,
       status: (taskId: string) => `${this.baseUrl}/api/v1/image/status/${taskId}`,
-      tasks: `${this.baseUrl}/api/v1/image/tasks`
+      tasks: `${this.baseUrl}/api/v1/image/tasks`,
+      list: (limit?: number, offset?: number) => `${this.baseUrl}/api/v1/image/list${limit !== undefined || offset !== undefined ? '?' : ''}${limit !== undefined ? `limit=${limit}` : ''}${limit !== undefined && offset !== undefined ? '&' : ''}${offset !== undefined ? `offset=${offset}` : ''}`,
+      detail: (id: number) => `${this.baseUrl}/api/v1/image/${id}`
     },
     redis: {
       keys: `${this.baseUrl}/api/v1/redis/list/keys`,
