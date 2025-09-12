@@ -45,13 +45,13 @@
             <i class="fas fa-download"></i> Download
         </a>
         <td>
-            <button type="button" (click)="playAudio(choice.url, choice.id)">
+            <button type="button" (click)="playAudio(choice.mp3_url, choice.id)">
                 <i class="fas fa-music"></i>
                 {{ currentlyPlaying === choice.id ? 'Hide Player' : 'Show Player' }}
             </button>
         </td>
         <td>
-            <button [disabled]="isLoading" type="button" (click)="generateStem(choice.url)">
+            <button [disabled]="isLoading" type="button" (click)="generateStem(choice.mp3_url)">
                 <i class="fas fa-brain"></i> Generate
             </button>
         </td>

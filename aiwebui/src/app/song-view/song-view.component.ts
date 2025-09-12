@@ -78,7 +78,7 @@ export class SongViewComponent implements OnInit {
       const data = await this.songService.checkSongStatus(taskId);
 
       if (data.status === 'SUCCESS') {
-        this.renderResultTask(data);
+        this.renderResultTask(data.result || data);
         this.notificationService.success('Task result loaded successfully!');
       } else if (data.status === 'FAILURE' || data.status === 'FAILED') {
         const errorMessage = data.error || 'Job failed.';
