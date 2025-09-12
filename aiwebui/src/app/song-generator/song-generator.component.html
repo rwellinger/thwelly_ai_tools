@@ -12,19 +12,21 @@
         placeholder="Enter Music Style Prompt here..."
         required>
     </textarea>
-    <label for="model">Model:</label>
-    <select formControlName="model" required>
-        <option value="auto" selected>Auto</option>
-        <option value="mureka-7">Mureka 7</option>
-        <option value="mureka-6">Mureka 6</option>
-        <option value="mureka-o1">Mureka o1</option>
-    </select>
-    <button type="submit" [disabled]="songForm.invalid || isLoading">
-        <i class="fas fa-brain"></i> Generate Song
-    </button>
-    <button type="button" (click)="resetForm()">
-        <i class="fas fa-rotate-left"></i> Reset
-    </button>
+    <div>
+        <label for="model">Model:</label>
+        <select formControlName="model" required>
+            <option value="auto" selected>Auto</option>
+            <option value="mureka-7">Mureka 7</option>
+            <option value="mureka-6">Mureka 6</option>
+            <option value="mureka-o1">Mureka o1</option>
+        </select>
+        <button type="submit" [disabled]="songForm.invalid || isLoading">
+            <i class="fas fa-brain"></i> Generate Song
+        </button>
+        <button type="button" (click)="resetForm()">
+            <i class="fas fa-rotate-left"></i> Reset
+        </button>
+    </div>
 </form>
 
 <div *ngIf="resultData" class="info-box">

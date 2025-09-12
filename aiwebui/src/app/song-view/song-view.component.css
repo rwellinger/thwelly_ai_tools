@@ -339,8 +339,8 @@ select {
 
 /* Song Details Section */
 .song-details-section {
-  margin-bottom: 30px;
-  padding: 20px;
+  margin-bottom: 15px;
+  padding: 10px;
   background-color: white;
   border-radius: 8px;
   border: 1px solid #e9ecef;
@@ -348,17 +348,17 @@ select {
 
 .song-details-section h2 {
   color: #333;
-  margin-bottom: 20px;
+  margin-bottom: 10px;
   font-size: 1.5em;
   border-bottom: 2px solid #007bff;
-  padding-bottom: 10px;
+  padding-bottom: 5px;
 }
 
 .song-info-box {
   display: grid;
   grid-template-columns: 1fr 2fr 1fr;
   gap: 20px;
-  margin-bottom: 30px;
+  margin-bottom: 10px;
 }
 
 .song-meta-info {
@@ -391,9 +391,9 @@ select {
   border: 1px solid #e9ecef;
   white-space: pre-wrap;
   font-family: monospace;
-  font-size: 0.9em;
+  font-size: 1.0em;
   line-height: 1.4;
-  max-height: 200px;
+  max-height: 150px;
   overflow-y: auto;
 }
 
@@ -603,20 +603,20 @@ select {
   .song-info-box {
     grid-template-columns: 1fr;
   }
-  
+
   .songs-grid {
     grid-template-columns: 1fr;
   }
-  
+
   .pagination-controls {
     flex-direction: column;
     gap: 10px;
   }
-  
+
   .choices-table {
     font-size: 0.8em;
   }
-  
+
   .choices-table th,
   .choices-table td {
     padding: 8px;

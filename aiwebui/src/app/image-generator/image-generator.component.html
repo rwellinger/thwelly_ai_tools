@@ -7,15 +7,17 @@
         placeholder="Enter your prompt here..."
         required>
     </textarea>
-    <label for="size">Image Size:</label>
-    <select formControlName="size" required>
-        <option value="1024x1024">Square (1024x1024)</option>
-        <option value="1792x1024">Landscape (1792x1024)</option>
-        <option value="1024x1792">Portrait (1024x1792)</option>
-    </select>
-    <button type="submit" [disabled]="promptForm.invalid || isLoading">
-        <i class="fas fa-brain"></i> Generate Image
-    </button>
+    <div>
+        <label for="size">Image Size:</label>
+        <select formControlName="size" required>
+            <option value="1024x1024">Square (1024x1024)</option>
+            <option value="1792x1024">Landscape (1792x1024)</option>
+            <option value="1024x1792">Portrait (1024x1792)</option>
+        </select>
+        <button type="submit" [disabled]="promptForm.invalid || isLoading">
+            <i class="fas fa-brain"></i> Generate Image
+        </button>
+    </div>
 </form>
 
 <div id="result">{{ result }}</div>

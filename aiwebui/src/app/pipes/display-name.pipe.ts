@@ -25,7 +25,7 @@ export class DisplayNamePipe implements PipeTransform {
     } catch (error) {
       console.error('Failed to load compromise:', error);
       this.compromiseLoadState = 'failed';
-      
+
       // Retry logic
       if (this.loadAttempts < this.maxLoadAttempts) {
         console.log(`Retrying compromise load in 2 seconds (attempt ${this.loadAttempts + 1}/${this.maxLoadAttempts})`);
@@ -45,11 +45,11 @@ export class DisplayNamePipe implements PipeTransform {
       try {
         const doc = this.nlp(prompt);
         const sentences = doc.sentences();
-        
+
         if (sentences.length > 0) {
           const firstSentence = sentences.out('text')[0];
           if (firstSentence && firstSentence.length > 0) {
-            return firstSentence.length > 50 ? firstSentence.substring(0, 47) + '...' : firstSentence;
+            return firstSentence.length > 30 ? firstSentence.substring(0, 27) + '...' : firstSentence;
           }
         }
       } catch (error) {
@@ -63,24 +63,24 @@ export class DisplayNamePipe implements PipeTransform {
 
   private intelligentFallback(prompt: string): string {
     console.log(`Using intelligent fallback for: "${prompt}"`);
-    
+
     // 1. First try to find sentence boundaries
     const sentenceEnd = /[.!?]+\s+/;
     const sentenceMatch = prompt.match(sentenceEnd);
-    
+
     if (sentenceMatch && sentenceMatch.index !== undefined) {
       const sentence = prompt.substring(0, sentenceMatch.index + 1).trim();
-      if (sentence.length <= 50) {
+      if (sentence.length <= 30) {
         console.log('Fallback: Found complete sentence');
         return sentence;
       }
     }
-    
+
     // 2. If too long, try to break at conjunctions
-    if (prompt.length > 50) {
+    if (prompt.length > 30) {
       const conjunctions = /\s+(und|mit|oder|sowie|plus|außerdem)\s+/i;
       const conjunctionMatch = prompt.match(conjunctions);
-      
+
       if (conjunctionMatch && conjunctionMatch.index !== undefined && conjunctionMatch.index <= 47) {
         const part = prompt.substring(0, conjunctionMatch.index).trim();
         if (part.length > 20) { // Only if meaningful length
@@ -89,16 +89,16 @@ export class DisplayNamePipe implements PipeTransform {
         }
       }
     }
-    
+
     // 3. Break at word boundary, never mid-word
-    if (prompt.length > 50) {
-      const truncated = prompt.substring(0, 47);
+    if (prompt.length > 30) {
+      const truncated = prompt.substring(0, 27);
       const lastSpace = truncated.lastIndexOf(' ');
       const result = (lastSpace > 25 ? truncated.substring(0, lastSpace) : truncated) + '...';
       console.log('Fallback: Split at word boundary');
       return result;
     }
-    
+
     console.log('Fallback: Using full prompt (short enough)');
     return prompt;
   }

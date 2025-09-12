@@ -137,7 +137,7 @@ button:hover {
 
 label {
     font-size: medium;
-    margin-right: 20px;
+    margin-right: 10px;
 }
 
 select {
@@ -147,7 +147,7 @@ select {
 }
 
 textarea {
-    font-size: large;
+    font-size: medium;
 }
 
 /* audio-player.component.css */

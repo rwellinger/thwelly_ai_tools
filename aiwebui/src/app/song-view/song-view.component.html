@@ -74,31 +74,43 @@
 <!-- Song Details Section -->
 <div *ngIf="selectedSong" class="song-details-section">
     <h2>Song Details</h2>
-    
+
     <div class="song-info-box">
         <div class="song-meta-info">
-            <p><strong>Title:</strong> {{ getSongTitle(selectedSong) }}</p>
+            <p><strong>Title:</strong> {{ getSongTitle(selectedSong) | displayName }}</p>
             <p><strong>Model:</strong> {{ selectedSong.model }}</p>
             <p><strong>Status:</strong> <span [class]="'status-' + selectedSong.status.toLowerCase()">{{ selectedSong.status }}</span></p>
             <p><strong>Created:</strong> {{ formatDate(selectedSong.created_at) }}</p>
             <p *ngIf="selectedSong.completed_at"><strong>Completed:</strong> {{ formatDate(selectedSong.completed_at) }}</p>
         </div>
-        
+
         <div class="song-lyrics">
             <h3>Lyrics:</h3>
             <pre class="lyrics-content">{{ selectedSong.lyrics }}</pre>
         </div>
-        
+
         <div class="song-prompt">
             <h3>Style Prompt:</h3>
             <p class="prompt-content">{{ selectedSong.prompt }}</p>
         </div>
     </div>
-    
+
+<!-- Audio Player -->
+<div class="audio-wrapper" *ngIf="audioUrl">
+    <h3>Audio Player</h3>
+    <audio #player
+           [src]="audioUrl"
+           controls
+           preload="metadata"
+           (canplaythrough)="onCanPlayThrough()"
+           (ended)="stopAudio()">
+    </audio>
+</div>
+
     <!-- Song Choices -->
     <div *ngIf="selectedSong.choices && selectedSong.choices.length > 0" class="choices-section">
         <h3>Generated Variations ({{ selectedSong.choices_count }})</h3>
-        
+
         <table class="choices-table">
             <thead>
                 <tr>
@@ -120,7 +132,7 @@
                         <span *ngIf="!choice.flac_url" class="not-available">N/A</span>
                     </td>
                     <td>
-                        <button type="button" 
+                        <button type="button"
                                 *ngIf="choice.mp3_url"
                                 (click)="playAudio(choice.mp3_url, choice.id)"
                                 [class.active]="currentlyPlaying === choice.id">
@@ -130,9 +142,9 @@
                         <span *ngIf="!choice.mp3_url" class="not-available">N/A</span>
                     </td>
                     <td>
-                        <button type="button" 
+                        <button type="button"
                                 *ngIf="choice.mp3_url"
-                                [disabled]="isLoading" 
+                                [disabled]="isLoading"
                                 (click)="generateStem(choice.mp3_url)">
                             <i class="fas fa-brain"></i> Generate Stems
                         </button>
@@ -142,7 +154,7 @@
             </tbody>
         </table>
     </div>
-    
+
     <div *ngIf="!selectedSong.choices || selectedSong.choices.length === 0" class="no-choices">
         <p>No song choices available for this song.</p>
     </div>
@@ -150,18 +162,6 @@
 
 <div *ngIf="!selectedSong && !isLoadingSongs" class="no-selection">
     <p>Select a song from the list above to view details.</p>
-</div>
-
-<!-- Audio Player -->
-<div class="audio-wrapper" *ngIf="audioUrl">
-    <h3>Audio Player</h3>
-    <audio #player
-           [src]="audioUrl"
-           controls
-           preload="metadata"
-           (canplaythrough)="onCanPlayThrough()"
-           (ended)="stopAudio()">
-    </audio>
 </div>
 
 <!-- Stem Download -->
