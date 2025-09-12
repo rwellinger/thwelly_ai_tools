@@ -24,12 +24,11 @@ services:
     user: "1000:1000"
     depends_on:
       - redis
-    env_file: .env
+    env_file: .env_docker
     environment:
       - REDIS_URL=redis://redis:6379
       - CELERY_BROKER_URL=redis://redis:6379
       - CELERY_RESULT_BACKEND=redis://redis:6379
-      - DEBUG=false
     volumes:
       - .:/app
     networks:
@@ -41,12 +40,11 @@ services:
     build: .
     ports:
       - "5050:5050"
-    env_file: .env
+    env_file: .env_docker
     environment:
       - REDIS_URL=redis://redis:6379
       - CELERY_BROKER_URL=redis://redis:6379
       - CELERY_RESULT_BACKEND=redis://redis:6379
-      - DEBUG=false
     volumes:
       - .:/app
       - images-data:/images
