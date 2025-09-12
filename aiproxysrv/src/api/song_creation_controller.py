@@ -5,6 +5,7 @@ import time
 from typing import Tuple, Dict, Any
 from config.settings import MUREKA_API_KEY, MUREKA_STATUS_ENDPOINT, MUREKA_STEM_GENERATE_ENDPOINT
 from celery_app import generate_song_task
+from db.song_service import song_service
 from .json_helpers import prune
 
 
@@ -28,6 +29,20 @@ class SongCreationController:
         print(f"Prompt: {payload.get('prompt', '')}", file=sys.stderr)
 
         task = generate_song_task.delay(payload)
+
+        # Create song record in database
+        song = song_service.create_song(
+            task_id=task.id,
+            lyrics=payload.get('lyrics', ''),
+            prompt=payload.get('prompt', ''),
+            model=payload.get('model', 'chirp-v3-5')
+        )
+        
+        if not song:
+            print(f"Failed to create song record in database for task {task.id}", file=sys.stderr)
+            # Continue anyway - fallback to Redis-only mode
+        else:
+            print(f"Created song record in database: id={song.id}, task_id={task.id}", file=sys.stderr)
 
         return {
             "task_id": task.id,

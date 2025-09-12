@@ -109,7 +109,14 @@ export class SongGeneratorComponent implements OnInit {
                     this.result = `<div class="error-box">Error: ${errorMessage}</div>`;
                     completed = true;
                 } else {
-                    const murekaStatus = data.progress?.mureka_status || "Initialize";
+                    let murekaStatus = "Initialize";
+                    
+                    if (data.progress?.mureka_status) {
+                        murekaStatus = data.progress.mureka_status;
+                    } else if (data.status === 'PROGRESS' || data.status === 'PENDING') {
+                        murekaStatus = data.status.toLowerCase();
+                    }
+                    
                     this.loadingMessage = `Processing (${murekaStatus}) ... Please wait until finished.`;
                     this.notificationService.loading(`Processing (${murekaStatus})...`);
                     interval = Math.min(interval * 1.5, 60000);
@@ -126,14 +133,25 @@ export class SongGeneratorComponent implements OnInit {
     }
 
     renderResultTask(data: any): void {
-        if (!data || !data.result || !data.result.choices || !Array.isArray(data.result.choices)) {
+        let result;
+        
+        if (data && data.result && data.result.choices) {
+            result = data.result;
+        } else if (data && data.choices) {
+            result = data;
+        } else {
             this.result = 'Not yet loaded...';
             this.resultData = null;
             this.choices = [];
             return;
         }
 
-        const result = data.result;
+        if (!result.choices || !Array.isArray(result.choices)) {
+            this.result = 'Not yet loaded...';
+            this.resultData = null;
+            this.choices = [];
+            return;
+        }
         this.resultData = {
             id: result.id,
             model: result.model,

@@ -77,12 +77,13 @@ export class SongViewComponent implements OnInit {
     try {
       const data = await this.songService.checkSongStatus(taskId);
 
-      if (data.status === 'SUCCESS' && data.result) {
-        this.renderResultTask(data.result);
+      if (data.status === 'SUCCESS') {
+        this.renderResultTask(data);
         this.notificationService.success('Task result loaded successfully!');
-      } else if (data.status === 'FAILED') {
-        this.notificationService.error('Job failed.');
-        this.result = 'Job failed.';
+      } else if (data.status === 'FAILURE' || data.status === 'FAILED') {
+        const errorMessage = data.error || 'Job failed.';
+        this.notificationService.error(`Job failed: ${errorMessage}`);
+        this.result = `Job failed: ${errorMessage}`;
         this.resultData = null;
         this.choices = [];
       } else {
@@ -100,14 +101,25 @@ export class SongViewComponent implements OnInit {
   }
 
   renderResultTask(data: any): void {
-    if (!data || !data.result || !data.result.choices || !Array.isArray(data.result.choices)) {
+    let result;
+    
+    if (data && data.result && data.result.choices) {
+      result = data.result;
+    } else if (data && data.choices) {
+      result = data;
+    } else {
       this.result = 'Not yet loaded...';
       this.resultData = null;
       this.choices = [];
       return;
     }
 
-    const result = data.result;
+    if (!result.choices || !Array.isArray(result.choices)) {
+      this.result = 'Not yet loaded...';
+      this.resultData = null;
+      this.choices = [];
+      return;
+    }
     this.resultData = {
       id: result.id,
       model: result.model,
