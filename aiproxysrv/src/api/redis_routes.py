@@ -1,4 +1,6 @@
 from flask import Blueprint, jsonify
+import sys
+import traceback
 import redis
 import json
 
@@ -13,6 +15,7 @@ def list_celery_tasks_route():
     """
     try:
         # 1. Verbindung zu Redis
+        print(f"Connecting to Redis: {CELERY_BROKER_URL}", file=sys.stderr)
         r = redis.from_url(CELERY_BROKER_URL)
         pattern = "celery-task-meta-*"
 
@@ -30,9 +33,12 @@ def list_celery_tasks_route():
                 "meta": meta_str
             })
 
+        print(f"Retrieved {len(tasks)} tasks from Redis", file=sys.stderr)
         return jsonify({"tasks": tasks}), 200
 
     except Exception as e:
+        print(f"Error listing Redis tasks: {type(e).__name__}: {e}", file=sys.stderr)
+        print(f"Stacktrace: {traceback.format_exc()}", file=sys.stderr)
         return jsonify({"error": str(e)}), 500
 
 
@@ -73,7 +79,8 @@ def list_redis_keys():
         return jsonify({"tasks": tasks}), 200
 
     except Exception as exc:
-        print("failed to list redis keys: {}".format(exc))
+        print(f"Error listing Redis keys: {type(exc).__name__}: {exc}", file=sys.stderr)
+        print(f"Stacktrace: {traceback.format_exc()}", file=sys.stderr)
         return jsonify({"error": str(exc)}), 500
 
 
@@ -100,7 +107,8 @@ def delete_redis_key(task_id):
 
 
     except Exception as exc:
-        print("failed to delete redis key: {}".format(exc))
+        print(f"Error deleting Redis key {task_id}: {type(exc).__name__}: {exc}", file=sys.stderr)
+        print(f"Stacktrace: {traceback.format_exc()}", file=sys.stderr)
         return jsonify(
             {"task_id": task_id,
              "status": "ERROR"

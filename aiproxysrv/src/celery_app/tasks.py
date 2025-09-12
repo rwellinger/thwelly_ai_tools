@@ -1,6 +1,8 @@
 """
 Celery Tasks für Song-Generierung
 """
+import sys
+import traceback
 import time
 from celery.exceptions import SoftTimeLimitExceeded
 from requests import HTTPError
@@ -15,12 +17,13 @@ from mureka.handlers import handle_http_error
 def generate_song_task(self, payload: dict) -> dict:
     """Celery Task für Song-Generierung"""
     task_id = self.request.id
-    print(f"Starting song generation task: {task_id}")
+    print(f"Starting song generation task: {task_id}", file=sys.stderr)
 
     try:
         # Warte auf verfügbaren MUREKA Slot
+        print(f"Task {task_id}: Waiting for MUREKA slot", file=sys.stderr)
         if not wait_for_mureka_slot(task_id):
-            print(f"Task {task_id} waiting for MUREKA slot")
+            print(f"Task {task_id}: No MUREKA slot available, retrying", file=sys.stderr)
             raise self.retry(exc=Exception("No available MUREKA slot"), countdown=60)
 
         # Slot acquired - update status
@@ -29,13 +32,14 @@ def generate_song_task(self, payload: dict) -> dict:
             meta={'status': 'SLOT_ACQUIRED', 'message': 'Acquired MUREKA slot'}
         )
 
-        print(f"Slot acquired for task {task_id}, starting MUREKA generation")
+        print(f"Task {task_id}: Slot acquired, starting MUREKA generation", file=sys.stderr)
 
         # Starte die Generierung bei MUREKA
         initial_response = start_mureka_generation(payload)
         job_id = initial_response.get("id")
 
         if not job_id:
+            print(f"Task {task_id}: No job ID received from MUREKA", file=sys.stderr)
             raise Exception("No job ID received from MUREKA")
 
         # Warte auf Completion
@@ -47,10 +51,11 @@ def generate_song_task(self, payload: dict) -> dict:
             }
         )
 
-        print(f"Waiting for completion of job: {job_id}")
+        print(f"Task {task_id}: Waiting for completion of job: {job_id}", file=sys.stderr)
         final_result = wait_for_mureka_completion(self, job_id)
 
         # Erfolgreich abgeschlossen
+        print(f"Task {task_id}: Completed successfully", file=sys.stderr)
         return {
             "status": "SUCCESS",
             "task_id": task_id,
@@ -60,7 +65,7 @@ def generate_song_task(self, payload: dict) -> dict:
         }
 
     except SoftTimeLimitExceeded:
-        print(f"Task {task_id} timeout exceeded")
+        print(f"Task {task_id}: Timeout exceeded", file=sys.stderr)
         release_mureka_slot(task_id)
         return {
             "status": "ERROR",
@@ -69,23 +74,25 @@ def generate_song_task(self, payload: dict) -> dict:
         }
 
     except HTTPError as e:
-        print(f"HTTP error in task {task_id}: {e}")
+        print(f"Task {task_id}: HTTP error: {e}", file=sys.stderr)
+        print(f"Response content: {e.response.text if e.response else 'No response'}", file=sys.stderr)
         release_mureka_slot(task_id)
 
         if e.response.status_code == 429:
             retry_after = int(e.response.headers.get('Retry-After', 60))
-            print(f"Rate limited, retrying in {retry_after}s")
+            print(f"Task {task_id}: Rate limited, retrying in {retry_after}s", file=sys.stderr)
             raise self.retry(exc=e, countdown=retry_after)
         else:
             return handle_http_error(self, e)
 
     except Exception as exc:
-        print(f"Error in task {task_id}: {exc}")
+        print(f"Task {task_id}: Unexpected error: {type(exc).__name__}: {exc}", file=sys.stderr)
+        print(f"Stacktrace: {traceback.format_exc()}", file=sys.stderr)
         release_mureka_slot(task_id)
         raise self.retry(exc=exc, countdown=60)
 
     finally:
         try:
             release_mureka_slot(task_id)
-        except:
-            pass
+        except Exception as e:
+            print(f"Task {task_id}: Error releasing slot: {e}", file=sys.stderr)

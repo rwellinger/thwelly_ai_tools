@@ -43,7 +43,9 @@ class ImageService:
             return generated_image
         except Exception as e:
             db.rollback()
-            print(f"Error saving image metadata to database: {e}", file=sys.stderr)
+            print(f"Error saving image metadata to database: {type(e).__name__}: {e}", file=sys.stderr)
+            import traceback
+            print(f"Stacktrace: {traceback.format_exc()}", file=sys.stderr)
             return None
         finally:
             db.close()
@@ -119,7 +121,9 @@ class ImageService:
             return False
         except Exception as e:
             db.rollback()
-            print(f"Error deleting image metadata: {e}", file=sys.stderr)
+            print(f"Error deleting image metadata: {type(e).__name__}: {e}", file=sys.stderr)
+            import traceback
+            print(f"Stacktrace: {traceback.format_exc()}", file=sys.stderr)
             return False
         finally:
             db.close()

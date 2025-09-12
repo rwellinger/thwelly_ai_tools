@@ -5,7 +5,7 @@ import {FooterComponent} from '../shared/footer/footer.component';
 import {ApiConfigService} from '../services/api-config.service';
 import { NotificationService } from '../services/notification.service';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
-// import * as nlp from 'compromise';
+import { DisplayNamePipe } from '../pipes/display-name.pipe';
 
 interface ImageData {
   id: number;
@@ -16,7 +16,6 @@ interface ImageData {
   size: string;
   url: string;
   created_at: string;
-  displayName?: string;
 }
 
 interface PaginationInfo {
@@ -29,7 +28,7 @@ interface PaginationInfo {
 @Component({
   selector: 'app-image-view',
   standalone: true,
-  imports: [CommonModule, HeaderComponent, FooterComponent, MatSnackBarModule],
+  imports: [CommonModule, HeaderComponent, FooterComponent, MatSnackBarModule, DisplayNamePipe],
   templateUrl: './image-view.component.html',
   styleUrl: './image-view.component.css',
   encapsulation: ViewEncapsulation.None
@@ -74,10 +73,7 @@ export class ImageViewComponent implements OnInit {
       const data = await response.json();
 
       if (data.images && Array.isArray(data.images)) {
-        this.images = data.images.map((img: ImageData) => ({
-          ...img,
-          displayName: this.generateDisplayName(img.prompt)
-        }));
+        this.images = data.images;
         this.pagination = data.pagination;
         this.currentPage = page;
         this.notificationService.success(`${this.images.length} images loaded successfully!`);
@@ -93,27 +89,6 @@ export class ImageViewComponent implements OnInit {
     }
   }
 
-  private generateDisplayName(prompt: string): string {
-    if (!prompt || prompt.trim() === '') {
-      return 'Unnamed Image';
-    }
-
-    // Simple fallback without compromise for now
-    // Extract first sentence by finding first period, exclamation mark, or question mark
-    const sentenceEndRegex = /[.!?]/;
-    const match = prompt.match(sentenceEndRegex);
-    
-    if (match && match.index !== undefined) {
-      const firstSentence = prompt.substring(0, match.index + 1).trim();
-      if (firstSentence.length > 50) {
-        return firstSentence.substring(0, 47) + '...';
-      }
-      return firstSentence;
-    }
-    
-    // If no sentence ending found, just truncate
-    return prompt.length > 50 ? prompt.substring(0, 47) + '...' : prompt;
-  }
 
   async loadImageDetail(image: ImageData) {
     this.isLoading = true;
@@ -129,10 +104,7 @@ export class ImageViewComponent implements OnInit {
       }
 
       const data = await response.json();
-      this.selectedImage = {
-        ...data,
-        displayName: this.generateDisplayName(data.prompt)
-      };
+      this.selectedImage = data;
       this.notificationService.success('Image detail loaded successfully!');
     } catch (error: any) {
       this.selectedImage = image;

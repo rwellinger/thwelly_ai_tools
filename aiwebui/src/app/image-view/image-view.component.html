@@ -27,7 +27,7 @@
     <tbody>
       <tr *ngFor="let image of images"
           [class.selected]="selectedImage?.id === image.id">
-        <td>{{ image.displayName }}</td>
+        <td>{{ image.prompt | displayName }}</td>
         <td>{{ image.model_used }}</td>
         <td>{{ formatDate(image.created_at) }}</td>
         <td>
@@ -75,7 +75,7 @@
     <div class="detail-info">
       <div class="info-box">
         <p><strong>ID:</strong> {{ selectedImage.id }}</p>
-        <p><strong>Name:</strong> {{ selectedImage.displayName }}</p>
+        <p><strong>Name:</strong> {{ selectedImage.prompt | displayName }}</p>
         <p><strong>Model used:</strong> {{ selectedImage.model_used }}</p>
         <p><strong>Created:</strong> {{ formatDate(selectedImage.created_at) }}</p>
         <p><strong>Size:</strong> {{ selectedImage.size }}</p>
@@ -92,7 +92,7 @@
 
     <div class="image-display">
       <img [src]="selectedImage.url"
-           [alt]="selectedImage.displayName"
+           [alt]="selectedImage.prompt | displayName"
            (error)="onImageError($event)"
            loading="lazy">
     </div>

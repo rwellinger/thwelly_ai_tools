@@ -1,6 +1,7 @@
 """Image Controller - Handles business logic for image operations"""
 import os
 import sys
+import traceback
 import requests
 import time
 import hashlib
@@ -29,6 +30,8 @@ class ImageController:
             return {"error": "Missing prompt or size"}, 400
         
         try:
+            print(f"Generating image for prompt: {prompt[:50]}{'...' if len(prompt) > 50 else ''}", file=sys.stderr)
+            
             # Generate image via OpenAI
             image_url = self._call_openai_api(prompt, size)
             
@@ -49,16 +52,21 @@ class ImageController:
                 prompt_hash=self._generate_prompt_hash(prompt)
             )
             
+            print(f"Image generated successfully: {filename}", file=sys.stderr)
             return {
                 "url": local_url,
                 "saved_path": str(file_path)
             }, 200
             
         except OpenAIAPIError as e:
+            print(f"OpenAI API Error during image generation: {e}", file=sys.stderr)
             return {"error": f"OpenAI API Error: {e}"}, 500
         except ImageDownloadError as e:
+            print(f"Image download error: {e}", file=sys.stderr)
             return {"error": f"Download Error: {e}"}, 500
         except Exception as e:
+            print(f"Unexpected error in image generation: {type(e).__name__}: {e}", file=sys.stderr)
+            print(f"Stacktrace: {traceback.format_exc()}", file=sys.stderr)
             return {"error": f"Unexpected Error: {e}"}, 500
     
     def _call_openai_api(self, prompt: str, size: str) -> str:
@@ -75,23 +83,43 @@ class ImageController:
             'n': 1
         }
         
+        api_url = os.path.join(OPENAI_URL, "generations")
+        print(f"Calling OpenAI API: {api_url}", file=sys.stderr)
+        
         try:
             resp = requests.post(
-                os.path.join(OPENAI_URL, "generations"),
+                api_url,
                 headers=headers,
                 json=payload,
                 timeout=30
             )
+            print(f"OpenAI API Response Status: {resp.status_code}", file=sys.stderr)
             resp.raise_for_status()
+        except requests.exceptions.RequestException as e:
+            print(f"OpenAI API Network Error: {type(e).__name__}: {e}", file=sys.stderr)
+            raise OpenAIAPIError(f"Network Error: {e}")
         except Exception as e:
+            print(f"Unexpected OpenAI API error: {type(e).__name__}: {e}", file=sys.stderr)
+            print(f"Stacktrace: {traceback.format_exc()}", file=sys.stderr)
             raise OpenAIAPIError(f"Network Error: {e}")
         
         if resp.status_code != 200:
-            print("DALL·E Response:", resp.text, file=sys.stderr)
-            raise OpenAIAPIError(resp.json())
+            print(f"OpenAI API Error Response: {resp.text}", file=sys.stderr)
+            try:
+                error_data = resp.json()
+                raise OpenAIAPIError(error_data)
+            except ValueError:
+                raise OpenAIAPIError(f"HTTP {resp.status_code}: {resp.text}")
         
-        resp_json = resp.json()
-        return resp_json['data'][0]['url']
+        try:
+            resp_json = resp.json()
+            image_url = resp_json['data'][0]['url']
+            print(f"OpenAI API image URL received", file=sys.stderr)
+            return image_url
+        except (KeyError, IndexError, ValueError) as e:
+            print(f"Error parsing OpenAI API response: {e}", file=sys.stderr)
+            print(f"Response content: {resp.text}", file=sys.stderr)
+            raise OpenAIAPIError(f"Invalid API response format: {e}")
     
     def _download_and_save_image(self, image_url: str, prompt: str) -> Tuple[str, Path]:
         """Download image and save to filesystem"""

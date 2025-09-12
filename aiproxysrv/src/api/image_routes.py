@@ -1,6 +1,8 @@
 """
 DALL-E Image Generation Routes - Clean version
 """
+import sys
+import traceback
 from flask import Blueprint, request, jsonify, send_from_directory
 from config.settings import IMAGES_DIR
 from api.image_controller import ImageController
@@ -14,7 +16,13 @@ image_controller = ImageController()
 @api_image_v1.route('/<path:filename>')
 def serve_image(filename):
     """Serve stored images"""
-    return send_from_directory(IMAGES_DIR, filename)
+    try:
+        print(f"Serving image: {filename}", file=sys.stderr)
+        return send_from_directory(IMAGES_DIR, filename)
+    except Exception as e:
+        print(f"Error serving image {filename}: {type(e).__name__}: {e}", file=sys.stderr)
+        print(f"Stacktrace: {traceback.format_exc()}", file=sys.stderr)
+        return jsonify({"error": "Image not found"}), 404
 
 
 @api_image_v1.route('/generate', methods=['POST'])
