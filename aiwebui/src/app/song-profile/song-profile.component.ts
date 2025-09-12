@@ -32,7 +32,6 @@ export class SongProfileComponent implements OnInit {
       const response = await fetch(this.apiConfig.endpoints.billing.info);
       const data = await response.json();
       this.billingInfo = data;
-      this.notificationService.success('Billing info loaded successfully!');
     } catch (error) {
       this.notificationService.error('Error loading billing info');
       this.billingInfo = {

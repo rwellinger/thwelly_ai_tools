@@ -3,9 +3,9 @@ import {CommonModule} from '@angular/common';
 import {HeaderComponent} from '../shared/header/header.component';
 import {FooterComponent} from '../shared/footer/footer.component';
 import {ApiConfigService} from '../services/api-config.service';
-import { NotificationService } from '../services/notification.service';
-import { MatSnackBarModule } from '@angular/material/snack-bar';
-import { DisplayNamePipe } from '../pipes/display-name.pipe';
+import {NotificationService} from '../services/notification.service';
+import {MatSnackBarModule} from '@angular/material/snack-bar';
+import {DisplayNamePipe} from '../pipes/display-name.pipe';
 
 interface ImageData {
   id: string;
@@ -76,7 +76,6 @@ export class ImageViewComponent implements OnInit {
         this.images = data.images;
         this.pagination = data.pagination;
         this.currentPage = page;
-        this.notificationService.success(`${this.images.length} images loaded successfully!`);
       } else {
         this.images = [];
         this.notificationService.error('No images found');
@@ -103,8 +102,7 @@ export class ImageViewComponent implements OnInit {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
 
-      const data = await response.json();
-      this.selectedImage = data;
+      this.selectedImage = await response.json();
       this.notificationService.success('Image detail loaded successfully!');
     } catch (error: any) {
       this.selectedImage = image;

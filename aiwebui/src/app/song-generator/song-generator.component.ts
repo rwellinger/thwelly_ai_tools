@@ -110,13 +110,13 @@ export class SongGeneratorComponent implements OnInit {
                     completed = true;
                 } else {
                     let murekaStatus = "Initialize";
-                    
+
                     if (data.progress?.mureka_status) {
                         murekaStatus = data.progress.mureka_status;
                     } else if (data.status === 'PROGRESS' || data.status === 'PENDING') {
                         murekaStatus = data.status.toLowerCase();
                     }
-                    
+
                     this.loadingMessage = `Processing (${murekaStatus}) ... Please wait until finished.`;
                     this.notificationService.loading(`Processing (${murekaStatus})...`);
                     interval = Math.min(interval * 1.5, 60000);
@@ -134,7 +134,7 @@ export class SongGeneratorComponent implements OnInit {
 
     renderResultTask(data: any): void {
         let result;
-        
+
         if (data && data.result && data.result.choices) {
             result = data.result;
         } else if (data && data.choices) {
@@ -198,7 +198,6 @@ export class SongGeneratorComponent implements OnInit {
     }
 
     onCanPlayThrough() {
-        this.notificationService.info('Audio is ready to play');
     }
 
     private delay(ms: number): Promise<void> {
