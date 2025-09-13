@@ -1,13 +1,59 @@
-<h1>MUREKA - Billing Information</h1>
+<h1>MUREKA - Account Profile</h1>
 <app-header></app-header>
-<div id="loading" *ngIf="isLoading">Fetching billing information...</div>
-<div id="billingInfo" class="info-box" *ngIf="!isLoading && billingInfo">
-    <h3>Account Information</h3>
-    <p><strong>Account ID:</strong> {{ billingInfo.account_info?.account_id }}</p>
-    <p><strong>Balance:</strong> ${{ (billingInfo.account_info?.balance || 0) / 100 }}</p>
-    <p><strong>Total Spending:</strong> ${{ (billingInfo.account_info?.total_spending || 0) / 100 }}</p>
-    <p><strong>Total Recharge:</strong> ${{ (billingInfo.account_info?.total_recharge || 0) / 100 }}</p>
-    <p><strong>Concurrent Request Limit:</strong> {{ billingInfo.account_info?.concurrent_request_limit }}</p>
-    <p><strong>Status:</strong> {{ billingInfo.status }}</p>
+
+<div class="controls">
+    <button type="button" (click)="loadBillingInfo()" [disabled]="isLoading">
+        <i class="fas fa-refresh"></i> Refresh Account Info
+    </button>
 </div>
+
+<div class="account-info" *ngIf="!isLoading && billingInfo">
+    <h2>Account Information</h2>
+
+    <table class="result-table">
+        <thead>
+        <tr>
+            <th>Property</th>
+            <th>Value</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td><strong>Account ID</strong></td>
+            <td>{{ billingInfo.account_info?.account_id || 'N/A' }}</td>
+        </tr>
+        <tr>
+            <td><strong>Current Balance</strong></td>
+            <td class="balance-amount">${{ formatCurrency(billingInfo.account_info?.balance || 0) }}</td>
+        </tr>
+        <tr>
+            <td><strong>Total Spending</strong></td>
+            <td class="spending-amount">${{ formatCurrency(billingInfo.account_info?.total_spending || 0) }}</td>
+        </tr>
+        <tr>
+            <td><strong>Total Recharge</strong></td>
+            <td class="recharge-amount">${{ formatCurrency(billingInfo.account_info?.total_recharge || 0) }}</td>
+        </tr>
+        <tr>
+            <td><strong>Request Limit</strong></td>
+            <td>{{ billingInfo.account_info?.concurrent_request_limit || 'N/A' }} concurrent requests</td>
+        </tr>
+        <tr>
+            <td><strong>Account Status</strong></td>
+            <td>
+                <span class="status-badge" [ngClass]="getStatusClass(billingInfo.status)">
+                    <i class="fas" [ngClass]="getStatusIcon(billingInfo.status)"></i>
+                    {{ billingInfo.status || 'Unknown' }}
+                </span>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+
+<div class="info-box" *ngIf="!isLoading && !billingInfo">
+    <h3>No Account Information Available</h3>
+    <p>Unable to load account information. Please try refreshing or check your connection.</p>
+</div>
+
 <app-footer></app-footer>
