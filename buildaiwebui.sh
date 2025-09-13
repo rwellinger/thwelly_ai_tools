@@ -8,7 +8,7 @@ rm -rf aiwebui
 # shellcheck disable=SC2164
 cd ../../aiwebui
 
-npm run build:prod
+ng build --configuration production --base-href /aiwebui/
 
 cd ../revproxy
 
