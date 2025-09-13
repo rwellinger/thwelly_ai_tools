@@ -1,18 +1,417 @@
-/* ===== SONG GENERATOR SPECIFIC STYLES ===== */
-form {
+/* ===== MASTER DETAIL LAYOUT ===== */
+.master-detail-container {
+    display: flex;
+    gap: 20px;
+    height: calc(100vh - 260px);
+    min-height: 500px;
+}
+
+.controls-panel {
+    flex: 0 0 40%;
+    display: flex;
+    flex-direction: column;
+    border: 1px solid #e9ecef;
+    border-radius: 8px;
+    background: white;
+    overflow: hidden;
+}
+
+.song-result-panel {
+    flex: 1;
+    border: 1px solid #e9ecef;
+    border-radius: 8px;
+    background: white;
+    overflow-y: auto;
+    padding: 0;
+}
+
+.controls-content {
+    padding: 20px;
+    height: 100%;
+    overflow-y: auto;
+}
+
+.controls-content h2 {
+    color: #333;
+    margin: 0 0 20px 0;
+    font-size: 1.4em;
+    border-bottom: 2px solid #007bff;
+    padding-bottom: 10px;
+}
+
+/* ===== FORM STYLING ===== */
+.form-group {
     margin-bottom: 20px;
 }
 
-button {
-    margin-left: 20px;
+.form-group label {
+    display: block;
+    color: #333;
+    font-weight: 500;
+    margin-bottom: 6px;
+    font-size: 0.9em;
 }
 
-label {
-    margin-right: 20px;
+.lyrics-input {
+    width: 100%;
+    min-height: 160px;
+    padding: 12px;
+    border: 1px solid #e9ecef;
+    border-radius: 6px;
+    font-size: 1.0em;
+    font-family: inherit;
+    resize: vertical;
+    transition: border-color 0.2s ease;
+    box-sizing: border-box;
+    line-height: 1.4;
 }
 
-/* ===== AUDIO PLAYER OVERRIDES ===== */
-.audio-wrapper,
+.prompt-input {
+    width: 100%;
+    min-height: 100px;
+    padding: 12px;
+    border: 1px solid #e9ecef;
+    border-radius: 6px;
+    font-size: 0.9em;
+    font-family: inherit;
+    resize: vertical;
+    transition: border-color 0.2s ease;
+    box-sizing: border-box;
+}
+
+.lyrics-input:focus,
+.prompt-input:focus {
+    outline: none;
+    border-color: #007bff;
+    box-shadow: 0 0 0 2px rgba(0,123,255,.25);
+}
+
+.model-select {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #e9ecef;
+    border-radius: 6px;
+    font-size: 0.9em;
+    background: white;
+    transition: border-color 0.2s ease;
+    box-sizing: border-box;
+}
+
+.model-select:focus {
+    outline: none;
+    border-color: #007bff;
+    box-shadow: 0 0 0 2px rgba(0,123,255,.25);
+}
+
+.button-group {
+    display: flex;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.create-button {
+    flex: 1;
+    background-color: #007bff !important;
+    color: white !important;
+    border: none !important;
+    padding: 12px 20px !important;
+    border-radius: 6px !important;
+    cursor: pointer !important;
+    font-size: 1.0em !important;
+    font-weight: 500 !important;
+    transition: all 0.2s ease;
+}
+
+.create-button:hover:not(:disabled) {
+    background-color: #0056b3 !important;
+    transform: translateY(-1px);
+}
+
+.create-button:disabled {
+    background-color: #6c757d !important;
+    cursor: not-allowed !important;
+    transform: none;
+}
+
+.reset-button {
+    flex: 0 0 auto;
+    background-color: #6c757d !important;
+    color: white !important;
+    border: none !important;
+    padding: 12px 16px !important;
+    border-radius: 6px !important;
+    cursor: pointer !important;
+    font-size: 1.0em !important;
+    font-weight: 500 !important;
+    transition: all 0.2s ease;
+}
+
+.reset-button:hover {
+    background-color: #5a6268 !important;
+    transform: translateY(-1px);
+}
+
+.create-button i,
+.reset-button i {
+    margin-right: 8px;
+}
+
+/* ===== SONG RESULT STYLING ===== */
+.no-song {
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.placeholder-content {
+    text-align: center;
+    color: #6c757d;
+}
+
+.placeholder-icon {
+    font-size: 4em;
+    margin-bottom: 20px;
+    opacity: 0.3;
+}
+
+.song-result-section {
+    padding: 20px;
+    height: 100%;
+    overflow-y: auto;
+}
+
+.song-result-section h2 {
+    color: #333;
+    margin: 0 0 20px 0;
+    font-size: 1.4em;
+    border-bottom: 2px solid #007bff;
+    padding-bottom: 10px;
+}
+
+.song-info-compact {
+    margin-bottom: 20px;
+}
+
+.song-meta-info {
+    background-color: #f8f9fa;
+    padding: 12px;
+    border-radius: 6px;
+}
+
+.song-meta-info p {
+    margin: 6px 0;
+    color: #333;
+    font-size: 0.9em;
+}
+
+.songs-list {
+    margin-top: 20px;
+}
+
+.song-item {
+    border: 1px solid #e9ecef;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    padding: 15px;
+    background: #f8f9fa;
+}
+
+.song-item-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.song-item-header h3 {
+    margin: 0;
+    color: #333;
+    font-size: 1.1em;
+}
+
+.duration-badge {
+    background-color: #007bff;
+    color: white;
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 0.8em;
+    font-weight: 500;
+}
+
+.song-actions {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.action-button {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.9em;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    height: 36px;
+    box-sizing: border-box;
+}
+
+.action-button i {
+    margin-right: 6px;
+}
+
+.download-btn {
+    background-color: #28a745;
+    color: white;
+}
+
+.download-btn:hover {
+    background-color: #218838;
+    transform: translateY(-1px);
+}
+
+.play-btn {
+    background-color: #007bff;
+    color: white;
+}
+
+.play-btn:hover:not(:disabled) {
+    background-color: #0056b3;
+    transform: translateY(-1px);
+}
+
+.stem-btn {
+    background-color: #6c757d;
+    color: white;
+}
+
+.stem-btn:hover:not(:disabled) {
+    background-color: #5a6268;
+    transform: translateY(-1px);
+}
+
+.stem-btn:disabled {
+    background-color: #adb5bd;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.audio-wrapper {
+    margin-top: 15px;
+    padding: 10px;
+    background: white;
+    border-radius: 6px;
+    border: 1px solid #dee2e6;
+}
+
+.audio-wrapper audio {
+    width: 100%;
+}
+
 .stem-download {
-    padding: 0 10rem;
+    margin-top: 20px;
+    padding: 15px;
+    background-color: #d4edda;
+    border: 1px solid #c3e6cb;
+    border-radius: 6px;
+}
+
+.stem-download h3 {
+    margin: 0 0 10px 0;
+    color: #155724;
+    font-size: 1.1em;
+}
+
+/* ===== PROCESSING POPUP ===== */
+.processing-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.7);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 2000;
+}
+
+.processing-content {
+    background: white;
+    padding: 40px;
+    border-radius: 12px;
+    text-align: center;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+    max-width: 300px;
+}
+
+.processing-spinner i {
+    font-size: 3em;
+    color: #007bff;
+    margin-bottom: 20px;
+}
+
+.processing-content h3 {
+    margin: 0 0 10px 0;
+    color: #333;
+    font-size: 1.2em;
+}
+
+.processing-content p {
+    margin: 0;
+    color: #6c757d;
+    font-size: 0.9em;
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 1024px) {
+    .master-detail-container {
+        flex-direction: column;
+        height: auto;
+    }
+
+    .controls-panel {
+        flex: none;
+        height: auto;
+    }
+
+    .song-result-panel {
+        flex: none;
+        height: 500px;
+    }
+}
+
+@media (max-width: 768px) {
+    .master-detail-container {
+        gap: 10px;
+    }
+
+    .controls-content {
+        padding: 15px;
+    }
+
+    .song-result-section {
+        padding: 15px;
+    }
+
+    .song-actions {
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .action-button {
+        width: 100%;
+    }
+
+    .button-group {
+        flex-direction: column;
+    }
+
+    .reset-button {
+        flex: 1;
+    }
 }

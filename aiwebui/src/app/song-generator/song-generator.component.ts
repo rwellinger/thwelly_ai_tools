@@ -67,10 +67,7 @@ export class SongGeneratorComponent implements OnInit {
     async generateSong() {
         const formValue = this.songForm.value;
         this.isLoading = true;
-        this.loadingMessage = 'Starting song generation...';
         this.result = '';
-
-        this.notificationService.loading('Starting song generation...');
 
         try {
             const data = await this.songService.generateSong(
@@ -118,7 +115,6 @@ export class SongGeneratorComponent implements OnInit {
                     }
 
                     this.loadingMessage = `Processing (${murekaStatus}) ... Please wait until finished.`;
-                    this.notificationService.loading(`Processing (${murekaStatus})...`);
                     interval = Math.min(interval * 1.5, 60000);
                     await new Promise(resolve => setTimeout(resolve, interval));
                 }

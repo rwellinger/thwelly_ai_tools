@@ -1,87 +1,129 @@
 <app-header></app-header>
 
-<form [formGroup]="songForm" (ngSubmit)="onSubmit()">
-    <textarea
-        formControlName="lyrics"
-        placeholder="Enter lyrics here..."
-        required>
-    </textarea>
-    <textarea
-        formControlName="prompt"
-        placeholder="Enter Music Style Prompt here..."
-        required>
-    </textarea>
-    <div>
-        <label for="model">Model:</label>
-        <select formControlName="model" required>
-            <option value="auto" selected>Auto</option>
-            <option value="mureka-7">Mureka 7</option>
-            <option value="mureka-6">Mureka 6</option>
-            <option value="mureka-o1">Mureka o1</option>
-        </select>
-        <button type="submit" [disabled]="songForm.invalid || isLoading">
-            <i class="fas fa-brain"></i> Create Song
-        </button>
-        <button type="button" (click)="resetForm()">
-            <i class="fas fa-rotate-left"></i> Reset
-        </button>
+<div class="master-detail-container">
+    <!-- Left Side: Song Generation Form -->
+    <div class="controls-panel">
+        <div class="controls-content">
+            <h2>Create Song</h2>
+
+            <form [formGroup]="songForm" (ngSubmit)="onSubmit()">
+                <div class="form-group">
+                    <label for="lyrics">Lyrics:</label>
+                    <textarea
+                        id="lyrics"
+                        formControlName="lyrics"
+                        placeholder="Enter your song lyrics here..."
+                        required
+                        class="lyrics-input">
+                    </textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="prompt">Music Style Prompt:</label>
+                    <textarea
+                        id="prompt"
+                        formControlName="prompt"
+                        placeholder="Describe the music style (e.g., upbeat pop, melancholic ballad, rock anthem)..."
+                        required
+                        class="prompt-input">
+                    </textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="model">Model:</label>
+                    <select id="model" formControlName="model" required class="model-select">
+                        <option value="auto">Auto</option>
+                        <option value="mureka-7">Mureka 7</option>
+                        <option value="mureka-6">Mureka 6</option>
+                        <option value="mureka-o1">Mureka o1</option>
+                    </select>
+                </div>
+
+                <div class="button-group">
+                    <button type="submit" [disabled]="songForm.invalid || isLoading" class="create-button">
+                        <i class="fas fa-music"></i> Create Song
+                    </button>
+                    <button type="button" (click)="resetForm()" class="reset-button">
+                        <i class="fas fa-rotate-left"></i> Reset
+                    </button>
+                </div>
+            </form>
+        </div>
     </div>
-</form>
 
-<div *ngIf="resultData" class="info-box">
-    <p><strong>ID:</strong> {{ resultData.id }}</p>
-    <p><strong>Model used:</strong> {{ resultData.model }}</p>
-    <p><strong>Created:</strong> {{ resultData.createdAtFormatted }}</p>
-    <p><strong>Duration:</strong> {{ resultData.formattedDuration }} Minutes</p>
+    <!-- Right Side: Song Results -->
+    <div class="song-result-panel">
+        <div *ngIf="!resultData && !isLoading" class="no-song">
+            <div class="placeholder-content">
+                <i class="fas fa-music placeholder-icon"></i>
+                <p>Your generated song will appear here</p>
+            </div>
+        </div>
+
+        <!-- Song Result Content -->
+        <div *ngIf="resultData" class="song-result-section">
+            <h2>Generated Song</h2>
+
+            <div class="song-info-compact">
+                <div class="song-meta-info">
+                    <p><strong>ID:</strong> {{ resultData.id }}</p>
+                    <p><strong>Model:</strong> {{ resultData.model }}</p>
+                    <p><strong>Created:</strong> {{ resultData.createdAtFormatted }}</p>
+                    <p><strong>Duration:</strong> {{ resultData.formattedDuration }} Minutes</p>
+                </div>
+            </div>
+
+            <div *ngIf="choices.length > 0" class="songs-list">
+                <div *ngFor="let choice of choices" class="song-item">
+                    <div class="song-item-header">
+                        <h3>Song {{ choice.id }}</h3>
+                        <span class="duration-badge">{{ choice.formattedDuration }}</span>
+                    </div>
+
+                    <div class="song-actions">
+                        <a [href]="choice.flac_url" class="action-button download-btn">
+                            <i class="fas fa-download"></i> FLAC
+                        </a>
+                        <button type="button" (click)="playAudio(choice.url, choice.id)" class="action-button play-btn">
+                            <i class="fas fa-music"></i>
+                            {{ currentlyPlaying === choice.id ? 'Hide Player' : 'MP3 Player' }}
+                        </button>
+                        <button [disabled]="isLoading" type="button" (click)="generateStem(choice.url)" class="action-button stem-btn">
+                            <i class="fas fa-brain"></i> Create Stems
+                        </button>
+                    </div>
+
+                    <div *ngIf="currentlyPlaying === choice.id" class="audio-wrapper">
+                        <audio #player
+                               [src]="audioUrl"
+                               controls
+                               preload="metadata"
+                               (canplaythrough)="onCanPlayThrough()"
+                               (ended)="stopAudio()">
+                        </audio>
+                    </div>
+                </div>
+            </div>
+
+            <div *ngIf="stemDownloadUrl" class="stem-download">
+                <h3>Stems Ready</h3>
+                <a [href]="stemDownloadUrl" target="_blank" class="action-button download-btn">
+                    <i class="fas fa-download"></i> Download Stems
+                </a>
+            </div>
+        </div>
+    </div>
 </div>
 
-<table *ngIf="choices.length > 0" class="result-table">
-    <thead>
-    <tr>
-        <th>Song Id</th>
-        <th>Duration</th>
-        <th>FLAC File</th>
-        <th>MP3 File</th>
-        <th>Stem</th>
-    </tr>
-    </thead>
-    <tbody>
-    <tr *ngFor="let choice of choices">
-        <td>{{ choice.id }}</td>
-        <td>{{ choice.formattedDuration }}</td>
-        <td><a [href]="choice.flac_url">
-            <i class="fas fa-download"></i> Download
-        </a></td>
-        <td>
-            <button type="button" (click)="playAudio(choice.url, choice.id)">
-                <i class="fas fa-music"></i>
-                {{ currentlyPlaying === choice.id ? 'Hide Player' : 'Show Player' }}
-            </button>
-        </td>
-        <td>
-            <button [disabled]="isLoading" type="button" (click)="generateStem(choice.url)">
-                <i class="fas fa-brain"></i> Create
-            </button>
-        </td>
-    </tr>
-    </tbody>
-</table>
-
-<div class="audio-wrapper">
-    <audio #player
-           *ngIf="audioUrl"
-           [src]="audioUrl"
-           controls
-           preload="metadata"
-           (canplaythrough)="onCanPlayThrough()"
-           (ended)="stopAudio()">
-    </audio>
-</div>
-
-<div *ngIf="stemDownloadUrl" class="stem-download">
-    <p><strong>Download Stems: </strong><a [href]="stemDownloadUrl" target="_blank">
-        <i class="fas fa-download"></i> Download
-    </a></p>
+<!-- Processing Popup -->
+<div *ngIf="isLoading" class="processing-overlay">
+    <div class="processing-content">
+        <div class="processing-spinner">
+            <i class="fas fa-spinner fa-spin"></i>
+        </div>
+        <h3>{{ loadingMessage || 'Creating Song...' }}</h3>
+        <p>This may take several minutes</p>
+    </div>
 </div>
 
 <app-footer costInfo="Song generation: ~$0.15 each"></app-footer>
