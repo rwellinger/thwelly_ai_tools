@@ -1,10 +1,10 @@
-import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { HeaderComponent } from '../shared/header/header.component';
-import { FooterComponent } from '../shared/footer/footer.component';
-import { ApiConfigService } from '../services/api-config.service';
-import { NotificationService } from '../services/notification.service';
-import { MatSnackBarModule } from '@angular/material/snack-bar';
+import {Component, OnInit} from '@angular/core';
+import {CommonModule} from '@angular/common';
+import {HeaderComponent} from '../shared/header/header.component';
+import {FooterComponent} from '../shared/footer/footer.component';
+import {ApiConfigService} from '../services/api-config.service';
+import {NotificationService} from '../services/notification.service';
+import {MatSnackBarModule} from '@angular/material/snack-bar';
 
 @Component({
   selector: 'app-song-profile',
@@ -23,15 +23,13 @@ export class SongProfileComponent implements OnInit {
   ) {}
 
   ngOnInit() {
-    this.notificationService.loading('Loading billing info...');
     this.loadBillingInfo();
   }
 
   async loadBillingInfo() {
     try {
       const response = await fetch(this.apiConfig.endpoints.billing.info);
-      const data = await response.json();
-      this.billingInfo = data;
+        this.billingInfo = await response.json();
     } catch (error) {
       this.notificationService.error('Error loading billing info');
       this.billingInfo = {

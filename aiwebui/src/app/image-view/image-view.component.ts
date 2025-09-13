@@ -59,7 +59,6 @@ export class ImageViewComponent implements OnInit {
   async loadImages(page: number = 0) {
     this.isLoading = true;
     this.loadingMessage = 'Loading images...';
-    this.notificationService.loading('Loading images...');
 
     try {
       const offset = page * this.pageSize;
@@ -91,8 +90,6 @@ export class ImageViewComponent implements OnInit {
 
   async loadImageDetail(image: ImageData) {
     this.isLoading = true;
-    this.loadingMessage = 'Loading image detail...';
-    this.notificationService.loading('Loading image detail...');
 
     try {
       const url = this.apiConfig.endpoints.image.detail(image.id);
@@ -101,12 +98,9 @@ export class ImageViewComponent implements OnInit {
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
-
       this.selectedImage = await response.json();
-      this.notificationService.success('Image detail loaded successfully!');
     } catch (error: any) {
       this.selectedImage = image;
-      this.notificationService.error(`Using cached data: ${error.message}`);
     } finally {
       this.isLoading = false;
     }
