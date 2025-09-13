@@ -1,0 +1,44 @@
+# /etc/nginx/mime.types
+types {
+    # Text‑Dateien
+    text/html               html htm shtml;
+    text/css                css;
+    text/xml                xml xsl;
+    text/javascript         js;
+    text/plain              txt;
+
+    # Images
+    image/svg+xml           svg svgz;
+    image/jpeg              jpeg jpg;
+    image/png               png;
+    image/gif               gif;
+    image/webp              webp;
+    image/avif              avif;
+    image/x-icon            ico;
+
+    # Fonts
+    font/ttf                ttf;
+    font/otf                otf;
+    font/woff               woff;
+    font/woff2              woff2;
+    font/woff2              woff2;
+
+    # Video
+    video/mp4               mp4;
+    video/webm              webm;
+
+    # Audio
+    audio/mpeg              mp3;
+    audio/ogg               ogg;
+    audio/wav               wav;
+
+    # Application
+    application/json        json;
+    application/javascript  js;
+    application/xml         xml;
+    application/pdf         pdf;
+    application/zip         zip;
+    application/x-gzip      gz;
+    application/x-zip-compressed zip;
+    application/octet-stream bin exe dmg;
+}

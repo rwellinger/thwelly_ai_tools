@@ -1,7 +1,7 @@
 #!/bin/zsh
 
 # shellcheck disable=SC2164
-cd revproxy/html
+cd forwardproxy/html
 
 rm -rf aiwebui
 
@@ -9,7 +9,5 @@ rm -rf aiwebui
 cd ../../aiwebui
 
 ng build --configuration production --base-href /aiwebui/
-
-cd ../revproxy
 
 docker-compose down

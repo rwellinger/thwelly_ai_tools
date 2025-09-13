@@ -16,10 +16,10 @@ aiproxysrv/alembic.ini.docker
 ollamasrv/backup
 ollamasrv/data
 ollamasrv/docker_images
-revproxy/nginx/.htpasswd
-revproxy/certs
-revproxy/logs
-revproxy/html/aiwebui
+forwardproxy/nginx/.htpasswd
+forwardproxy/certs/*
+forwardproxy/logs
+forwardproxy/html/aiwebui
 appendonlydir
 dump.rdb
 *.egg-info

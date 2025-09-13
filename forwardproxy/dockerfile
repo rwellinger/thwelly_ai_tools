@@ -1,0 +1,9 @@
+FROM nginx:alpine
+
+COPY nginx/mime.types /etc/nginx/mime.types
+COPY nginx/nginx.conf /etc/nginx/nginx.conf
+
+COPY nginx/certs/webui.crt /etc/ssl/certs/webui.crt
+COPY nginx/certs/webui.key /etc/ssl/private/webui.key
+
+COPY nginx/html /usr/share/nginx/html
