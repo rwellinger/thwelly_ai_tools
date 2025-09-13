@@ -1,4 +1,3 @@
-<h1>MUREKA - Song Generator</h1>
 <app-header></app-header>
 
 <form [formGroup]="songForm" (ngSubmit)="onSubmit()">
@@ -21,7 +20,7 @@
             <option value="mureka-o1">Mureka o1</option>
         </select>
         <button type="submit" [disabled]="songForm.invalid || isLoading">
-            <i class="fas fa-brain"></i> Generate Song
+            <i class="fas fa-brain"></i> Create Song
         </button>
         <button type="button" (click)="resetForm()">
             <i class="fas fa-rotate-left"></i> Reset
@@ -61,7 +60,7 @@
         </td>
         <td>
             <button [disabled]="isLoading" type="button" (click)="generateStem(choice.url)">
-                <i class="fas fa-brain"></i> Generate
+                <i class="fas fa-brain"></i> Create
             </button>
         </td>
     </tr>
@@ -85,4 +84,4 @@
     </a></p>
 </div>
 
-<app-footer></app-footer>
+<app-footer costInfo="Song generation: ~$0.15 each"></app-footer>

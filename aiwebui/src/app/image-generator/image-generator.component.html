@@ -1,41 +1,93 @@
-<h1>DALL.E 3 - Picture Generator</h1>
 <app-header></app-header>
 
-<form [formGroup]="promptForm" (ngSubmit)="onSubmit()">
-    <textarea
-        formControlName="prompt"
-        placeholder="Enter your prompt here..."
-        required>
-    </textarea>
-    <div>
-        <label for="size">Image Size:</label>
-        <select formControlName="size" required>
-            <option value="1024x1024">Square (1024x1024)</option>
-            <option value="1792x1024">Landscape (1792x1024)</option>
-            <option value="1024x1792">Portrait (1024x1792)</option>
-        </select>
-        <button type="submit" [disabled]="promptForm.invalid || isLoading">
-            <i class="fas fa-brain"></i> Generate Image
-        </button>
+<div class="master-detail-container">
+    <!-- Left Side: Controls -->
+    <div class="controls-panel">
+        <div class="controls-content">
+            <h2>Create Image</h2>
+            
+            <form [formGroup]="promptForm" (ngSubmit)="onSubmit()">
+                <div class="form-group">
+                    <label for="prompt">Prompt:</label>
+                    <textarea
+                        id="prompt"
+                        formControlName="prompt"
+                        placeholder="Describe the image you want to create..."
+                        required
+                        class="prompt-input">
+                    </textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label for="size">Image Size:</label>
+                    <select id="size" formControlName="size" required class="size-select">
+                        <option value="1024x1024">Square (1024x1024)</option>
+                        <option value="1792x1024">Landscape (1792x1024)</option>
+                        <option value="1024x1792">Portrait (1024x1792)</option>
+                    </select>
+                </div>
+                
+                <button type="submit" [disabled]="promptForm.invalid || isLoading" class="create-button">
+                    <i class="fas fa-brain"></i> Create Image
+                </button>
+            </form>
+        </div>
     </div>
-</form>
 
-<div id="result">{{ result }}</div>
+    <!-- Right Side: Image Result -->
+    <div class="image-result-panel">
+        <div *ngIf="!generatedImageUrl && !isLoading" class="no-image">
+            <div class="placeholder-content">
+                <i class="fas fa-image placeholder-icon"></i>
+                <p>Your generated image will appear here</p>
+            </div>
+        </div>
 
-<div *ngIf="generatedImageUrl" class="image-actions">
-    <button (click)="downloadImage()" class="action-button download-btn">
-        <i class="fas fa-download"></i> Download Image
-    </button>
-    <button (click)="openImageModal()" class="action-button preview-btn">
-        <i class="fas fa-image"></i> Preview Image
-    </button>
+        <!-- Image Result Content -->
+        <div *ngIf="generatedImageUrl" class="image-result-section">
+            <h2>Generated Image</h2>
+
+            <div class="image-info-compact">
+                <div class="image-meta-info">
+                    <p><strong>Prompt:</strong> {{ promptForm.get('prompt')?.value | slice:0:100 }}{{ (promptForm.get('prompt')?.value?.length || 0) > 100 ? '...' : '' }}</p>
+                    <p><strong>Size:</strong> {{ promptForm.get('size')?.value }}</p>
+                    <p><strong>Model:</strong> DALL-E 3</p>
+                </div>
+            </div>
+
+            <div class="image-actions">
+                <button (click)="downloadImage()" class="action-button download-btn">
+                    <i class="fas fa-download"></i> Download
+                </button>
+                <button (click)="openImageModal()" class="action-button preview-btn">
+                    <i class="fas fa-expand"></i> Full Size
+                </button>
+            </div>
+
+            <div class="image-display">
+                <img [src]="generatedImageUrl" alt="Generated Image" class="result-image">
+            </div>
+        </div>
+    </div>
 </div>
 
+<!-- Processing Popup -->
+<div *ngIf="isLoading" class="processing-overlay">
+    <div class="processing-content">
+        <div class="processing-spinner">
+            <i class="fas fa-spinner fa-spin"></i>
+        </div>
+        <h3>Creating Image...</h3>
+        <p>This may take a few moments</p>
+    </div>
+</div>
+
+<!-- Image Modal -->
 <div *ngIf="showImageModal" class="modal-overlay" (click)="closeImageModal()">
     <div class="modal-content" (click)="$event.stopPropagation()">
         <div class="modal-header">
             <button class="close-button" (click)="closeImageModal()">
-                <i class="fas fa-square-xmark"></i> Preview Image
+                <i class="fas fa-times"></i>
             </button>
         </div>
         <div class="modal-body">
@@ -44,4 +96,4 @@
     </div>
 </div>
 
-<app-footer></app-footer>
+<app-footer costInfo="Image generation: ~$0.02 each"></app-footer>
