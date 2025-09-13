@@ -19,6 +19,7 @@ import {DisplayNamePipe} from '../pipes/display-name.pipe';
 export class SongViewComponent implements OnInit {
   // Songs list and pagination
   songs: any[] = [];
+  filteredSongs: any[] = [];
   selectedSong: any = null;
   pagination: any = {
     total: 0,
@@ -26,6 +27,10 @@ export class SongViewComponent implements OnInit {
     offset: 0,
     has_more: false
   };
+
+  // Search and sort
+  searchTerm: string = '';
+  sortDirection: 'asc' | 'desc' = 'desc';
 
   // UI state
   isLoading = false;
@@ -68,10 +73,12 @@ export class SongViewComponent implements OnInit {
       const data = await this.songService.getSongs(this.pagination.limit, this.pagination.offset, 'SUCCESS');
       this.songs = data.songs || [];
       this.pagination = data.pagination || this.pagination;
+      
+      this.applyFilterAndSort();
 
       // Auto-select first song if available and none selected
-      if (this.songs.length > 0 && !this.selectedSong) {
-        await this.selectSong(this.songs[0]);
+      if (this.filteredSongs.length > 0 && !this.selectedSong) {
+        await this.selectSong(this.filteredSongs[0]);
       }
     } catch (error: any) {
       this.notificationService.error(`Error loading songs: ${error.message}`);
@@ -151,6 +158,56 @@ export class SongViewComponent implements OnInit {
 
   formatDate(dateString: string): string {
     return new Date(dateString).toLocaleDateString();
+  }
+
+  formatDateShort(dateString: string): string {
+    return new Date(dateString).toLocaleDateString('de-CH', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric'
+    });
+  }
+
+  formatDateDetailed(dateString: string): string {
+    return new Date(dateString).toLocaleDateString('de-CH', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  }
+
+  // Client-side filter and sort
+  applyFilterAndSort() {
+    let filtered = [...this.songs];
+
+    // Apply search filter
+    if (this.searchTerm.trim()) {
+      const term = this.searchTerm.toLowerCase().trim();
+      filtered = filtered.filter(song => 
+        song.lyrics?.toLowerCase().includes(term)
+      );
+    }
+
+    // Apply sort by created date
+    filtered.sort((a, b) => {
+      const dateA = new Date(a.created_at).getTime();
+      const dateB = new Date(b.created_at).getTime();
+      return this.sortDirection === 'desc' ? dateB - dateA : dateA - dateB;
+    });
+
+    this.filteredSongs = filtered;
+  }
+
+  onSearchChange(searchTerm: string) {
+    this.searchTerm = searchTerm;
+    this.applyFilterAndSort();
+  }
+
+  toggleSort() {
+    this.sortDirection = this.sortDirection === 'desc' ? 'asc' : 'desc';
+    this.applyFilterAndSort();
   }
 
   clearSelection() {

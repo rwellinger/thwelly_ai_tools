@@ -39,7 +39,6 @@ export class ImageGeneratorComponent implements OnInit {
     if (this.promptForm.valid) {
       this.isLoading = true;
       this.result = '';
-      this.notificationService.loading('Generating image...');
 
       try {
         const formValue = this.promptForm.value;

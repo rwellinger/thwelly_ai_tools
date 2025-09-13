@@ -35,6 +35,7 @@ interface PaginationInfo {
 })
 export class ImageViewComponent implements OnInit {
   images: ImageData[] = [];
+  filteredImages: ImageData[] = [];
   selectedImage: ImageData | null = null;
   isLoading = false;
   loadingMessage = '';
@@ -46,6 +47,10 @@ export class ImageViewComponent implements OnInit {
     offset: 0,
     total: 0
   };
+
+  // Search and sort
+  searchTerm: string = '';
+  sortDirection: 'asc' | 'desc' = 'desc';
 
   constructor(
     private apiConfig: ApiConfigService,
@@ -75,6 +80,13 @@ export class ImageViewComponent implements OnInit {
         this.images = data.images;
         this.pagination = data.pagination;
         this.currentPage = page;
+        
+        this.applyFilterAndSort();
+
+        // Auto-select first image if available and none selected
+        if (this.filteredImages.length > 0 && !this.selectedImage) {
+          this.selectImage(this.filteredImages[0]);
+        }
       } else {
         this.images = [];
         this.notificationService.error('No images found');
@@ -145,6 +157,50 @@ export class ImageViewComponent implements OnInit {
     if (target) {
       target.style.display = 'none';
     }
+  }
+
+  formatDateShort(dateString: string): string {
+    try {
+      return new Date(dateString).toLocaleDateString('de-CH', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric'
+      });
+    } catch {
+      return dateString;
+    }
+  }
+
+  // Client-side filter and sort
+  applyFilterAndSort() {
+    let filtered = [...this.images];
+
+    // Apply search filter
+    if (this.searchTerm.trim()) {
+      const term = this.searchTerm.toLowerCase().trim();
+      filtered = filtered.filter(image => 
+        image.prompt?.toLowerCase().includes(term)
+      );
+    }
+
+    // Apply sort by created date
+    filtered.sort((a, b) => {
+      const dateA = new Date(a.created_at).getTime();
+      const dateB = new Date(b.created_at).getTime();
+      return this.sortDirection === 'desc' ? dateB - dateA : dateA - dateB;
+    });
+
+    this.filteredImages = filtered;
+  }
+
+  onSearchChange(searchTerm: string) {
+    this.searchTerm = searchTerm;
+    this.applyFilterAndSort();
+  }
+
+  toggleSort() {
+    this.sortDirection = this.sortDirection === 'desc' ? 'asc' : 'desc';
+    this.applyFilterAndSort();
   }
 
   protected readonly Math = Math;

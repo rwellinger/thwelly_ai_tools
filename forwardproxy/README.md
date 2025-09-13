@@ -2,10 +2,10 @@
 
 ## Generate Self Certificate
 
-mkcert macstudio macstudionas <Server-IP> localhost
+    mkcert macstudio macstudionas 10.0.1.120 localhost
 
-mv macstudio+4-key.pem webui.key
-mv macstudio+4.pem webui.crt
+    mv macstudio+3-key.pem webui.key
+    mv macstudio+3.pem webui.crt
 
 ## Protected Aeria für Prompt
 

@@ -1,10 +1,49 @@
-<header>
-    <nav>
-        <a href="https://macstudio" rel="noopener noreferrer"><i class="fas fa-comments"></i> AI WebUI</a>
-        <a routerLink="/imagegen"><i class="fas fa-image"></i> PIC Gen</a>
-        <a routerLink="/imageview"><i class="fas fa-image"></i> PIC View</a>
-        <a routerLink="/songgen"><i class="fas fa-music"></i> MU Gen</a>
-        <a routerLink="/songview"><i class="fas fa-eye"></i> MU View</a>
-        <a routerLink="/songprof"><i class="fas fa-user"></i> MU User</a>
-    </nav>
+<header class="modern-header">
+    <div class="header-container">
+        <!-- Logo and Brand Container -->
+        <div class="logo-brand-container">
+            <div class="logo">
+                <i class="fa-duotone fa-solid fa-toolbox"></i>
+            </div>
+            <div class="brand">
+                <span class="brand-text">thWelly's AI Toolbox</span>
+            </div>
+        </div>
+
+        <!-- Navigation Groups -->
+        <nav class="nav-groups">
+            <div class="nav-group">
+                <span class="group-label">
+                    <i class="fas fa-image"></i>
+                    Images
+                </span>
+                <div class="group-items">
+                    <a routerLink="/imagegen" routerLinkActive="active">Create</a>
+                    <a routerLink="/imageview" routerLinkActive="active">Gallery</a>
+                </div>
+            </div>
+
+            <div class="nav-group">
+                <span class="group-label">
+                    <i class="fas fa-music"></i>
+                    Music
+                </span>
+                <div class="group-items">
+                    <a routerLink="/songgen" routerLinkActive="active">Create</a>
+                    <a routerLink="/songview" routerLinkActive="active">Library</a>
+                    <a routerLink="/songprof" routerLinkActive="active">Profile</a>
+                </div>
+            </div>
+
+            <div class="nav-group">
+                <span class="group-label">
+                    <i class="fas fa-external-link-alt"></i>
+                    External
+                </span>
+                <div class="group-items">
+                    <a href="https://macstudio" class="external-link">AI Chat</a>
+                </div>
+            </div>
+        </nav>
+    </div>
 </header>
