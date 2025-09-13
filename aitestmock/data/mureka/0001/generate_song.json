@@ -1,0 +1,7 @@
+{
+    "id": "song_0001_mock",
+    "status": "queued",
+    "title": "Mock Song 0001",
+    "audio_url": null,
+    "created_at": "2025-01-01T10:00:00Z"
+}

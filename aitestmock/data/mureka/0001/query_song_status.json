@@ -1,0 +1,9 @@
+{
+    "id": "song_0001_mock",
+    "status": "completed",
+    "title": "Mock Song 0001",
+    "audio_url": "http://localhost:3080/static/audio/0001_mock_song.mp3",
+    "duration": 180,
+    "created_at": "2025-01-01T10:00:00Z",
+    "completed_at": "2025-01-01T10:02:30Z"
+}

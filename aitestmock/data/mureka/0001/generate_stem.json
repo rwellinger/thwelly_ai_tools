@@ -1,0 +1,12 @@
+{
+    "id": "stem_0001_mock",
+    "song_id": "song_0001_mock",
+    "status": "processing",
+    "stems": {
+        "vocals": null,
+        "instrumental": null,
+        "drums": null,
+        "bass": null
+    },
+    "created_at": "2025-01-01T10:05:00Z"
+}
