@@ -7,6 +7,3 @@ COPY html /usr/share/nginx/html
 
 COPY certs/webui.crt /etc/ssl/certs/webui.crt
 COPY certs/webui.key /etc/ssl/private/webui.key
-
-RUN chmod 644 /etc/ssl/certs/webui.crt && \
-    chmod 600 /etc/ssl/private/webui.key
