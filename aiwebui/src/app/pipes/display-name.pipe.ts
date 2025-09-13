@@ -81,9 +81,9 @@ export class DisplayNamePipe implements PipeTransform {
       const conjunctions = /\s+(und|mit|oder|sowie|plus|außerdem)\s+/i;
       const conjunctionMatch = prompt.match(conjunctions);
 
-      if (conjunctionMatch && conjunctionMatch.index !== undefined && conjunctionMatch.index <= 47) {
+      if (conjunctionMatch && conjunctionMatch.index !== undefined && conjunctionMatch.index <= 30) {
         const part = prompt.substring(0, conjunctionMatch.index).trim();
-        if (part.length > 20) { // Only if meaningful length
+        if (part.length > 27) { // Only if meaningful length
           console.log('Fallback: Split at conjunction');
           return part + '...';
         }

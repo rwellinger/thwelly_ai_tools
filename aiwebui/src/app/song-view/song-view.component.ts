@@ -4,9 +4,9 @@ import {SongService} from '../services/song.service';
 import {HeaderComponent} from '../shared/header/header.component';
 import {FooterComponent} from '../shared/footer/footer.component';
 import {ApiConfigService} from '../services/api-config.service';
-import { NotificationService } from '../services/notification.service';
-import { MatSnackBarModule } from '@angular/material/snack-bar';
-import { DisplayNamePipe } from '../pipes/display-name.pipe';
+import {NotificationService} from '../services/notification.service';
+import {MatSnackBarModule} from '@angular/material/snack-bar';
+import {DisplayNamePipe} from '../pipes/display-name.pipe';
 
 @Component({
   selector: 'app-song-view',
@@ -26,13 +26,12 @@ export class SongViewComponent implements OnInit {
     offset: 0,
     has_more: false
   };
-  
+
   // UI state
   isLoading = false;
   isLoadingSongs = false;
   loadingMessage = '';
-  successMessage = '';
-  
+
   // Audio and features
   currentlyPlaying: string | null = null;
   audioUrl: string | null = null;
@@ -69,7 +68,7 @@ export class SongViewComponent implements OnInit {
       const data = await this.songService.getSongs(this.pagination.limit, this.pagination.offset, 'SUCCESS');
       this.songs = data.songs || [];
       this.pagination = data.pagination || this.pagination;
-      
+
       // Auto-select first song if available and none selected
       if (this.songs.length > 0 && !this.selectedSong) {
         await this.selectSong(this.songs[0]);
@@ -87,17 +86,14 @@ export class SongViewComponent implements OnInit {
     this.stemDownloadUrl = null;
     this.selectedSong = null;
     this.stopAudio();
-    
+
     try {
       // If song already has choices, use it directly
       if (song.choices && song.choices.length > 0) {
         this.selectedSong = song;
-        this.notificationService.success('Song details loaded!');
       } else {
         // Otherwise fetch full details
-        const data = await this.songService.getSongById(song.id);
-        this.selectedSong = data;
-        this.notificationService.success('Song details loaded!');
+          this.selectedSong = await this.songService.getSongById(song.id);
       }
     } catch (error: any) {
       this.notificationService.error(`Error loading song: ${error.message}`);
@@ -110,26 +106,26 @@ export class SongViewComponent implements OnInit {
   // Pagination methods
   async nextPage() {
     if (!this.pagination.has_more) return;
-    
+
     this.pagination.offset += this.pagination.limit;
     await this.loadSongs();
   }
-  
+
   async previousPage() {
     if (this.pagination.offset === 0) return;
-    
+
     this.pagination.offset = Math.max(0, this.pagination.offset - this.pagination.limit);
     await this.loadSongs();
   }
-  
+
   async loadMore() {
     if (!this.pagination.has_more) return;
-    
+
     this.isLoadingSongs = true;
     try {
       const newOffset = this.pagination.offset + this.pagination.limit;
       const data = await this.songService.getSongs(this.pagination.limit, newOffset, 'SUCCESS');
-      
+
       // Append new songs to existing list
       this.songs = [...this.songs, ...(data.songs || [])];
       this.pagination = data.pagination || this.pagination;
@@ -148,11 +144,11 @@ export class SongViewComponent implements OnInit {
     const lyrics = song.lyrics.trim();
     return lyrics.length > 20 ? lyrics.substring(0, 17) + '...' : lyrics;
   }
-  
+
   getSongTitle(song: any): string {
     return song.prompt || 'Untitled Song';
   }
-  
+
   formatDate(dateString: string): string {
     return new Date(dateString).toLocaleDateString();
   }
@@ -222,7 +218,6 @@ export class SongViewComponent implements OnInit {
   }
 
   onCanPlayThrough() {
-    this.notificationService.info('Audio is ready to play');
   }
 
   // Stem generation method
@@ -262,12 +257,5 @@ export class SongViewComponent implements OnInit {
     } finally {
       this.isLoading = false;
     }
-  }
-
-  private formatDurationFromMs(durationMs: number): string {
-    const totalSeconds = Math.floor(durationMs / 1000);
-    const minutes = Math.floor(totalSeconds / 60);
-    const seconds = totalSeconds % 60;
-    return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
   }
 }
