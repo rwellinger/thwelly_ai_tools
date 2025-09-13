@@ -12,25 +12,24 @@
     display: flex;
     align-items: center;
     gap: 30px;
-    max-width: 1200px;
-    margin: 0 auto;
+    width: 100%;
     padding: 12px 20px;
+}
+
+/* Logo and Brand Container */
+.logo-brand-container {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-shrink: 0;
 }
 
 /* Logo (far left) */
 .logo {
     flex-shrink: 0;
-}
-
-.logo-image {
-    width: 40px;
-    height: 40px;
-    transition: transform 0.3s ease;
-    cursor: pointer;
-}
-
-.logo-image:hover {
-    transform: rotate(5deg) scale(1.05);
+    font-weight: 700;
+    font-size: 1.5em;
+    color: #495057;
 }
 
 /* Brand Text */
@@ -40,7 +39,7 @@
 
 .brand-text {
     font-weight: 700;
-    font-size: 1.2em;
+    font-size: 1.5em;
     color: #495057;
     letter-spacing: -0.5px;
 }
@@ -51,6 +50,7 @@
     gap: 40px;
     align-items: center;
     margin-left: auto;
+    margin-right: 30px;
 }
 
 .nav-group {
@@ -154,22 +154,22 @@
         gap: 15px;
         padding: 15px;
     }
-    
+
     .nav-groups {
         flex-direction: column;
         gap: 20px;
         width: 100%;
     }
-    
+
     .nav-group {
         width: 100%;
     }
-    
+
     .group-items {
         justify-content: center;
         flex-wrap: wrap;
     }
-    
+
     .brand-link {
         font-size: 1.2em;
     }
@@ -179,16 +179,16 @@
     .nav-groups {
         gap: 15px;
     }
-    
+
     .group-items {
         gap: 8px;
     }
-    
+
     .group-items a {
         padding: 5px 8px;
         font-size: 0.8em;
     }
-    
+
     .group-label {
         font-size: 0.8em;
         margin-bottom: 6px;
