@@ -216,6 +216,53 @@ export class SongViewComponent implements OnInit {
     this.stemDownloadUrl = null;
   }
 
+  // Modern pagination methods
+  getVisiblePages(): (number | string)[] {
+    const totalPages = Math.ceil(this.pagination.total / this.pagination.limit);
+    const current = Math.floor(this.pagination.offset / this.pagination.limit) + 1;
+    const pages: (number | string)[] = [];
+
+    if (totalPages <= 7) {
+      // Show all pages if 7 or less
+      for (let i = 1; i <= totalPages; i++) {
+        pages.push(i);
+      }
+    } else {
+      // Smart pagination with ellipsis
+      if (current <= 4) {
+        // Show: 1 2 3 4 5 ... last
+        for (let i = 1; i <= 5; i++) pages.push(i);
+        pages.push('...');
+        pages.push(totalPages);
+      } else if (current >= totalPages - 3) {
+        // Show: 1 ... n-4 n-3 n-2 n-1 n
+        pages.push(1);
+        pages.push('...');
+        for (let i = totalPages - 4; i <= totalPages; i++) pages.push(i);
+      } else {
+        // Show: 1 ... current-1 current current+1 ... last
+        pages.push(1);
+        pages.push('...');
+        for (let i = current - 1; i <= current + 1; i++) pages.push(i);
+        pages.push('...');
+        pages.push(totalPages);
+      }
+    }
+
+    return pages;
+  }
+
+  goToPage(pageIndex: number) {
+    if (pageIndex >= 0 && pageIndex < Math.ceil(this.pagination.total / this.pagination.limit) && !this.isLoading) {
+      this.pagination.offset = pageIndex * this.pagination.limit;
+      this.loadSongs();
+    }
+  }
+
+  trackByPage(index: number, page: number | string): number | string {
+    return page;
+  }
+
   // Modal methods
   showLyrics(song: any) {
     this.modalTitle = `Lyrics - ${this.getSongTitle(song)}`;
@@ -275,6 +322,26 @@ export class SongViewComponent implements OnInit {
   }
 
   onCanPlayThrough() {
+  }
+
+  downloadFlac(flacUrl: string) {
+    // Create a temporary anchor element to trigger the download
+    const link = document.createElement('a');
+    link.href = flacUrl;
+    link.download = ''; // This will use the filename from the URL
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  }
+
+  downloadStems(stemsUrl: string) {
+    // Create a temporary anchor element to trigger the download
+    const link = document.createElement('a');
+    link.href = stemsUrl;
+    link.download = ''; // This will use the filename from the URL
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   }
 
   // Stem generation method
