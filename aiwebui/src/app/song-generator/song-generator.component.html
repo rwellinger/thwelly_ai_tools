@@ -81,9 +81,9 @@
                     </div>
 
                     <div class="song-actions">
-                        <a [href]="choice.flac_url" class="action-button download-btn">
-                            <i class="fas fa-download"></i> FLAC
-                        </a>
+                        <button type="button" (click)="downloadFlac(choice.flac_url)" class="action-button download-btn">
+                            <i class="fas fa-download"></i> FLAC Download
+                        </button>
                         <button type="button" (click)="playAudio(choice.url, choice.id)" class="action-button play-btn">
                             <i class="fas fa-music"></i>
                             {{ currentlyPlaying === choice.id ? 'Hide Player' : 'MP3 Player' }}
@@ -106,10 +106,9 @@
             </div>
 
             <div *ngIf="stemDownloadUrl" class="stem-download">
-                <h3>Stems Ready</h3>
-                <a [href]="stemDownloadUrl" target="_blank" class="action-button download-btn">
+                <button type="button" (click)="downloadStems(stemDownloadUrl)" class="action-button download-btn">
                     <i class="fas fa-download"></i> Download Stems
-                </a>
+                </button>
             </div>
         </div>
     </div>

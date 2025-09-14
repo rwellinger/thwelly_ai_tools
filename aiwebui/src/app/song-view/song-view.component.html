@@ -13,7 +13,43 @@
     <!-- Left Side: Song List -->
     <div class="song-list-panel">
         <div *ngIf="songs.length > 0" class="song-list">
-            <h2>Available Songs ({{ pagination.total }} total)</h2>
+            <div class="list-header">
+                <h2>Available Songs</h2>
+                <div class="modern-pagination">
+                    <div class="pagination-info-badge">
+                        {{ pagination.total }} songs
+                    </div>
+                    <div class="pagination-pills">
+                        <button type="button"
+                                class="pagination-pill prev"
+                                (click)="previousPage()"
+                                [disabled]="pagination.offset === 0 || isLoading"
+                                [class.disabled]="pagination.offset === 0 || isLoading">
+                            <i class="fas fa-chevron-left"></i>
+                        </button>
+
+                        <ng-container *ngFor="let page of getVisiblePages(); trackBy: trackByPage">
+                            <button type="button"
+                                    *ngIf="page !== '...'"
+                                    class="pagination-pill page-number"
+                                    [class.active]="page === Math.floor(pagination.offset / pagination.limit) + 1"
+                                    (click)="goToPage(+page - 1)"
+                                    [disabled]="isLoading">
+                                {{ page }}
+                            </button>
+                            <span *ngIf="page === '...'" class="pagination-ellipsis">⋯</span>
+                        </ng-container>
+
+                        <button type="button"
+                                class="pagination-pill next"
+                                (click)="nextPage()"
+                                [disabled]="!pagination.has_more || isLoading"
+                                [class.disabled]="!pagination.has_more || isLoading">
+                            <i class="fas fa-chevron-right"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
 
             <div class="search-controls">
                 <input type="text"
@@ -34,44 +70,20 @@
                         Created
                         <i class="fas" [class.fa-sort-down]="sortDirection === 'desc'" [class.fa-sort-up]="sortDirection === 'asc'"></i>
                     </th>
-                    <th>Actions</th>
                 </tr>
                 </thead>
                 <tbody>
                 <tr *ngFor="let song of filteredSongs"
-                    [class.selected]="selectedSong?.id === song.id">
+                    [class.selected]="selectedSong?.id === song.id"
+                    (click)="selectSong(song)"
+                    [style.cursor]="isLoading ? 'not-allowed' : 'pointer'">
                     <td class="lyrics-col">{{ song.lyrics | displayName }}</td>
                     <td>{{ song.model }}</td>
                     <td>{{ formatDateShort(song.created_at) }}</td>
-                    <td>
-                        <button type="button"
-                                (click)="selectSong(song)"
-                                [disabled]="isLoading"
-                                [class.active]="selectedSong?.id === song.id">
-                            <i class="fas fa-eye"></i>
-                            {{ selectedSong?.id === song.id ? 'Selected' : 'View' }}
-                        </button>
-                    </td>
                 </tr>
                 </tbody>
             </table>
 
-            <div class="pagination-controls">
-                <button type="button"
-                        (click)="previousPage()"
-                        [disabled]="pagination.offset === 0 || isLoading">
-                    <i class="fas fa-arrow-left"></i> Previous
-                </button>
-                <span class="pagination-info">
-                    Page {{ Math.floor(pagination.offset / pagination.limit) + 1 }} of {{ Math.ceil(pagination.total / pagination.limit) }}
-                    ({{ pagination.total }} songs total)
-                </span>
-                <button type="button"
-                        (click)="nextPage()"
-                        [disabled]="!pagination.has_more || isLoading">
-                    Next <i class="fas fa-arrow-right"></i>
-                </button>
-            </div>
         </div>
 
         <div *ngIf="songs.length === 0 && !isLoadingSongs" class="no-songs-message">
@@ -134,9 +146,11 @@
                         <tr *ngFor="let choice of selectedSong.choices; let i = index">
                             <td>{{ choice.formattedDuration }}</td>
                             <td>
-                                <a [href]="choice.flac_url" *ngIf="choice.flac_url" target="_blank">
+                                <button type="button"
+                                        *ngIf="choice.flac_url"
+                                        (click)="downloadFlac(choice.flac_url)">
                                     <i class="fas fa-download"></i> Download FLAC
-                                </a>
+                                </button>
                                 <span *ngIf="!choice.flac_url" class="not-available">N/A</span>
                             </td>
                             <td>
@@ -161,6 +175,13 @@
                         </tr>
                     </tbody>
                 </table>
+
+                <!-- Stem Download -->
+                <div *ngIf="stemDownloadUrl" class="stem-download">
+                    <button type="button" (click)="downloadStems(stemDownloadUrl)" class="download-link">
+                        <i class="fas fa-download"></i> Download Stems ZIP
+                    </button>
+                </div>
             </div>
 
             <!-- Audio Player -->
@@ -179,16 +200,6 @@
                 <p>No song choices available for this song.</p>
             </div>
         </div>
-    </div>
-</div>
-
-<!-- Stem Download -->
-<div *ngIf="stemDownloadUrl" class="stem-download">
-    <div class="success-message">
-        <h3>Stems Generated Successfully!</h3>
-        <p><a [href]="stemDownloadUrl" target="_blank" class="download-link">
-            <i class="fas fa-download"></i> Download Stems ZIP
-        </a></p>
     </div>
 </div>
 

@@ -13,7 +13,43 @@
     <!-- Left Side: Image List -->
     <div class="image-list-panel">
         <div *ngIf="images.length > 0" class="image-list">
-            <h2>Available Images ({{ pagination.total }} total)</h2>
+            <div class="list-header">
+                <h2>Available Images</h2>
+                <div class="modern-pagination">
+                    <div class="pagination-info-badge">
+                        {{ pagination.total }} items
+                    </div>
+                    <div class="pagination-pills">
+                        <button type="button"
+                                class="pagination-pill prev"
+                                (click)="previousPage()"
+                                [disabled]="currentPage === 0 || isLoading"
+                                [class.disabled]="currentPage === 0 || isLoading">
+                            <i class="fas fa-chevron-left"></i>
+                        </button>
+
+                        <ng-container *ngFor="let page of getVisiblePages(); trackBy: trackByPage">
+                            <button type="button"
+                                    *ngIf="page !== '...'"
+                                    class="pagination-pill page-number"
+                                    [class.active]="page === currentPage + 1"
+                                    (click)="goToPage(+page - 1)"
+                                    [disabled]="isLoading">
+                                {{ page }}
+                            </button>
+                            <span *ngIf="page === '...'" class="pagination-ellipsis">⋯</span>
+                        </ng-container>
+
+                        <button type="button"
+                                class="pagination-pill next"
+                                (click)="nextPage()"
+                                [disabled]="!pagination.has_more || isLoading"
+                                [class.disabled]="!pagination.has_more || isLoading">
+                            <i class="fas fa-chevron-right"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
 
             <div class="search-controls">
                 <input type="text"
@@ -29,48 +65,26 @@
                 <thead>
                 <tr>
                     <th class="prompt-col">Prompt</th>
+                    <th>Size</th>
                     <th class="sortable-header" (click)="toggleSort()">
                         Created
                         <i class="fas" [class.fa-sort-down]="sortDirection === 'desc'"
                            [class.fa-sort-up]="sortDirection === 'asc'"></i>
                     </th>
-                    <th>Actions</th>
                 </tr>
                 </thead>
                 <tbody>
                 <tr *ngFor="let image of filteredImages"
-                    [class.selected]="selectedImage?.id === image.id">
+                    [class.selected]="selectedImage?.id === image.id"
+                    (click)="selectImage(image)"
+                    [style.cursor]="isLoading ? 'not-allowed' : 'pointer'">
                     <td class="prompt-col">{{ image.prompt | displayName }}</td>
+                    <td class="size-col">{{ image.size }}</td>
                     <td>{{ formatDateShort(image.created_at) }}</td>
-                    <td>
-                        <button type="button"
-                                (click)="selectImage(image)"
-                                [disabled]="isLoading"
-                                [class.active]="selectedImage?.id === image.id">
-                            <i class="fas fa-eye"></i>
-                            {{ selectedImage?.id === image.id ? 'Selected' : 'View' }}
-                        </button>
-                    </td>
                 </tr>
                 </tbody>
             </table>
 
-            <div class="pagination-controls">
-                <button type="button"
-                        (click)="previousPage()"
-                        [disabled]="currentPage === 0 || isLoading">
-                    <i class="fas fa-arrow-left"></i> Previous
-                </button>
-                <span class="pagination-info">
-                    Page {{ currentPage + 1 }} of {{ Math.ceil(pagination.total / pagination.limit) }}
-                    ({{ pagination.total }} images total)
-                </span>
-                <button type="button"
-                        (click)="nextPage()"
-                        [disabled]="!pagination.has_more || isLoading">
-                    Next <i class="fas fa-arrow-right"></i>
-                </button>
-            </div>
         </div>
 
         <div *ngIf="!images.length && !isLoading" class="no-images-message">
@@ -109,9 +123,9 @@
             </div>
 
             <div class="image-actions">
-                <a [href]="selectedImage.url" target="_blank" class="download-link">
+                <button type="button" (click)="downloadImage(selectedImage.url)" class="download-link">
                     <i class="fas fa-download"></i> Download Original
-                </a>
+                </button>
             </div>
 
             <div class="image-display">

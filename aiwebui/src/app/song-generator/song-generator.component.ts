@@ -106,15 +106,8 @@ export class SongGeneratorComponent implements OnInit {
                     this.result = `<div class="error-box">Error: ${errorMessage}</div>`;
                     completed = true;
                 } else {
-                    let murekaStatus = "Initialize";
-
-                    if (data.progress?.mureka_status) {
-                        murekaStatus = data.progress.mureka_status;
-                    } else if (data.status === 'PROGRESS' || data.status === 'PENDING') {
-                        murekaStatus = data.status.toLowerCase();
-                    }
-
-                    this.loadingMessage = `Processing (${murekaStatus}) ... Please wait until finished.`;
+                    let statusText = this.getStatusText(data);
+                    this.loadingMessage = `${statusText} ... Please wait until finished.`;
                     interval = Math.min(interval * 1.5, 60000);
                     await new Promise(resolve => setTimeout(resolve, interval));
                 }
@@ -200,10 +193,71 @@ export class SongGeneratorComponent implements OnInit {
         return new Promise(resolve => setTimeout(resolve, ms));
     }
 
+    private getStatusText(data: any): string {
+        // Check for specific internal progress statuses first
+        if (data.progress?.status) {
+            switch (data.progress.status) {
+                case 'SLOT_ACQUIRED':
+                    return 'Acquiring Mureka slot';
+                case 'GENERATION_STARTED':
+                    return 'Starting song generation';
+                case 'POLLING':
+                    return 'Processing with Mureka';
+                default:
+                    break;
+            }
+        }
+
+        // Check for mureka-specific status
+        if (data.progress?.mureka_status) {
+            switch (data.progress.mureka_status) {
+                case 'preparing':
+                    return 'Preparing song generation';
+                case 'queued':
+                    return 'Queued for processing';
+                case 'running':
+                    return 'Generating song with AI';
+                case 'timeouted':
+                    return 'Processing (timeout handling)';
+                default:
+                    return `Processing with Mureka (${data.progress.mureka_status})`;
+            }
+        }
+
+        // Fallback to general celery status
+        switch (data.status) {
+            case 'PENDING':
+                return 'Initializing request';
+            case 'PROGRESS':
+                return 'Processing request';
+            default:
+                return 'Processing';
+        }
+    }
+
+    downloadFlac(flacUrl: string) {
+        // Create a temporary anchor element to trigger the download
+        const link = document.createElement('a');
+        link.href = flacUrl;
+        link.download = ''; // This will use the filename from the URL
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    }
+
+    downloadStems(stemsUrl: string) {
+        // Create a temporary anchor element to trigger the download
+        const link = document.createElement('a');
+        link.href = stemsUrl;
+        link.download = ''; // This will use the filename from the URL
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    }
+
     async generateStem(mp3Url: string) {
         this.isLoading = true;
         this.loadingMessage = 'Generating stems...';
-        this.notificationService.loading('Generating stems...');
 
         try {
             const response = await Promise.race([
