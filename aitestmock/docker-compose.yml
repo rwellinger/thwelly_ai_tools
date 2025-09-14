@@ -1,0 +1,29 @@
+services:
+  aitestmock-app:
+    container_name: aitestmock
+    restart: unless-stopped
+    build: .
+    ports:
+      - "5050:5050"
+    env_file: .env
+    environment: {}
+    volumes:
+      - .:/app
+    networks:
+      - webui-net
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3080/api/v1/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
+volumes:
+  postgres-data:
+  redis-data:
+  images-data:
+
+networks:
+  webui-net:
+    external: true
+    name: webui-network

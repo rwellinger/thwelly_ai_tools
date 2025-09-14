@@ -7,8 +7,6 @@ package.json
 node_modules
 __pycache__
 *.bak
-aiproxysrv/.env
-/aiproxysrv/.env_postgres
 aiproxysrv/images
 aiproxysrv/backup
 aiproxysrv/alembic.ini
@@ -27,3 +25,7 @@ dump.rdb
 *.aof.1.incr.aof
 *.aof.manifest
 CLAUDE.md
+
+.env
+.env_postgres
+.env_mock
