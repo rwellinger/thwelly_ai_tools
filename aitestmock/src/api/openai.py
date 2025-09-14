@@ -7,4 +7,5 @@ controller = OpenAIController()
 
 @openai_routes.route('/images/generations', methods=['POST'])
 def generate_image():
+    print("Generating image")
     return controller.generate_image()

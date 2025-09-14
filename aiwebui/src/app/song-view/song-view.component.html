@@ -14,9 +14,9 @@
     <div class="song-list-panel">
         <div *ngIf="songs.length > 0" class="song-list">
             <h2>Available Songs ({{ pagination.total }} total)</h2>
-            
+
             <div class="search-controls">
-                <input type="text" 
+                <input type="text"
                        placeholder="Search lyrics..."
                        class="search-input"
                        [value]="searchTerm"
@@ -31,7 +31,7 @@
                     <th class="lyrics-col">Lyrics Preview</th>
                     <th>Model</th>
                     <th class="sortable-header" (click)="toggleSort()">
-                        Created 
+                        Created
                         <i class="fas" [class.fa-sort-down]="sortDirection === 'desc'" [class.fa-sort-up]="sortDirection === 'asc'"></i>
                     </th>
                     <th>Actions</th>
@@ -98,6 +98,7 @@
 
             <div class="song-info-compact">
                 <div class="song-meta-info">
+                    <p><strong>Mureka Id:</strong> {{ selectedSong.job_id}}</p>
                     <p><strong>Title:</strong> {{ getSongTitle(selectedSong) | displayName }}</p>
                     <p><strong>Model:</strong> {{ selectedSong.model }}</p>
                     <p><strong>Status:</strong> <span [class]="'status-' + selectedSong.status.toLowerCase()">{{ selectedSong.status }}</span></p>

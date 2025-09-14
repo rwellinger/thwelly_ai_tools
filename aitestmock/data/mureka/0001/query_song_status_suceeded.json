@@ -6,8 +6,8 @@
   "status": "succeeded",
   "choices": [
     {
-      "url": "https://cdn.mureka.ai/cos-prod/open/song/20250913/92945101357057-VPQStJXiyxU4h3C968seXY.mp3",
-      "flac_url": "https://cdn.mureka.ai/cos-prod/open/song/20250913/92945101357057-KQ2xoLpmnjTtgWV68kumRT.flac",
+      "url": "http://localhost:3080/static/audio/0001-01.mp3",
+      "flac_url": "http://localhost:3080/static/audio/0001-01.flac",
       "duration": 178120,
       "lyrics_sections": [
         {
@@ -1005,8 +1005,8 @@
     },
     {
       "index": 1,
-      "url": "https://cdn.mureka.ai/cos-prod/open/song/20250913/92945101357057-Xn3UurRBJK6D6ApruXCmTn.mp3",
-      "flac_url": "https://cdn.mureka.ai/cos-prod/open/song/20250913/92945101357057-DzqnnjsXBpP3QSrw6PBaSZ.flac",
+      "url": "http://localhost:3080/static/audio/0001-02.mp3",
+      "flac_url": "http://localhost:3080/static/audio/0001-02.flac",
       "duration": 144520,
       "lyrics_sections": [
         {
