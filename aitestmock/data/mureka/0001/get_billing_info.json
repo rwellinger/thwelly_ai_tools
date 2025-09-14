@@ -1,7 +1,8 @@
 {
-    "credits_remaining": 50,
-    "credits_used_today": 5,
-    "plan": "pro",
-    "daily_limit": 100,
-    "reset_time": "2025-01-02T00:00:00Z"
+  "account_id": 92945101357057,
+  "balance": 2544,
+  "total_recharge": 3000,
+  "total_spending": 456,
+  "concurrent_request_limit": 1,
+  "trace_id": "5336555c45d27d3434b47117f01fc78b"
 }

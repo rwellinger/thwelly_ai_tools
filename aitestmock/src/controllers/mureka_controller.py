@@ -14,12 +14,11 @@ class MurekaController:
 
         data = request.get_json()
 
-        prompt = data.get('prompt')
+        lyrics = data.get('lyrics')
         model = data.get('model', 'auto')
-        style = data.get('style')
-        title = data.get('title')
+        prompt = data.get('prompt')  # This is the style prompt
 
-        result = self.service.generate_song(prompt, model, style, title)
+        result = self.service.generate_song(lyrics, model, prompt)
 
         return jsonify(result)
 
@@ -35,14 +34,12 @@ class MurekaController:
 
         return jsonify(result)
 
-    def query_song_status(self):
+    def query_song_status(self, job_id):
         auth_header = request.headers.get('Authorization')
         if not auth_header or not auth_header.startswith('Bearer '):
             return jsonify({'error': 'Missing or invalid authorization'}), 401
 
-        song_id = request.args.get('song_id')
-
-        result = self.service.query_song_status(song_id)
+        result = self.service.query_song_status(job_id)
 
         return jsonify(result)
 

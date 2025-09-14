@@ -1,21 +1,60 @@
 import json
 import re
+import time
+from datetime import datetime, timedelta
 from pathlib import Path
 
 
 class MurekaService:
 
-    def generate_song(self, prompt, model="auto", style=None, title=None):
-        test_number = self._extract_test_number(prompt)
-        return self._load_mock_data("mureka", test_number, "generate_song")
+    def __init__(self):
+        # In-memory storage for async song generation jobs
+        self._song_jobs = {}
+
+    def generate_song(self, lyrics, model="auto", prompt=None):
+        # Extract test case number from lyrics
+        test_number = self._extract_test_number(lyrics)
+
+        # Extract duration from prompt (style)
+        duration_seconds = self._extract_duration(prompt)
+
+        # Load initial response
+        response = self._load_mock_data("mureka", test_number, "generate_song")
+
+        # If successful, store job info for async simulation
+        if "id" in response:
+            job_id = response["id"]
+            self._song_jobs[job_id] = {
+                "test_number": test_number,
+                "start_time": datetime.now(),
+                "duration_seconds": duration_seconds,
+                "completed": False
+            }
+
+        return response
 
     def generate_stem(self, song_id):
         test_number = self._extract_test_number(song_id)
         return self._load_mock_data("mureka", test_number, "generate_stem")
 
-    def query_song_status(self, song_id):
-        test_number = self._extract_test_number(song_id)
-        return self._load_mock_data("mureka", test_number, "query_song_status")
+    def query_song_status(self, job_id):
+        # Check if we have a job for this job_id
+        if job_id in self._song_jobs:
+            job = self._song_jobs[job_id]
+            elapsed = (datetime.now() - job["start_time"]).total_seconds()
+
+            # If duration has passed, return success response
+            if elapsed >= job["duration_seconds"]:
+                if not job["completed"]:
+                    job["completed"] = True
+                return self._load_mock_data("mureka", job["test_number"], "query_song_status_suceeded", job_id)
+            else:
+                # Still running, return running status
+                return self._load_mock_data("mureka", job["test_number"], "query_song_status_running", job_id)
+
+        # Fallback for unknown job_id - extract test number and return completed
+        test_number = self._extract_test_number(job_id)
+        return self._load_mock_data("mureka", test_number, "query_song_status_suceeded")
 
     def get_billing_info(self):
         return self._load_mock_data("mureka", "0001", "get_billing_info")
@@ -27,7 +66,52 @@ class MurekaService:
         match = re.search(r'\b(\d{4})\b', str(text))
         return match.group(1) if match else default
 
-    def _load_mock_data(self, service, test_number, endpoint):
+    def _extract_duration(self, text, default_seconds=30):
+        """Extract duration from style prompt (e.g., '30s', '60s', etc.)"""
+        if not text:
+            return default_seconds
+
+        match = re.search(r'(\d+)s\b', str(text))
+        return int(match.group(1)) if match else default_seconds
+
+    def _apply_timestamp_replacements(self, data, endpoint, job_id=None):
+        """Apply dynamic timestamp replacements to mock data"""
+        current_timestamp = int(datetime.now().timestamp())
+
+        if endpoint == "generate_song":
+            # Replace created_at with current timestamp
+            if "created_at" in data:
+                data["created_at"] = current_timestamp
+
+        elif endpoint == "query_song_status_suceeded":
+            # Replace created_at with job creation time, finished_at with current time
+            if job_id and job_id in self._song_jobs:
+                job = self._song_jobs[job_id]
+                if "created_at" in data:
+                    data["created_at"] = int(job["start_time"].timestamp())
+                if "finished_at" in data:
+                    data["finished_at"] = current_timestamp
+            else:
+                # Fallback if no job info available
+                if "created_at" in data:
+                    data["created_at"] = current_timestamp - 60  # Assume 60s ago
+                if "finished_at" in data:
+                    data["finished_at"] = current_timestamp
+
+        elif endpoint == "query_song_status_running":
+            # Replace created_at with job creation time
+            if job_id and job_id in self._song_jobs:
+                job = self._song_jobs[job_id]
+                if "created_at" in data:
+                    data["created_at"] = int(job["start_time"].timestamp())
+            else:
+                # Fallback if no job info available
+                if "created_at" in data:
+                    data["created_at"] = current_timestamp - 30  # Assume 30s ago
+
+        return data
+
+    def _load_mock_data(self, service, test_number, endpoint, job_id=None):
         base_dir = Path(__file__).parent.parent.parent
         data_path = base_dir / "data" / service / test_number / f"{endpoint}.json"
 
@@ -39,7 +123,12 @@ class MurekaService:
 
         try:
             with open(data_path, 'r') as f:
-                return json.load(f)
+                data = json.load(f)
+
+            # Apply dynamic timestamp replacements
+            data = self._apply_timestamp_replacements(data, endpoint, job_id)
+            return data
+
         except Exception as e:
             return {
                 "error": f"Failed to load mock data: {str(e)}",

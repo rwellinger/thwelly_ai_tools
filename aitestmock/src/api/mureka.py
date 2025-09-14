@@ -15,9 +15,9 @@ def generate_stem():
     return controller.generate_stem()
 
 
-@mureka_routes.route('/song/query', methods=['GET'])
-def query_song_status():
-    return controller.query_song_status()
+@mureka_routes.route('/song/query/<job_id>', methods=['GET'])
+def query_song_status(job_id):
+    return controller.query_song_status(job_id)
 
 
 @mureka_routes.route('/account/billing', methods=['GET'])
