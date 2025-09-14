@@ -33,8 +33,13 @@ class MurekaService:
 
         return response
 
-    def generate_stem(self, song_id):
-        test_number = self._extract_test_number(song_id)
+    def generate_stem(self, url):
+        # Extract test case number from URL
+        test_number = self._extract_test_number(url)
+
+        # Simulate processing time (fixed 2s)
+        time.sleep(2)
+
         return self._load_mock_data("mureka", test_number, "generate_stem")
 
     def query_song_status(self, job_id):
@@ -63,8 +68,16 @@ class MurekaService:
         if not text:
             return default
 
-        match = re.search(r'\b(\d{4})\b', str(text))
-        return match.group(1) if match else default
+        # Look for 4-digit pattern that's likely a test number (not port numbers like 3080)
+        # Try to find patterns like "0001", "0002" in filenames or after specific markers
+        matches = re.findall(r'\b(\d{4})\b', str(text))
+
+        # Filter out common port numbers and prefer test-like numbers (starting with 0)
+        for match in matches:
+            if match.startswith('0') or match not in ['3080', '8080', '5000', '8000']:
+                return match
+
+        return matches[0] if matches else default
 
     def _extract_duration(self, text, default_seconds=30):
         """Extract duration from style prompt (e.g., '30s', '60s', etc.)"""
@@ -73,6 +86,7 @@ class MurekaService:
 
         match = re.search(r'(\d+)s\b', str(text))
         return int(match.group(1)) if match else default_seconds
+
 
     def _apply_timestamp_replacements(self, data, endpoint, job_id=None):
         """Apply dynamic timestamp replacements to mock data"""

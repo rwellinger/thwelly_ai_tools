@@ -28,9 +28,9 @@ class MurekaController:
             return jsonify({'error': 'Missing or invalid authorization'}), 401
 
         data = request.get_json()
-        song_id = data.get('song_id')
+        url = data.get('url')
 
-        result = self.service.generate_stem(song_id)
+        result = self.service.generate_stem(url)
 
         return jsonify(result)
 
