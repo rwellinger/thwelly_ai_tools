@@ -49,17 +49,17 @@
 
 ## Abbildungsverzeichnis
 
-- [Abbildung 3.1: Fachlicher Kontext](#31-fachlicher-kontext) - `3.1_fachlicher_kontext.png`
-- [Abbildung 5.1: Systemübersicht](#51-systemübersicht) - `5.1_systemuebersicht.png`
-- [Abbildung 6.1: Bildgenerierung (Synchron)](#61-bildgenerierung-synchron) - `6.1_bildgenerierung.png`
-- [Abbildung 6.2: Musikgenerierung (Asynchron)](#62-musikgenerierung-asynchron) - `6.2_musikgenerierung.png`
-- [Abbildung 7.3: Netzwerk-Architektur](#73-netzwerk-architektur) - `7.3_netzwerk_architektur.png`
-- [Abbildung 9.1: Entwicklungs-Deployment](#91-entwicklungs-deployment) - `9.1_entwicklungs_deployment.png`
-- [Abbildung 9.2: Produktions-Deployment](#92-produktions-deployment) - `9.2_produktions_deployment.png`
-- [Abbildung 10.1: Song-Generierung Workflow](#101-song-generierung-workflow) - `10.1_song_generierung_workflow.png`
-- [Abbildung 10.2: Error Handling & Retry Logic](#102-error-handling--retry-logic) - `10.2_error_handling.png`
-- [Abbildung 10.3: Health Check Prozess](#103-health-check-prozess) - `10.3_health_check.png`
-- [Abbildung 10.4: Backup & Recovery Prozess](#104-backup--recovery-prozess) - `10.4_backup_recovery.png`
+- [Abbildung 3.1: Fachlicher Kontext](#31-fachlicher-kontext) - `images/3.1_fachlicher_kontext.png`
+- [Abbildung 5.1: Systemübersicht](#51-systemübersicht) - `images/5.1_systemuebersicht.png`
+- [Abbildung 6.1: Bildgenerierung (Synchron)](#61-bildgenerierung-synchron) - `images/6.1_bildgenerierung.png`
+- [Abbildung 6.2: Musikgenerierung (Asynchron)](#62-musikgenerierung-asynchron) - `images/6.2_musikgenerierung.png`
+- [Abbildung 7.3: Netzwerk-Architektur](#73-netzwerk-architektur) - `images/7.3_netzwerk_architektur.png`
+- [Abbildung 9.1: Entwicklungs-Deployment](#91-entwicklungs-deployment) - `images/9.1_entwicklungs_deployment.png`
+- [Abbildung 9.2: Produktions-Deployment](#92-produktions-deployment) - `images/9.2_produktions_deployment.png`
+- [Abbildung 10.1: Song-Generierung Workflow](#101-song-generierung-workflow) - `images/10.1_song_generierung_workflow.png`
+- [Abbildung 10.2: Error Handling & Retry Logic](#102-error-handling--retry-logic) - `images/10.2_error_handling.png`
+- [Abbildung 10.3: Health Check Prozess](#103-health-check-prozess) - `images/10.3_health_check.png`
+- [Abbildung 10.4: Backup & Recovery Prozess](#104-backup--recovery-prozess) - `images/10.4_backup_recovery.png`
 
 ---
 
@@ -105,7 +105,7 @@ Das Mac KI-Service System ist eine persönliche KI-basierte Multimedia-Generieru
 
 ### 3.1 Fachlicher Kontext
 
-![Fachlicher Kontext](3.1_fachlicher_kontext.png)
+![Fachlicher Kontext](images/3.1_fachlicher_kontext.png)
 
 *Abbildung 3.1: Fachlicher Kontext - Überblick über die wichtigsten Akteure und Systeme*
 
@@ -145,7 +145,7 @@ Das Mac KI-Service System ist eine persönliche KI-basierte Multimedia-Generieru
 
 ### 5.1 Systemübersicht
 
-![Systemübersicht](5.1_systemuebersicht.png)
+![Systemübersicht](images/5.1_systemuebersicht.png)
 
 *Abbildung 5.1: Systemübersicht - Architektonische Schichten und Komponenten*
 
@@ -203,13 +203,13 @@ Das Mac KI-Service System ist eine persönliche KI-basierte Multimedia-Generieru
 
 ### 6.1 Bildgenerierung (Synchron)
 
-![Bildgenerierung](6.1_bildgenerierung.png)
+![Bildgenerierung](images/6.1_bildgenerierung.png)
 
 *Abbildung 6.1: Bildgenerierung (Synchron) - Sequenzdiagramm des Bildgenerierungsprozesses*
 
 ### 6.2 Musikgenerierung (Asynchron)
 
-![Musikgenerierung](6.2_musikgenerierung.png)
+![Musikgenerierung](images/6.2_musikgenerierung.png)
 
 *Abbildung 6.2: Musikgenerierung (Asynchron) - Sequenzdiagramm des asynchronen Musikgenerierungsprozesses*
 
@@ -256,7 +256,7 @@ Mac Studio M1 Max (32GB RAM) - IP: 10.0.1.120
 
 ### 7.3 Netzwerk-Architektur
 
-![Netzwerk-Architektur](7.3_netzwerk_architektur.png)
+![Netzwerk-Architektur](images/7.3_netzwerk_architektur.png)
 
 *Abbildung 7.3: Netzwerk-Architektur - Produktionsumgebung mit Docker-Netzwerk und Host-Services*
 
@@ -539,13 +539,13 @@ GET /query/{job_id}
 
 ### 9.1 Entwicklungs-Deployment
 
-![Entwicklungs-Deployment](9.1_entwicklungs_deployment.png)
+![Entwicklungs-Deployment](images/9.1_entwicklungs_deployment.png)
 
 *Abbildung 9.1: Entwicklungs-Deployment - Lokale Entwicklungsumgebung mit Mock-Services*
 
 ### 9.2 Produktions-Deployment
 
-![Produktions-Deployment](9.2_produktions_deployment.png)
+![Produktions-Deployment](images/9.2_produktions_deployment.png)
 
 *Abbildung 9.2: Produktions-Deployment - Vollständige Docker-basierte Produktionsumgebung*
 
@@ -590,25 +590,25 @@ services:
 
 ### 10.1 Song-Generierung Workflow
 
-![Song-Generierung Workflow](10.1_song_generierung_workflow.png)
+![Song-Generierung Workflow](images/10.1_song_generierung_workflow.png)
 
 *Abbildung 10.1: Song-Generierung Workflow - Zustandsdiagramm des kompletten Song-Generierungsprozesses*
 
 ### 10.2 Error Handling & Retry Logic
 
-![Error Handling](10.2_error_handling.png)
+![Error Handling](images/10.2_error_handling.png)
 
 *Abbildung 10.2: Error Handling & Retry Logic - Flussdiagramm der Fehlerbehandlung und Retry-Mechanismen*
 
 ### 10.3 Health Check Prozess
 
-![Health Check Prozess](10.3_health_check.png)
+![Health Check Prozess](images/10.3_health_check.png)
 
 *Abbildung 10.3: Health Check Prozess - Überwachung und Monitoring aller Services*
 
 ### 10.4 Backup & Recovery Prozess
 
-![Backup & Recovery](10.4_backup_recovery.png)
+![Backup & Recovery](images/10.4_backup_recovery.png)
 
 *Abbildung 10.4: Backup & Recovery Prozess - Sicherung und Wiederherstellung der Daten*
 
