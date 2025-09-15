@@ -1,0 +1,28 @@
+<div *ngIf="visible && audioUrl"
+     class="popup-audio-player"
+     [style.left.px]="popupLeft"
+     [style.top.px]="popupTop">
+
+  <div class="player-header"
+       (mousedown)="startDrag($event)"
+       [class.dragging]="isDragging">
+    <h4 class="player-title">{{ songTitle }}</h4>
+    <button type="button"
+            class="close-btn"
+            (click)="close()"
+            (mousedown)="$event.stopPropagation()">
+      <i class="fas fa-times"></i>
+    </button>
+  </div>
+
+  <div class="player-content">
+    <audio #player
+           [src]="audioUrl"
+           controls
+           preload="metadata"
+           (canplaythrough)="onCanPlayThrough()"
+           (ended)="onAudioEnded()"
+           class="popup-audio-control">
+    </audio>
+  </div>
+</div>

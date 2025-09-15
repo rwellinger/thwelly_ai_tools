@@ -188,17 +188,6 @@
                 </div>
             </div>
 
-            <!-- Audio Player -->
-            <div class="audio-wrapper" *ngIf="audioUrl">
-                <audio #player
-                       [src]="audioUrl"
-                       controls
-                       preload="metadata"
-                       (canplaythrough)="onCanPlayThrough()"
-                       (ended)="stopAudio()"
-                       class="enhanced-audio-player">
-                </audio>
-            </div>
 
             <div *ngIf="!selectedSong.choices || selectedSong.choices.length === 0" class="no-choices">
                 <p>No song choices available for this song.</p>
@@ -214,5 +203,14 @@
         <p>{{ loadingMessage }}</p>
     </div>
 </div>
+
+<!-- Popup Audio Player -->
+<app-popup-audio-player
+  [visible]="showPopupPlayer"
+  [audioUrl]="audioUrl"
+  [songTitle]="currentSongTitle"
+  (onClose)="onPopupPlayerClose()"
+  (onEnded)="onPopupPlayerEnded()">
+</app-popup-audio-player>
 
 <app-footer></app-footer>
