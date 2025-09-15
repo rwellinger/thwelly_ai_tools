@@ -1,0 +1,29 @@
+graph TB
+    subgraph "External Network"
+        CLIENT[Browser Client]
+    end
+
+    subgraph "Mac Studio Production (10.0.1.120)"
+        subgraph "Docker Network: webui-network"
+            NGINX[Nginx Proxy<br/>:80, :443]
+            API[AI Proxy Server<br/>:5050]
+            WORKER[Celery Worker]
+            PG[PostgreSQL<br/>:5432]
+            REDIS[Redis<br/>:6379]
+        end
+
+        subgraph "Host Services"
+            OLLAMA[Ollama<br/>:11434]
+            WEBUI[Open WebUI<br/>:8080]
+        end
+    end
+
+    CLIENT -->|HTTPS| NGINX
+    NGINX -->|/aiwebui/| NGINX
+    NGINX -->|/api/v1/| API
+    NGINX -->|/| WEBUI
+
+    API --> PG
+    API --> REDIS
+    WORKER --> REDIS
+    WORKER --> PG

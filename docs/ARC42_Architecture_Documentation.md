@@ -1,5 +1,68 @@
 # ARC42 Architektur Dokumentation - Mac KI Service
 
+## Inhaltsverzeichnis
+
+1. [Einführung und Ziele](#1-einführung-und-ziele)
+   - [1.1 Aufgabenstellung](#11-aufgabenstellung)
+   - [1.2 Qualitätsziele](#12-qualitätsziele)
+   - [1.3 Stakeholder](#13-stakeholder)
+2. [Randbedingungen](#2-randbedingungen)
+   - [2.1 Technische Randbedingungen](#21-technische-randbedingungen)
+   - [2.2 Organisatorische Randbedingungen](#22-organisatorische-randbedingungen)
+3. [Kontextabgrenzung](#3-kontextabgrenzung)
+   - [3.1 Fachlicher Kontext](#31-fachlicher-kontext)
+   - [3.2 Technischer Kontext](#32-technischer-kontext)
+4. [Lösungsstrategie](#4-lösungsstrategie)
+   - [4.1 Architekturansatz](#41-architekturansatz)
+   - [4.2 Technologie-Stack](#42-technologie-stack)
+5. [Bausteinsicht](#5-bausteinsicht)
+   - [5.1 Systemübersicht](#51-systemübersicht)
+   - [5.2 Komponenten-Details](#52-komponenten-details)
+6. [Laufzeitsicht](#6-laufzeitsicht)
+   - [6.1 Bildgenerierung (Synchron)](#61-bildgenerierung-synchron)
+   - [6.2 Musikgenerierung (Asynchron)](#62-musikgenerierung-asynchron)
+7. [Verteilungssicht](#7-verteilungssicht)
+   - [7.1 Entwicklungsumgebung](#71-entwicklungsumgebung)
+   - [7.2 Produktionsumgebung](#72-produktionsumgebung)
+   - [7.3 Netzwerk-Architektur](#73-netzwerk-architektur)
+8. [API Dokumentation](#8-api-dokumentation)
+   - [8.1 Basis-Konfiguration](#81-basis-konfiguration)
+   - [8.2 Image API](#82-image-api-apiv1image)
+   - [8.3 Song API](#83-song-api-apiv1song)
+   - [8.4 Task Management API](#84-task-management-api-apiv1songtask)
+   - [8.5 Redis Management API](#85-redis-management-api-apiv1redis)
+   - [8.6 AI Test Mock API](#86-ai-test-mock-api-aitestmock---developmenttesting)
+9. [Deployment-Grafik](#9-deployment-grafik)
+   - [9.1 Entwicklungs-Deployment](#91-entwicklungs-deployment)
+   - [9.2 Produktions-Deployment](#92-produktions-deployment)
+   - [9.3 Container-Orchestrierung](#93-container-orchestrierung)
+10. [Wichtigste Prozesse](#10-wichtigste-prozesse)
+    - [10.1 Song-Generierung Workflow](#101-song-generierung-workflow)
+    - [10.2 Error Handling & Retry Logic](#102-error-handling--retry-logic)
+    - [10.3 Health Check Prozess](#103-health-check-prozess)
+    - [10.4 Backup & Recovery Prozess](#104-backup--recovery-prozess)
+11. [Qualitätsanforderungen](#11-qualitätsanforderungen)
+    - [11.1 Performance](#111-performance)
+    - [11.2 Security](#112-security)
+    - [11.3 Monitoring](#113-monitoring)
+12. [Glossar](#12-glossar)
+
+## Abbildungsverzeichnis
+
+- [Abbildung 3.1: Fachlicher Kontext](#31-fachlicher-kontext) - `3.1_fachlicher_kontext.png`
+- [Abbildung 5.1: Systemübersicht](#51-systemübersicht) - `5.1_systemuebersicht.png`
+- [Abbildung 6.1: Bildgenerierung (Synchron)](#61-bildgenerierung-synchron) - `6.1_bildgenerierung.png`
+- [Abbildung 6.2: Musikgenerierung (Asynchron)](#62-musikgenerierung-asynchron) - `6.2_musikgenerierung.png`
+- [Abbildung 7.3: Netzwerk-Architektur](#73-netzwerk-architektur) - `7.3_netzwerk_architektur.png`
+- [Abbildung 9.1: Entwicklungs-Deployment](#91-entwicklungs-deployment) - `9.1_entwicklungs_deployment.png`
+- [Abbildung 9.2: Produktions-Deployment](#92-produktions-deployment) - `9.2_produktions_deployment.png`
+- [Abbildung 10.1: Song-Generierung Workflow](#101-song-generierung-workflow) - `10.1_song_generierung_workflow.png`
+- [Abbildung 10.2: Error Handling & Retry Logic](#102-error-handling--retry-logic) - `10.2_error_handling.png`
+- [Abbildung 10.3: Health Check Prozess](#103-health-check-prozess) - `10.3_health_check.png`
+- [Abbildung 10.4: Backup & Recovery Prozess](#104-backup--recovery-prozess) - `10.4_backup_recovery.png`
+
+---
+
 ## 1. Einführung und Ziele
 
 ### 1.1 Aufgabenstellung
@@ -42,18 +105,9 @@ Das Mac KI-Service System ist eine persönliche KI-basierte Multimedia-Generieru
 
 ### 3.1 Fachlicher Kontext
 
-```mermaid
-graph TB
-    User[Rob - Benutzer] --> WebUI[Angular WebUI]
-    WebUI --> AIProxy[AI Proxy Server]
-    AIProxy --> OpenAI[OpenAI DALL-E 3 API]
-    AIProxy --> Mureka[Mureka Song API]
-    AIProxy -.->|Development/Testing| MockServer[AI Test Mock Server]
-    AIProxy --> DB[(PostgreSQL Database)]
-    AIProxy --> Redis[(Redis Cache/Queue)]
+![Fachlicher Kontext](3.1_fachlicher_kontext.png)
 
-    style MockServer fill:#f1f8e9,stroke:#4caf50,stroke-dasharray: 5 5
-```
+*Abbildung 3.1: Fachlicher Kontext - Überblick über die wichtigsten Akteure und Systeme*
 
 ### 3.2 Technischer Kontext
 
@@ -91,55 +145,9 @@ graph TB
 
 ### 5.1 Systemübersicht
 
-```mermaid
-graph TB
-    subgraph "Frontend Layer"
-        UI[Angular WebUI]
-    end
-    
-    subgraph "API Layer"
-        Proxy[Nginx Reverse Proxy]
-        API[Flask API Server]
-    end
-    
-    subgraph "Service Layer"
-        IMG[Image Controller]
-        SONG[Song Controller]
-        REDIS[Redis Controller]
-    end
-    
-    subgraph "Processing Layer"
-        CELERY[Celery Worker]
-        MUREKA[Mureka Handler]
-    end
-    
-    subgraph "Data Layer"
-        PG[(PostgreSQL)]
-        RD[(Redis)]
-        FILES[File Storage]
-    end
-    
-    subgraph "External APIs"
-        OPENAI[OpenAI DALL-E 3]
-        MRK[Mureka API]
-    end
-    
-    UI --> Proxy
-    Proxy --> API
-    API --> IMG
-    API --> SONG
-    API --> REDIS
-    
-    IMG --> OPENAI
-    SONG --> CELERY
-    CELERY --> MUREKA
-    MUREKA --> MRK
-    
-    API --> PG
-    API --> RD
-    CELERY --> RD
-    IMG --> FILES
-```
+![Systemübersicht](5.1_systemuebersicht.png)
+
+*Abbildung 5.1: Systemübersicht - Architektonische Schichten und Komponenten*
 
 ### 5.2 Komponenten-Details
 
@@ -195,65 +203,15 @@ graph TB
 
 ### 6.1 Bildgenerierung (Synchron)
 
-```mermaid
-sequenceDiagram
-    participant User
-    participant WebUI
-    participant API
-    participant OpenAI
-    participant DB
-    participant Files
+![Bildgenerierung](6.1_bildgenerierung.png)
 
-    User->>WebUI: Eingabe Prompt + Größe
-    WebUI->>API: POST /api/v1/image/generate
-    API->>OpenAI: DALL-E 3 API Call
-    OpenAI-->>API: Generated Image URL
-    API->>Files: Download & Store Image
-    API->>DB: Save Metadata
-    API-->>WebUI: Response mit lokaler URL
-    WebUI-->>User: Anzeige Bild
-```
+*Abbildung 6.1: Bildgenerierung (Synchron) - Sequenzdiagramm des Bildgenerierungsprozesses*
 
 ### 6.2 Musikgenerierung (Asynchron)
 
-```mermaid
-sequenceDiagram
-    participant User
-    participant WebUI
-    participant API
-    participant Celery
-    participant Mureka
-    participant DB
-    participant Redis
+![Musikgenerierung](6.2_musikgenerierung.png)
 
-    User->>WebUI: Eingabe Lyrics + Style
-    WebUI->>API: POST /api/v1/song/generate
-    API->>Celery: Queue Task
-    API->>DB: Create Song Record (PENDING)
-    API-->>WebUI: Task ID
-    WebUI-->>User: "Generation gestartet"
-    
-    Celery->>Mureka: Start Generation
-    Mureka-->>Celery: Job ID
-    Celery->>DB: Update Song (PROGRESS)
-    Celery->>Redis: Store Progress
-    
-    loop Poll Status
-        Celery->>Mureka: Check Status
-        Mureka-->>Celery: Status Update
-        Celery->>DB: Update Progress
-    end
-    
-    Mureka-->>Celery: Generation Complete
-    Celery->>DB: Update Song (SUCCESS)
-    Celery->>DB: Save Song Choices
-    
-    User->>WebUI: Refresh Song List
-    WebUI->>API: GET /api/v1/song/list
-    API->>DB: Query Songs
-    API-->>WebUI: Song Data
-    WebUI-->>User: Anzeige fertige Songs
-```
+*Abbildung 6.2: Musikgenerierung (Asynchron) - Sequenzdiagramm des asynchronen Musikgenerierungsprozesses*
 
 ---
 
@@ -298,37 +256,9 @@ Mac Studio M1 Max (32GB RAM) - IP: 10.0.1.120
 
 ### 7.3 Netzwerk-Architektur
 
-```mermaid
-graph TB
-    subgraph "External Network"
-        CLIENT[Browser Client]
-    end
-    
-    subgraph "Mac Studio Production (10.0.1.120)"
-        subgraph "Docker Network: webui-network"
-            NGINX[Nginx Proxy<br/>:80, :443]
-            API[AI Proxy Server<br/>:5050]
-            WORKER[Celery Worker]
-            PG[PostgreSQL<br/>:5432]
-            REDIS[Redis<br/>:6379]
-        end
-        
-        subgraph "Host Services"
-            OLLAMA[Ollama<br/>:11434]
-            WEBUI[Open WebUI<br/>:8080]
-        end
-    end
-    
-    CLIENT -->|HTTPS| NGINX
-    NGINX -->|/aiwebui/| NGINX
-    NGINX -->|/api/v1/| API
-    NGINX -->|/| WEBUI
-    
-    API --> PG
-    API --> REDIS
-    WORKER --> REDIS
-    WORKER --> PG
-```
+![Netzwerk-Architektur](7.3_netzwerk_architektur.png)
+
+*Abbildung 7.3: Netzwerk-Architektur - Produktionsumgebung mit Docker-Netzwerk und Host-Services*
 
 ---
 
@@ -609,116 +539,15 @@ GET /query/{job_id}
 
 ### 9.1 Entwicklungs-Deployment
 
-```mermaid
-graph TB
-    subgraph "MacBook Air M4 - Development"
-        subgraph "Host Environment"
-            PYCHARM[PyCharm Pro ARM64]
-            PYTHON[Python miniconda3<br/>mac_ki_service env]
-        end
+![Entwicklungs-Deployment](9.1_entwicklungs_deployment.png)
 
-        subgraph "Docker colima"
-            DEV_PG[(PostgreSQL:5432)]
-        end
-
-        subgraph "Local Services"
-            FLASK[Flask Dev Server<br/>server.py:5050]
-            CELERY_DEV[Celery Worker<br/>worker.py]
-            ANGULAR[Angular Dev<br/>ng serve:4200]
-            MOCK[AI Test Mock<br/>aitestmock:8000]
-        end
-
-        subgraph "Mock External APIs (Cost Reduction)"
-            MOCK_OPENAI[Mock OpenAI<br/>DALL-E 3]
-            MOCK_MUREKA[Mock Mureka<br/>Song Generation]
-        end
-    end
-
-    PYCHARM --> PYTHON
-    PYTHON --> FLASK
-    PYTHON --> CELERY_DEV
-    FLASK --> DEV_PG
-    CELERY_DEV --> DEV_PG
-
-    FLASK -.->|Optional| MOCK
-    CELERY_DEV -.->|Optional| MOCK
-    MOCK --> MOCK_OPENAI
-    MOCK --> MOCK_MUREKA
-
-    style PYCHARM fill:#e1f5fe
-    style PYTHON fill:#f3e5f5
-    style FLASK fill:#e8f5e8
-    style CELERY_DEV fill:#fff3e0
-    style ANGULAR fill:#ffebee
-    style MOCK fill:#f1f8e9
-    style MOCK_OPENAI fill:#fff8e1
-    style MOCK_MUREKA fill:#fff8e1
-```
+*Abbildung 9.1: Entwicklungs-Deployment - Lokale Entwicklungsumgebung mit Mock-Services*
 
 ### 9.2 Produktions-Deployment
 
-```mermaid
-graph TB
-    subgraph "Mac Studio M1 Max - Production (10.0.1.120)"
-        subgraph "Docker Network: webui-network"
-            NGINX[Nginx Reverse Proxy<br/>forward-proxy<br/>:80,:443]
-            
-            subgraph "API Stack"
-                API_CONTAINER[AI Proxy Server<br/>aiproxysrv<br/>:5050]
-                WORKER_CONTAINER[Celery Worker<br/>celery-worker]
-            end
-            
-            subgraph "Data Stack"
-                PROD_PG[(PostgreSQL 15<br/>postgres<br/>:5432)]
-                PROD_REDIS[(Redis Alpine<br/>redis<br/>:6379)]
-            end
-        end
-        
-        subgraph "Host Services (Native)"
-            OLLAMA_HOST[Ollama<br/>:11434]
-            WEBUI_HOST[Open WebUI<br/>webui:8080]
-        end
-        
-        subgraph "Docker Volumes"
-            PG_VOL[postgres-data]
-            REDIS_VOL[redis-data]
-            IMG_VOL[images-data]
-        end
-        
-        subgraph "Static Files"
-            STATIC[/usr/share/nginx/html/<br/>aiwebui/]
-        end
-    end
-    
-    subgraph "External Services"
-        OPENAI_EXT[OpenAI API<br/>DALL-E 3]
-        MUREKA_EXT[Mureka API<br/>Song Generation]
-    end
-    
-    NGINX --> API_CONTAINER
-    NGINX --> WEBUI_HOST
-    NGINX --> STATIC
-    
-    API_CONTAINER --> PROD_PG
-    API_CONTAINER --> PROD_REDIS
-    API_CONTAINER --> OPENAI_EXT
-    
-    WORKER_CONTAINER --> PROD_REDIS
-    WORKER_CONTAINER --> PROD_PG
-    WORKER_CONTAINER --> MUREKA_EXT
-    
-    PROD_PG --> PG_VOL
-    PROD_REDIS --> REDIS_VOL
-    API_CONTAINER --> IMG_VOL
-    
-    style NGINX fill:#e3f2fd
-    style API_CONTAINER fill:#e8f5e8
-    style WORKER_CONTAINER fill:#fff3e0
-    style PROD_PG fill:#fce4ec
-    style PROD_REDIS fill:#ffebee
-    style OLLAMA_HOST fill:#f3e5f5
-    style WEBUI_HOST fill:#e1f5fe
-```
+![Produktions-Deployment](9.2_produktions_deployment.png)
+
+*Abbildung 9.2: Produktions-Deployment - Vollständige Docker-basierte Produktionsumgebung*
 
 ### 9.3 Container-Orchestrierung
 
@@ -761,99 +590,27 @@ services:
 
 ### 10.1 Song-Generierung Workflow
 
-```mermaid
-stateDiagram-v2
-    [*] --> UserInput
-    UserInput --> TaskCreated : POST /song/generate
-    TaskCreated --> QueuedInCelery : Celery Task Start
-    QueuedInCelery --> MurekaJobStart : Call Mureka API
-    MurekaJobStart --> WaitingForGeneration : Job Submitted
-    WaitingForGeneration --> PollingStatus : Check Status Loop
-    PollingStatus --> WaitingForGeneration : Still Processing
-    PollingStatus --> GenerationComplete : Success
-    PollingStatus --> GenerationFailed : Error
-    GenerationComplete --> SongChoicesReady : Parse Results
-    SongChoicesReady --> DatabaseUpdate : Store Song Data
-    DatabaseUpdate --> UserNotified : Task Complete
-    UserNotified --> [*]
-    GenerationFailed --> [*]
-```
+![Song-Generierung Workflow](10.1_song_generierung_workflow.png)
+
+*Abbildung 10.1: Song-Generierung Workflow - Zustandsdiagramm des kompletten Song-Generierungsprozesses*
 
 ### 10.2 Error Handling & Retry Logic
 
-```mermaid
-flowchart TD
-    START([API Request]) --> TRY[Try Operation]
-    TRY --> SUCCESS{Success?}
-    SUCCESS -->|Yes| LOG_SUCCESS[Log Success]
-    SUCCESS -->|No| ERROR_TYPE{Error Type?}
-    
-    ERROR_TYPE -->|Network Error| RETRY_CHECK{Retries < 3?}
-    ERROR_TYPE -->|API Rate Limit| WAIT[Wait + Retry]
-    ERROR_TYPE -->|Invalid Input| REJECT[Return 400 Error]
-    ERROR_TYPE -->|Server Error| LOG_ERROR[Log Error]
-    
-    RETRY_CHECK -->|Yes| WAIT_RETRY[Wait 5s]
-    RETRY_CHECK -->|No| GIVE_UP[Return 500 Error]
-    
-    WAIT_RETRY --> TRY
-    WAIT --> TRY
-    LOG_ERROR --> RETURN_500[Return 500 Error]
-    
-    LOG_SUCCESS --> RETURN_SUCCESS[Return Success Response]
-    REJECT --> END([End])
-    GIVE_UP --> END
-    RETURN_500 --> END
-    RETURN_SUCCESS --> END
-```
+![Error Handling](10.2_error_handling.png)
+
+*Abbildung 10.2: Error Handling & Retry Logic - Flussdiagramm der Fehlerbehandlung und Retry-Mechanismen*
 
 ### 10.3 Health Check Prozess
 
-```mermaid
-sequenceDiagram
-    participant Monitor
-    participant Nginx
-    participant API
-    participant DB
-    participant Redis
-    participant Celery
+![Health Check Prozess](10.3_health_check.png)
 
-    loop Every 30s
-        Monitor->>Nginx: GET /nginx_status
-        Nginx-->>Monitor: 200 OK
-        
-        Monitor->>API: GET /api/v1/health
-        API->>DB: SELECT 1
-        DB-->>API: OK
-        API->>Redis: PING
-        Redis-->>API: PONG
-        API-->>Monitor: 200 OK
-        
-        Monitor->>Celery: celery inspect ping
-        Celery-->>Monitor: pong
-    end
-    
-    alt Service Down
-        Monitor->>Monitor: Log Alert
-        Monitor->>Monitor: Restart Container
-    end
-```
+*Abbildung 10.3: Health Check Prozess - Überwachung und Monitoring aller Services*
 
 ### 10.4 Backup & Recovery Prozess
 
-```mermaid
-flowchart TD
-    SCHEDULE[Cron Schedule] --> DUMP_DB[pg_dump postgres]
-    DUMP_DB --> COMPRESS[gzip backup]
-    COMPRESS --> STORE_LOCAL[Store in /backups]
-    STORE_LOCAL --> CLEANUP[Delete old backups >7d]
-    
-    DISASTER([System Failure]) --> RESTORE_START[Start Recovery]
-    RESTORE_START --> RESTORE_DATA[Restore postgres-data volume]
-    RESTORE_DATA --> START_SERVICES[docker-compose up]
-    START_SERVICES --> VERIFY[Health Checks]
-    VERIFY --> COMPLETE([Recovery Complete])
-```
+![Backup & Recovery](10.4_backup_recovery.png)
+
+*Abbildung 10.4: Backup & Recovery Prozess - Sicherung und Wiederherstellung der Daten*
 
 ---
 

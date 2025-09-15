@@ -1,0 +1,15 @@
+stateDiagram-v2
+    [*] --> UserInput
+    UserInput --> TaskCreated : POST /song/generate
+    TaskCreated --> QueuedInCelery : Celery Task Start
+    QueuedInCelery --> MurekaJobStart : Call Mureka API
+    MurekaJobStart --> WaitingForGeneration : Job Submitted
+    WaitingForGeneration --> PollingStatus : Check Status Loop
+    PollingStatus --> WaitingForGeneration : Still Processing
+    PollingStatus --> GenerationComplete : Success
+    PollingStatus --> GenerationFailed : Error
+    GenerationComplete --> SongChoicesReady : Parse Results
+    SongChoicesReady --> DatabaseUpdate : Store Song Data
+    DatabaseUpdate --> UserNotified : Task Complete
+    UserNotified --> [*]
+    GenerationFailed --> [*]

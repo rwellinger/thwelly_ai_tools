@@ -1,0 +1,36 @@
+sequenceDiagram
+    participant User
+    participant WebUI
+    participant API
+    participant Celery
+    participant Mureka
+    participant DB
+    participant Redis
+
+    User->>WebUI: Eingabe Lyrics + Style
+    WebUI->>API: POST /api/v1/song/generate
+    API->>Celery: Queue Task
+    API->>DB: Create Song Record (PENDING)
+    API-->>WebUI: Task ID
+    WebUI-->>User: "Generation gestartet"
+
+    Celery->>Mureka: Start Generation
+    Mureka-->>Celery: Job ID
+    Celery->>DB: Update Song (PROGRESS)
+    Celery->>Redis: Store Progress
+
+    loop Poll Status
+        Celery->>Mureka: Check Status
+        Mureka-->>Celery: Status Update
+        Celery->>DB: Update Progress
+    end
+
+    Mureka-->>Celery: Generation Complete
+    Celery->>DB: Update Song (SUCCESS)
+    Celery->>DB: Save Song Choices
+
+    User->>WebUI: Refresh Song List
+    WebUI->>API: GET /api/v1/song/list
+    API->>DB: Query Songs
+    API-->>WebUI: Song Data
+    WebUI-->>User: Anzeige fertige Songs

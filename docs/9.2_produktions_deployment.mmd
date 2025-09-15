@@ -1,0 +1,60 @@
+graph TB
+    subgraph "Mac Studio M1 Max - Production (10.0.1.120)"
+        subgraph "Docker Network: webui-network"
+            NGINX[Nginx Reverse Proxy<br/>forward-proxy<br/>:80,:443]
+
+            subgraph "API Stack"
+                API_CONTAINER[AI Proxy Server<br/>aiproxysrv<br/>:5050]
+                WORKER_CONTAINER[Celery Worker<br/>celery-worker]
+            end
+
+            subgraph "Data Stack"
+                PROD_PG[(PostgreSQL 15<br/>postgres<br/>:5432)]
+                PROD_REDIS[(Redis Alpine<br/>redis<br/>:6379)]
+            end
+        end
+
+        subgraph "Host Services (Native)"
+            OLLAMA_HOST[Ollama<br/>:11434]
+            WEBUI_HOST[Open WebUI<br/>webui:8080]
+        end
+
+        subgraph "Docker Volumes"
+            PG_VOL[postgres-data]
+            REDIS_VOL[redis-data]
+            IMG_VOL[images-data]
+        end
+
+        subgraph "Static Files"
+            STATIC[/usr/share/nginx/html/<br/>aiwebui/]
+        end
+    end
+
+    subgraph "External Services"
+        OPENAI_EXT[OpenAI API<br/>DALL-E 3]
+        MUREKA_EXT[Mureka API<br/>Song Generation]
+    end
+
+    NGINX --> API_CONTAINER
+    NGINX --> WEBUI_HOST
+    NGINX --> STATIC
+
+    API_CONTAINER --> PROD_PG
+    API_CONTAINER --> PROD_REDIS
+    API_CONTAINER --> OPENAI_EXT
+
+    WORKER_CONTAINER --> PROD_REDIS
+    WORKER_CONTAINER --> PROD_PG
+    WORKER_CONTAINER --> MUREKA_EXT
+
+    PROD_PG --> PG_VOL
+    PROD_REDIS --> REDIS_VOL
+    API_CONTAINER --> IMG_VOL
+
+    style NGINX fill:#e3f2fd
+    style API_CONTAINER fill:#e8f5e8
+    style WORKER_CONTAINER fill:#fff3e0
+    style PROD_PG fill:#fce4ec
+    style PROD_REDIS fill:#ffebee
+    style OLLAMA_HOST fill:#f3e5f5
+    style WEBUI_HOST fill:#e1f5fe

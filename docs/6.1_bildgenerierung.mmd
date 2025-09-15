@@ -1,0 +1,16 @@
+sequenceDiagram
+    participant User
+    participant WebUI
+    participant API
+    participant OpenAI
+    participant DB
+    participant Files
+
+    User->>WebUI: Eingabe Prompt + Größe
+    WebUI->>API: POST /api/v1/image/generate
+    API->>OpenAI: DALL-E 3 API Call
+    OpenAI-->>API: Generated Image URL
+    API->>Files: Download & Store Image
+    API->>DB: Save Metadata
+    API-->>WebUI: Response mit lokaler URL
+    WebUI-->>User: Anzeige Bild
