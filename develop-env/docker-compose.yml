@@ -1,0 +1,43 @@
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: postgres
+    restart: unless-stopped
+    ports:
+      - "5432:5432"
+    env_file: .env
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    networks:
+      - webui-net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U aiproxy -d aiproxysrv"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  redis:
+    image: redis:alpine
+    container_name: redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    networks:
+      - webui-net
+    command: redis-server --appendonly yes
+    healthcheck:
+        test: ["CMD", "redis-cli", "ping"]
+        interval: 10s
+        timeout: 5s
+        retries: 3
+
+volumes:
+  postgres-data:
+  redis-data:
+
+networks:
+  webui-net:
+    external: true
+    name: webui-network

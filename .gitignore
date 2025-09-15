@@ -7,6 +7,7 @@ package.json
 node_modules
 __pycache__
 *.bak
+/docs/ARC42_Architecture_Documentation.pdf
 aiproxysrv/images
 aiproxysrv/backup
 aiproxysrv/alembic.ini
