@@ -40,10 +40,10 @@ export class ImageViewComponent implements OnInit {
   isLoading = false;
   loadingMessage = '';
   currentPage = 0;
-  pageSize = 20;
+  pageSize = 50;
   pagination: PaginationInfo = {
     has_more: false,
-    limit: 20,
+    limit: 50,
     offset: 0,
     total: 0
   };
@@ -51,6 +51,9 @@ export class ImageViewComponent implements OnInit {
   // Search and sort
   searchTerm: string = '';
   sortDirection: 'asc' | 'desc' = 'desc';
+
+  // Modal state
+  showImageModal = false;
 
   constructor(
     private apiConfig: ApiConfigService,
@@ -257,6 +260,14 @@ export class ImageViewComponent implements OnInit {
   toggleSort() {
     this.sortDirection = this.sortDirection === 'desc' ? 'asc' : 'desc';
     this.applyFilterAndSort();
+  }
+
+  openImageModal() {
+    this.showImageModal = true;
+  }
+
+  closeImageModal() {
+    this.showImageModal = false;
   }
 
   protected readonly Math = Math;

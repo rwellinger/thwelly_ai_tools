@@ -23,7 +23,7 @@ export class SongViewComponent implements OnInit {
   selectedSong: any = null;
   pagination: any = {
     total: 0,
-    limit: 20,
+    limit: 50,
     offset: 0,
     has_more: false
   };
@@ -36,6 +36,9 @@ export class SongViewComponent implements OnInit {
   isLoading = false;
   isLoadingSongs = false;
   loadingMessage = '';
+
+  // Keep consistent pagination - show more items
+  itemsPerPage = 50;
 
   // Audio and features
   currentlyPlaying: string | null = null;
