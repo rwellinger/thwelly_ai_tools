@@ -3,7 +3,7 @@
 ## 1. Einführung und Ziele
 
 ### 1.1 Aufgabenstellung
-Das Mac KI Service System ist eine persönliche KI-basierte Multimedia-Generierungsplattform, die folgende Hauptfunktionen bietet:
+Das Mac KI-Service System ist eine persönliche KI-basierte Multimedia-Generierungsplattform, die folgende Hauptfunktionen bietet:
 - **Bildgenerierung** via DALL-E 3 (OpenAI API)
 - **Musikgenerierung** via Mureka API
 - **Asynchrone Verarbeitung** für zeitaufwendige Generierungsprozesse
@@ -48,8 +48,11 @@ graph TB
     WebUI --> AIProxy[AI Proxy Server]
     AIProxy --> OpenAI[OpenAI DALL-E 3 API]
     AIProxy --> Mureka[Mureka Song API]
+    AIProxy -.->|Development/Testing| MockServer[AI Test Mock Server]
     AIProxy --> DB[(PostgreSQL Database)]
     AIProxy --> Redis[(Redis Cache/Queue)]
+
+    style MockServer fill:#f1f8e9,stroke:#4caf50,stroke-dasharray: 5 5
 ```
 
 ### 3.2 Technischer Kontext
@@ -57,6 +60,7 @@ graph TB
 **Externe Schnittstellen:**
 - **OpenAI API**: DALL-E 3 für Bildgenerierung (HTTPS/REST)
 - **Mureka API**: Musikgenerierung (HTTPS/REST)
+- **AI Test Mock**: Mock-Server für Development/Testing (HTTP/REST) - Kostensenkung
 
 **Interne Schnittstellen:**
 - **Frontend ↔ Backend**: REST API (JSON über HTTPS)
@@ -163,7 +167,21 @@ graph TB
   └── alembic/       # DB Migrations
   ```
 
-#### 5.2.3 revproxy (Nginx)
+#### 5.2.3 aitestmock (Test Mock Server)
+- **Technologie**: Python Flask
+- **Zweck**: Mock-Server für OpenAI und Mureka APIs zur Kostensenkung in Entwicklung/Testing
+- **Struktur**:
+  ```
+  src/           # Source Code
+  data/          # JSON Response Templates
+  static/        # Mock Images, Audio Files (FLAC/MP3/ZIP)
+  ```
+- **Test-Szenarien**:
+  - **Bildgenerierung**: Prompt mit "0001" → Success, "0002" → Invalid Token Error
+  - **Song-Generierung**: Lyrics mit "0001" → Success, "0002" → Invalid Token, "0003" → Generation Failed
+  - **Timing**: Style-Prompt "30s" → 30 Sekunden Sync Duration
+
+#### 5.2.4 revproxy (Nginx)
 - **Technologie**: Nginx 1.23.3
 - **Funktionen**:
   - HTTPS Terminierung (TLS 1.3)
@@ -249,10 +267,13 @@ MacBook Air M4 (32GB RAM)
 ├── Python miniconda3 (mac_ki_service env)
 ├── Docker colima
 │   └── PostgreSQL Container (Port 5432)
-└── Local Services
-    ├── Flask Dev Server (server.py)
-    ├── Celery Worker (worker.py)
-    └── Angular Dev Server (ng serve)
+├── Local Services
+│   ├── Flask Dev Server (server.py)
+│   ├── Celery Worker (worker.py)
+│   ├── Angular Dev Server (ng serve)
+│   └── AI Test Mock Server (aitestmock) - Optional für Kostensenkung
+└── Configuration
+    └── .env Dateien mit Mock-API URLs statt echter OpenAI/Mureka APIs
 ```
 
 ### 7.2 Produktionsumgebung
@@ -497,6 +518,91 @@ GET /api/v1/redis/list/keys
 DELETE /api/v1/redis/{task_id}
 ```
 
+### 8.6 AI Test Mock API (`aitestmock` - Development/Testing)
+
+#### 8.6.1 Mock Server Configuration
+```http
+Base URL: http://localhost:8000 (Development)
+Content-Type: application/json
+```
+
+**Zweck**: Ersetzt OpenAI und Mureka APIs in der Entwicklung um Kosten zu sparen
+
+#### 8.6.2 Mock Image Generation
+```http
+POST /v1/images/generations
+Content-Type: application/json
+
+{
+    "prompt": "A test image 0001",
+    "size": "1024x1024"
+}
+```
+
+**Test-Szenarien:**
+- Prompt enthält `"0001"` → 200 OK mit Mock-Bild
+- Prompt enthält `"0002"` → 401 Invalid Bearer Token Error
+
+**Response:**
+```json
+{
+    "created": 1234567890,
+    "data": [
+        {
+            "url": "http://localhost:8000/static/images/test_image_0001.png"
+        }
+    ]
+}
+```
+
+#### 8.6.3 Mock Song Generation
+```http
+POST /generate
+Content-Type: application/json
+
+{
+    "lyrics": "Test lyrics 0001",
+    "prompt": "acoustic folk 30s",
+    "model": "chirp-v3-5"
+}
+```
+
+**Test-Szenarien:**
+- Lyrics enthalten `"0001"` → 200 OK
+- Lyrics enthalten `"0002"` → 401 Invalid Bearer Token
+- Lyrics enthalten `"0003"` → 500 Song Generation Failed
+- Style-Prompt `"30s"` → 30 Sekunden Sync Duration
+
+**Response:**
+```json
+{
+    "id": "mock_job_12345",
+    "status": "queued"
+}
+```
+
+#### 8.6.4 Mock Song Status Query
+```http
+GET /query/{job_id}
+```
+
+**Response:**
+```json
+{
+    "id": "mock_job_12345",
+    "status": "complete",
+    "choices": [
+        {
+            "id": "choice_001",
+            "song_name": "Test Song",
+            "audio_url": "http://localhost:8000/static/audio/test_song.mp3",
+            "duration": 30000,
+            "tags": "acoustic, folk, test"
+        }
+    ]
+}
+```
+
 ---
 
 ## 9. Deployment-Grafik
@@ -510,29 +616,43 @@ graph TB
             PYCHARM[PyCharm Pro ARM64]
             PYTHON[Python miniconda3<br/>mac_ki_service env]
         end
-        
+
         subgraph "Docker colima"
             DEV_PG[(PostgreSQL:5432)]
         end
-        
+
         subgraph "Local Services"
             FLASK[Flask Dev Server<br/>server.py:5050]
             CELERY_DEV[Celery Worker<br/>worker.py]
             ANGULAR[Angular Dev<br/>ng serve:4200]
+            MOCK[AI Test Mock<br/>aitestmock:8000]
+        end
+
+        subgraph "Mock External APIs (Cost Reduction)"
+            MOCK_OPENAI[Mock OpenAI<br/>DALL-E 3]
+            MOCK_MUREKA[Mock Mureka<br/>Song Generation]
         end
     end
-    
+
     PYCHARM --> PYTHON
     PYTHON --> FLASK
     PYTHON --> CELERY_DEV
     FLASK --> DEV_PG
     CELERY_DEV --> DEV_PG
-    
+
+    FLASK -.->|Optional| MOCK
+    CELERY_DEV -.->|Optional| MOCK
+    MOCK --> MOCK_OPENAI
+    MOCK --> MOCK_MUREKA
+
     style PYCHARM fill:#e1f5fe
     style PYTHON fill:#f3e5f5
     style FLASK fill:#e8f5e8
     style CELERY_DEV fill:#fff3e0
     style ANGULAR fill:#ffebee
+    style MOCK fill:#f1f8e9
+    style MOCK_OPENAI fill:#fff8e1
+    style MOCK_MUREKA fill:#fff8e1
 ```
 
 ### 9.2 Produktions-Deployment
@@ -725,7 +845,7 @@ sequenceDiagram
 flowchart TD
     SCHEDULE[Cron Schedule] --> DUMP_DB[pg_dump postgres]
     DUMP_DB --> COMPRESS[gzip backup]
-    COMPRESS --> STORE_LOCAL[Store in /backups/]
+    COMPRESS --> STORE_LOCAL[Store in /backups]
     STORE_LOCAL --> CLEANUP[Delete old backups >7d]
     
     DISASTER([System Failure]) --> RESTORE_START[Start Recovery]
@@ -770,6 +890,7 @@ flowchart TD
 | **Task ID** | Celery Task Identifier für Async Operations |
 | **Job ID** | Mureka Job Identifier für Song Generation |
 | **Choice** | Einzelne Musikvariante von Mureka (meist 2 pro Generation) |
+| **aitestmock** | Mock-Server für OpenAI und Mureka APIs zur Kostensenkung in Development/Testing |
 
 ---
 
