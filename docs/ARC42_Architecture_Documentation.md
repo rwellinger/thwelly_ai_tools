@@ -10,12 +10,12 @@ Das Mac KI-Service System ist eine persönliche KI-basierte Multimedia-Generieru
 - **Web-basierte Benutzeroberfläche** für einfache Bedienung
 
 ### 1.2 Qualitätsziele
-| Priorität | Qualitätsziel | Motivation |
-|-----------|---------------|------------|
-| 1 | **Verfügbarkeit** | System muss 24/7 verfügbar sein für persönliche Nutzung |
-| 2 | **Performance** | Schnelle Response-Zeiten für API-Aufrufe |
-| 3 | **Skalierbarkeit** | Erweiterung um weitere KI-Services möglich |
-| 4 | **Wartbarkeit** | Einfache Deployment und Updates |
+| Priorität | Qualitätsziel      | Motivation                                              |
+| --------- | ------------------ | ------------------------------------------------------- |
+| 1         | **Verfügbarkeit**  | System muss 24/7 verfügbar sein für persönliche Nutzung |
+| 2         | **Performance**    | Schnelle Response-Zeiten für API-Aufrufe                |
+| 3         | **Skalierbarkeit** | Erweiterung um weitere KI-Services möglich              |
+| 4         | **Wartbarkeit**    | Einfache Deployment und Updates                         |
 
 ### 1.3 Stakeholder
 - **Rob (Entwickler/Nutzer)**: Einziger Nutzer und Entwickler des Systems
@@ -319,10 +319,10 @@ graph TB
         end
     end
     
-    CLIENT --|HTTPS| NGINX
-    NGINX --|/aiwebui/| NGINX
-    NGINX --|/api/v1/| API
-    NGINX --|/| WEBUI
+    CLIENT -->|HTTPS| NGINX
+    NGINX -->|/aiwebui/| NGINX
+    NGINX -->|/api/v1/| API
+    NGINX -->|/| WEBUI
     
     API --> PG
     API --> REDIS
@@ -880,16 +880,16 @@ flowchart TD
 
 ## 12. Glossar
 
-| Begriff | Definition |
-|---------|------------|
-| **DALL-E 3** | OpenAI's Bildgenerierungs-KI |
-| **Mureka** | Song-Generierungs-API Service |
-| **Celery** | Python Task Queue für asynchrone Verarbeitung |
-| **Colima** | Container Runtime für macOS (Docker Alternative) |
-| **Alembic** | Database Migration Tool für SQLAlchemy |
-| **Task ID** | Celery Task Identifier für Async Operations |
-| **Job ID** | Mureka Job Identifier für Song Generation |
-| **Choice** | Einzelne Musikvariante von Mureka (meist 2 pro Generation) |
+| Begriff        | Definition                                                                      |
+| -------------- | ------------------------------------------------------------------------------- |
+| **DALL-E 3**   | OpenAI's Bildgenerierungs-KI                                                    |
+| **Mureka**     | Song-Generierungs-API Service                                                   |
+| **Celery**     | Python Task Queue für asynchrone Verarbeitung                                   |
+| **Colima**     | Container Runtime für macOS (Docker Alternative)                                |
+| **Alembic**    | Database Migration Tool für SQLAlchemy                                          |
+| **Task ID**    | Celery Task Identifier für Async Operations                                     |
+| **Job ID**     | Mureka Job Identifier für Song Generation                                       |
+| **Choice**     | Einzelne Musikvariante von Mureka (meist 2 pro Generation)                      |
 | **aitestmock** | Mock-Server für OpenAI und Mureka APIs zur Kostensenkung in Development/Testing |
 
 ---
