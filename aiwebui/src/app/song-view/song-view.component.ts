@@ -7,11 +7,12 @@ import {ApiConfigService} from '../services/api-config.service';
 import {NotificationService} from '../services/notification.service';
 import {MatSnackBarModule} from '@angular/material/snack-bar';
 import {DisplayNamePipe} from '../pipes/display-name.pipe';
+import {PopupAudioPlayerComponent} from '../shared/popup-audio-player/popup-audio-player.component';
 
 @Component({
   selector: 'app-song-view',
   standalone: true,
-  imports: [CommonModule, HeaderComponent, FooterComponent, MatSnackBarModule, DisplayNamePipe],
+  imports: [CommonModule, HeaderComponent, FooterComponent, MatSnackBarModule, DisplayNamePipe, PopupAudioPlayerComponent],
   templateUrl: './song-view.component.html',
   styleUrl: './song-view.component.css',
   encapsulation: ViewEncapsulation.None
@@ -23,7 +24,7 @@ export class SongViewComponent implements OnInit {
   selectedSong: any = null;
   pagination: any = {
     total: 0,
-    limit: 20,
+    limit: 50,
     offset: 0,
     has_more: false
   };
@@ -37,10 +38,15 @@ export class SongViewComponent implements OnInit {
   isLoadingSongs = false;
   loadingMessage = '';
 
+  // Keep consistent pagination - show more items
+  itemsPerPage = 50;
+
   // Audio and features
   currentlyPlaying: string | null = null;
   audioUrl: string | null = null;
   stemDownloadUrl: string | null = null;
+  showPopupPlayer = false;
+  currentSongTitle = '';
 
   // Modal state
   showModal = false;
@@ -313,12 +319,24 @@ export class SongViewComponent implements OnInit {
     } else {
       this.audioUrl = mp3Url;
       this.currentlyPlaying = choiceId;
+      this.currentSongTitle = this.getSongTitle(this.selectedSong) + ` (Choice ${choiceId})`;
+      this.showPopupPlayer = true;
     }
   }
 
   stopAudio() {
     this.audioUrl = null;
     this.currentlyPlaying = null;
+    this.showPopupPlayer = false;
+    this.currentSongTitle = '';
+  }
+
+  onPopupPlayerClose() {
+    this.stopAudio();
+  }
+
+  onPopupPlayerEnded() {
+    this.stopAudio();
   }
 
   onCanPlayThrough() {

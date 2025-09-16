@@ -7,11 +7,12 @@ import {FooterComponent} from '../shared/footer/footer.component';
 import {ApiConfigService} from '../services/api-config.service';
 import {NotificationService} from '../services/notification.service';
 import {MatSnackBarModule} from '@angular/material/snack-bar';
+import {PopupAudioPlayerComponent} from '../shared/popup-audio-player/popup-audio-player.component';
 
 @Component({
     selector: 'app-song-generator',
     standalone: true,
-    imports: [CommonModule, ReactiveFormsModule, HeaderComponent, FooterComponent, MatSnackBarModule],
+    imports: [CommonModule, ReactiveFormsModule, HeaderComponent, FooterComponent, MatSnackBarModule, PopupAudioPlayerComponent],
     templateUrl: './song-generator.component.html',
     styleUrl: './song-generator.component.css',
     encapsulation: ViewEncapsulation.None
@@ -26,6 +27,8 @@ export class SongGeneratorComponent implements OnInit {
     resultData: any = null;
     choices: any[] = [];
     stemDownloadUrl: string | null = null;
+    showPopupPlayer = false;
+    currentSongTitle = '';
 
     constructor(
         private fb: FormBuilder,
@@ -178,12 +181,24 @@ export class SongGeneratorComponent implements OnInit {
         } else {
             this.audioUrl = mp3Url;
             this.currentlyPlaying = songId;
+            this.currentSongTitle = `Generated Song (Choice ${songId})`;
+            this.showPopupPlayer = true;
         }
     }
 
     stopAudio() {
         this.audioUrl = null;
         this.currentlyPlaying = null;
+        this.showPopupPlayer = false;
+        this.currentSongTitle = '';
+    }
+
+    onPopupPlayerClose() {
+        this.stopAudio();
+    }
+
+    onPopupPlayerEnded() {
+        this.stopAudio();
     }
 
     onCanPlayThrough() {

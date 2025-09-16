@@ -93,15 +93,6 @@
                         </button>
                     </div>
 
-                    <div *ngIf="currentlyPlaying === choice.id" class="audio-wrapper">
-                        <audio #player
-                               [src]="audioUrl"
-                               controls
-                               preload="metadata"
-                               (canplaythrough)="onCanPlayThrough()"
-                               (ended)="stopAudio()">
-                        </audio>
-                    </div>
                 </div>
             </div>
 
@@ -124,5 +115,14 @@
         <p>This may take several minutes</p>
     </div>
 </div>
+
+<!-- Popup Audio Player -->
+<app-popup-audio-player
+  [visible]="showPopupPlayer"
+  [audioUrl]="audioUrl"
+  [songTitle]="currentSongTitle"
+  (onClose)="onPopupPlayerClose()"
+  (onEnded)="onPopupPlayerEnded()">
+</app-popup-audio-player>
 
 <app-footer costInfo="Song generation: ~$0.15 each"></app-footer>

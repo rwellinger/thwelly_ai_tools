@@ -15,39 +15,8 @@
         <div *ngIf="songs.length > 0" class="song-list">
             <div class="list-header">
                 <h2>Available Songs</h2>
-                <div class="modern-pagination">
-                    <div class="pagination-info-badge">
-                        {{ pagination.total }} songs
-                    </div>
-                    <div class="pagination-pills">
-                        <button type="button"
-                                class="pagination-pill prev"
-                                (click)="previousPage()"
-                                [disabled]="pagination.offset === 0 || isLoading"
-                                [class.disabled]="pagination.offset === 0 || isLoading">
-                            <i class="fas fa-chevron-left"></i>
-                        </button>
-
-                        <ng-container *ngFor="let page of getVisiblePages(); trackBy: trackByPage">
-                            <button type="button"
-                                    *ngIf="page !== '...'"
-                                    class="pagination-pill page-number"
-                                    [class.active]="page === Math.floor(pagination.offset / pagination.limit) + 1"
-                                    (click)="goToPage(+page - 1)"
-                                    [disabled]="isLoading">
-                                {{ page }}
-                            </button>
-                            <span *ngIf="page === '...'" class="pagination-ellipsis">⋯</span>
-                        </ng-container>
-
-                        <button type="button"
-                                class="pagination-pill next"
-                                (click)="nextPage()"
-                                [disabled]="!pagination.has_more || isLoading"
-                                [class.disabled]="!pagination.has_more || isLoading">
-                            <i class="fas fa-chevron-right"></i>
-                        </button>
-                    </div>
+                <div class="pagination-info-badge">
+                    {{ pagination.total }} songs
                 </div>
             </div>
 
@@ -84,6 +53,41 @@
                 </tbody>
             </table>
 
+            <!-- Pagination moved below table -->
+            <div class="pagination-container" *ngIf="pagination.total > pagination.limit">
+                <div class="modern-pagination">
+                    <div class="pagination-pills">
+                        <button type="button"
+                                class="pagination-pill prev"
+                                (click)="previousPage()"
+                                [disabled]="pagination.offset === 0 || isLoading"
+                                [class.disabled]="pagination.offset === 0 || isLoading">
+                            <i class="fas fa-chevron-left"></i>
+                        </button>
+
+                        <ng-container *ngFor="let page of getVisiblePages(); trackBy: trackByPage">
+                            <button type="button"
+                                    *ngIf="page !== '...'"
+                                    class="pagination-pill page-number"
+                                    [class.active]="page === Math.floor(pagination.offset / pagination.limit) + 1"
+                                    (click)="goToPage(+page - 1)"
+                                    [disabled]="isLoading">
+                                {{ page }}
+                            </button>
+                            <span *ngIf="page === '...'" class="pagination-ellipsis">⋯</span>
+                        </ng-container>
+
+                        <button type="button"
+                                class="pagination-pill next"
+                                (click)="nextPage()"
+                                [disabled]="!pagination.has_more || isLoading"
+                                [class.disabled]="!pagination.has_more || isLoading">
+                            <i class="fas fa-chevron-right"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
         </div>
 
         <div *ngIf="songs.length === 0 && !isLoadingSongs" class="no-songs-message">
@@ -117,17 +121,6 @@
                     <p><strong>Created:</strong> {{ formatDateDetailed(selectedSong.created_at) }}</p>
                     <p *ngIf="selectedSong.completed_at"><strong>Completed:</strong> {{ formatDateDetailed(selectedSong.completed_at) }}</p>
                 </div>
-
-                <div class="song-lyrics">
-                    <h3>Lyrics:</h3>
-                    <pre class="lyrics-content">{{ selectedSong.lyrics }}</pre>
-                </div>
-
-                <div class="song-prompt">
-                    <h3>Style Prompt:</h3>
-                    <p class="prompt-content">{{ selectedSong.prompt }}</p>
-                </div>
-            </div>
 
             <!-- Song Choices -->
             <div *ngIf="selectedSong.choices && selectedSong.choices.length > 0" class="choices-section">
@@ -184,17 +177,17 @@
                 </div>
             </div>
 
-            <!-- Audio Player -->
-            <div class="audio-wrapper" *ngIf="audioUrl">
-                <audio #player
-                       [src]="audioUrl"
-                       controls
-                       preload="metadata"
-                       (canplaythrough)="onCanPlayThrough()"
-                       (ended)="stopAudio()"
-                       class="enhanced-audio-player">
-                </audio>
+                <div class="song-lyrics">
+                    <h3>Lyrics:</h3>
+                    <pre class="lyrics-content">{{ selectedSong.lyrics }}</pre>
+                </div>
+
+                <div class="song-prompt">
+                    <h3>Style Prompt:</h3>
+                    <p class="prompt-content">{{ selectedSong.prompt }}</p>
+                </div>
             </div>
+
 
             <div *ngIf="!selectedSong.choices || selectedSong.choices.length === 0" class="no-choices">
                 <p>No song choices available for this song.</p>
@@ -210,5 +203,14 @@
         <p>{{ loadingMessage }}</p>
     </div>
 </div>
+
+<!-- Popup Audio Player -->
+<app-popup-audio-player
+  [visible]="showPopupPlayer"
+  [audioUrl]="audioUrl"
+  [songTitle]="currentSongTitle"
+  (onClose)="onPopupPlayerClose()"
+  (onEnded)="onPopupPlayerEnded()">
+</app-popup-audio-player>
 
 <app-footer></app-footer>
