@@ -1,5 +1,5 @@
 .modern-header {
-    background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+    background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
     border-bottom: 1px solid #e9ecef;
     box-shadow: 0 2px 4px rgba(0,0,0,0.06);
     margin-bottom: 20px;
@@ -29,7 +29,7 @@
     flex-shrink: 0;
     font-weight: 700;
     font-size: 1.5em;
-    color: #495057;
+    color: #ffffff;
 }
 
 /* Brand Text */
@@ -40,7 +40,7 @@
 .brand-text {
     font-weight: 700;
     font-size: 1.5em;
-    color: #495057;
+    color: #ffffff;
     letter-spacing: -0.5px;
 }
 
@@ -63,7 +63,7 @@
 .group-label {
     display: flex;
     align-items: center;
-    color: #495057;
+    color: #ecf0f1;
     font-weight: 500;
     font-size: 0.9em;
     margin-bottom: 8px;
@@ -73,7 +73,7 @@
 
 .group-label i {
     margin-right: 6px;
-    color: #6c757d;
+    color: #bdc3c7;
 }
 
 .group-items {
@@ -85,7 +85,7 @@
     display: flex;
     align-items: center;
     padding: 6px 12px;
-    color: #6c757d;
+    color: #bdc3c7;
     text-decoration: none;
     font-size: 0.9em;
     font-weight: 500;
@@ -95,15 +95,15 @@
 }
 
 .group-items a:hover {
-    color: #007bff;
-    background-color: #e3f2fd;
+    color: #3498db;
+    background-color: rgba(52, 152, 219, 0.1);
     text-decoration: none;
     transform: translateY(-1px);
 }
 
 .group-items a.active {
-    color: #007bff;
-    background-color: #e3f2fd;
+    color: #3498db;
+    background-color: rgba(52, 152, 219, 0.1);
     font-weight: 600;
 }
 
@@ -115,7 +115,7 @@
     transform: translateX(-50%);
     width: 4px;
     height: 4px;
-    background-color: #007bff;
+    background-color: #3498db;
     border-radius: 50%;
 }
 
@@ -124,7 +124,7 @@
     display: flex;
     align-items: center;
     padding: 6px 12px;
-    color: #6c757d;
+    color: #bdc3c7;
     text-decoration: none;
     font-size: 0.9em;
     font-weight: 500;
@@ -134,8 +134,8 @@
 }
 
 .external-link:hover {
-    color: #28a745;
-    background-color: #d4edda;
+    color: #2ecc71;
+    background-color: rgba(46, 204, 113, 0.1);
     text-decoration: none;
     transform: translateY(-1px);
 }
