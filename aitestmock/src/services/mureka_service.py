@@ -1,6 +1,7 @@
 import json
 import re
 import time
+import random
 from datetime import datetime, timedelta
 from pathlib import Path
 
@@ -87,41 +88,57 @@ class MurekaService:
         match = re.search(r'(\d+)s\b', str(text))
         return int(match.group(1)) if match else default_seconds
 
+    def _generate_random_id(self):
+        """Generate a random ID in the format similar to '94608690380802'"""
+        return str(random.randint(10000000000000, 99999999999999))
+
 
     def _apply_timestamp_replacements(self, data, endpoint, job_id=None):
-        """Apply dynamic timestamp replacements to mock data"""
+        """Apply dynamic timestamp replacements and random ID generation to mock data"""
         current_timestamp = int(datetime.now().timestamp())
 
         if endpoint == "generate_song":
-            # Replace created_at with current timestamp
+            # Replace created_at with current timestamp and id with random ID
             if "created_at" in data:
                 data["created_at"] = current_timestamp
+            if "id" in data:
+                data["id"] = self._generate_random_id()
 
         elif endpoint == "query_song_status_suceeded":
             # Replace created_at with job creation time, finished_at with current time
+            # Keep the original job_id for consistency
             if job_id and job_id in self._song_jobs:
                 job = self._song_jobs[job_id]
                 if "created_at" in data:
                     data["created_at"] = int(job["start_time"].timestamp())
                 if "finished_at" in data:
                     data["finished_at"] = current_timestamp
+                if "id" in data:
+                    data["id"] = job_id  # Use the job_id for consistency
             else:
                 # Fallback if no job info available
                 if "created_at" in data:
                     data["created_at"] = current_timestamp - 60  # Assume 60s ago
                 if "finished_at" in data:
                     data["finished_at"] = current_timestamp
+                if "id" in data:
+                    data["id"] = job_id if job_id else self._generate_random_id()
 
         elif endpoint == "query_song_status_running":
             # Replace created_at with job creation time
+            # Keep the original job_id for consistency
             if job_id and job_id in self._song_jobs:
                 job = self._song_jobs[job_id]
                 if "created_at" in data:
                     data["created_at"] = int(job["start_time"].timestamp())
+                if "id" in data:
+                    data["id"] = job_id  # Use the job_id for consistency
             else:
                 # Fallback if no job info available
                 if "created_at" in data:
                     data["created_at"] = current_timestamp - 30  # Assume 30s ago
+                if "id" in data:
+                    data["id"] = job_id if job_id else self._generate_random_id()
 
         return data
 

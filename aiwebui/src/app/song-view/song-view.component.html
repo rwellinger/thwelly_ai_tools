@@ -70,7 +70,8 @@
                     <th>Model</th>
                     <th class="sortable-header" (click)="toggleSort()">
                         Created
-                        <i class="fas" [class.fa-sort-down]="sortDirection === 'desc'" [class.fa-sort-up]="sortDirection === 'asc'"></i>
+                        <i class="fas" [class.fa-sort-down]="sortDirection === 'desc'"
+                           [class.fa-sort-up]="sortDirection === 'asc'"></i>
                     </th>
                 </tr>
                 </thead>
@@ -176,6 +177,17 @@
                     </div>
                 </div>
 
+                <!-- Detail Info -->
+                <div class="song-meta-info">
+                    <p><strong>Mureka Id:</strong> {{ selectedSong.job_id }}</p>
+                    <p><strong>Model:</strong> {{ selectedSong.model }}</p>
+                    <p><strong>Status:</strong> <span
+                        [class]="'status-' + selectedSong.status.toLowerCase()">{{ selectedSong.status }}</span></p>
+                    <p><strong>Created:</strong> {{ formatDateDetailed(selectedSong.created_at) }}</p>
+                    <p *ngIf="selectedSong.completed_at">
+                        <strong>Completed:</strong> {{ formatDateDetailed(selectedSong.completed_at) }}</p>
+                </div>
+
                 <!-- Tags Section -->
                 <div class="song-tags-section">
                     <div class="tags-row" *ngIf="!editingTags">
@@ -192,7 +204,8 @@
                                 <button type="button" class="save-btn" (click)="saveTags()" [disabled]="isLoading">
                                     <i class="fas fa-check"></i>
                                 </button>
-                                <button type="button" class="cancel-btn" (click)="cancelEditTags()" [disabled]="isLoading">
+                                <button type="button" class="cancel-btn" (click)="cancelEditTags()"
+                                        [disabled]="isLoading">
                                     <i class="fas fa-times"></i>
                                 </button>
                             </div>
@@ -247,28 +260,20 @@
                     </div>
                 </div>
 
-                <div class="song-meta-info">
-                    <p><strong>Mureka Id:</strong> {{ selectedSong.job_id}}</p>
-                    <p><strong>Model:</strong> {{ selectedSong.model }}</p>
-                    <p><strong>Status:</strong> <span [class]="'status-' + selectedSong.status.toLowerCase()">{{ selectedSong.status }}</span></p>
-                    <p><strong>Created:</strong> {{ formatDateDetailed(selectedSong.created_at) }}</p>
-                    <p *ngIf="selectedSong.completed_at"><strong>Completed:</strong> {{ formatDateDetailed(selectedSong.completed_at) }}</p>
-                </div>
+                <!-- Song Choices -->
+                <div *ngIf="selectedSong.choices && selectedSong.choices.length > 0" class="choices-section">
+                    <h3>Generated Variations ({{ selectedSong.choices_count }})</h3>
 
-            <!-- Song Choices -->
-            <div *ngIf="selectedSong.choices && selectedSong.choices.length > 0" class="choices-section">
-                <h3>Generated Variations ({{ selectedSong.choices_count }})</h3>
-
-                <table class="choices-table">
-                    <thead>
+                    <table class="choices-table">
+                        <thead>
                         <tr>
                             <th>Duration</th>
                             <th>FLAC File</th>
                             <th>MP3 File</th>
                             <th>Stem Generation</th>
                         </tr>
-                    </thead>
-                    <tbody>
+                        </thead>
+                        <tbody>
                         <tr *ngFor="let choice of selectedSong.choices; let i = index">
                             <td>{{ choice.formattedDuration }}</td>
                             <td>
@@ -299,16 +304,16 @@
                                 <span *ngIf="!choice.mp3_url" class="not-available">N/A</span>
                             </td>
                         </tr>
-                    </tbody>
-                </table>
+                        </tbody>
+                    </table>
 
-                <!-- Stem Download -->
-                <div *ngIf="stemDownloadUrl" class="stem-download">
-                    <button type="button" (click)="downloadStems(stemDownloadUrl)" class="download-link">
-                        <i class="fas fa-download"></i> Download Stems ZIP
-                    </button>
+                    <!-- Stem Download -->
+                    <div *ngIf="stemDownloadUrl" class="stem-download">
+                        <button type="button" (click)="downloadStems(stemDownloadUrl)" class="download-link">
+                            <i class="fas fa-download"></i> Download Stems ZIP
+                        </button>
+                    </div>
                 </div>
-            </div>
 
                 <div class="song-lyrics">
                     <div class="lyrics-header">
@@ -325,7 +330,6 @@
                     <p class="prompt-content">{{ selectedSong.prompt }}</p>
                 </div>
             </div>
-
 
             <div *ngIf="!selectedSong.choices || selectedSong.choices.length === 0" class="no-choices">
                 <p>No song choices available for this song.</p>
@@ -367,11 +371,11 @@
 
 <!-- Popup Audio Player -->
 <app-popup-audio-player
-  [visible]="showPopupPlayer"
-  [audioUrl]="audioUrl"
-  [songTitle]="currentSongTitle"
-  (onClose)="onPopupPlayerClose()"
-  (onEnded)="onPopupPlayerEnded()">
+    [visible]="showPopupPlayer"
+    [audioUrl]="audioUrl"
+    [songTitle]="currentSongTitle"
+    (closePlayer)="onPopupPlayerClose()"
+    (audioEnded)="onPopupPlayerEnded()">
 </app-popup-audio-player>
 
 <app-footer></app-footer>

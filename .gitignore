@@ -29,3 +29,6 @@ dump.rdb
 .env
 .env_postgres
 .env_mock
+
+/aitestmock/static/images/*
+/aitestmock/static/audio/*

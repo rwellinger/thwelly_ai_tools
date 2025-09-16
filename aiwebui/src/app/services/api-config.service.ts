@@ -50,8 +50,9 @@ export class ApiConfigService {
         return this.baseUrl;
     }
 
-    getEndpoint(category: keyof typeof this.endpoints, action: string, ...params: any[]): string {
-        const endpoint = (this.endpoints[category] as any)[action];
-        return typeof endpoint === 'function' ? endpoint(...params) : endpoint;
+    getEndpoint(category: keyof typeof this.endpoints, action: string, ...params: unknown[]): string {
+        const categoryEndpoints = this.endpoints[category] as Record<string, unknown>;
+        const endpoint = categoryEndpoints[action];
+        return typeof endpoint === 'function' ? endpoint(...params) : endpoint as string;
     }
 }

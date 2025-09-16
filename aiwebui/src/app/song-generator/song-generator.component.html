@@ -121,8 +121,8 @@
   [visible]="showPopupPlayer"
   [audioUrl]="audioUrl"
   [songTitle]="currentSongTitle"
-  (onClose)="onPopupPlayerClose()"
-  (onEnded)="onPopupPlayerEnded()">
+  (closePlayer)="onPopupPlayerClose()"
+  (audioEnded)="onPopupPlayerEnded()">
 </app-popup-audio-player>
 
 <app-footer costInfo="Song generation: ~$0.15 each"></app-footer>

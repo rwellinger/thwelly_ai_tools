@@ -183,24 +183,26 @@
                     <p><strong>Created:</strong> {{ formatDate(selectedImage.created_at) }}</p>
                 </div>
 
-            <div class="image-actions">
-                <button type="button" (click)="downloadImage(selectedImage.url)" class="download-link">
-                    <i class="fas fa-download"></i> Download Original
-                </button>
-                <button type="button" (click)="openImageModal()" class="download-link preview-btn">
-                    <i class="fas fa-expand"></i> Full Size
-                </button>
-            </div>
-                <div class="image-display">
-                    <img [src]="selectedImage.url"
-                         [alt]="selectedImage.prompt | displayName"
-                         (error)="onImageError($event)"
-                         loading="lazy">
-                </div>
-
                 <div class="image-prompt">
                     <h3>Prompt:</h3>
                     <p class="prompt-content">{{ selectedImage.prompt }}</p>
+                </div>
+
+                <div class="image-with-actions">
+                    <div class="image-display">
+                        <img [src]="selectedImage.url"
+                             [alt]="selectedImage.prompt | displayName"
+                             (error)="onImageError($event)"
+                             loading="lazy">
+                    </div>
+                    <div class="image-actions">
+                        <button type="button" (click)="downloadImage(selectedImage.url)" class="download-link">
+                            <i class="fas fa-download"></i> Download Original
+                        </button>
+                        <button type="button" (click)="openImageModal()" class="download-link preview-btn">
+                            <i class="fas fa-expand"></i> Full Size
+                        </button>
+                    </div>
                 </div>
             </div>
 
