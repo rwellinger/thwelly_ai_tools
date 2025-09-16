@@ -13,8 +13,8 @@ export class PopupAudioPlayerComponent implements OnDestroy {
   @Input() audioUrl: string | null = null;
   @Input() songTitle: string = 'Audio Player';
   @Input() visible: boolean = false;
-  @Output() onClose = new EventEmitter<void>();
-  @Output() onEnded = new EventEmitter<void>();
+  @Output() closePlayer = new EventEmitter<void>();
+  @Output() audioEnded = new EventEmitter<void>();
 
   isDragging = false;
   dragStartX = 0;
@@ -29,11 +29,11 @@ export class PopupAudioPlayerComponent implements OnDestroy {
   }
 
   close() {
-    this.onClose.emit();
+    this.closePlayer.emit();
   }
 
   onAudioEnded() {
-    this.onEnded.emit();
+    this.audioEnded.emit();
   }
 
   onCanPlayThrough() {

@@ -1,5 +1,5 @@
 import {Injectable} from '@angular/core';
-import {MatSnackBar} from '@angular/material/snack-bar';
+import {MatSnackBar, MatSnackBarRef, TextOnlySnackBar} from '@angular/material/snack-bar';
 
 export enum NotificationType {
     SUCCESS = 'success',
@@ -12,7 +12,7 @@ export enum NotificationType {
     providedIn: 'root'
 })
 export class NotificationService {
-    private loadingRef: any = null;
+    private loadingRef: MatSnackBarRef<TextOnlySnackBar> | null = null;
 
     constructor(private snackBar: MatSnackBar) {
     }
