@@ -25,7 +25,7 @@ export class SongViewComponent implements OnInit {
   selectedSong: any = null;
   pagination: any = {
     total: 0,
-    limit: 50,
+    limit: 20,
     offset: 0,
     has_more: false
   };
@@ -40,7 +40,7 @@ export class SongViewComponent implements OnInit {
   loadingMessage = '';
 
   // Keep consistent pagination - show more items
-  itemsPerPage = 50;
+  itemsPerPage = 20;
 
   // Audio and features
   currentlyPlaying: string | null = null;
@@ -104,7 +104,7 @@ export class SongViewComponent implements OnInit {
       const data = await this.songService.getSongs(this.pagination.limit, this.pagination.offset, 'SUCCESS');
       this.songs = data.songs || [];
       this.pagination = data.pagination || this.pagination;
-      
+
       this.applyFilterAndSort();
 
       // Auto-select first song if available and none selected

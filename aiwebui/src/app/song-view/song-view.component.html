@@ -153,17 +153,6 @@
             <h2>Song Details</h2>
 
             <div class="song-info-compact">
-                <!-- Detail Info -->
-                <div class="song-meta-info">
-                    <p><strong>Mureka Id:</strong> {{ selectedSong.job_id }}</p>
-                    <p><strong>Model:</strong> {{ selectedSong.model }}</p>
-                    <p><strong>Status:</strong> <span
-                        [class]="'status-' + selectedSong.status.toLowerCase()">{{ selectedSong.status }}</span></p>
-                    <p><strong>Created:</strong> {{ formatDateDetailed(selectedSong.created_at) }}</p>
-                    <p *ngIf="selectedSong.completed_at">
-                        <strong>Completed:</strong> {{ formatDateDetailed(selectedSong.completed_at) }}</p>
-                </div>
-
                 <!-- Editable Title Section -->
                 <div class="song-title-section">
                     <div class="title-row" *ngIf="!editingTitle">
@@ -186,6 +175,17 @@
                             <i class="fas fa-times"></i>
                         </button>
                     </div>
+                </div>
+
+                <!-- Detail Info -->
+                <div class="song-meta-info">
+                    <p><strong>Mureka Id:</strong> {{ selectedSong.job_id }}</p>
+                    <p><strong>Model:</strong> {{ selectedSong.model }}</p>
+                    <p><strong>Status:</strong> <span
+                        [class]="'status-' + selectedSong.status.toLowerCase()">{{ selectedSong.status }}</span></p>
+                    <p><strong>Created:</strong> {{ formatDateDetailed(selectedSong.created_at) }}</p>
+                    <p *ngIf="selectedSong.completed_at">
+                        <strong>Completed:</strong> {{ formatDateDetailed(selectedSong.completed_at) }}</p>
                 </div>
 
                 <!-- Tags Section -->

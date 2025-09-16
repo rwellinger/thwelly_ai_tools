@@ -44,10 +44,10 @@ export class ImageViewComponent implements OnInit {
   isLoading = false;
   loadingMessage = '';
   currentPage = 0;
-  pageSize = 50;
+  pageSize = 20;
   pagination: PaginationInfo = {
     has_more: false,
-    limit: 50,
+    limit: 20,
     offset: 0,
     total: 0
   };
@@ -97,7 +97,7 @@ export class ImageViewComponent implements OnInit {
         this.images = data.images;
         this.pagination = data.pagination;
         this.currentPage = page;
-        
+
         this.applyFilterAndSort();
 
         // Auto-select first image if available and none selected
@@ -236,7 +236,7 @@ export class ImageViewComponent implements OnInit {
 
   goToPage(pageIndex: number) {
     if (pageIndex >= 0 && pageIndex < Math.ceil(this.pagination.total / this.pagination.limit) && !this.isLoading) {
-      this.loadImages(pageIndex * this.pagination.limit);
+      this.loadImages(pageIndex);
     }
   }
 
