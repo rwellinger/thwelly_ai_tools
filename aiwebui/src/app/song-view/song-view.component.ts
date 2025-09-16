@@ -55,6 +55,9 @@ export class SongViewComponent implements OnInit {
   modalContent = '';
   modalType: 'lyrics' | 'prompt' | '' = '';
 
+  // Lyrics dialog state
+  showLyricsDialog = false;
+
   // Make Math available in template
   Math = Math;
 
@@ -502,6 +505,39 @@ export class SongViewComponent implements OnInit {
         this.notificationService.success('Content copied to clipboard!');
       } catch (err) {
         this.notificationService.error('Failed to copy to clipboard');
+      }
+      document.body.removeChild(textArea);
+    }
+  }
+
+  // Lyrics dialog methods
+  openLyricsDialog() {
+    if (!this.selectedSong?.lyrics) return;
+    this.showLyricsDialog = true;
+  }
+
+  closeLyricsDialog() {
+    this.showLyricsDialog = false;
+  }
+
+  async copyLyricsToClipboard() {
+    if (!this.selectedSong?.lyrics) return;
+
+    try {
+      await navigator.clipboard.writeText(this.selectedSong.lyrics);
+      this.notificationService.success('Lyrics copied to clipboard!');
+    } catch (error) {
+      // Fallback for older browsers
+      const textArea = document.createElement('textarea');
+      textArea.value = this.selectedSong.lyrics;
+      document.body.appendChild(textArea);
+      textArea.focus();
+      textArea.select();
+      try {
+        document.execCommand('copy');
+        this.notificationService.success('Lyrics copied to clipboard!');
+      } catch (err) {
+        this.notificationService.error('Failed to copy lyrics to clipboard');
       }
       document.body.removeChild(textArea);
     }

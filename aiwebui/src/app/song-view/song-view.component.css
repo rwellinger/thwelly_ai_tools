@@ -595,10 +595,37 @@
     border-radius: 6px;
 }
 
-.song-lyrics h3 {
-    margin: 0 0 8px 0;
+.lyrics-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.lyrics-header h3 {
+    margin: 0;
     color: #333;
     font-size: 1.0em;
+}
+
+.copy-button {
+    background-color: #007bff !important;
+    color: white !important;
+    border: none !important;
+    padding: 4px 8px !important;
+    border-radius: 4px !important;
+    cursor: pointer !important;
+    font-size: 12px !important;
+    transition: background-color 0.2s;
+}
+
+.copy-button:hover:not(:disabled) {
+    background-color: #0056b3 !important;
+}
+
+.copy-button:disabled {
+    background-color: #6c757d !important;
+    cursor: not-allowed !important;
 }
 
 .lyrics-content {
@@ -931,5 +958,152 @@
     .result-table td {
         padding: 6px;
         font-size: 13px;
+    }
+}
+
+/* ===== LYRICS DIALOG ===== */
+.lyrics-dialog-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.lyrics-dialog {
+    background: white;
+    border-radius: 8px;
+    width: 90%;
+    max-width: 600px;
+    max-height: 80vh;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+.lyrics-dialog-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 20px;
+    border-bottom: 1px solid #e9ecef;
+    background: #f8f9fa;
+    border-radius: 8px 8px 0 0;
+}
+
+.lyrics-dialog-header h3 {
+    margin: 0;
+    color: #333;
+    font-size: 1.1em;
+    font-weight: 600;
+}
+
+.close-button {
+    background: none;
+    border: none;
+    color: #6c757d;
+    font-size: 1.2em;
+    cursor: pointer;
+    padding: 5px;
+    border-radius: 4px;
+    transition: color 0.2s ease;
+}
+
+.close-button:hover {
+    color: #333;
+    background: #e9ecef;
+}
+
+.lyrics-dialog-content {
+    flex: 1;
+    padding: 20px;
+    overflow: hidden;
+}
+
+.lyrics-textarea {
+    width: 100%;
+    height: 350px;
+    max-height: 50vh;
+    padding: 12px;
+    border: 1px solid #e9ecef;
+    border-radius: 6px;
+    font-family: monospace;
+    font-size: 14px;
+    line-height: 1.4;
+    resize: vertical;
+    background: #f8f9fa;
+    color: #333;
+    box-sizing: border-box;
+}
+
+.lyrics-textarea:focus {
+    outline: none;
+    border-color: #007bff;
+    box-shadow: 0 0 0 2px rgba(0,123,255,.25);
+}
+
+.lyrics-dialog-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    padding: 15px 20px;
+    border-top: 1px solid #e9ecef;
+    background: #f8f9fa;
+    border-radius: 0 0 8px 8px;
+}
+
+.copy-all-button {
+    background-color: #28a745 !important;
+    color: white !important;
+    border: none !important;
+    padding: 8px 16px !important;
+    border-radius: 4px !important;
+    cursor: pointer !important;
+    font-size: 14px !important;
+    transition: background-color 0.2s;
+}
+
+.copy-all-button:hover {
+    background-color: #218838 !important;
+}
+
+.close-dialog-button {
+    background-color: #6c757d !important;
+    color: white !important;
+    border: none !important;
+    padding: 8px 16px !important;
+    border-radius: 4px !important;
+    cursor: pointer !important;
+    font-size: 14px !important;
+    transition: background-color 0.2s;
+}
+
+.close-dialog-button:hover {
+    background-color: #5a6268 !important;
+}
+
+/* Responsive dialog */
+@media (max-width: 768px) {
+    .lyrics-dialog {
+        width: 95%;
+        max-height: 90vh;
+    }
+
+    .lyrics-textarea {
+        height: 250px;
+    }
+
+    .lyrics-dialog-actions {
+        flex-direction: column;
+    }
+
+    .copy-all-button,
+    .close-dialog-button {
+        width: 100%;
     }
 }

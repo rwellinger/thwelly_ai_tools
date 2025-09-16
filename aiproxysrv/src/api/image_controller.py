@@ -7,7 +7,7 @@ import time
 import hashlib
 from pathlib import Path
 from typing import Tuple, Dict, Any, List
-from config.settings import OPENAI_API_KEY, OPENAI_URL, OPENAI_MODEL, IMAGES_DIR
+from config.settings import OPENAI_API_KEY, OPENAI_URL, OPENAI_MODEL, IMAGES_DIR, DELETE_PHYSICAL_FILES
 from db.image_service import ImageService
 
 
@@ -248,13 +248,15 @@ class ImageController:
             if not image:
                 return {"error": "Image not found"}, 404
 
-            # Delete file from filesystem if it exists
-            if image.file_path and os.path.exists(image.file_path):
+            # Delete file from filesystem if it exists and deletion is enabled
+            if DELETE_PHYSICAL_FILES and image.file_path and os.path.exists(image.file_path):
                 try:
                     os.remove(image.file_path)
                     print(f"Deleted image file: {image.file_path}", file=sys.stderr)
                 except OSError as e:
                     print(f"Warning: Could not delete image file {image.file_path}: {e}", file=sys.stderr)
+            elif not DELETE_PHYSICAL_FILES:
+                print(f"Skipping physical file deletion (disabled): {image.file_path}", file=sys.stderr)
 
             # Delete metadata from database
             success = ImageService.delete_image_metadata(image_id)
@@ -300,13 +302,15 @@ class ImageController:
                         results["not_found"].append(image_id)
                         continue
 
-                    # Delete file from filesystem if it exists
-                    if image.file_path and os.path.exists(image.file_path):
+                    # Delete file from filesystem if it exists and deletion is enabled
+                    if DELETE_PHYSICAL_FILES and image.file_path and os.path.exists(image.file_path):
                         try:
                             os.remove(image.file_path)
                             print(f"Deleted image file: {image.file_path}", file=sys.stderr)
                         except OSError as e:
                             print(f"Warning: Could not delete image file {image.file_path}: {e}", file=sys.stderr)
+                    elif not DELETE_PHYSICAL_FILES:
+                        print(f"Skipping physical file deletion (disabled): {image.file_path}", file=sys.stderr)
 
                     # Delete metadata from database
                     success = ImageService.delete_image_metadata(image_id)

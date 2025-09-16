@@ -10,6 +10,10 @@ CELERY_RESULT_BACKEND=redis://redis:6379
 # ==================================================
 IMAGES_DIR=/Users/robertw/Workspace/mac_ki_service/aiproxysrv/images
 
+# Control if physical files should be deleted when images are deleted (optional, defaults to true)
+# Only uncomment and set to false in special cases where you want to keep files but delete DB records
+# DELETE_PHYSICAL_FILES=false
+
 
 # ==================================================
 # MUREKA API CONFIGURATION

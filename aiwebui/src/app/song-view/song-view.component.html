@@ -240,7 +240,12 @@
             </div>
 
                 <div class="song-lyrics">
-                    <h3>Lyrics:</h3>
+                    <div class="lyrics-header">
+                        <h3>Lyrics:</h3>
+                        <button type="button" class="copy-button" (click)="openLyricsDialog()" [disabled]="isLoading">
+                            <i class="fas fa-expand-alt"></i> Show Lyrics
+                        </button>
+                    </div>
                     <pre class="lyrics-content">{{ selectedSong.lyrics }}</pre>
                 </div>
 
@@ -263,6 +268,29 @@
     <div class="loading-content">
         <i class="fas fa-spinner fa-spin"></i>
         <p>{{ loadingMessage }}</p>
+    </div>
+</div>
+
+<!-- Lyrics Dialog -->
+<div *ngIf="showLyricsDialog" class="lyrics-dialog-overlay" (click)="closeLyricsDialog()">
+    <div class="lyrics-dialog" (click)="$event.stopPropagation()">
+        <div class="lyrics-dialog-header">
+            <h3>Lyrics - {{ getDisplayTitle(selectedSong) }}</h3>
+            <button type="button" class="close-button" (click)="closeLyricsDialog()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="lyrics-dialog-content">
+            <textarea readonly class="lyrics-textarea" [value]="selectedSong.lyrics" #lyricsTextarea></textarea>
+        </div>
+        <div class="lyrics-dialog-actions">
+            <button type="button" class="copy-all-button" (click)="copyLyricsToClipboard()">
+                <i class="fas fa-copy"></i> Copy All
+            </button>
+            <button type="button" class="close-dialog-button" (click)="closeLyricsDialog()">
+                Close
+            </button>
+        </div>
     </div>
 </div>
 

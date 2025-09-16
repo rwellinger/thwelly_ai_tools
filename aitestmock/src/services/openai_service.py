@@ -33,6 +33,16 @@ class OpenAIService:
         if 'created' in response_data:
             response_data['created'] = current_timestamp
 
+        # Update URLs to point to mock server with correct base URL
+        if 'data' in response_data and isinstance(response_data['data'], list):
+            for item in response_data['data']:
+                if 'url' in item:
+                    # Extract filename from existing URL
+                    old_url = item['url']
+                    filename = old_url.split('/')[-1]
+                    # Generate new URL pointing to mock server
+                    item['url'] = f"http://localhost:3080/static/images/{filename}"
+
         # Check if this is an error response and return appropriate HTTP status
         if 'error' in response_data:
             error_type = response_data['error'].get('type', '')

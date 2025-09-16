@@ -42,6 +42,9 @@ DEBUG = os.getenv("DEBUG", "false").lower() == "true"
 # Image Storage Config
 # --------------------------------------------------
 IMAGES_DIR = os.getenv("IMAGES_DIR", "./images" if DEBUG else "/images")
+# Control if physical files should be deleted (defaults to true if not set)
+# Only set to false in special cases where you want to keep files but delete DB records
+DELETE_PHYSICAL_FILES = os.getenv("DELETE_PHYSICAL_FILES", "true").lower() == "true"
 
 # --------------------------------------------------
 # Redis Config (falls verwendet)
