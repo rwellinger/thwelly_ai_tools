@@ -2,11 +2,6 @@
 
 ---
 
-## Feature Edit
-
-### song-view
-Implementiere das gleiche Title-Edit Feature für song-view wie bei image-view
-
 ## Feature Tags
 
 ### image-view

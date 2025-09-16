@@ -25,8 +25,10 @@ dump.rdb
 *.aof.1.base.rdb
 *.aof.1.incr.aof
 *.aof.manifest
-CLAUDE.md
 
 .env
 .env_postgres
 .env_mock
+
+/claude-prompt.txt
+/CLAUDE.md
