@@ -1,6 +1,6 @@
 """Song Controller - Orchestrates specialized song controllers"""
 import sys
-from typing import Tuple, Dict, Any
+from typing import Tuple, Dict, Any, List
 from .song_creation_controller import SongCreationController
 from .song_task_controller import SongTaskController
 from .song_account_controller import SongAccountController
@@ -165,11 +165,110 @@ class SongController:
             print(f"Error retrieving song {song_id}: {e}", file=sys.stderr)
             return {"error": f"Failed to retrieve song: {e}"}, 500
 
+    def delete_song(self, song_id: str) -> Tuple[Dict[str, Any], int]:
+        """
+        Delete song by ID including all choices
+
+        Args:
+            song_id: UUID of the song to delete
+
+        Returns:
+            Tuple of (response_data, status_code)
+        """
+        try:
+            # Check if song exists first
+            song = song_service.get_song_by_id(song_id)
+            if not song:
+                return {"error": "Song not found"}, 404
+
+            # Delete song and all its choices (handled by cascade)
+            success = song_service.delete_song_by_id(song_id)
+            if success:
+                print(f"Song {song_id} and its choices deleted successfully", file=sys.stderr)
+                return {"message": "Song deleted successfully"}, 200
+            else:
+                return {"error": "Failed to delete song"}, 500
+
+        except Exception as e:
+            print(f"Error deleting song {song_id}: {type(e).__name__}: {e}", file=sys.stderr)
+            return {"error": f"Failed to delete song: {e}"}, 500
+
+    def bulk_delete_songs(self, song_ids: List[str]) -> Tuple[Dict[str, Any], int]:
+        """
+        Delete multiple songs by IDs including all choices
+
+        Args:
+            song_ids: List of song IDs to delete
+
+        Returns:
+            Tuple of (response_data, status_code)
+        """
+        if not song_ids:
+            return {"error": "No song IDs provided"}, 400
+
+        if len(song_ids) > 100:
+            return {"error": "Too many songs (max 100 per request)"}, 400
+
+        results = {
+            "deleted": [],
+            "not_found": [],
+            "errors": []
+        }
+
+        try:
+            for song_id in song_ids:
+                try:
+                    # Check if song exists
+                    song = song_service.get_song_by_id(song_id)
+                    if not song:
+                        results["not_found"].append(song_id)
+                        continue
+
+                    # Delete song and all its choices (handled by cascade)
+                    success = song_service.delete_song_by_id(song_id)
+                    if success:
+                        results["deleted"].append(song_id)
+                        print(f"Song {song_id} and its choices deleted successfully", file=sys.stderr)
+                    else:
+                        results["errors"].append({"id": song_id, "error": "Failed to delete song"})
+
+                except Exception as e:
+                    error_msg = f"{type(e).__name__}: {e}"
+                    results["errors"].append({"id": song_id, "error": error_msg})
+                    print(f"Error deleting song {song_id}: {error_msg}", file=sys.stderr)
+
+            # Determine response status
+            if results["deleted"]:
+                status_code = 200
+                if results["not_found"] or results["errors"]:
+                    status_code = 207  # Multi-Status
+            else:
+                status_code = 400 if not results["not_found"] else 404
+
+            summary = {
+                "total_requested": len(song_ids),
+                "deleted": len(results["deleted"]),
+                "not_found": len(results["not_found"]),
+                "errors": len(results["errors"])
+            }
+
+            response_data = {
+                "summary": summary,
+                "results": results
+            }
+
+            print(f"Bulk delete completed: {summary}", file=sys.stderr)
+            return response_data, status_code
+
+        except Exception as e:
+            print(f"Error in bulk delete operation: {type(e).__name__}: {e}", file=sys.stderr)
+            return {"error": f"Bulk delete failed: {e}"}, 500
+
     def _format_duration_from_ms(self, duration_ms: float) -> str:
         """Format duration from milliseconds to MM:SS format"""
         if not duration_ms:
             return "00:00"
-        
+
         total_seconds = int(duration_ms / 1000)
         minutes = total_seconds // 60
         seconds = total_seconds % 60
