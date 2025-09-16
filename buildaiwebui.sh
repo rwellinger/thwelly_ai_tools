@@ -1,15 +1,11 @@
 #!/bin/zsh
 
 # shellcheck disable=SC2164
-cd forwardproxy/html
+cd forwardproxy
+docker-compose down
 
-rm -rf aiwebui
+rm -rf html/aiwebui
 
 # shellcheck disable=SC2164
-cd ../../aiwebui
-
+cd ../aiwebui
 ng build --configuration production --base-href /aiwebui/
-
-cd ../forwardproxy
-
-docker-compose down
