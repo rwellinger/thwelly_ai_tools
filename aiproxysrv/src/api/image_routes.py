@@ -12,19 +12,6 @@ api_image_v1 = Blueprint("api_image_v1", __name__, url_prefix="/api/v1/image")
 # Controller instance
 image_controller = ImageController()
 
-
-@api_image_v1.route('/<path:filename>')
-def serve_image(filename):
-    """Serve stored images"""
-    try:
-        print(f"Serving image: {filename}", file=sys.stderr)
-        return send_from_directory(IMAGES_DIR, filename)
-    except Exception as e:
-        print(f"Error serving image {filename}: {type(e).__name__}: {e}", file=sys.stderr)
-        print(f"Stacktrace: {traceback.format_exc()}", file=sys.stderr)
-        return jsonify({"error": "Image not found"}), 404
-
-
 @api_image_v1.route('/generate', methods=['POST'])
 def generate():
     """Generate image with DALL-E"""
@@ -70,9 +57,23 @@ def list_images():
     return jsonify(response_data), status_code
 
 
-@api_image_v1.route('/<int:image_id>', methods=['GET'])
+
+@api_image_v1.route('/<path:filename>')
+def serve_image(filename):
+    """Serve stored images"""
+    try:
+        print(f"Serving image: {filename}", file=sys.stderr)
+        return send_from_directory(IMAGES_DIR, filename)
+    except Exception as e:
+        print(f"Error serving image {filename}: {type(e).__name__}: {e}", file=sys.stderr)
+        print(f"Stacktrace: {traceback.format_exc()}", file=sys.stderr)
+        return jsonify({"error": "Image not found"}), 404
+
+
+@api_image_v1.route('/id/<string:image_id>', methods=['GET'])
 def get_image(image_id):
     """Get single image by ID"""
     response_data, status_code = image_controller.get_image_by_id(image_id)
     
     return jsonify(response_data), status_code
+

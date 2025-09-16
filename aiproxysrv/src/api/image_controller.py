@@ -160,18 +160,14 @@ class ImageController:
             images = ImageService.get_recent_images_paginated(limit=limit, offset=offset)
             total_count = ImageService.get_total_images_count()
             
-            # Convert to API response format
+            # Convert to API response format (minimal data for list view)
             image_list = []
             for image in images:
                 image_data = {
                     "id": image.id,
                     "prompt": image.prompt,
                     "size": image.size,
-                    "filename": image.filename,
-                    "url": image.local_url,
-                    "model_used": image.model_used,
                     "created_at": image.created_at.isoformat() if image.created_at else None,
-                    "prompt_hash": image.prompt_hash
                 }
                 image_list.append(image_data)
             
@@ -190,8 +186,9 @@ class ImageController:
         except Exception as e:
             print(f"Error retrieving images: {e}", file=sys.stderr)
             return {"error": f"Failed to retrieve images: {e}"}, 500
-    
-    def get_image_by_id(self, image_id: int) -> Tuple[Dict[str, Any], int]:
+
+
+    def get_image_by_id(self, image_id: str) -> Tuple[Dict[str, Any], int]:
         """
         Get single image by ID
         
