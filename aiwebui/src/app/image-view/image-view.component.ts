@@ -1,5 +1,6 @@
-import {Component, OnInit, ViewEncapsulation} from '@angular/core';
+import {Component, OnInit, ViewEncapsulation, ViewChild, ElementRef} from '@angular/core';
 import {CommonModule} from '@angular/common';
+import {FormsModule} from '@angular/forms';
 import {HeaderComponent} from '../shared/header/header.component';
 import {FooterComponent} from '../shared/footer/footer.component';
 import {ApiConfigService} from '../services/api-config.service';
@@ -15,7 +16,10 @@ interface ImageData {
   prompt_hash: string;
   size: string;
   url: string;
+  title?: string;
+  tags?: string;
   created_at: string;
+  updated_at?: string;
 }
 
 interface PaginationInfo {
@@ -28,7 +32,7 @@ interface PaginationInfo {
 @Component({
   selector: 'app-image-view',
   standalone: true,
-  imports: [CommonModule, HeaderComponent, FooterComponent, MatSnackBarModule, DisplayNamePipe],
+  imports: [CommonModule, FormsModule, HeaderComponent, FooterComponent, MatSnackBarModule, DisplayNamePipe],
   templateUrl: './image-view.component.html',
   styleUrl: './image-view.component.css',
   encapsulation: ViewEncapsulation.None
@@ -58,6 +62,12 @@ export class ImageViewComponent implements OnInit {
   // Selection mode state
   isSelectionMode = false;
   selectedImageIds: Set<string> = new Set();
+
+  // Inline editing state
+  editingTitle = false;
+  editTitleValue = '';
+
+  @ViewChild('titleInput') titleInput!: ElementRef;
 
   constructor(
     private apiConfig: ApiConfigService,
@@ -238,12 +248,13 @@ export class ImageViewComponent implements OnInit {
   applyFilterAndSort() {
     let filtered = [...this.images];
 
-    // Apply search filter
+    // Apply search filter (search in title and fallback to prompt)
     if (this.searchTerm.trim()) {
       const term = this.searchTerm.toLowerCase().trim();
-      filtered = filtered.filter(image => 
-        image.prompt?.toLowerCase().includes(term)
-      );
+      filtered = filtered.filter(image => {
+        const displayTitle = this.getDisplayTitle(image).toLowerCase();
+        return displayTitle.includes(term);
+      });
     }
 
     // Apply sort by created date
@@ -366,6 +377,88 @@ export class ImageViewComponent implements OnInit {
 
     } catch (error: any) {
       this.notificationService.error(`Error deleting images: ${error.message}`);
+    } finally {
+      this.isLoading = false;
+    }
+  }
+
+  // Title editing methods
+  getDisplayTitle(image: ImageData): string {
+    if (image.title && image.title.trim()) {
+      return image.title.trim();
+    }
+    // Generate title from prompt (first 30 chars)
+    return image.prompt.length > 30 ? image.prompt.substring(0, 27) + '...' : image.prompt;
+  }
+
+  startEditTitle() {
+    if (!this.selectedImage) return;
+
+    this.editingTitle = true;
+    // Use current title if exists, otherwise use generated title as template
+    this.editTitleValue = this.selectedImage.title || this.getDisplayTitle(this.selectedImage);
+
+    // Focus input after view updates
+    setTimeout(() => {
+      if (this.titleInput) {
+        this.titleInput.nativeElement.focus();
+        this.titleInput.nativeElement.select();
+      }
+    }, 100);
+  }
+
+  cancelEditTitle() {
+    this.editingTitle = false;
+    this.editTitleValue = '';
+  }
+
+  async saveTitle() {
+    if (!this.selectedImage) return;
+
+    this.isLoading = true;
+    try {
+      const response = await fetch(this.apiConfig.endpoints.image.update(this.selectedImage.id), {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          title: this.editTitleValue.trim()
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const updatedImage = await response.json();
+
+      // Update selected image with new data (ensure all fields are preserved)
+      this.selectedImage = {
+        ...this.selectedImage,
+        title: updatedImage.title,
+        tags: updatedImage.tags,
+        updated_at: updatedImage.updated_at
+      };
+
+      // Update in images list too
+      const imageIndex = this.images.findIndex(img => img.id === this.selectedImage!.id);
+      if (imageIndex !== -1) {
+        this.images[imageIndex] = {
+          ...this.images[imageIndex],
+          title: updatedImage.title,
+          tags: updatedImage.tags
+        };
+        this.applyFilterAndSort(); // Refresh filtered list
+      }
+
+      this.editingTitle = false;
+      this.editTitleValue = '';
+
+      this.notificationService.success('Title updated successfully!');
+
+    } catch (error: any) {
+      this.notificationService.error(`Error updating title: ${error.message}`);
     } finally {
       this.isLoading = false;
     }

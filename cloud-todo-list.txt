@@ -1,0 +1,1 @@
+Implementiere das gleiche Title-Edit Feature für song-view wie bei image-view

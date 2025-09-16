@@ -33,6 +33,7 @@ export class ApiConfigService {
             list: (limit?: number, offset?: number) => `${this.baseUrl}/api/v1/image/list${limit !== undefined || offset !== undefined ? '?' : ''}${limit !== undefined ? `limit=${limit}` : ''}${limit !== undefined && offset !== undefined ? '&' : ''}${offset !== undefined ? `offset=${offset}` : ''}`,
             detail: (id: string) => `${this.baseUrl}/api/v1/image/id/${id}`,
             delete: (id: string) => `${this.baseUrl}/api/v1/image/id/${id}`,
+            update: (id: string) => `${this.baseUrl}/api/v1/image/id/${id}`,
             bulkDelete: `${this.baseUrl}/api/v1/image/bulk-delete`
         },
         redis: {

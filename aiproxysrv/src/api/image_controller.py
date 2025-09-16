@@ -160,14 +160,21 @@ class ImageController:
             images = ImageService.get_recent_images_paginated(limit=limit, offset=offset)
             total_count = ImageService.get_total_images_count()
             
-            # Convert to API response format (minimal data for list view)
+            # Convert to API response format (include title for list display)
             image_list = []
             for image in images:
                 image_data = {
-                    "id": image.id,
+                    "id": str(image.id),
                     "prompt": image.prompt,
                     "size": image.size,
+                    "filename": image.filename,
+                    "url": image.local_url,
+                    "model_used": image.model_used,
+                    "title": image.title,
+                    "tags": image.tags,
                     "created_at": image.created_at.isoformat() if image.created_at else None,
+                    "updated_at": image.updated_at.isoformat() if image.updated_at else None,
+                    "prompt_hash": image.prompt_hash
                 }
                 image_list.append(image_data)
             
@@ -205,13 +212,15 @@ class ImageController:
                 return {"error": "Image not found"}, 404
             
             image_data = {
-                "id": image.id,
+                "id": str(image.id),
                 "prompt": image.prompt,
                 "size": image.size,
                 "filename": image.filename,
                 "url": image.local_url,
                 "file_path": image.file_path,
                 "model_used": image.model_used,
+                "title": image.title,
+                "tags": image.tags,
                 "created_at": image.created_at.isoformat() if image.created_at else None,
                 "updated_at": image.updated_at.isoformat() if image.updated_at else None,
                 "prompt_hash": image.prompt_hash
@@ -339,6 +348,56 @@ class ImageController:
             print(f"Error in bulk delete operation: {type(e).__name__}: {e}", file=sys.stderr)
             print(f"Stacktrace: {traceback.format_exc()}", file=sys.stderr)
             return {"error": f"Bulk delete failed: {e}"}, 500
+
+    def update_image_metadata(self, image_id: str, title: str = None, tags: str = None) -> Tuple[Dict[str, Any], int]:
+        """
+        Update image metadata (title and/or tags)
+
+        Args:
+            image_id: ID of the image to update
+            title: Optional new title
+            tags: Optional tags (comma-separated string)
+
+        Returns:
+            Tuple of (response_data, status_code)
+        """
+        try:
+            # Check if image exists first
+            image = ImageService.get_image_by_id(image_id)
+            if not image:
+                return {"error": "Image not found"}, 404
+
+            # Update metadata
+            success = ImageService.update_image_metadata(image_id, title, tags)
+            if success:
+                print(f"Image {image_id} metadata updated successfully", file=sys.stderr)
+                # Return updated image data
+                updated_image = ImageService.get_image_by_id(image_id)
+                if updated_image:
+                    image_data = {
+                        "id": str(updated_image.id),
+                        "title": updated_image.title,
+                        "tags": updated_image.tags,
+                        "prompt": updated_image.prompt,
+                        "size": updated_image.size,
+                        "filename": updated_image.filename,
+                        "url": updated_image.local_url,
+                        "file_path": updated_image.file_path,
+                        "model_used": updated_image.model_used,
+                        "created_at": updated_image.created_at.isoformat() if updated_image.created_at else None,
+                        "updated_at": updated_image.updated_at.isoformat() if updated_image.updated_at else None,
+                        "prompt_hash": updated_image.prompt_hash
+                    }
+                    return image_data, 200
+                else:
+                    return {"message": "Image updated successfully"}, 200
+            else:
+                return {"error": "Failed to update image metadata"}, 500
+
+        except Exception as e:
+            print(f"Error updating image {image_id}: {type(e).__name__}: {e}", file=sys.stderr)
+            print(f"Stacktrace: {traceback.format_exc()}", file=sys.stderr)
+            return {"error": f"Failed to update image: {e}"}, 500
 
     def _generate_prompt_hash(self, prompt: str) -> str:
         """Generate hash for prompt"""

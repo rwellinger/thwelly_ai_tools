@@ -103,3 +103,22 @@ def bulk_delete_images():
 
     return jsonify(response_data), status_code
 
+
+@api_image_v1.route('/id/<string:image_id>', methods=['PUT'])
+def update_image_metadata(image_id):
+    """Update image metadata (title and/or tags)"""
+    raw_json = request.get_json(silent=True)
+
+    if not raw_json:
+        return jsonify({"error": "No JSON provided"}), 400
+
+    title = raw_json.get('title')
+    tags = raw_json.get('tags')
+
+    if title is None and tags is None:
+        return jsonify({"error": "At least one field (title or tags) must be provided"}), 400
+
+    response_data, status_code = image_controller.update_image_metadata(image_id, title, tags)
+
+    return jsonify(response_data), status_code
+

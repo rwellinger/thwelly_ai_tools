@@ -99,6 +99,8 @@ class GeneratedImage(Base):
     local_url = Column(String(500), nullable=False)
     model_used = Column(String(100), nullable=True)
     prompt_hash = Column(String(32), nullable=True)
+    title = Column(String(255), nullable=True)  # Custom user title
+    tags = Column(Text, nullable=True)  # Comma-separated tags
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
 
