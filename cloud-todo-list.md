@@ -28,4 +28,32 @@ Dies könnte sein, sollange eingabe keinen request auslösen, mindestens 2 Zeich
 ### song-view
 Implementiere das gleiche search und sortier Feature für song-view wie bei image-view
 
+
+## Feature Aufbewahrung Mureka hinweis
+
+### Feature Ablaufdatum anzeigen (Tage)
+Einmal zuerst prüfen, wie die genauen Bedinnungen sind von Murieka, wie lange Songs aufbewahrt werden?
+
+Es muss einerseits angezeigt werden, wie lange der Song noch bei Mureka verfügbar ist.
+Datum - Tage aufbewahrung bei Mureka.
+Anderseits, wenn Frist abgelaufen, Download, Abspielmöglichkeit und Steam Generierung deaktivieren im UI.
+
+
+### Downloadmöglichkeit
+
+Feature bieten damit die Daten heruntergeladen werden können.
+Lokal speichern und die Referenz darauf ändern in Datenbank.
+
+### Liste Hinweis
+
+Es wäre eventuell schon hilfreich wenn es bei der Liste farblich oder per Symbol angezeigt würde.
+
+
+### Liste Aus-/Einblenden
+
+Filtermöglichkeit abgelaufene aus-/einzublenden
+
+
+
+
 ---
