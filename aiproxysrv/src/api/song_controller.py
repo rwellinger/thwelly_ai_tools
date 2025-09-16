@@ -83,6 +83,7 @@ class SongController:
                 song_data = {
                     "id": str(song.id),
                     "lyrics": song.lyrics,
+                    "title": song.title,
                     "model": song.model,
                     "created_at": song.created_at.isoformat() if song.created_at else None,
                 }
@@ -147,6 +148,8 @@ class SongController:
                 "lyrics": song.lyrics,
                 "prompt": song.prompt,
                 "model": song.model,
+                "title": song.title,
+                "tags": song.tags,
                 "status": song.status,
                 "progress_info": song.progress_info,
                 "error_message": song.error_message,
@@ -164,6 +167,48 @@ class SongController:
         except Exception as e:
             print(f"Error retrieving song {song_id}: {e}", file=sys.stderr)
             return {"error": f"Failed to retrieve song: {e}"}, 500
+
+    def update_song(self, song_id: str, update_data: Dict[str, Any]) -> Tuple[Dict[str, Any], int]:
+        """
+        Update song by ID
+
+        Args:
+            song_id: UUID of the song to update
+            update_data: Dictionary containing fields to update
+
+        Returns:
+            Tuple of (response_data, status_code)
+        """
+        try:
+            # Check if song exists first
+            song = song_service.get_song_by_id(song_id)
+            if not song:
+                return {"error": "Song not found"}, 404
+
+            # Only allow certain fields to be updated
+            allowed_fields = ['title', 'tags']
+            filtered_data = {k: v for k, v in update_data.items() if k in allowed_fields}
+
+            if not filtered_data:
+                return {"error": "No valid fields provided for update"}, 400
+
+            # Update the song
+            updated_song = song_service.update_song(song_id, filtered_data)
+
+            if not updated_song:
+                return {"error": "Failed to update song"}, 500
+
+            # Return updated song data
+            return {
+                "id": str(updated_song.id),
+                "title": updated_song.title,
+                "tags": updated_song.tags,
+                "updated_at": updated_song.updated_at.isoformat() if updated_song.updated_at else None
+            }, 200
+
+        except Exception as e:
+            print(f"Error updating song {song_id}: {e}", file=sys.stderr)
+            return {"error": f"Failed to update song: {e}"}, 500
 
     def delete_song(self, song_id: str) -> Tuple[Dict[str, Any], int]:
         """

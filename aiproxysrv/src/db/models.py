@@ -31,6 +31,10 @@ class Song(Base):
     lyrics = Column(Text, nullable=False)
     prompt = Column(Text, nullable=False)  # Style prompt
     model = Column(String(100), nullable=True, default="chirp-v3-5")
+
+    # User editable metadata
+    title = Column(String(500), nullable=True)
+    tags = Column(String(1000), nullable=True)
     
     # Status tracking
     status = Column(String(50), nullable=False, default="PENDING")  # PENDING, PROGRESS, SUCCESS, FAILURE, CANCELLED

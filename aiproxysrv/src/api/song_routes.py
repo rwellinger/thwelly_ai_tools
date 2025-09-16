@@ -98,6 +98,19 @@ def get_song(song_id):
     return jsonify(response_data), status_code
 
 
+@api_song_v1.route("/id/<song_id>", methods=["PUT"])
+def update_song(song_id):
+    """Update song by ID"""
+    payload = request.get_json(force=True)
+
+    if not payload:
+        return jsonify({"error": "No data provided"}), 400
+
+    response_data, status_code = song_controller.update_song(song_id, payload)
+
+    return jsonify(response_data), status_code
+
+
 @api_song_v1.route("/id/<song_id>", methods=["DELETE"])
 def delete_song(song_id):
     """Delete song by ID including all choices"""

@@ -3,6 +3,7 @@ import json
 import sys
 import redis
 import traceback
+from datetime import datetime
 from typing import Optional, Dict, Any, List
 from sqlalchemy.orm import Session, joinedload
 from sqlalchemy.exc import SQLAlchemyError
@@ -436,6 +437,68 @@ class SongService:
             print(f"Error deleting song {song_id}: {type(e).__name__}: {e}", file=sys.stderr)
             print(f"Stacktrace: {traceback.format_exc()}", file=sys.stderr)
             return False
+
+    def update_song(self, song_id: str, update_data: Dict[str, Any]) -> Optional[Song]:
+        """
+        Update song fields by ID
+
+        Args:
+            song_id: UUID of the song
+            update_data: Dictionary with fields to update (title, tags, etc.)
+
+        Returns:
+            Updated Song object if successful, None otherwise
+        """
+        try:
+            db = next(get_db())
+            try:
+                song = db.query(Song).filter(Song.id == song_id).first()
+                if not song:
+                    print(f"Song not found: {song_id}", file=sys.stderr)
+                    return None
+
+                # Update allowed fields
+                if 'title' in update_data:
+                    song.title = update_data['title']
+                if 'tags' in update_data:
+                    song.tags = update_data['tags']
+
+                # Update timestamp
+                song.updated_at = datetime.utcnow()
+
+                db.commit()
+
+                # Create a detached copy of the song object with updated fields
+                updated_song_data = {
+                    'id': song.id,
+                    'title': song.title,
+                    'tags': song.tags,
+                    'updated_at': song.updated_at
+                }
+
+                print(f"Song {song_id} updated successfully", file=sys.stderr)
+
+                # Return a simple object with the data we need
+                class UpdatedSong:
+                    def __init__(self, data):
+                        self.id = data['id']
+                        self.title = data['title']
+                        self.tags = data['tags']
+                        self.updated_at = data['updated_at']
+
+                return UpdatedSong(updated_song_data)
+
+            except SQLAlchemyError as e:
+                db.rollback()
+                print(f"Database error updating song {song_id}: {e}", file=sys.stderr)
+                raise
+            finally:
+                db.close()
+
+        except Exception as e:
+            print(f"Error updating song {song_id}: {type(e).__name__}: {e}", file=sys.stderr)
+            print(f"Stacktrace: {traceback.format_exc()}", file=sys.stderr)
+            return None
 
 
 # Global service instance

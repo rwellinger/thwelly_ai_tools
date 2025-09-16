@@ -49,7 +49,7 @@
 
             <div class="search-controls">
                 <input type="text"
-                       placeholder="Search lyrics..."
+                       placeholder="Search titles & lyrics..."
                        class="search-input"
                        [value]="searchTerm"
                        (input)="onSearchChange($any($event.target).value)"
@@ -66,7 +66,7 @@
                                [indeterminate]="selectedSongIds.size > 0 && selectedSongIds.size < filteredSongs.length"
                                (change)="onSelectAllChange($event)">
                     </th>
-                    <th class="lyrics-col">Lyrics Preview</th>
+                    <th class="lyrics-col">Title</th>
                     <th>Model</th>
                     <th class="sortable-header" (click)="toggleSort()">
                         Created
@@ -85,7 +85,7 @@
                                [checked]="selectedSongIds.has(song.id)"
                                (change)="toggleSongSelection(song.id)">
                     </td>
-                    <td class="lyrics-col">{{ song.lyrics | displayName }}</td>
+                    <td class="lyrics-col">{{ getDisplayTitle(song) }}</td>
                     <td>{{ song.model }}</td>
                     <td>{{ formatDateShort(song.created_at) }}</td>
                 </tr>
@@ -152,9 +152,32 @@
             <h2>Song Details</h2>
 
             <div class="song-info-compact">
+                <!-- Editable Title Section -->
+                <div class="song-title-section">
+                    <div class="title-row" *ngIf="!editingTitle">
+                        <h3 class="song-title">{{ getDisplayTitle(selectedSong) }}</h3>
+                        <button type="button" class="edit-btn" (click)="startEditTitle()" [disabled]="isLoading">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                    </div>
+                    <div class="title-edit-row" *ngIf="editingTitle">
+                        <input type="text"
+                               class="title-input"
+                               [(ngModel)]="editTitleValue"
+                               (keyup.enter)="saveTitle()"
+                               (keyup.escape)="cancelEditTitle()"
+                               #titleInput>
+                        <button type="button" class="save-btn" (click)="saveTitle()" [disabled]="isLoading">
+                            <i class="fas fa-check"></i>
+                        </button>
+                        <button type="button" class="cancel-btn" (click)="cancelEditTitle()" [disabled]="isLoading">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                </div>
+
                 <div class="song-meta-info">
                     <p><strong>Mureka Id:</strong> {{ selectedSong.job_id}}</p>
-                    <p><strong>Title:</strong> {{ getSongTitle(selectedSong) | displayName }}</p>
                     <p><strong>Model:</strong> {{ selectedSong.model }}</p>
                     <p><strong>Status:</strong> <span [class]="'status-' + selectedSong.status.toLowerCase()">{{ selectedSong.status }}</span></p>
                     <p><strong>Created:</strong> {{ formatDateDetailed(selectedSong.created_at) }}</p>

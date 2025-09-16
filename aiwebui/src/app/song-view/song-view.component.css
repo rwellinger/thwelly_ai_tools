@@ -441,6 +441,100 @@
     min-height: 0;
 }
 
+/* ===== TITLE EDITING ===== */
+.song-title-section {
+    background-color: #f8f9fa;
+    padding: 15px;
+    border-radius: 6px;
+    border-left: 4px solid #007bff;
+    margin-bottom: 15px;
+}
+
+.title-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+}
+
+.song-title {
+    margin: 0;
+    color: #333;
+    font-size: 1.2em;
+    font-weight: 600;
+    flex: 1;
+    word-break: break-word;
+}
+
+.title-edit-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.title-input {
+    flex: 1;
+    padding: 8px 12px;
+    border: 2px solid #007bff;
+    border-radius: 4px;
+    font-size: 1.1em;
+    font-weight: 500;
+    color: #333;
+    background: white;
+}
+
+.title-input:focus {
+    outline: none;
+    border-color: #0056b3;
+    box-shadow: 0 0 0 3px rgba(0,123,255,.1);
+}
+
+.edit-btn, .save-btn, .cancel-btn {
+    background: none;
+    border: 2px solid #007bff;
+    color: #007bff;
+    padding: 8px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.9em;
+    transition: all 0.2s ease;
+    min-width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.edit-btn:hover:not(:disabled) {
+    background-color: #007bff;
+    color: white;
+}
+
+.save-btn {
+    border-color: #28a745;
+    color: #28a745;
+}
+
+.save-btn:hover:not(:disabled) {
+    background-color: #28a745;
+    color: white;
+}
+
+.cancel-btn {
+    border-color: #6c757d;
+    color: #6c757d;
+}
+
+.cancel-btn:hover:not(:disabled) {
+    background-color: #6c757d;
+    color: white;
+}
+
+.edit-btn:disabled, .save-btn:disabled, .cancel-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
 .song-details-section h2 {
     color: #333;
     margin: 0 0 20px 0;
