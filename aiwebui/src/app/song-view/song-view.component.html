@@ -1,12 +1,39 @@
 <app-header></app-header>
 
-<div class="controls">
-    <button type="button" (click)="loadSongs()" [disabled]="isLoading">
-        <i class="fas fa-refresh"></i> Refresh
-    </button>
-    <button type="button" (click)="clearSelection()" [disabled]="!selectedSong">
-        <i class="fas fa-times"></i> Clear Selection
-    </button>
+<div class="controls-container">
+    <!-- Main controls -->
+    <div class="controls-section">
+        <h3>View Controls</h3>
+        <div class="controls-buttons">
+            <button type="button" (click)="loadSongs()" [disabled]="isLoading">
+                <i class="fas fa-refresh"></i> Refresh
+            </button>
+            <button type="button" (click)="clearSelection()" [disabled]="!selectedSong && !isSelectionMode">
+                <i class="fas fa-times"></i> Clear Selection
+            </button>
+            <button type="button" (click)="toggleSelectionMode()" [disabled]="isLoading"
+                    [class.active]="isSelectionMode">
+                <i class="fas fa-check-square"></i> {{ isSelectionMode ? 'Exit Select' : 'Select Mode' }}
+            </button>
+        </div>
+    </div>
+
+    <!-- Selection controls - only visible in selection mode -->
+    <div class="controls-section selection-section" *ngIf="isSelectionMode">
+        <h3>Selection Actions</h3>
+        <div class="controls-buttons">
+            <button type="button" (click)="selectAllSongs()" [disabled]="isLoading">
+                <i class="fas fa-check-double"></i> Select All
+            </button>
+            <button type="button" (click)="deselectAllSongs()" [disabled]="isLoading || selectedSongIds.size === 0">
+                <i class="fas fa-square"></i> Deselect All
+            </button>
+            <button type="button" (click)="bulkDeleteSongs()" [disabled]="isLoading || selectedSongIds.size === 0"
+                    class="delete-btn">
+                <i class="fas fa-trash"></i> Delete Selected ({{ selectedSongIds.size }})
+            </button>
+        </div>
+    </div>
 </div>
 
 <div class="master-detail-container">
@@ -33,6 +60,12 @@
             <table class="result-table">
                 <thead>
                 <tr>
+                    <th *ngIf="isSelectionMode" class="checkbox-col">
+                        <input type="checkbox"
+                               [checked]="selectedSongIds.size === filteredSongs.length && filteredSongs.length > 0"
+                               [indeterminate]="selectedSongIds.size > 0 && selectedSongIds.size < filteredSongs.length"
+                               (change)="onSelectAllChange($event)">
+                    </th>
                     <th class="lyrics-col">Lyrics Preview</th>
                     <th>Model</th>
                     <th class="sortable-header" (click)="toggleSort()">
@@ -44,8 +77,14 @@
                 <tbody>
                 <tr *ngFor="let song of filteredSongs"
                     [class.selected]="selectedSong?.id === song.id"
-                    (click)="selectSong(song)"
+                    [class.selection-selected]="isSelectionMode && selectedSongIds.has(song.id)"
+                    (click)="isSelectionMode ? toggleSongSelection(song.id) : selectSong(song)"
                     [style.cursor]="isLoading ? 'not-allowed' : 'pointer'">
+                    <td *ngIf="isSelectionMode" class="checkbox-col" (click)="$event.stopPropagation()">
+                        <input type="checkbox"
+                               [checked]="selectedSongIds.has(song.id)"
+                               (change)="toggleSongSelection(song.id)">
+                    </td>
                     <td class="lyrics-col">{{ song.lyrics | displayName }}</td>
                     <td>{{ song.model }}</td>
                     <td>{{ formatDateShort(song.created_at) }}</td>

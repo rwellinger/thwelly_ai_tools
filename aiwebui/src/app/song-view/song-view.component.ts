@@ -57,6 +57,10 @@ export class SongViewComponent implements OnInit {
   // Make Math available in template
   Math = Math;
 
+  // Selection mode state
+  isSelectionMode = false;
+  selectedSongIds: Set<string> = new Set();
+
   constructor(
     private songService: SongService,
     private apiConfig: ApiConfigService,
@@ -220,6 +224,104 @@ export class SongViewComponent implements OnInit {
     this.selectedSong = null;
     this.stopAudio();
     this.stemDownloadUrl = null;
+  }
+
+  // Selection mode methods
+  toggleSelectionMode() {
+    this.isSelectionMode = !this.isSelectionMode;
+    if (!this.isSelectionMode) {
+      this.selectedSongIds.clear();
+    }
+  }
+
+  toggleSongSelection(songId: string) {
+    if (this.selectedSongIds.has(songId)) {
+      this.selectedSongIds.delete(songId);
+    } else {
+      this.selectedSongIds.add(songId);
+    }
+  }
+
+  selectAllSongs() {
+    this.filteredSongs.forEach(song => {
+      this.selectedSongIds.add(song.id);
+    });
+  }
+
+  deselectAllSongs() {
+    this.selectedSongIds.clear();
+  }
+
+  onSelectAllChange(event: Event) {
+    const checkbox = event.target as HTMLInputElement;
+    if (checkbox.checked) {
+      this.selectAllSongs();
+    } else {
+      this.deselectAllSongs();
+    }
+  }
+
+  async bulkDeleteSongs() {
+    if (this.selectedSongIds.size === 0) {
+      this.notificationService.error('No songs selected for deletion');
+      return;
+    }
+
+    const confirmation = confirm(`Are you sure you want to delete ${this.selectedSongIds.size} selected song(s)?`);
+    if (!confirmation) {
+      return;
+    }
+
+    this.isLoading = true;
+    try {
+      const response = await fetch(this.apiConfig.endpoints.song.bulkDelete, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          ids: Array.from(this.selectedSongIds)
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const result = await response.json();
+
+      // Show detailed result notification
+      if (result.summary) {
+        const { deleted, not_found, errors } = result.summary;
+        let message = `Bulk delete completed: ${deleted} deleted`;
+        if (not_found > 0) message += `, ${not_found} not found`;
+        if (errors > 0) message += `, ${errors} errors`;
+
+        if (deleted > 0) {
+          this.notificationService.success(message);
+        } else {
+          this.notificationService.error(message);
+        }
+      }
+
+      // Clear selections and reload
+      this.selectedSongIds.clear();
+      this.isSelectionMode = false;
+
+      // Clear selected song if it was deleted
+      if (this.selectedSong && this.selectedSongIds.has(this.selectedSong.id)) {
+        this.selectedSong = null;
+        this.stopAudio();
+      }
+
+      // Reload current page
+      await this.loadSongs();
+
+    } catch (error: any) {
+      this.notificationService.error(`Error deleting songs: ${error.message}`);
+    } finally {
+      this.isLoading = false;
+    }
   }
 
   // Modern pagination methods

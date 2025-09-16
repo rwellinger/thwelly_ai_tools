@@ -55,6 +55,10 @@ export class ImageViewComponent implements OnInit {
   // Modal state
   showImageModal = false;
 
+  // Selection mode state
+  isSelectionMode = false;
+  selectedImageIds: Set<string> = new Set();
+
   constructor(
     private apiConfig: ApiConfigService,
     private notificationService: NotificationService
@@ -268,6 +272,103 @@ export class ImageViewComponent implements OnInit {
 
   closeImageModal() {
     this.showImageModal = false;
+  }
+
+  // Selection mode methods
+  toggleSelectionMode() {
+    this.isSelectionMode = !this.isSelectionMode;
+    if (!this.isSelectionMode) {
+      this.selectedImageIds.clear();
+    }
+  }
+
+  toggleImageSelection(imageId: string) {
+    if (this.selectedImageIds.has(imageId)) {
+      this.selectedImageIds.delete(imageId);
+    } else {
+      this.selectedImageIds.add(imageId);
+    }
+  }
+
+  selectAllImages() {
+    this.filteredImages.forEach(image => {
+      this.selectedImageIds.add(image.id);
+    });
+  }
+
+  deselectAllImages() {
+    this.selectedImageIds.clear();
+  }
+
+  onSelectAllChange(event: Event) {
+    const checkbox = event.target as HTMLInputElement;
+    if (checkbox.checked) {
+      this.selectAllImages();
+    } else {
+      this.deselectAllImages();
+    }
+  }
+
+  async bulkDeleteImages() {
+    if (this.selectedImageIds.size === 0) {
+      this.notificationService.error('No images selected for deletion');
+      return;
+    }
+
+    const confirmation = confirm(`Are you sure you want to delete ${this.selectedImageIds.size} selected image(s)?`);
+    if (!confirmation) {
+      return;
+    }
+
+    this.isLoading = true;
+    try {
+      const response = await fetch(this.apiConfig.endpoints.image.bulkDelete, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          ids: Array.from(this.selectedImageIds)
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const result = await response.json();
+
+      // Show detailed result notification
+      if (result.summary) {
+        const { deleted, not_found, errors } = result.summary;
+        let message = `Bulk delete completed: ${deleted} deleted`;
+        if (not_found > 0) message += `, ${not_found} not found`;
+        if (errors > 0) message += `, ${errors} errors`;
+
+        if (deleted > 0) {
+          this.notificationService.success(message);
+        } else {
+          this.notificationService.error(message);
+        }
+      }
+
+      // Clear selections and reload
+      this.selectedImageIds.clear();
+      this.isSelectionMode = false;
+
+      // Clear selected image if it was deleted
+      if (this.selectedImage && this.selectedImageIds.has(this.selectedImage.id)) {
+        this.selectedImage = null;
+      }
+
+      // Reload current page
+      await this.loadImages(this.currentPage);
+
+    } catch (error: any) {
+      this.notificationService.error(`Error deleting images: ${error.message}`);
+    } finally {
+      this.isLoading = false;
+    }
   }
 
   protected readonly Math = Math;
