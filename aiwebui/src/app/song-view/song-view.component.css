@@ -10,7 +10,7 @@
     padding: 8px 16px !important;
     border-radius: 4px !important;
     cursor: pointer !important;
-    font-size: 0.9em !important;
+    font-size: 14px !important;
     margin: 0 5px 0 0 !important;
 }
 
@@ -74,8 +74,10 @@
     border: 1px solid #e9ecef;
     border-radius: 8px;
     background: white;
-    overflow-y: auto;
+    overflow-y: hidden;
     padding: 0;
+    display: flex;
+    flex-direction: column;
 }
 
 .song-list {
@@ -108,7 +110,7 @@
     padding: 8px 12px;
     border: 1px solid #e9ecef;
     border-radius: 4px;
-    font-size: 0.9em;
+    font-size: 14px;
     margin-bottom: 5px;
     box-sizing: border-box;
 }
@@ -121,7 +123,7 @@
 
 .search-hint {
     color: #6c757d;
-    font-size: 0.75em;
+    font-size: 12px;
     font-style: italic;
 }
 
@@ -142,7 +144,7 @@
 .result-table {
     flex: 1;
     overflow-y: auto;
-    font-size: 0.9em;
+    font-size: 14px;
     max-height: 500px;
 }
 
@@ -204,7 +206,7 @@
     padding: 4px 8px !important;
     border-radius: 4px !important;
     cursor: pointer !important;
-    font-size: 0.75em !important;
+    font-size: 12px !important;
     margin: 0 !important;
 }
 
@@ -328,8 +330,9 @@
 /* ===== SONG DETAILS ===== */
 .song-details-section {
     padding: 20px;
-    height: 100%;
+    flex: 1;
     overflow-y: auto;
+    min-height: 0;
 }
 
 .song-details-section h2 {
@@ -348,7 +351,7 @@
 }
 
 .no-selection {
-    height: 100%;
+    flex: 1;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -381,7 +384,7 @@
 .song-meta-info p {
     margin: 6px 0;
     color: #333;
-    font-size: 0.9em;
+    font-size: 14px;
 }
 
 .song-lyrics {
@@ -403,7 +406,7 @@
     border: 1px solid #e9ecef;
     white-space: pre-wrap;
     font-family: monospace;
-    font-size: 0.85em;
+    font-size: 13px;
     line-height: 1.4;
     max-height: 120px;
     overflow-y: auto;
@@ -428,7 +431,7 @@
     border: 1px solid #e9ecef;
     font-style: italic;
     color: #495057;
-    font-size: 0.9em;
+    font-size: 14px;
 }
 
 /* ===== CHOICES ===== */
@@ -446,7 +449,7 @@
     width: 100%;
     border-collapse: collapse;
     margin-top: 10px;
-    font-size: 0.85em;
+    font-size: 14px;
 }
 
 .choices-table th,
@@ -460,7 +463,7 @@
     background-color: #007bff;
     color: white;
     font-weight: bold;
-    font-size: 0.8em;
+    font-size: 13px;
 }
 
 .choices-table tr:nth-child(even) {
@@ -478,7 +481,7 @@
     padding: 6px 12px !important;
     border-radius: 4px !important;
     cursor: pointer !important;
-    font-size: 0.8em !important;
+    font-size: 13px !important;
     margin: 0 5px 0 0 !important;
     transition: background-color 0.2s;
 }
@@ -507,7 +510,7 @@
     border-radius: 4px;
     background-color: #e3f2fd;
     display: inline-block;
-    font-size: 0.8em;
+    font-size: 13px;
 }
 
 .choices-table a:hover {
@@ -518,7 +521,7 @@
 .not-available {
     color: #6c757d;
     font-style: italic;
-    font-size: 0.8em;
+    font-size: 13px;
 }
 
 .no-choices,
@@ -714,7 +717,7 @@
     }
 
     .choices-table {
-        font-size: 0.75em;
+        font-size: 13px;
     }
 
     .choices-table th,
@@ -725,6 +728,6 @@
     .result-table th,
     .result-table td {
         padding: 6px;
-        font-size: 0.8em;
+        font-size: 13px;
     }
 }
