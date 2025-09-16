@@ -22,14 +22,20 @@ export class ApiConfigService {
                 const query = params.toString();
                 return `${this.baseUrl}/api/v1/song/list${query ? '?' + query : ''}`;
             },
-            detail: (songId: string) => `${this.baseUrl}/api/v1/song/id/${songId}`
+            detail: (songId: string) => `${this.baseUrl}/api/v1/song/id/${songId}`,
+            delete: (songId: string) => `${this.baseUrl}/api/v1/song/id/${songId}`,
+            update: (songId: string) => `${this.baseUrl}/api/v1/song/id/${songId}`,
+            bulkDelete: `${this.baseUrl}/api/v1/song/bulk-delete`
         },
         image: {
             generate: `${this.baseUrl}/api/v1/image/generate`,
             status: (taskId: string) => `${this.baseUrl}/api/v1/image/status/${taskId}`,
             tasks: `${this.baseUrl}/api/v1/image/tasks`,
             list: (limit?: number, offset?: number) => `${this.baseUrl}/api/v1/image/list${limit !== undefined || offset !== undefined ? '?' : ''}${limit !== undefined ? `limit=${limit}` : ''}${limit !== undefined && offset !== undefined ? '&' : ''}${offset !== undefined ? `offset=${offset}` : ''}`,
-            detail: (id: string) => `${this.baseUrl}/api/v1/image/id/${id}`
+            detail: (id: string) => `${this.baseUrl}/api/v1/image/id/${id}`,
+            delete: (id: string) => `${this.baseUrl}/api/v1/image/id/${id}`,
+            update: (id: string) => `${this.baseUrl}/api/v1/image/id/${id}`,
+            bulkDelete: `${this.baseUrl}/api/v1/image/bulk-delete`
         },
         redis: {
             keys: `${this.baseUrl}/api/v1/redis/list/keys`,

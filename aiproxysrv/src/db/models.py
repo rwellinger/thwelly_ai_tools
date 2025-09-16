@@ -31,6 +31,10 @@ class Song(Base):
     lyrics = Column(Text, nullable=False)
     prompt = Column(Text, nullable=False)  # Style prompt
     model = Column(String(100), nullable=True, default="chirp-v3-5")
+
+    # User editable metadata
+    title = Column(String(500), nullable=True)
+    tags = Column(String(1000), nullable=True)
     
     # Status tracking
     status = Column(String(50), nullable=False, default="PENDING")  # PENDING, PROGRESS, SUCCESS, FAILURE, CANCELLED
@@ -99,6 +103,8 @@ class GeneratedImage(Base):
     local_url = Column(String(500), nullable=False)
     model_used = Column(String(100), nullable=True)
     prompt_hash = Column(String(32), nullable=True)
+    title = Column(String(255), nullable=True)  # Custom user title
+    tags = Column(Text, nullable=True)  # Comma-separated tags
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
 

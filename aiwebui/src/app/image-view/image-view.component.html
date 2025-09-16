@@ -1,12 +1,39 @@
 <app-header></app-header>
 
-<div class="controls">
-    <button type="button" (click)="loadImages(0)" [disabled]="isLoading">
-        <i class="fas fa-refresh"></i> Refresh
-    </button>
-    <button type="button" (click)="clearSelection()" [disabled]="!selectedImage">
-        <i class="fas fa-times"></i> Clear Selection
-    </button>
+<div class="controls-container">
+    <!-- Main controls -->
+    <div class="controls-section">
+        <h3>View Controls</h3>
+        <div class="controls-buttons">
+            <button type="button" (click)="loadImages(0)" [disabled]="isLoading">
+                <i class="fas fa-refresh"></i> Refresh
+            </button>
+            <button type="button" (click)="clearSelection()" [disabled]="!selectedImage && !isSelectionMode">
+                <i class="fas fa-times"></i> Clear Selection
+            </button>
+            <button type="button" (click)="toggleSelectionMode()" [disabled]="isLoading"
+                    [class.active]="isSelectionMode">
+                <i class="fas fa-check-square"></i> {{ isSelectionMode ? 'Exit Select' : 'Select Mode' }}
+            </button>
+        </div>
+    </div>
+
+    <!-- Selection controls - only visible in selection mode -->
+    <div class="controls-section selection-section" *ngIf="isSelectionMode">
+        <h3>Selection Actions</h3>
+        <div class="controls-buttons">
+            <button type="button" (click)="selectAllImages()" [disabled]="isLoading">
+                <i class="fas fa-check-double"></i> Select All
+            </button>
+            <button type="button" (click)="deselectAllImages()" [disabled]="isLoading || selectedImageIds.size === 0">
+                <i class="fas fa-square"></i> Deselect All
+            </button>
+            <button type="button" (click)="bulkDeleteImages()" [disabled]="isLoading || selectedImageIds.size === 0"
+                    class="delete-btn">
+                <i class="fas fa-trash"></i> Delete Selected ({{ selectedImageIds.size }})
+            </button>
+        </div>
+    </div>
 </div>
 
 <div class="master-detail-container">
@@ -22,7 +49,7 @@
 
             <div class="search-controls">
                 <input type="text"
-                       placeholder="Search prompts..."
+                       placeholder="Search titles..."
                        class="search-input"
                        [value]="searchTerm"
                        (input)="onSearchChange($any($event.target).value)"
@@ -33,7 +60,13 @@
             <table class="result-table">
                 <thead>
                 <tr>
-                    <th class="prompt-col">Prompt</th>
+                    <th *ngIf="isSelectionMode" class="checkbox-col">
+                        <input type="checkbox"
+                               [checked]="selectedImageIds.size === filteredImages.length && filteredImages.length > 0"
+                               [indeterminate]="selectedImageIds.size > 0 && selectedImageIds.size < filteredImages.length"
+                               (change)="onSelectAllChange($event)">
+                    </th>
+                    <th class="title-col">Title</th>
                     <th>Size</th>
                     <th class="sortable-header" (click)="toggleSort()">
                         Created
@@ -45,9 +78,15 @@
                 <tbody>
                 <tr *ngFor="let image of filteredImages"
                     [class.selected]="selectedImage?.id === image.id"
-                    (click)="selectImage(image)"
+                    [class.selection-selected]="isSelectionMode && selectedImageIds.has(image.id)"
+                    (click)="isSelectionMode ? toggleImageSelection(image.id) : selectImage(image)"
                     [style.cursor]="isLoading ? 'not-allowed' : 'pointer'">
-                    <td class="prompt-col">{{ image.prompt | displayName }}</td>
+                    <td *ngIf="isSelectionMode" class="checkbox-col" (click)="$event.stopPropagation()">
+                        <input type="checkbox"
+                               [checked]="selectedImageIds.has(image.id)"
+                               (change)="toggleImageSelection(image.id)">
+                    </td>
+                    <td class="title-col">{{ getDisplayTitle(image) }}</td>
                     <td class="size-col">{{ image.size }}</td>
                     <td>{{ formatDateShort(image.created_at) }}</td>
                 </tr>
@@ -114,6 +153,30 @@
             <h2>Image Details</h2>
 
             <div class="image-info-compact">
+                <!-- Editable Title Section -->
+                <div class="image-title-section">
+                    <div class="title-row" *ngIf="!editingTitle">
+                        <h3 class="image-title">{{ getDisplayTitle(selectedImage) }}</h3>
+                        <button type="button" class="edit-btn" (click)="startEditTitle()" [disabled]="isLoading">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                    </div>
+                    <div class="title-edit-row" *ngIf="editingTitle">
+                        <input type="text"
+                               class="title-input"
+                               [(ngModel)]="editTitleValue"
+                               (keyup.enter)="saveTitle()"
+                               (keyup.escape)="cancelEditTitle()"
+                               #titleInput>
+                        <button type="button" class="save-btn" (click)="saveTitle()" [disabled]="isLoading">
+                            <i class="fas fa-check"></i>
+                        </button>
+                        <button type="button" class="cancel-btn" (click)="cancelEditTitle()" [disabled]="isLoading">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                </div>
+
                 <div class="image-meta-info">
                     <p><strong>Model:</strong> {{ selectedImage.model_used }}</p>
                     <p><strong>Size:</strong> {{ selectedImage.size }}</p>

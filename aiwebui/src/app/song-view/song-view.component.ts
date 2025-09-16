@@ -1,5 +1,6 @@
-import {Component, OnInit, ViewEncapsulation} from '@angular/core';
+import {Component, OnInit, ViewEncapsulation, ViewChild, ElementRef} from '@angular/core';
 import {CommonModule} from '@angular/common';
+import {FormsModule} from '@angular/forms';
 import {SongService} from '../services/song.service';
 import {HeaderComponent} from '../shared/header/header.component';
 import {FooterComponent} from '../shared/footer/footer.component';
@@ -12,7 +13,7 @@ import {PopupAudioPlayerComponent} from '../shared/popup-audio-player/popup-audi
 @Component({
   selector: 'app-song-view',
   standalone: true,
-  imports: [CommonModule, HeaderComponent, FooterComponent, MatSnackBarModule, DisplayNamePipe, PopupAudioPlayerComponent],
+  imports: [CommonModule, FormsModule, HeaderComponent, FooterComponent, MatSnackBarModule, DisplayNamePipe, PopupAudioPlayerComponent],
   templateUrl: './song-view.component.html',
   styleUrl: './song-view.component.css',
   encapsulation: ViewEncapsulation.None
@@ -56,6 +57,16 @@ export class SongViewComponent implements OnInit {
 
   // Make Math available in template
   Math = Math;
+
+  // Selection mode state
+  isSelectionMode = false;
+  selectedSongIds: Set<string> = new Set();
+
+  // Inline editing state
+  editingTitle = false;
+  editTitleValue = '';
+
+  @ViewChild('titleInput') titleInput!: ElementRef;
 
   constructor(
     private songService: SongService,
@@ -162,6 +173,91 @@ export class SongViewComponent implements OnInit {
     return song.prompt || 'Untitled Song';
   }
 
+  // Title editing methods
+  getDisplayTitle(song: any): string {
+    if (song.title && song.title.trim()) {
+      return song.title.trim();
+    }
+    // Fallback to lyrics preview like before (using DisplayNamePipe logic)
+    if (song.lyrics && song.lyrics.trim()) {
+      const lyrics = song.lyrics.trim();
+      return lyrics.length > 30 ? lyrics.substring(0, 27) + '...' : lyrics;
+    }
+    // Final fallback
+    return 'Untitled Song';
+  }
+
+  startEditTitle() {
+    if (!this.selectedSong) return;
+
+    this.editingTitle = true;
+    // Use current title if exists, otherwise use generated title as template
+    this.editTitleValue = this.selectedSong.title || this.getDisplayTitle(this.selectedSong);
+
+    // Focus input after view updates
+    setTimeout(() => {
+      if (this.titleInput) {
+        this.titleInput.nativeElement.focus();
+        this.titleInput.nativeElement.select();
+      }
+    }, 100);
+  }
+
+  cancelEditTitle() {
+    this.editingTitle = false;
+    this.editTitleValue = '';
+  }
+
+  async saveTitle() {
+    if (!this.selectedSong) return;
+
+    this.isLoading = true;
+    try {
+      const response = await fetch(this.apiConfig.endpoints.song.update(this.selectedSong.id), {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          title: this.editTitleValue.trim()
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const updatedSong = await response.json();
+
+      // Update selected song with new data (ensure all fields are preserved)
+      this.selectedSong = {
+        ...this.selectedSong,
+        title: updatedSong.title,
+        updated_at: updatedSong.updated_at
+      };
+
+      // Update in songs list too
+      const songIndex = this.songs.findIndex(song => song.id === this.selectedSong!.id);
+      if (songIndex !== -1) {
+        this.songs[songIndex] = {
+          ...this.songs[songIndex],
+          title: updatedSong.title
+        };
+        this.applyFilterAndSort(); // Refresh filtered list
+      }
+
+      this.editingTitle = false;
+      this.editTitleValue = '';
+
+      this.notificationService.success('Title updated successfully!');
+
+    } catch (error: any) {
+      this.notificationService.error(`Error updating title: ${error.message}`);
+    } finally {
+      this.isLoading = false;
+    }
+  }
+
   formatDate(dateString: string): string {
     return new Date(dateString).toLocaleDateString();
   }
@@ -188,12 +284,13 @@ export class SongViewComponent implements OnInit {
   applyFilterAndSort() {
     let filtered = [...this.songs];
 
-    // Apply search filter
+    // Apply search filter (search in title and fallback to lyrics)
     if (this.searchTerm.trim()) {
       const term = this.searchTerm.toLowerCase().trim();
-      filtered = filtered.filter(song => 
-        song.lyrics?.toLowerCase().includes(term)
-      );
+      filtered = filtered.filter(song => {
+        const displayTitle = this.getDisplayTitle(song).toLowerCase();
+        return displayTitle.includes(term) || song.lyrics?.toLowerCase().includes(term);
+      });
     }
 
     // Apply sort by created date
@@ -220,6 +317,104 @@ export class SongViewComponent implements OnInit {
     this.selectedSong = null;
     this.stopAudio();
     this.stemDownloadUrl = null;
+  }
+
+  // Selection mode methods
+  toggleSelectionMode() {
+    this.isSelectionMode = !this.isSelectionMode;
+    if (!this.isSelectionMode) {
+      this.selectedSongIds.clear();
+    }
+  }
+
+  toggleSongSelection(songId: string) {
+    if (this.selectedSongIds.has(songId)) {
+      this.selectedSongIds.delete(songId);
+    } else {
+      this.selectedSongIds.add(songId);
+    }
+  }
+
+  selectAllSongs() {
+    this.filteredSongs.forEach(song => {
+      this.selectedSongIds.add(song.id);
+    });
+  }
+
+  deselectAllSongs() {
+    this.selectedSongIds.clear();
+  }
+
+  onSelectAllChange(event: Event) {
+    const checkbox = event.target as HTMLInputElement;
+    if (checkbox.checked) {
+      this.selectAllSongs();
+    } else {
+      this.deselectAllSongs();
+    }
+  }
+
+  async bulkDeleteSongs() {
+    if (this.selectedSongIds.size === 0) {
+      this.notificationService.error('No songs selected for deletion');
+      return;
+    }
+
+    const confirmation = confirm(`Are you sure you want to delete ${this.selectedSongIds.size} selected song(s)?`);
+    if (!confirmation) {
+      return;
+    }
+
+    this.isLoading = true;
+    try {
+      const response = await fetch(this.apiConfig.endpoints.song.bulkDelete, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          ids: Array.from(this.selectedSongIds)
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const result = await response.json();
+
+      // Show detailed result notification
+      if (result.summary) {
+        const { deleted, not_found, errors } = result.summary;
+        let message = `Bulk delete completed: ${deleted} deleted`;
+        if (not_found > 0) message += `, ${not_found} not found`;
+        if (errors > 0) message += `, ${errors} errors`;
+
+        if (deleted > 0) {
+          this.notificationService.success(message);
+        } else {
+          this.notificationService.error(message);
+        }
+      }
+
+      // Clear selections and reload
+      this.selectedSongIds.clear();
+      this.isSelectionMode = false;
+
+      // Clear selected song if it was deleted
+      if (this.selectedSong && this.selectedSongIds.has(this.selectedSong.id)) {
+        this.selectedSong = null;
+        this.stopAudio();
+      }
+
+      // Reload current page
+      await this.loadSongs();
+
+    } catch (error: any) {
+      this.notificationService.error(`Error deleting songs: ${error.message}`);
+    } finally {
+      this.isLoading = false;
+    }
   }
 
   // Modern pagination methods

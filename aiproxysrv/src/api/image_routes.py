@@ -74,6 +74,51 @@ def serve_image(filename):
 def get_image(image_id):
     """Get single image by ID"""
     response_data, status_code = image_controller.get_image_by_id(image_id)
-    
+
+    return jsonify(response_data), status_code
+
+
+@api_image_v1.route('/id/<string:image_id>', methods=['DELETE'])
+def delete_image(image_id):
+    """Delete image by ID"""
+    response_data, status_code = image_controller.delete_image(image_id)
+
+    return jsonify(response_data), status_code
+
+
+@api_image_v1.route('/bulk-delete', methods=['DELETE'])
+def bulk_delete_images():
+    """Delete multiple images by IDs"""
+    raw_json = request.get_json(silent=True)
+
+    if not raw_json:
+        return jsonify({"error": "No JSON provided"}), 400
+
+    image_ids = raw_json.get('ids', [])
+
+    if not isinstance(image_ids, list):
+        return jsonify({"error": "ids must be an array"}), 400
+
+    response_data, status_code = image_controller.bulk_delete_images(image_ids)
+
+    return jsonify(response_data), status_code
+
+
+@api_image_v1.route('/id/<string:image_id>', methods=['PUT'])
+def update_image_metadata(image_id):
+    """Update image metadata (title and/or tags)"""
+    raw_json = request.get_json(silent=True)
+
+    if not raw_json:
+        return jsonify({"error": "No JSON provided"}), 400
+
+    title = raw_json.get('title')
+    tags = raw_json.get('tags')
+
+    if title is None and tags is None:
+        return jsonify({"error": "At least one field (title or tags) must be provided"}), 400
+
+    response_data, status_code = image_controller.update_image_metadata(image_id, title, tags)
+
     return jsonify(response_data), status_code
 

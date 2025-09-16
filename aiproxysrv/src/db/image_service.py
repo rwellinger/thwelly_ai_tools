@@ -127,3 +127,30 @@ class ImageService:
             return False
         finally:
             db.close()
+
+    @staticmethod
+    def update_image_metadata(image_id: str, title: str = None, tags: str = None) -> bool:
+        """Update image metadata (title and/or tags) by ID"""
+        db = SessionLocal()
+        try:
+            image = db.query(GeneratedImage).filter(GeneratedImage.id == image_id).first()
+            if not image:
+                return False
+
+            # Update fields if provided
+            if title is not None:
+                image.title = title.strip() if title.strip() else None
+            if tags is not None:
+                image.tags = tags.strip() if tags.strip() else None
+
+            db.commit()
+            print(f"Image metadata updated successfully: {image_id}", file=sys.stderr)
+            return True
+        except Exception as e:
+            db.rollback()
+            print(f"Error updating image metadata: {type(e).__name__}: {e}", file=sys.stderr)
+            import traceback
+            print(f"Stacktrace: {traceback.format_exc()}", file=sys.stderr)
+            return False
+        finally:
+            db.close()

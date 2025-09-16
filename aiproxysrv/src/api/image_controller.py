@@ -6,7 +6,7 @@ import requests
 import time
 import hashlib
 from pathlib import Path
-from typing import Tuple, Dict, Any
+from typing import Tuple, Dict, Any, List
 from config.settings import OPENAI_API_KEY, OPENAI_URL, OPENAI_MODEL, IMAGES_DIR
 from db.image_service import ImageService
 
@@ -160,14 +160,21 @@ class ImageController:
             images = ImageService.get_recent_images_paginated(limit=limit, offset=offset)
             total_count = ImageService.get_total_images_count()
             
-            # Convert to API response format (minimal data for list view)
+            # Convert to API response format (include title for list display)
             image_list = []
             for image in images:
                 image_data = {
-                    "id": image.id,
+                    "id": str(image.id),
                     "prompt": image.prompt,
                     "size": image.size,
+                    "filename": image.filename,
+                    "url": image.local_url,
+                    "model_used": image.model_used,
+                    "title": image.title,
+                    "tags": image.tags,
                     "created_at": image.created_at.isoformat() if image.created_at else None,
+                    "updated_at": image.updated_at.isoformat() if image.updated_at else None,
+                    "prompt_hash": image.prompt_hash
                 }
                 image_list.append(image_data)
             
@@ -205,13 +212,15 @@ class ImageController:
                 return {"error": "Image not found"}, 404
             
             image_data = {
-                "id": image.id,
+                "id": str(image.id),
                 "prompt": image.prompt,
                 "size": image.size,
                 "filename": image.filename,
                 "url": image.local_url,
                 "file_path": image.file_path,
                 "model_used": image.model_used,
+                "title": image.title,
+                "tags": image.tags,
                 "created_at": image.created_at.isoformat() if image.created_at else None,
                 "updated_at": image.updated_at.isoformat() if image.updated_at else None,
                 "prompt_hash": image.prompt_hash
@@ -222,6 +231,173 @@ class ImageController:
         except Exception as e:
             print(f"Error retrieving image {image_id}: {e}", file=sys.stderr)
             return {"error": f"Failed to retrieve image: {e}"}, 500
+
+    def delete_image(self, image_id: str) -> Tuple[Dict[str, Any], int]:
+        """
+        Delete image by ID
+
+        Args:
+            image_id: ID of the image to delete
+
+        Returns:
+            Tuple of (response_data, status_code)
+        """
+        try:
+            # Check if image exists first
+            image = ImageService.get_image_by_id(image_id)
+            if not image:
+                return {"error": "Image not found"}, 404
+
+            # Delete file from filesystem if it exists
+            if image.file_path and os.path.exists(image.file_path):
+                try:
+                    os.remove(image.file_path)
+                    print(f"Deleted image file: {image.file_path}", file=sys.stderr)
+                except OSError as e:
+                    print(f"Warning: Could not delete image file {image.file_path}: {e}", file=sys.stderr)
+
+            # Delete metadata from database
+            success = ImageService.delete_image_metadata(image_id)
+            if success:
+                print(f"Image {image_id} deleted successfully", file=sys.stderr)
+                return {"message": "Image deleted successfully"}, 200
+            else:
+                return {"error": "Failed to delete image metadata"}, 500
+
+        except Exception as e:
+            print(f"Error deleting image {image_id}: {type(e).__name__}: {e}", file=sys.stderr)
+            print(f"Stacktrace: {traceback.format_exc()}", file=sys.stderr)
+            return {"error": f"Failed to delete image: {e}"}, 500
+
+    def bulk_delete_images(self, image_ids: List[str]) -> Tuple[Dict[str, Any], int]:
+        """
+        Delete multiple images by IDs
+
+        Args:
+            image_ids: List of image IDs to delete
+
+        Returns:
+            Tuple of (response_data, status_code)
+        """
+        if not image_ids:
+            return {"error": "No image IDs provided"}, 400
+
+        if len(image_ids) > 100:
+            return {"error": "Too many images (max 100 per request)"}, 400
+
+        results = {
+            "deleted": [],
+            "not_found": [],
+            "errors": []
+        }
+
+        try:
+            for image_id in image_ids:
+                try:
+                    # Check if image exists
+                    image = ImageService.get_image_by_id(image_id)
+                    if not image:
+                        results["not_found"].append(image_id)
+                        continue
+
+                    # Delete file from filesystem if it exists
+                    if image.file_path and os.path.exists(image.file_path):
+                        try:
+                            os.remove(image.file_path)
+                            print(f"Deleted image file: {image.file_path}", file=sys.stderr)
+                        except OSError as e:
+                            print(f"Warning: Could not delete image file {image.file_path}: {e}", file=sys.stderr)
+
+                    # Delete metadata from database
+                    success = ImageService.delete_image_metadata(image_id)
+                    if success:
+                        results["deleted"].append(image_id)
+                        print(f"Image {image_id} deleted successfully", file=sys.stderr)
+                    else:
+                        results["errors"].append({"id": image_id, "error": "Failed to delete metadata"})
+
+                except Exception as e:
+                    error_msg = f"{type(e).__name__}: {e}"
+                    results["errors"].append({"id": image_id, "error": error_msg})
+                    print(f"Error deleting image {image_id}: {error_msg}", file=sys.stderr)
+
+            # Determine response status
+            if results["deleted"]:
+                status_code = 200
+                if results["not_found"] or results["errors"]:
+                    status_code = 207  # Multi-Status
+            else:
+                status_code = 400 if not results["not_found"] else 404
+
+            summary = {
+                "total_requested": len(image_ids),
+                "deleted": len(results["deleted"]),
+                "not_found": len(results["not_found"]),
+                "errors": len(results["errors"])
+            }
+
+            response_data = {
+                "summary": summary,
+                "results": results
+            }
+
+            print(f"Bulk delete completed: {summary}", file=sys.stderr)
+            return response_data, status_code
+
+        except Exception as e:
+            print(f"Error in bulk delete operation: {type(e).__name__}: {e}", file=sys.stderr)
+            print(f"Stacktrace: {traceback.format_exc()}", file=sys.stderr)
+            return {"error": f"Bulk delete failed: {e}"}, 500
+
+    def update_image_metadata(self, image_id: str, title: str = None, tags: str = None) -> Tuple[Dict[str, Any], int]:
+        """
+        Update image metadata (title and/or tags)
+
+        Args:
+            image_id: ID of the image to update
+            title: Optional new title
+            tags: Optional tags (comma-separated string)
+
+        Returns:
+            Tuple of (response_data, status_code)
+        """
+        try:
+            # Check if image exists first
+            image = ImageService.get_image_by_id(image_id)
+            if not image:
+                return {"error": "Image not found"}, 404
+
+            # Update metadata
+            success = ImageService.update_image_metadata(image_id, title, tags)
+            if success:
+                print(f"Image {image_id} metadata updated successfully", file=sys.stderr)
+                # Return updated image data
+                updated_image = ImageService.get_image_by_id(image_id)
+                if updated_image:
+                    image_data = {
+                        "id": str(updated_image.id),
+                        "title": updated_image.title,
+                        "tags": updated_image.tags,
+                        "prompt": updated_image.prompt,
+                        "size": updated_image.size,
+                        "filename": updated_image.filename,
+                        "url": updated_image.local_url,
+                        "file_path": updated_image.file_path,
+                        "model_used": updated_image.model_used,
+                        "created_at": updated_image.created_at.isoformat() if updated_image.created_at else None,
+                        "updated_at": updated_image.updated_at.isoformat() if updated_image.updated_at else None,
+                        "prompt_hash": updated_image.prompt_hash
+                    }
+                    return image_data, 200
+                else:
+                    return {"message": "Image updated successfully"}, 200
+            else:
+                return {"error": "Failed to update image metadata"}, 500
+
+        except Exception as e:
+            print(f"Error updating image {image_id}: {type(e).__name__}: {e}", file=sys.stderr)
+            print(f"Stacktrace: {traceback.format_exc()}", file=sys.stderr)
+            return {"error": f"Failed to update image: {e}"}, 500
 
     def _generate_prompt_hash(self, prompt: str) -> str:
         """Generate hash for prompt"""

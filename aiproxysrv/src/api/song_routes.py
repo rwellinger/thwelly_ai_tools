@@ -98,6 +98,45 @@ def get_song(song_id):
     return jsonify(response_data), status_code
 
 
+@api_song_v1.route("/id/<song_id>", methods=["PUT"])
+def update_song(song_id):
+    """Update song by ID"""
+    payload = request.get_json(force=True)
+
+    if not payload:
+        return jsonify({"error": "No data provided"}), 400
+
+    response_data, status_code = song_controller.update_song(song_id, payload)
+
+    return jsonify(response_data), status_code
+
+
+@api_song_v1.route("/id/<song_id>", methods=["DELETE"])
+def delete_song(song_id):
+    """Delete song by ID including all choices"""
+    response_data, status_code = song_controller.delete_song(song_id)
+
+    return jsonify(response_data), status_code
+
+
+@api_song_v1.route("/bulk-delete", methods=["DELETE"])
+def bulk_delete_songs():
+    """Delete multiple songs by IDs"""
+    payload = request.get_json(force=True)
+
+    if not payload:
+        return jsonify({"error": "No JSON provided"}), 400
+
+    song_ids = payload.get('ids', [])
+
+    if not isinstance(song_ids, list):
+        return jsonify({"error": "ids must be an array"}), 400
+
+    response_data, status_code = song_controller.bulk_delete_songs(song_ids)
+
+    return jsonify(response_data), status_code
+
+
 api_song_task_v1 = Blueprint("api_song_task_v1", __name__, url_prefix="/api/v1/song/task")
 
 @api_song_task_v1.route("/status/<task_id>", methods=["GET"])

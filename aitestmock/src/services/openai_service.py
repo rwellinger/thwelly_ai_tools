@@ -28,6 +28,11 @@ class OpenAIService:
         with open(data_path, 'r') as f:
             response_data = json.load(f)
 
+        # Update timestamp to current time for realistic mock behavior
+        current_timestamp = int(time.time())
+        if 'created' in response_data:
+            response_data['created'] = current_timestamp
+
         # Check if this is an error response and return appropriate HTTP status
         if 'error' in response_data:
             error_type = response_data['error'].get('type', '')
