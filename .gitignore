@@ -30,4 +30,5 @@ dump.rdb
 .env_postgres
 .env_mock
 
-/aitestmock/static/images/f3e7cd8a1f_1757759963.png
+/aitestmock/static/images/*
+/aitestmock/static/audio/*
