@@ -10,4 +10,6 @@ cd ../../aiwebui
 
 ng build --configuration production --base-href /aiwebui/
 
+cd ../forwardproxy
+
 docker-compose down
