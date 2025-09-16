@@ -90,7 +90,7 @@ def list_songs():
     return jsonify(response_data), status_code
 
 
-@api_song_v1.route("/<song_id>", methods=["GET"])
+@api_song_v1.route("/id/<song_id>", methods=["GET"])
 def get_song(song_id):
     """Get single song by ID with all choices"""
     response_data, status_code = song_controller.get_song_by_id(song_id)

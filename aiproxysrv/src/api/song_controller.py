@@ -76,44 +76,15 @@ class SongController:
             songs = song_service.get_songs_paginated(limit=limit, offset=offset, status=status)
             total_count = song_service.get_total_songs_count(status=status)
             
-            # Convert to API response format
+            # Convert to API response format (minimal data for list view)
             songs_list = []
             for song in songs:
-                # Format choices
-                choices_list = []
-                for choice in song.choices:
-                    choice_data = {
-                        "id": str(choice.id),
-                        "mureka_choice_id": choice.mureka_choice_id,
-                        "choice_index": choice.choice_index,
-                        "mp3_url": choice.mp3_url,
-                        "flac_url": choice.flac_url,
-                        "video_url": choice.video_url,
-                        "image_url": choice.image_url,
-                        "duration": choice.duration,
-                        "title": choice.title,
-                        "tags": choice.tags,
-                        "formattedDuration": self._format_duration_from_ms(choice.duration) if choice.duration else None,
-                        "created_at": choice.created_at.isoformat() if choice.created_at else None
-                    }
-                    choices_list.append(choice_data)
-                
-                # Format song data
+                # Format song data (only fields needed for list display)
                 song_data = {
                     "id": str(song.id),
-                    "task_id": song.task_id,
-                    "job_id": song.job_id,
                     "lyrics": song.lyrics,
-                    "prompt": song.prompt,
                     "model": song.model,
-                    "status": song.status,
-                    "error_message": song.error_message,
-                    "mureka_status": song.mureka_status,
-                    "choices_count": len(choices_list),
-                    "choices": choices_list,
                     "created_at": song.created_at.isoformat() if song.created_at else None,
-                    "updated_at": song.updated_at.isoformat() if song.updated_at else None,
-                    "completed_at": song.completed_at.isoformat() if song.completed_at else None
                 }
                 songs_list.append(song_data)
             

@@ -22,7 +22,7 @@ export class ApiConfigService {
                 const query = params.toString();
                 return `${this.baseUrl}/api/v1/song/list${query ? '?' + query : ''}`;
             },
-            detail: (songId: string) => `${this.baseUrl}/api/v1/song/${songId}`
+            detail: (songId: string) => `${this.baseUrl}/api/v1/song/id/${songId}`
         },
         image: {
             generate: `${this.baseUrl}/api/v1/image/generate`,
