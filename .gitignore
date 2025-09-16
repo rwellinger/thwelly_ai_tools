@@ -29,6 +29,3 @@ dump.rdb
 .env
 .env_postgres
 .env_mock
-
-/claude-prompt.txt
-/CLAUDE.md

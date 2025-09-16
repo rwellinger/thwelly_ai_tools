@@ -61,7 +61,7 @@ export class ImageViewComponent implements OnInit {
 
   // Selection mode state
   isSelectionMode = false;
-  selectedImageIds: Set<string> = new Set();
+  selectedImageIds = new Set<string>();
 
   // Inline editing state
   editingTitle = false;

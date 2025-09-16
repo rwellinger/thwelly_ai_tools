@@ -443,6 +443,209 @@
     min-height: 0;
 }
 
+/* ===== TAGS SECTION ===== */
+.song-tags-section {
+    background-color: #f8f9fa;
+    padding: 15px;
+    border-radius: 6px;
+    border-left: 4px solid #28a745;
+    margin-bottom: 15px;
+}
+
+.tags-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+}
+
+.tags-title {
+    margin: 0;
+    color: #333;
+    font-size: 1.1em;
+    font-weight: 600;
+    flex-shrink: 0;
+}
+
+.tags-display {
+    flex: 1;
+    color: #495057;
+    font-size: 0.95em;
+    word-break: break-word;
+    padding: 0 10px;
+}
+
+.tags-edit-section {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.tags-edit-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+}
+
+.tags-edit-buttons {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.tags-categories {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+    margin-top: 10px;
+}
+
+.tag-category {
+    background: white;
+    padding: 12px;
+    border-radius: 6px;
+    border: 1px solid #e9ecef;
+}
+
+.category-title {
+    margin: 0 0 10px 0;
+    color: #28a745;
+    font-size: 0.9em;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border-bottom: 1px solid #28a745;
+    padding-bottom: 5px;
+}
+
+.tag-checkboxes {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.tag-checkbox {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    font-size: 0.9em;
+    color: #333;
+    padding: 4px 0;
+    position: relative;
+}
+
+.tag-checkbox input[type="checkbox"] {
+    appearance: none;
+    width: 16px;
+    height: 16px;
+    border: 2px solid #28a745;
+    border-radius: 3px;
+    cursor: pointer;
+    position: relative;
+    background: white;
+    transition: all 0.2s ease;
+}
+
+.tag-checkbox input[type="checkbox"]:checked {
+    background-color: #28a745;
+    border-color: #28a745;
+}
+
+.tag-checkbox input[type="checkbox"]:checked::before {
+    content: '✓';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: white;
+    font-size: 11px;
+    font-weight: bold;
+}
+
+.tag-checkbox input[type="checkbox"]:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.tag-checkbox:hover input[type="checkbox"]:not(:disabled) {
+    border-color: #218838;
+    box-shadow: 0 0 0 2px rgba(40, 167, 69, 0.1);
+}
+
+.tags-edit-buttons .save-btn {
+    background: none;
+    border: 2px solid #28a745;
+    color: #28a745;
+    padding: 8px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.9em;
+    transition: all 0.2s ease;
+    min-width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.tags-edit-buttons .save-btn:hover:not(:disabled) {
+    background-color: #28a745;
+    color: white;
+}
+
+.tags-edit-buttons .cancel-btn {
+    background: none;
+    border: 2px solid #6c757d;
+    color: #6c757d;
+    padding: 8px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.9em;
+    transition: all 0.2s ease;
+    min-width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.tags-edit-buttons .cancel-btn:hover:not(:disabled) {
+    background-color: #6c757d;
+    color: white;
+}
+
+.tags-edit-buttons .save-btn:disabled,
+.tags-edit-buttons .cancel-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* Responsive tags */
+@media (max-width: 768px) {
+    .tags-categories {
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+
+    .tags-row {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+    }
+
+    .tags-edit-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+    }
+
+    .tag-checkbox {
+        font-size: 0.85em;
+    }
+}
+
 /* ===== TITLE EDITING ===== */
 .song-title-section {
     background-color: #f8f9fa;

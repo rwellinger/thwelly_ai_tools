@@ -63,11 +63,22 @@ export class SongViewComponent implements OnInit {
 
   // Selection mode state
   isSelectionMode = false;
-  selectedSongIds: Set<string> = new Set();
+  selectedSongIds = new Set<string>();
 
   // Inline editing state
   editingTitle = false;
   editTitleValue = '';
+
+  // Tags editing state
+  editingTags = false;
+  selectedTags = new Set<string>();
+
+  // Predefined tags categories
+  readonly tagCategories = {
+    style: ['Alternative', 'Rock', 'Pop', 'Ballad', 'Modern', 'Classic', 'Folk'],
+    theme: ['Nature', 'Love', 'Technology', 'People', 'Drama', 'Politics'],
+    useCase: ['Unused', 'Cover', 'Song', 'Inspiration', 'Video', 'Demo']
+  };
 
   @ViewChild('titleInput') titleInput!: ElementRef;
 
@@ -630,5 +641,102 @@ export class SongViewComponent implements OnInit {
     } finally {
       this.isLoading = false;
     }
+  }
+
+  // Tags editing methods
+  parseTagsFromString(tagsString: string): Set<string> {
+    if (!tagsString || !tagsString.trim()) {
+      return new Set();
+    }
+    return new Set(
+      tagsString.split(',')
+        .map(tag => tag.trim())
+        .filter(tag => tag.length > 0)
+    );
+  }
+
+  startEditTags() {
+    if (!this.selectedSong) return;
+
+    this.editingTags = true;
+    // Parse existing tags into selectedTags set
+    this.selectedTags = this.parseTagsFromString(this.selectedSong.tags || '');
+  }
+
+  cancelEditTags() {
+    this.editingTags = false;
+    this.selectedTags.clear();
+  }
+
+  toggleTag(tag: string) {
+    if (this.selectedTags.has(tag)) {
+      this.selectedTags.delete(tag);
+    } else {
+      this.selectedTags.add(tag);
+    }
+  }
+
+  isTagSelected(tag: string): boolean {
+    return this.selectedTags.has(tag);
+  }
+
+  async saveTags() {
+    if (!this.selectedSong) return;
+
+    this.isLoading = true;
+    try {
+      // Convert selectedTags set to comma-separated string
+      const tagsString = Array.from(this.selectedTags).join(', ');
+
+      const response = await fetch(this.apiConfig.endpoints.song.update(this.selectedSong.id), {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          tags: tagsString
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const updatedSong = await response.json();
+
+      // Update selected song with new data
+      this.selectedSong = {
+        ...this.selectedSong,
+        tags: updatedSong.tags,
+        updated_at: updatedSong.updated_at
+      };
+
+      // Update in songs list too
+      const songIndex = this.songs.findIndex(song => song.id === this.selectedSong!.id);
+      if (songIndex !== -1) {
+        this.songs[songIndex] = {
+          ...this.songs[songIndex],
+          tags: updatedSong.tags
+        };
+      }
+
+      this.editingTags = false;
+      this.selectedTags.clear();
+
+      this.notificationService.success('Tags updated successfully!');
+
+    } catch (error: any) {
+      this.notificationService.error(`Error updating tags: ${error.message}`);
+    } finally {
+      this.isLoading = false;
+    }
+  }
+
+  getSelectedTagsDisplay(): string {
+    if (!this.selectedSong?.tags) {
+      return 'No tags';
+    }
+    const tags = this.parseTagsFromString(this.selectedSong.tags);
+    return tags.size > 0 ? Array.from(tags).join(', ') : 'No tags';
   }
 }

@@ -109,7 +109,7 @@ export class SongGeneratorComponent implements OnInit {
                     this.result = `<div class="error-box">Error: ${errorMessage}</div>`;
                     completed = true;
                 } else {
-                    let statusText = this.getStatusText(data);
+                    const statusText = this.getStatusText(data);
                     this.loadingMessage = `${statusText} ... Please wait until finished.`;
                     interval = Math.min(interval * 1.5, 60000);
                     await new Promise(resolve => setTimeout(resolve, interval));

@@ -176,6 +176,77 @@
                     </div>
                 </div>
 
+                <!-- Tags Section -->
+                <div class="song-tags-section">
+                    <div class="tags-row" *ngIf="!editingTags">
+                        <h3 class="tags-title">Tags:</h3>
+                        <span class="tags-display">{{ getSelectedTagsDisplay() }}</span>
+                        <button type="button" class="edit-btn" (click)="startEditTags()" [disabled]="isLoading">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                    </div>
+                    <div class="tags-edit-section" *ngIf="editingTags">
+                        <div class="tags-edit-header">
+                            <h3 class="tags-title">Edit Tags:</h3>
+                            <div class="tags-edit-buttons">
+                                <button type="button" class="save-btn" (click)="saveTags()" [disabled]="isLoading">
+                                    <i class="fas fa-check"></i>
+                                </button>
+                                <button type="button" class="cancel-btn" (click)="cancelEditTags()" [disabled]="isLoading">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="tags-categories">
+                            <!-- Style Tags -->
+                            <div class="tag-category">
+                                <h4 class="category-title">Style</h4>
+                                <div class="tag-checkboxes">
+                                    <label *ngFor="let tag of tagCategories.style" class="tag-checkbox">
+                                        <input type="checkbox"
+                                               [checked]="isTagSelected(tag)"
+                                               (change)="toggleTag(tag)"
+                                               [disabled]="isLoading">
+                                        <span class="checkmark"></span>
+                                        {{ tag }}
+                                    </label>
+                                </div>
+                            </div>
+
+                            <!-- Theme Tags -->
+                            <div class="tag-category">
+                                <h4 class="category-title">Theme</h4>
+                                <div class="tag-checkboxes">
+                                    <label *ngFor="let tag of tagCategories.theme" class="tag-checkbox">
+                                        <input type="checkbox"
+                                               [checked]="isTagSelected(tag)"
+                                               (change)="toggleTag(tag)"
+                                               [disabled]="isLoading">
+                                        <span class="checkmark"></span>
+                                        {{ tag }}
+                                    </label>
+                                </div>
+                            </div>
+
+                            <!-- Use Case Tags -->
+                            <div class="tag-category">
+                                <h4 class="category-title">Use Case</h4>
+                                <div class="tag-checkboxes">
+                                    <label *ngFor="let tag of tagCategories.useCase" class="tag-checkbox">
+                                        <input type="checkbox"
+                                               [checked]="isTagSelected(tag)"
+                                               (change)="toggleTag(tag)"
+                                               [disabled]="isLoading">
+                                        <span class="checkmark"></span>
+                                        {{ tag }}
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <div class="song-meta-info">
                     <p><strong>Mureka Id:</strong> {{ selectedSong.job_id}}</p>
                     <p><strong>Model:</strong> {{ selectedSong.model }}</p>
