@@ -13,7 +13,7 @@ import {PopupAudioPlayerComponent} from '../shared/popup-audio-player/popup-audi
 @Component({
   selector: 'app-song-view',
   standalone: true,
-  imports: [CommonModule, FormsModule, HeaderComponent, FooterComponent, MatSnackBarModule, DisplayNamePipe, PopupAudioPlayerComponent],
+  imports: [CommonModule, FormsModule, HeaderComponent, FooterComponent, MatSnackBarModule, PopupAudioPlayerComponent],
   templateUrl: './song-view.component.html',
   styleUrl: './song-view.component.css',
   encapsulation: ViewEncapsulation.None
@@ -614,7 +614,6 @@ export class SongViewComponent implements OnInit {
   async generateStem(mp3Url: string) {
     this.isLoading = true;
     this.loadingMessage = 'Generating stems...';
-    this.notificationService.loading('Generating stems...');
 
     try {
       const response = await Promise.race([

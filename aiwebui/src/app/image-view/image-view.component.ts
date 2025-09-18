@@ -151,7 +151,6 @@ export class ImageViewComponent implements OnInit, AfterViewInit {
         }
       } else {
         this.images = [];
-        this.notificationService.error('No images found');
       }
     } catch (error: any) {
       this.notificationService.error(`Error loading images: ${error.message}`);
