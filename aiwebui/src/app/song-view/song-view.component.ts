@@ -7,15 +7,15 @@ import {FooterComponent} from '../shared/footer/footer.component';
 import {ApiConfigService} from '../services/api-config.service';
 import {NotificationService} from '../services/notification.service';
 import {MatSnackBarModule} from '@angular/material/snack-bar';
-import {DisplayNamePipe} from '../pipes/display-name.pipe';
 import {PopupAudioPlayerComponent} from '../shared/popup-audio-player/popup-audio-player.component';
+import {SongDetailPanelComponent} from '../shared/song-detail-panel/song-detail-panel.component';
 
 @Component({
   selector: 'app-song-view',
   standalone: true,
-  imports: [CommonModule, FormsModule, HeaderComponent, FooterComponent, MatSnackBarModule, PopupAudioPlayerComponent],
+  imports: [CommonModule, FormsModule, HeaderComponent, FooterComponent, MatSnackBarModule, PopupAudioPlayerComponent, SongDetailPanelComponent],
   templateUrl: './song-view.component.html',
-  styleUrl: './song-view.component.css',
+  styleUrl: './song-view.component.scss',
   encapsulation: ViewEncapsulation.None
 })
 export class SongViewComponent implements OnInit {
@@ -25,7 +25,7 @@ export class SongViewComponent implements OnInit {
   selectedSong: any = null;
   pagination: any = {
     total: 0,
-    limit: 20,
+    limit: 15,
     offset: 0,
     has_more: false
   };
@@ -45,7 +45,7 @@ export class SongViewComponent implements OnInit {
   // Audio and features
   currentlyPlaying: string | null = null;
   audioUrl: string | null = null;
-  stemDownloadUrl: string | null = null;
+  stemDownloadUrls: Map<string, string> = new Map();
   showPopupPlayer = false;
   currentSongTitle = '';
 
@@ -121,7 +121,8 @@ export class SongViewComponent implements OnInit {
   async selectSong(song: any) {
     this.isLoading = true;
     this.loadingMessage = 'Loading song details...';
-    this.stemDownloadUrl = null;
+    // Clear previous stem downloads when selecting new song
+    this.stemDownloadUrls.clear();
     this.selectedSong = null;
     this.stopAudio();
 
@@ -133,6 +134,9 @@ export class SongViewComponent implements OnInit {
         // Otherwise fetch full details
           this.selectedSong = await this.songService.getSongById(song.id);
       }
+
+      // Initialize stem download URLs for choices
+      this.initializeStemUrls();
     } catch (error: any) {
       this.notificationService.error(`Error loading song: ${error.message}`);
       this.selectedSong = null;
@@ -330,7 +334,7 @@ export class SongViewComponent implements OnInit {
   clearSelection() {
     this.selectedSong = null;
     this.stopAudio();
-    this.stemDownloadUrl = null;
+    // Stem downloads are now managed per choice
   }
 
   // Selection mode methods
@@ -555,13 +559,13 @@ export class SongViewComponent implements OnInit {
   }
 
   // Audio player methods
-  playAudio(mp3Url: string, choiceId: string) {
+  playAudio(mp3Url: string, choiceId: string, choiceNumber?: number) {
     if (this.currentlyPlaying === choiceId) {
       this.stopAudio();
     } else {
       this.audioUrl = mp3Url;
       this.currentlyPlaying = choiceId;
-      this.currentSongTitle = this.getSongTitle(this.selectedSong) + ` (Choice ${choiceId})`;
+      this.currentSongTitle = this.getSongTitle(this.selectedSong) + ` (Choice ${choiceNumber || 'Unknown'})`;
       this.showPopupPlayer = true;
     }
   }
@@ -634,14 +638,15 @@ export class SongViewComponent implements OnInit {
       const data = await response.json();
 
       if (data.status === 'SUCCESS' && data.result && data.result.zip_url) {
-        this.stemDownloadUrl = data.result.zip_url;
+        this.stemDownloadUrls.set(mp3Url, data.result.zip_url);
+        this.updateSelectedSongWithStems();
         this.notificationService.success('Stems generated successfully!');
       } else {
-        this.stemDownloadUrl = null;
+        // Stem downloads are now managed per choice
         this.notificationService.error('Stem generation failed or incomplete.');
       }
     } catch (error: any) {
-      this.stemDownloadUrl = null;
+      // Stem downloads are now managed per choice
       this.notificationService.error(`Error generating stem: ${error.message}`);
     } finally {
       this.isLoading = false;
@@ -743,5 +748,56 @@ export class SongViewComponent implements OnInit {
     }
     const tags = this.parseTagsFromString(this.selectedSong.tags);
     return tags.size > 0 ? Array.from(tags).join(', ') : 'No tags';
+  }
+
+  // Handlers for shared song detail panel
+  onTitleChanged(newTitle: string) {
+    this.editTitleValue = newTitle;
+    this.saveTitle();
+  }
+
+  onTagsChanged(newTags: string[]) {
+    this.selectedTags = new Set(newTags);
+    this.saveTags();
+  }
+
+  onDownloadFlac(url: string) {
+    this.downloadFlac(url);
+  }
+
+  onPlayAudio(event: {url: string, id: string, choiceNumber: number}) {
+    this.playAudio(event.url, event.id, event.choiceNumber);
+  }
+
+  onGenerateStem(url: string) {
+    this.generateStem(url);
+  }
+
+  onDownloadStems(url: string) {
+    this.downloadStems(url);
+  }
+
+  onCopyLyrics() {
+    this.copyLyricsToClipboard();
+  }
+
+  private updateSelectedSongWithStems() {
+    if (!this.selectedSong || !this.selectedSong.choices) return;
+
+    // Update choices with stem download URLs
+    this.selectedSong.choices = this.selectedSong.choices.map((choice: any) => ({
+      ...choice,
+      stemDownloadUrl: this.stemDownloadUrls.get(choice.mp3_url) || null
+    }));
+  }
+
+  private initializeStemUrls() {
+    if (!this.selectedSong || !this.selectedSong.choices) return;
+
+    // Set stemDownloadUrl for each choice based on existing stem URLs
+    this.selectedSong.choices = this.selectedSong.choices.map((choice: any) => ({
+      ...choice,
+      stemDownloadUrl: this.stemDownloadUrls.get(choice.mp3_url) || null
+    }));
   }
 }

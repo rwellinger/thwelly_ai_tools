@@ -52,57 +52,22 @@
     </div>
 
     <!-- Right Side: Song Results -->
-    <div class="song-result-panel">
-        <div *ngIf="!resultData && !isLoading" class="no-song">
-            <div class="placeholder-content">
-                <i class="fas fa-music placeholder-icon"></i>
-                <p>Your generated song will appear here</p>
-            </div>
-        </div>
-
-        <!-- Song Result Content -->
-        <div *ngIf="resultData" class="song-result-section">
-            <h2>Generated Song</h2>
-
-            <div class="song-info-compact">
-                <div class="song-meta-info">
-                    <p><strong>ID:</strong> {{ resultData.id }}</p>
-                    <p><strong>Model:</strong> {{ resultData.model }}</p>
-                    <p><strong>Created:</strong> {{ resultData.createdAtFormatted }}</p>
-                    <p><strong>Duration:</strong> {{ resultData.formattedDuration }} Minutes</p>
-                </div>
-            </div>
-
-            <div *ngIf="choices.length > 0" class="songs-list">
-                <div *ngFor="let choice of choices" class="song-item">
-                    <div class="song-item-header">
-                        <h3>Song {{ choice.id }}</h3>
-                        <span class="duration-badge">{{ choice.formattedDuration }}</span>
-                    </div>
-
-                    <div class="song-actions">
-                        <button type="button" (click)="downloadFlac(choice.flac_url)" class="action-button download-btn">
-                            <i class="fas fa-download"></i> FLAC Download
-                        </button>
-                        <button type="button" (click)="playAudio(choice.url, choice.id)" class="action-button play-btn">
-                            <i class="fas fa-music"></i>
-                            {{ currentlyPlaying === choice.id ? 'Hide Player' : 'MP3 Player' }}
-                        </button>
-                        <button [disabled]="isLoading" type="button" (click)="generateStem(choice.url)" class="action-button stem-btn">
-                            <i class="fas fa-brain"></i> Create Stems
-                        </button>
-                    </div>
-
-                </div>
-            </div>
-
-            <div *ngIf="stemDownloadUrl" class="stem-download">
-                <button type="button" (click)="downloadStems(stemDownloadUrl)" class="action-button download-btn">
-                    <i class="fas fa-download"></i> Download Stems
-                </button>
-            </div>
-        </div>
-    </div>
+    <app-song-detail-panel
+        [song]="generatedSongData"
+        [showEditTitle]="false"
+        [showEditTags]="false"
+        title="Generated Song"
+        [showMetaInfo]="['job_id', 'model', 'status', 'created', 'completed']"
+        placeholderText="Your generated song will appear here"
+        [currentlyPlayingId]="currentlyPlaying"
+        (titleChanged)="onTitleChanged($event)"
+        (tagsChanged)="onTagsChanged($event)"
+        (downloadFlac)="onDownloadFlac($event)"
+        (playAudio)="onPlayAudio($event)"
+        (generateStem)="onGenerateStem($event)"
+        (downloadStems)="onDownloadStems($event)"
+        (copyLyrics)="onCopyLyrics()">
+    </app-song-detail-panel>
 </div>
 
 <!-- Processing Popup -->

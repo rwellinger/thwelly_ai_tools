@@ -1,27 +1,29 @@
+@import '../../scss/variables';
+
 /* ===== SONG PROFILE SPECIFIC STYLES ===== */
 .controls {
-    margin-bottom: 20px;
+    margin-bottom: $spacing-20;
 }
 
 .account-info {
-    margin-bottom: 30px;
+    margin-bottom: $spacing-xl;
 }
 
 .account-info h2 {
-    color: #333;
-    margin-bottom: 15px;
-    font-size: 1.5em;
+    color: $text-primary;
+    margin-bottom: $spacing-15;
+    font-size: $font-2xl;
 }
 
 /* ===== STATUS BADGES ===== */
 .status-badge {
     display: inline-flex;
     align-items: center;
-    gap: 8px;
-    padding: 6px 12px;
-    border-radius: 20px;
-    font-size: 0.9em;
-    font-weight: bold;
+    gap: $spacing-sm;
+    padding: $spacing-6 $spacing-12;
+    border-radius: $spacing-20;
+    font-size: $font-base;
+    font-weight: $font-weight-bold;
     text-transform: uppercase;
 }
 
@@ -51,27 +53,27 @@
 
 /* ===== AMOUNT STYLING ===== */
 .balance-amount {
-    font-weight: bold;
-    color: #28a745;
-    font-size: 1.1em;
+    font-weight: $font-weight-bold;
+    color: $success-color;
+    font-size: $font-lg;
 }
 
 .spending-amount {
-    font-weight: bold;
-    color: #dc3545;
-    font-size: 1.1em;
+    font-weight: $font-weight-bold;
+    color: $danger-color;
+    font-size: $font-lg;
 }
 
 .recharge-amount {
-    font-weight: bold;
-    color: #007bff;
-    font-size: 1.1em;
+    font-weight: $font-weight-bold;
+    color: $primary-color;
+    font-size: $font-lg;
 }
 
 /* ===== TABLE OVERRIDES ===== */
 .result-table td:first-child {
-    font-weight: bold;
-    background-color: #f8f9fa;
+    font-weight: $font-weight-bold;
+    background-color: $background-light;
     width: 30%;
 }
 

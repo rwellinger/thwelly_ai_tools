@@ -7,7 +7,7 @@ import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
   standalone: true,
   imports: [CommonModule],
   templateUrl: './popup-audio-player.component.html',
-  styleUrl: './popup-audio-player.component.css',
+  styleUrl: './popup-audio-player.component.scss',
   encapsulation: ViewEncapsulation.None
 })
 export class PopupAudioPlayerComponent implements OnDestroy, OnChanges {

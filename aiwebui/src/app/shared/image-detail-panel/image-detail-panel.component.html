@@ -1,0 +1,82 @@
+<div class="image-details-panel">
+    <div *ngIf="!image" class="no-selection">
+        <div class="placeholder-content">
+            <i [class]="placeholderIcon + ' placeholder-icon'"></i>
+            <p>{{ placeholderText }}</p>
+        </div>
+    </div>
+
+    <!-- Image Details Content -->
+    <div *ngIf="image" class="image-details-section">
+        <h2>{{ title }}</h2>
+
+        <div class="image-info-compact">
+            <!-- Editable Title Section -->
+            <div class="image-title-section" *ngIf="showEditTitle">
+                <div class="title-row" *ngIf="!editingTitle">
+                    <h3 class="image-title">{{ getDisplayTitle(image) }}</h3>
+                    <button type="button" class="edit-btn" (click)="startEditTitle()">
+                        <i class="fas fa-edit"></i>
+                    </button>
+                </div>
+                <div class="title-edit-row" *ngIf="editingTitle">
+                    <input type="text"
+                           class="title-input"
+                           [(ngModel)]="editTitleValue"
+                           (keyup.enter)="saveTitle()"
+                           (keyup.escape)="cancelEditTitle()"
+                           #titleInput>
+                    <button type="button" class="save-btn" (click)="saveTitle()">
+                        <i class="fas fa-check"></i>
+                    </button>
+                    <button type="button" class="cancel-btn" (click)="cancelEditTitle()">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="image-meta-info">
+                <div class="meta-grid">
+                    <div class="meta-item" *ngIf="shouldShowMetaInfo('model') && image.model_used">
+                        <i class="fas fa-robot meta-icon"></i>
+                        <span class="meta-value">{{ image.model_used }}</span>
+                    </div>
+                    <div class="meta-item" *ngIf="shouldShowMetaInfo('size') && image.size">
+                        <i class="fas fa-expand-arrows-alt meta-icon"></i>
+                        <span class="meta-value">{{ image.size }}</span>
+                    </div>
+                    <div class="meta-item" *ngIf="shouldShowMetaInfo('created') && image.created_at">
+                        <i class="fas fa-calendar meta-icon"></i>
+                        <span class="meta-value">{{ formatDate(image.created_at) }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="image-prompt" *ngIf="image.prompt">
+                <h3>Prompt:</h3>
+                <p class="prompt-content">{{ image.prompt }}</p>
+            </div>
+
+            <div class="image-with-actions">
+                <div class="image-display">
+                    <div class="responsive-image-container" [ngClass]="getImageSizeClass()">
+                        <img [src]="image.url"
+                             [alt]="image.prompt || 'Generated Image'"
+                             (error)="onImageError($event)"
+                             loading="lazy"
+                             class="responsive-image">
+                    </div>
+                </div>
+                <div class="image-actions">
+                    <button type="button" (click)="onDownload()" class="download-link">
+                        <i class="fas fa-download"></i> Download Original
+                    </button>
+                    <button type="button" (click)="onPreview()" class="download-link preview-btn">
+                        <i class="fas fa-expand"></i> Full Size
+                    </button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>

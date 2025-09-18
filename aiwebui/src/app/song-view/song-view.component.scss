@@ -1,0 +1,742 @@
+@import '../../scss/variables';
+@import '../../scss/mixins';
+
+/* ===== SONG VIEW SPECIFIC STYLES ===== */
+
+/* Controls container - side by side layout */
+.controls-container {
+    display: flex;
+    gap: $spacing-20;
+    margin-bottom: $spacing-20;
+    flex-wrap: wrap;
+}
+
+.controls-section {
+    @include card-container($border-light, $background-white, $spacing-15);
+    min-width: 280px;
+    flex: 1;
+}
+
+.controls-section h3 {
+    @include section-header($background-light, $font-lg);
+    margin: 0 0 $spacing-12 0;
+    padding-bottom: $spacing-sm;
+}
+
+.selection-section {
+    border-color: $warning-color;
+    background: linear-gradient(135deg, #fff9c4, $background-white);
+}
+
+.selection-section h3 {
+    color: #856404;
+    border-bottom-color: $warning-color;
+}
+
+.controls-buttons {
+    display: flex;
+    gap: $spacing-sm;
+    flex-wrap: wrap;
+}
+
+.controls-buttons button {
+    @include button-style($primary-color, $background-white, $primary-hover);
+    padding: $spacing-sm $spacing-md !important;
+    font-size: $font-sm !important;
+    box-shadow: $shadow-sm !important;
+}
+
+
+.controls-buttons button.active {
+    background-color: $success-color !important;
+    box-shadow: 0 2px 6px rgba(40,167,69,0.3) !important;
+}
+
+.controls-buttons button.active:hover {
+    background-color: $success-hover !important;
+}
+
+.selection-section .delete-btn {
+    background-color: $danger-color !important;
+    color: $background-white !important;
+}
+
+.selection-section .delete-btn:hover:not(:disabled) {
+    background-color: #c82333 !important;
+    box-shadow: 0 2px 6px rgba(220,53,69,0.3) !important;
+}
+
+/* Responsive controls */
+@media (max-width: 768px) {
+    .controls-container {
+        flex-direction: column;
+        gap: $spacing-15;
+    }
+
+    .controls-section {
+        min-width: auto;
+    }
+
+    .controls-buttons {
+        gap: $spacing-6;
+    }
+
+    .controls-buttons button {
+        font-size: $font-sm !important;
+        padding: $spacing-6 $spacing-12 !important;
+    }
+}
+
+/* Checkbox column styling */
+.checkbox-col {
+    width: 40px !important;
+    text-align: center !important;
+    padding: $spacing-sm 4px !important;
+}
+
+.checkbox-col input[type="checkbox"] {
+    transform: scale(1.1);
+    cursor: pointer;
+}
+
+/* Selection highlighting */
+.result-table tr.selection-selected {
+    background-color: #fff3cd !important;
+    border-left: 4px solid $warning-color !important;
+}
+
+.result-table tr.selection-selected:hover {
+    background-color: #ffeaa7 !important;
+}
+
+/* ===== MASTER DETAIL LAYOUT ===== */
+.master-detail-container {
+    @include master-detail-layout($spacing-20, 40%, calc(100vh - 320px));
+    min-height: 500px;
+}
+
+/* Responsive height adjustments - removed fixed heights */
+
+.song-list-panel {
+    @include card-container($border-light, $background-white, 0);
+    flex: 0 0 40%;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    max-height: calc(100vh - 260px);
+}
+
+/* Responsive height adjustments */
+@media (max-height: 900px) {
+    .song-list-panel {
+        max-height: calc(100vh - 180px);
+    }
+}
+
+@media (max-height: 700px) {
+    .song-list-panel {
+        max-height: calc(100vh - 160px);
+    }
+}
+
+@media (max-width: 768px) {
+    .song-list-panel {
+        max-height: calc(100vh - 280px);
+    }
+}
+
+@media (max-width: 480px) {
+    .song-list-panel {
+        max-height: calc(100vh - 260px);
+    }
+}
+
+/* Style the app-song-detail-panel component itself */
+app-song-detail-panel {
+    flex: 1;
+    display: flex;
+    min-width: 0;
+}
+
+
+.song-list {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding: $spacing-15;
+    overflow-y: auto;
+    min-height: 0;
+}
+
+.song-list h2 {
+    color: $text-primary;
+    margin: 0 0 $spacing-15 0;
+    font-size: $font-xl;
+}
+
+.search-controls {
+    margin-bottom: $spacing-15;
+    padding: $spacing-10;
+    background: $background-light;
+    border-radius: $border-radius-lg;
+    box-sizing: border-box;
+    max-width: 100%;
+}
+
+.search-input {
+    width: 100%;
+    max-width: 100%;
+    padding: $spacing-sm $spacing-12;
+    border: 1px solid $border-light;
+    border-radius: $border-radius-sm;
+    font-size: $font-sm;
+    margin-bottom: 5px;
+    box-sizing: border-box;
+}
+
+.search-input:focus {
+    @include input-focus-state($primary-color);
+}
+
+.search-hint {
+    color: $text-muted;
+    font-size: $font-sm;
+    font-style: italic;
+}
+
+.sortable-header {
+    cursor: pointer;
+    user-select: none;
+}
+
+.sortable-header:hover {
+    background-color: $primary-hover !important;
+}
+
+.sortable-header i {
+    margin-left: 5px;
+    font-size: $font-sm;
+}
+
+.result-table {
+    flex: 1;
+    overflow-y: auto;
+    font-size: $font-sm;
+    max-height: 500px;
+    border-collapse: collapse;
+    width: 100%;
+}
+
+/* Ensure table scrolling on smaller screens */
+@media (max-height: 700px) {
+    .result-table {
+        max-height: 300px;
+    }
+}
+
+.result-table th,
+.result-table td {
+    padding: $spacing-6 $spacing-sm;
+    vertical-align: top;
+    line-height: 1.3;
+}
+
+.lyrics-col {
+    width: 50%;
+    max-width: 200px;
+    word-break: break-word;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.result-table th {
+    position: sticky;
+    top: 0;
+    background: $primary-color;
+    color: $background-white;
+    z-index: 10;
+}
+
+.result-table tbody tr {
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.result-table tbody tr:hover:not(.selected) {
+    background-color: #f5f5f5;
+}
+
+.result-table tr.selected {
+    background-color: $background-selected !important;
+    border-left: 4px solid $primary-color;
+}
+
+.choices-count {
+    text-align: center;
+    font-weight: bold;
+    color: $primary-color;
+}
+
+.result-table button {
+    background-color: $success-color !important;
+    color: $background-white !important;
+    border: none !important;
+    padding: 4px $spacing-sm !important;
+    border-radius: $border-radius-sm !important;
+    cursor: pointer !important;
+    font-size: $font-sm !important;
+    margin: 0 !important;
+}
+
+.result-table button:hover:not(:disabled) {
+    background-color: $success-hover !important;
+}
+
+.result-table button.active {
+    background-color: $primary-color !important;
+}
+
+.result-table button.active:hover {
+    background-color: $primary-hover !important;
+}
+
+.result-table button:disabled {
+    background-color: $text-muted !important;
+    cursor: not-allowed !important;
+}
+
+/* ===== MODERN PAGINATION ===== */
+.list-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: $spacing-20;
+    padding-bottom: $spacing-15;
+    border-bottom: 1px solid $border-light;
+}
+
+.list-header h2 {
+    margin: 0;
+    color: $text-primary;
+    font-size: $font-xl;
+    font-weight: $font-weight-semibold;
+}
+
+.modern-pagination {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+}
+
+.pagination-container {
+    padding: $spacing-sm $spacing-15;
+    border-top: 1px solid $border-light;
+    background: $background-light;
+    margin-top: auto;
+}
+
+.pagination-info-badge {
+    background: linear-gradient(135deg, $primary-color, $primary-hover);
+    color: $background-white;
+    padding: 2px $spacing-6;
+    border-radius: $spacing-sm;
+    font-size: $font-xs;
+    font-weight: $font-weight-medium;
+    box-shadow: 0 1px 3px rgba(0,123,255,0.3);
+    margin-right: $spacing-10;
+}
+
+.pagination-pills {
+    display: flex;
+    align-items: center;
+    gap: 1px;
+    background: $background-white;
+    padding: 2px;
+    border-radius: $spacing-12;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+    border: 1px solid $border-darker;
+    flex: 1;
+    justify-content: center;
+}
+
+.pagination-pill {
+    border: none;
+    background: transparent;
+    color: $text-muted;
+    padding: 4px $spacing-6;
+    border-radius: $spacing-sm;
+    cursor: pointer;
+    font-size: $font-xs;
+    font-weight: $font-weight-medium;
+    transition: all 0.15s ease;
+    min-width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0;
+}
+
+.pagination-pill:hover:not(.disabled) {
+    background: $border-light;
+    color: $primary-color;
+}
+
+.pagination-pill.active {
+    background: $primary-color;
+    color: $background-white;
+    box-shadow: 0 1px 3px rgba(0,123,255,0.3);
+}
+
+.pagination-pill.disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
+.pagination-pill.prev,
+.pagination-pill.next {
+    font-size: $font-xs;
+    width: 24px;
+    font-weight: bold;
+}
+
+.pagination-ellipsis {
+    color: $text-muted;
+    font-weight: bold;
+    padding: 0 4px;
+    user-select: none;
+    font-size: $font-xs;
+}
+
+
+/* ===== AUDIO PLAYER ===== */
+.audio-wrapper {
+    margin: $spacing-20 0;
+    padding: $spacing-15;
+    background: linear-gradient(135deg, $background-light 0%, $border-light 100%);
+    border-radius: $spacing-12;
+    border: 1px solid $primary-color;
+    box-shadow: 0 2px 8px rgba(0,123,255,0.1);
+    text-align: center;
+}
+
+.enhanced-audio-player {
+    width: 100%;
+    max-width: 600px;
+    height: 54px;
+    border-radius: $spacing-sm;
+    outline: none;
+}
+
+/* Enhanced Audio Player Styling */
+.enhanced-audio-player::-webkit-media-controls-panel {
+    background-color: $background-white;
+    border-radius: $spacing-sm;
+    border: 1px solid $border-darker;
+}
+
+.enhanced-audio-player::-webkit-media-controls-play-button {
+    background-color: $primary-color;
+    border-radius: 50%;
+    margin-left: $spacing-sm;
+}
+
+.enhanced-audio-player::-webkit-media-controls-timeline-container {
+    margin: 0 $spacing-15;
+}
+
+.enhanced-audio-player::-webkit-media-controls-timeline {
+    background-color: $border-light;
+    border-radius: 25px;
+    height: $spacing-sm;
+}
+
+.enhanced-audio-player::-webkit-media-controls-timeline::-webkit-slider-runnable-track {
+    background-color: $border-light;
+    border-radius: 25px;
+    height: $spacing-sm;
+}
+
+.enhanced-audio-player::-webkit-media-controls-timeline::-webkit-slider-thumb {
+    background-color: $primary-color;
+    border-radius: 50%;
+    width: 16px;
+    height: 16px;
+    border: none;
+    -webkit-appearance: none;
+}
+
+.enhanced-audio-player::-webkit-media-controls-current-time-display,
+.enhanced-audio-player::-webkit-media-controls-time-remaining-display {
+    font-size: $font-sm;
+    color: #495057;
+    font-family: system-ui, Arial, sans-serif;
+}
+
+.enhanced-audio-player::-webkit-media-controls-volume-slider-container {
+    margin-right: $spacing-sm;
+}
+
+.enhanced-audio-player::-webkit-media-controls-volume-slider {
+    background-color: $border-light;
+    border-radius: 25px;
+    height: $spacing-6;
+}
+
+/* Firefox Audio Controls */
+.enhanced-audio-player::-moz-range-progress {
+    background-color: $primary-color;
+    height: $spacing-sm;
+    border-radius: 25px;
+}
+
+.enhanced-audio-player::-moz-range-track {
+    background-color: $border-light;
+    height: $spacing-sm;
+    border-radius: 25px;
+    border: none;
+}
+
+.enhanced-audio-player::-moz-range-thumb {
+    background-color: $primary-color;
+    border: none;
+    border-radius: 50%;
+    width: 16px;
+    height: 16px;
+}
+
+.stem-download {
+    margin-top: $spacing-15;
+    padding: $spacing-15;
+    background-color: #d4edda;
+    border-radius: $spacing-sm;
+    border: 1px solid #c3e6cb;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* ===== LOADING OVERLAY ===== */
+.loading-overlay {
+    @include modal-overlay(0.5, 1000);
+}
+
+.loading-content {
+    background: white;
+    padding: 30px;
+    border-radius: $spacing-sm;
+    text-align: center;
+    color: $text-primary;
+}
+
+.loading-content i {
+    font-size: $font-3xl;
+    color: $primary-color;
+    margin-bottom: $spacing-15;
+}
+
+.loading-content p {
+    margin: 0;
+    font-size: $font-lg;
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 1024px) {
+    .master-detail-container {
+        flex-direction: column;
+        height: auto;
+    }
+
+    .song-list-panel {
+        flex: none;
+        height: 40vh;
+        max-height: none;
+    }
+
+    .song-details-panel {
+        flex: none;
+        height: 50vh;
+        max-height: none;
+    }
+}
+
+@media (max-width: 768px) {
+    .master-detail-container {
+        gap: $spacing-10;
+    }
+
+    .song-list-panel {
+        height: 35vh;
+        max-height: none;
+    }
+
+    .song-details-panel {
+        height: 45vh;
+        max-height: none;
+    }
+
+    .pagination-controls {
+        padding: $spacing-10;
+    }
+
+    .pagination-info {
+        display: block;
+        margin: 5px 0;
+    }
+
+    .choices-table {
+        font-size: $font-sm;
+    }
+
+    .choices-table th,
+    .choices-table td {
+        padding: $spacing-6;
+    }
+
+    .result-table th,
+    .result-table td {
+        padding: $spacing-6;
+        font-size: $font-sm;
+    }
+}
+
+/* ===== LYRICS DIALOG ===== */
+.lyrics-dialog-overlay {
+    @include modal-overlay(0.5, 1000);
+}
+
+.lyrics-dialog {
+    background: white;
+    border-radius: $spacing-sm;
+    width: 90%;
+    max-width: 600px;
+    max-height: 80vh;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+.lyrics-dialog-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: $spacing-15 $spacing-20;
+    border-bottom: 1px solid $border-light;
+    background: $background-light;
+    border-radius: $spacing-sm $spacing-sm 0 0;
+}
+
+.lyrics-dialog-header h3 {
+    margin: 0;
+    color: $text-primary;
+    font-size: $font-lg;
+    font-weight: $font-weight-semibold;
+}
+
+.close-button {
+    background: none;
+    border: none;
+    color: $text-muted;
+    font-size: $font-xl;
+    cursor: pointer;
+    padding: 5px;
+    border-radius: $border-radius-sm;
+    transition: color 0.2s ease;
+}
+
+.close-button:hover {
+    color: $text-primary;
+    background: $border-light;
+}
+
+.lyrics-dialog-content {
+    flex: 1;
+    padding: $spacing-20;
+    overflow: hidden;
+}
+
+.lyrics-textarea {
+    width: 100%;
+    height: 350px;
+    max-height: 50vh;
+    padding: $spacing-12;
+    border: 1px solid $border-light;
+    border-radius: $spacing-6;
+    font-family: monospace;
+    font-size: $font-sm;
+    line-height: 1.4;
+    resize: vertical;
+    background: $background-light;
+    color: $text-primary;
+    box-sizing: border-box;
+}
+
+.lyrics-textarea:focus {
+    outline: none;
+    border-color: $primary-color;
+    box-shadow: 0 0 0 2px rgba(0,123,255,.25);
+}
+
+.lyrics-dialog-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: $spacing-10;
+    padding: $spacing-15 $spacing-20;
+    border-top: 1px solid $border-light;
+    background: $background-light;
+    border-radius: 0 0 $spacing-sm $spacing-sm;
+}
+
+.copy-all-button {
+    background-color: $success-color !important;
+    color: $background-white !important;
+    border: none !important;
+    padding: $spacing-sm 16px !important;
+    border-radius: $border-radius-sm !important;
+    cursor: pointer !important;
+    font-size: $font-sm !important;
+    transition: background-color 0.2s;
+}
+
+.copy-all-button:hover {
+    background-color: $success-hover !important;
+}
+
+.close-dialog-button {
+    background-color: $text-muted !important;
+    color: white !important;
+    border: none !important;
+    padding: $spacing-sm 16px !important;
+    border-radius: $border-radius-sm !important;
+    cursor: pointer !important;
+    font-size: $font-sm !important;
+    transition: background-color 0.2s;
+}
+
+.close-dialog-button:hover {
+    background-color: #5a6268 !important;
+}
+
+/* Responsive dialog */
+@media (max-width: 768px) {
+    .lyrics-dialog {
+        width: 95%;
+        max-height: 90vh;
+    }
+
+    .lyrics-textarea {
+        height: 250px;
+    }
+
+    .lyrics-dialog-actions {
+        flex-direction: column;
+    }
+
+    .copy-all-button,
+    .close-dialog-button {
+        width: 100%;
+    }
+}

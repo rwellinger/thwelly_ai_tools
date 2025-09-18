@@ -1,0 +1,17 @@
+@import '../../../scss/variables';
+
+footer {
+    font-size: $font-xs;
+    background: $background-light;
+    color: $text-muted;
+    text-align: center;
+    padding: $spacing-sm $spacing-15;
+    margin-top: $spacing-20;
+    border-top: 1px solid $border-light;
+    font-weight: $font-weight-normal;
+}
+
+footer p {
+    margin: 0;
+    line-height: $line-height-tight;
+}

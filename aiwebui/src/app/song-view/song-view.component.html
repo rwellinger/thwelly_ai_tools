@@ -140,202 +140,22 @@
     </div>
 
     <!-- Right Side: Song Details -->
-    <div class="song-details-panel">
-        <div *ngIf="!selectedSong && !isLoadingSongs" class="no-selection">
-            <div class="placeholder-content">
-                <i class="fas fa-music placeholder-icon"></i>
-                <p>Select a song from the list to view details</p>
-            </div>
-        </div>
-
-        <!-- Song Details Content -->
-        <div *ngIf="selectedSong" class="song-details-section">
-            <h2>Song Details</h2>
-
-            <div class="song-info-compact">
-                <!-- Editable Title Section -->
-                <div class="song-title-section">
-                    <div class="title-row" *ngIf="!editingTitle">
-                        <h3 class="song-title">{{ getDisplayTitle(selectedSong) }}</h3>
-                        <button type="button" class="edit-btn" (click)="startEditTitle()" [disabled]="isLoading">
-                            <i class="fas fa-edit"></i>
-                        </button>
-                    </div>
-                    <div class="title-edit-row" *ngIf="editingTitle">
-                        <input type="text"
-                               class="title-input"
-                               [(ngModel)]="editTitleValue"
-                               (keyup.enter)="saveTitle()"
-                               (keyup.escape)="cancelEditTitle()"
-                               #titleInput>
-                        <button type="button" class="save-btn" (click)="saveTitle()" [disabled]="isLoading">
-                            <i class="fas fa-check"></i>
-                        </button>
-                        <button type="button" class="cancel-btn" (click)="cancelEditTitle()" [disabled]="isLoading">
-                            <i class="fas fa-times"></i>
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Detail Info -->
-                <div class="song-meta-info">
-                    <p><strong>Mureka Id:</strong> {{ selectedSong.job_id }}</p>
-                    <p><strong>Model:</strong> {{ selectedSong.model }}</p>
-                    <p><strong>Status:</strong> <span
-                        [class]="'status-' + selectedSong.status.toLowerCase()">{{ selectedSong.status }}</span></p>
-                    <p><strong>Created:</strong> {{ formatDateDetailed(selectedSong.created_at) }}</p>
-                    <p *ngIf="selectedSong.completed_at">
-                        <strong>Completed:</strong> {{ formatDateDetailed(selectedSong.completed_at) }}</p>
-                </div>
-
-                <!-- Tags Section -->
-                <div class="song-tags-section">
-                    <div class="tags-row" *ngIf="!editingTags">
-                        <h3 class="tags-title">Tags:</h3>
-                        <span class="tags-display">{{ getSelectedTagsDisplay() }}</span>
-                        <button type="button" class="edit-btn" (click)="startEditTags()" [disabled]="isLoading">
-                            <i class="fas fa-edit"></i>
-                        </button>
-                    </div>
-                    <div class="tags-edit-section" *ngIf="editingTags">
-                        <div class="tags-edit-header">
-                            <h3 class="tags-title">Edit Tags:</h3>
-                            <div class="tags-edit-buttons">
-                                <button type="button" class="save-btn" (click)="saveTags()" [disabled]="isLoading">
-                                    <i class="fas fa-check"></i>
-                                </button>
-                                <button type="button" class="cancel-btn" (click)="cancelEditTags()"
-                                        [disabled]="isLoading">
-                                    <i class="fas fa-times"></i>
-                                </button>
-                            </div>
-                        </div>
-
-                        <div class="tags-categories">
-                            <!-- Style Tags -->
-                            <div class="tag-category">
-                                <h4 class="category-title">Style</h4>
-                                <div class="tag-checkboxes">
-                                    <label *ngFor="let tag of tagCategories.style" class="tag-checkbox">
-                                        <input type="checkbox"
-                                               [checked]="isTagSelected(tag)"
-                                               (change)="toggleTag(tag)"
-                                               [disabled]="isLoading">
-                                        <span class="checkmark"></span>
-                                        {{ tag }}
-                                    </label>
-                                </div>
-                            </div>
-
-                            <!-- Theme Tags -->
-                            <div class="tag-category">
-                                <h4 class="category-title">Theme</h4>
-                                <div class="tag-checkboxes">
-                                    <label *ngFor="let tag of tagCategories.theme" class="tag-checkbox">
-                                        <input type="checkbox"
-                                               [checked]="isTagSelected(tag)"
-                                               (change)="toggleTag(tag)"
-                                               [disabled]="isLoading">
-                                        <span class="checkmark"></span>
-                                        {{ tag }}
-                                    </label>
-                                </div>
-                            </div>
-
-                            <!-- Use Case Tags -->
-                            <div class="tag-category">
-                                <h4 class="category-title">Use Case</h4>
-                                <div class="tag-checkboxes">
-                                    <label *ngFor="let tag of tagCategories.useCase" class="tag-checkbox">
-                                        <input type="checkbox"
-                                               [checked]="isTagSelected(tag)"
-                                               (change)="toggleTag(tag)"
-                                               [disabled]="isLoading">
-                                        <span class="checkmark"></span>
-                                        {{ tag }}
-                                    </label>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Song Choices -->
-                <div *ngIf="selectedSong.choices && selectedSong.choices.length > 0" class="choices-section">
-                    <h3>Generated Variations ({{ selectedSong.choices_count }})</h3>
-
-                    <table class="choices-table">
-                        <thead>
-                        <tr>
-                            <th>Duration</th>
-                            <th>FLAC File</th>
-                            <th>MP3 File</th>
-                            <th>Stem Generation</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        <tr *ngFor="let choice of selectedSong.choices; let i = index">
-                            <td>{{ choice.formattedDuration }}</td>
-                            <td>
-                                <button type="button"
-                                        *ngIf="choice.flac_url"
-                                        (click)="downloadFlac(choice.flac_url)">
-                                    <i class="fas fa-download"></i> Download FLAC
-                                </button>
-                                <span *ngIf="!choice.flac_url" class="not-available">N/A</span>
-                            </td>
-                            <td>
-                                <button type="button"
-                                        *ngIf="choice.mp3_url"
-                                        (click)="playAudio(choice.mp3_url, choice.id)"
-                                        [class.active]="currentlyPlaying === choice.id">
-                                    <i class="fas fa-music"></i>
-                                    {{ currentlyPlaying === choice.id ? 'Hide Player' : 'Play' }}
-                                </button>
-                                <span *ngIf="!choice.mp3_url" class="not-available">N/A</span>
-                            </td>
-                            <td>
-                                <button type="button"
-                                        *ngIf="choice.mp3_url"
-                                        [disabled]="isLoading"
-                                        (click)="generateStem(choice.mp3_url)">
-                                    <i class="fas fa-brain"></i> Create Stems
-                                </button>
-                                <span *ngIf="!choice.mp3_url" class="not-available">N/A</span>
-                            </td>
-                        </tr>
-                        </tbody>
-                    </table>
-
-                    <!-- Stem Download -->
-                    <div *ngIf="stemDownloadUrl" class="stem-download">
-                        <button type="button" (click)="downloadStems(stemDownloadUrl)" class="download-link">
-                            <i class="fas fa-download"></i> Download Stems ZIP
-                        </button>
-                    </div>
-                </div>
-
-                <div class="song-lyrics">
-                    <div class="lyrics-header">
-                        <h3>Lyrics:</h3>
-                        <button type="button" class="copy-button" (click)="openLyricsDialog()" [disabled]="isLoading">
-                            <i class="fas fa-expand-alt"></i> Show Lyrics
-                        </button>
-                    </div>
-                    <pre class="lyrics-content">{{ selectedSong.lyrics }}</pre>
-                </div>
-
-                <div class="song-prompt">
-                    <h3>Style Prompt:</h3>
-                    <p class="prompt-content">{{ selectedSong.prompt }}</p>
-                </div>
-            </div>
-
-            <div *ngIf="!selectedSong.choices || selectedSong.choices.length === 0" class="no-choices">
-                <p>No song choices available for this song.</p>
-            </div>
-        </div>
-    </div>
+    <app-song-detail-panel
+        [song]="selectedSong"
+        [showEditTitle]="true"
+        [showEditTags]="true"
+        title="Song Details"
+        [showMetaInfo]="['job_id', 'model', 'status', 'created', 'completed']"
+        placeholderText="Select a song from the list to view details"
+        [currentlyPlayingId]="currentlyPlaying"
+        (titleChanged)="onTitleChanged($event)"
+        (tagsChanged)="onTagsChanged($event)"
+        (downloadFlac)="onDownloadFlac($event)"
+        (playAudio)="onPlayAudio($event)"
+        (generateStem)="onGenerateStem($event)"
+        (downloadStems)="onDownloadStems($event)"
+        (copyLyrics)="onCopyLyrics()">
+    </app-song-detail-panel>
 </div>
 
 <!-- Loading States -->

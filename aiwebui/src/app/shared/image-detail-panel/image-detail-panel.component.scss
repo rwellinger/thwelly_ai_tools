@@ -1,0 +1,313 @@
+@import '../../../scss/variables';
+@import '../../../scss/mixins';
+
+/* ===== IMAGE DETAILS PANEL ===== */
+.image-details-panel {
+    @include card-container($border-light, $background-white, 0);
+    flex: 1;
+    overflow-y: hidden;
+    display: flex;
+    flex-direction: column;
+    max-height: calc(100vh - 260px);
+}
+
+.image-details-section {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding: $spacing-15;
+    overflow-y: auto;
+    min-height: 0;
+}
+
+.image-details-section h2 {
+    @include section-header($primary-color, $font-xl);
+}
+
+.image-info-compact {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-10;
+    margin-bottom: $spacing-20;
+    flex: 1;
+    min-height: 0;
+}
+
+.no-selection {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.placeholder-content {
+    text-align: center;
+    color: $text-muted;
+}
+
+.placeholder-icon {
+    font-size: $font-4xl;
+    margin-bottom: $spacing-20;
+    opacity: 0.3;
+}
+
+.image-meta-info {
+    background-color: $background-light;
+    padding: $spacing-sm $spacing-12;
+    border-radius: $border-radius-lg;
+}
+
+.meta-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: $spacing-sm;
+}
+
+.meta-item {
+    display: flex;
+    align-items: center;
+    gap: $spacing-6;
+}
+
+.meta-icon {
+    color: $primary-color;
+    font-size: $font-sm;
+    width: 14px;
+    flex-shrink: 0;
+}
+
+.meta-value {
+    color: $text-primary;
+    font-size: $font-sm;
+    font-weight: $font-weight-medium;
+}
+
+.image-prompt {
+    background-color: $background-light;
+    padding: $spacing-12;
+    border-radius: $border-radius-lg;
+}
+
+.image-prompt h3 {
+    margin: 0 0 $spacing-sm 0;
+    color: $text-primary;
+    font-size: $font-base;
+}
+
+.prompt-content {
+    background: $background-white;
+    padding: $spacing-sm;
+    border-radius: $border-radius-sm;
+    border: 1px solid $border-light;
+    font-style: italic;
+    color: #495057;
+    font-size: $font-base;
+}
+
+.image-with-actions {
+    display: flex;
+    gap: $spacing-15;
+    align-items: flex-start;
+    margin-top: 5px;
+    flex: 1;
+    min-height: 0;
+    overflow: hidden;
+    max-width: 100%;
+}
+
+.image-actions {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-10;
+    min-width: 140px;
+    flex-shrink: 0;
+}
+
+.download-link {
+    display: block;
+    background-color: $primary-color;
+    color: white;
+    text-decoration: none;
+    padding: $spacing-sm $spacing-12;
+    border-radius: $border-radius-sm;
+    font-size: $font-sm;
+    transition: $transition-fast;
+    text-align: center;
+    white-space: nowrap;
+    border: none;
+    cursor: pointer;
+    width: 100%;
+}
+
+.download-link:hover {
+    background-color: $primary-hover;
+    text-decoration: none;
+    color: white;
+}
+
+.preview-btn {
+    background-color: $primary-color !important;
+    margin-left: 0;
+}
+
+.preview-btn:hover {
+    background-color: $primary-hover !important;
+}
+
+.image-display {
+    text-align: center;
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 0;
+    min-width: 0;
+    overflow: hidden;
+}
+
+/* ===== TITLE EDITING ===== */
+.image-title-section {
+    background-color: $background-light;
+    padding: $spacing-sm;
+    border-radius: $border-radius-lg;
+    border-left: 4px solid $primary-color;
+    margin-bottom: $spacing-10;
+}
+
+.title-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: $spacing-sm;
+}
+
+.image-title {
+    margin: 0;
+    color: $text-primary;
+    font-size: $font-base;
+    font-weight: $font-weight-semibold;
+    flex: 1;
+    word-break: break-word;
+}
+
+.title-edit-row {
+    display: flex;
+    align-items: center;
+    gap: $spacing-sm;
+}
+
+.title-input {
+    flex: 1;
+    padding: $spacing-sm $spacing-12;
+    border: 2px solid $primary-color;
+    border-radius: $border-radius-sm;
+    font-size: $font-lg;
+    font-weight: $font-weight-medium;
+    color: $text-primary;
+    background: $background-white;
+}
+
+.title-input:focus {
+    @include input-focus-state($primary-hover);
+}
+
+.edit-btn, .save-btn, .cancel-btn {
+    @include inline-edit-controls();
+}
+
+
+/* ===== RESPONSIVE IMAGE ===== */
+.responsive-image-container {
+    width: 100%;
+    height: 100%;
+    max-height: 600px; /* Optimized for largest format (1792x1024) */
+    min-height: 250px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: $border-radius-xl;
+    overflow: hidden;
+    background: $background-light;
+}
+
+.responsive-image {
+    max-width: 100%;
+    max-height: 100%;
+    width: auto;
+    height: auto;
+    object-fit: contain;
+    border-radius: $border-radius-lg;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+/* Format-specific optimizations */
+.responsive-image-container.square {
+    max-height: 450px; /* Optimized for 1024x1024 */
+}
+
+.responsive-image-container.landscape {
+    max-height: 400px; /* Optimized for 1792x1024 */
+}
+
+.responsive-image-container.portrait {
+    max-height: 600px; /* Optimized for 1024x1792 */
+}
+
+/* ===== RESPONSIVE LAYOUT ===== */
+@media (max-width: 768px) {
+    .image-with-actions {
+        flex-direction: column;
+        gap: $spacing-10;
+    }
+
+    .image-actions {
+        flex-direction: row;
+        min-width: auto;
+        width: 100%;
+        justify-content: center;
+    }
+
+    .image-display {
+        order: -1;
+    }
+
+    .responsive-image-container {
+        max-height: 400px; /* Mobile optimized */
+        min-height: 200px;
+    }
+
+    .responsive-image-container.square {
+        max-height: 350px;
+    }
+
+    .responsive-image-container.landscape {
+        max-height: 300px;
+    }
+
+    .responsive-image-container.portrait {
+        max-height: 400px;
+    }
+}
+
+@media (max-width: 480px) {
+    .responsive-image-container {
+        max-height: 300px; /* Small mobile optimized */
+        min-height: 150px;
+    }
+
+    .responsive-image-container.square {
+        max-height: 280px;
+    }
+
+    .responsive-image-container.landscape {
+        max-height: 250px;
+    }
+
+    .responsive-image-container.portrait {
+        max-height: 300px;
+    }
+
+    .image-actions {
+        flex-direction: column;
+    }
+}

@@ -7,6 +7,7 @@ import {ApiConfigService} from '../services/api-config.service';
 import {NotificationService} from '../services/notification.service';
 import {MatSnackBarModule} from '@angular/material/snack-bar';
 import {DisplayNamePipe} from '../pipes/display-name.pipe';
+import {ImageDetailPanelComponent} from '../shared/image-detail-panel/image-detail-panel.component';
 
 interface ImageData {
   id: string;
@@ -32,9 +33,9 @@ interface PaginationInfo {
 @Component({
   selector: 'app-image-view',
   standalone: true,
-  imports: [CommonModule, FormsModule, HeaderComponent, FooterComponent, MatSnackBarModule, DisplayNamePipe],
+  imports: [CommonModule, FormsModule, HeaderComponent, FooterComponent, MatSnackBarModule, DisplayNamePipe, ImageDetailPanelComponent],
   templateUrl: './image-view.component.html',
-  styleUrl: './image-view.component.css',
+  styleUrl: './image-view.component.scss',
   encapsulation: ViewEncapsulation.None
 })
 export class ImageViewComponent implements OnInit, AfterViewInit {
@@ -44,10 +45,10 @@ export class ImageViewComponent implements OnInit, AfterViewInit {
   isLoading = false;
   loadingMessage = '';
   currentPage = 0;
-  pageSize = 20;
+  pageSize = 15;
   pagination: PaginationInfo = {
     has_more: false,
-    limit: 20,
+    limit: 15,
     offset: 0,
     total: 0
   };
@@ -508,6 +509,65 @@ export class ImageViewComponent implements OnInit, AfterViewInit {
     } finally {
       this.isLoading = false;
     }
+  }
+
+  // Handlers for shared image detail panel
+  async onTitleChanged(newTitle: string) {
+    if (!this.selectedImage) return;
+
+    this.isLoading = true;
+    try {
+      const response = await fetch(this.apiConfig.endpoints.image.update(this.selectedImage.id), {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          title: newTitle.trim()
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const updatedImage = await response.json();
+
+      // Update selected image with new data
+      this.selectedImage = {
+        ...this.selectedImage,
+        title: updatedImage.title,
+        tags: updatedImage.tags,
+        updated_at: updatedImage.updated_at
+      };
+
+      // Update in images list
+      const imageIndex = this.images.findIndex(img => img.id === this.selectedImage!.id);
+      if (imageIndex !== -1) {
+        this.images[imageIndex] = { ...this.selectedImage };
+      }
+
+      // Update in filtered images if different
+      const filteredIndex = this.filteredImages.findIndex(img => img.id === this.selectedImage!.id);
+      if (filteredIndex !== -1) {
+        this.filteredImages[filteredIndex] = { ...this.selectedImage };
+      }
+
+      this.notificationService.success('Title updated successfully!');
+
+    } catch (error: any) {
+      this.notificationService.error(`Error updating title: ${error.message}`);
+    } finally {
+      this.isLoading = false;
+    }
+  }
+
+  onDownloadImage(imageUrl: string) {
+    this.downloadImage(imageUrl);
+  }
+
+  onPreviewImage() {
+    this.openImageModal();
   }
 
   protected readonly Math = Math;

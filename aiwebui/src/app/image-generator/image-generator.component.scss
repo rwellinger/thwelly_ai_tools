@@ -1,28 +1,23 @@
+@import '../../scss/variables';
+@import '../../scss/mixins';
+
 /* ===== MASTER DETAIL LAYOUT ===== */
 .master-detail-container {
-    display: flex;
-    gap: 20px;
-    height: calc(100vh - 320px);
-    min-height: 500px;
+    @include master-detail-layout($spacing-20, 40%, calc(100vh - 320px));
 }
 
 .controls-panel {
+    @include card-container($border-light, $background-white, 0);
     flex: 0 0 40%;
     display: flex;
     flex-direction: column;
-    border: 1px solid #e9ecef;
-    border-radius: 8px;
-    background: white;
     overflow: hidden;
 }
 
 .image-result-panel {
+    @include card-container($border-light, $background-white, 0);
     flex: 1;
-    border: 1px solid #e9ecef;
-    border-radius: 8px;
-    background: white;
     overflow-y: auto;
-    padding: 0;
 }
 
 .controls-content {
@@ -32,11 +27,7 @@
 }
 
 .controls-content h2 {
-    color: #333;
-    margin: 0 0 20px 0;
-    font-size: 1.4em;
-    border-bottom: 2px solid #007bff;
-    padding-bottom: 10px;
+    @include section-header($primary-color, $font-xl);
 }
 
 /* ===== FORM STYLING ===== */
@@ -46,60 +37,51 @@
 
 .form-group label {
     display: block;
-    color: #333;
-    font-weight: 500;
-    margin-bottom: 6px;
-    font-size: 0.9em;
+    color: $text-primary;
+    font-weight: $font-weight-medium;
+    margin-bottom: $spacing-6;
+    font-size: $font-base;
 }
 
 .prompt-input {
     width: 100%;
     min-height: 120px;
-    padding: 12px;
-    border: 1px solid #e9ecef;
-    border-radius: 6px;
-    font-size: 0.9em;
-    font-family: inherit;
+    padding: $spacing-12;
+    border: 1px solid $border-light;
+    border-radius: $border-radius-lg;
+    font-size: $font-base;
+    font-family: $font-family-base;
     resize: vertical;
-    transition: border-color 0.2s ease;
+    transition: $transition-fast;
     box-sizing: border-box;
 }
 
 .prompt-input:focus {
-    outline: none;
-    border-color: #007bff;
-    box-shadow: 0 0 0 2px rgba(0,123,255,.25);
+    @include input-focus-state($primary-color);
 }
 
 .size-select {
     width: 100%;
-    padding: 10px 12px;
-    border: 1px solid #e9ecef;
-    border-radius: 6px;
-    font-size: 0.9em;
-    background: white;
-    transition: border-color 0.2s ease;
+    padding: $spacing-10 $spacing-12;
+    border: 1px solid $border-light;
+    border-radius: $border-radius-lg;
+    font-size: $font-base;
+    background: $background-white;
+    transition: $transition-fast;
     box-sizing: border-box;
 }
 
 .size-select:focus {
-    outline: none;
-    border-color: #007bff;
-    box-shadow: 0 0 0 2px rgba(0,123,255,.25);
+    @include input-focus-state($primary-color);
 }
 
 .create-button {
+    @include button-style($primary-color, $background-white, $primary-hover);
     width: 100%;
-    background-color: #007bff !important;
-    color: white !important;
-    border: none !important;
-    padding: 12px 20px !important;
-    border-radius: 6px !important;
-    cursor: pointer !important;
-    font-size: 1.0em !important;
-    font-weight: 500 !important;
-    margin-top: 10px !important;
-    transition: all 0.2s ease;
+    padding: $spacing-12 $spacing-20 !important;
+    font-size: $font-base !important;
+    font-weight: $font-weight-medium !important;
+    margin-top: $spacing-10 !important;
 }
 
 .create-button:hover:not(:disabled) {
@@ -127,12 +109,12 @@
 
 .placeholder-content {
     text-align: center;
-    color: #6c757d;
+    color: $text-muted;
 }
 
 .placeholder-icon {
-    font-size: 4em;
-    margin-bottom: 20px;
+    font-size: $font-4xl;
+    margin-bottom: $spacing-20;
     opacity: 0.3;
 }
 
@@ -143,11 +125,7 @@
 }
 
 .image-result-section h2 {
-    color: #333;
-    margin: 0 0 20px 0;
-    font-size: 1.4em;
-    border-bottom: 2px solid #007bff;
-    padding-bottom: 10px;
+    @include section-header($primary-color, $font-xl);
 }
 
 .image-info-compact {
@@ -155,15 +133,15 @@
 }
 
 .image-meta-info {
-    background-color: #f8f9fa;
-    padding: 12px;
-    border-radius: 6px;
+    background-color: $background-light;
+    padding: $spacing-12;
+    border-radius: $border-radius-lg;
 }
 
 .image-meta-info p {
-    margin: 6px 0;
-    color: #333;
-    font-size: 0.9em;
+    margin: $spacing-6 0;
+    color: $text-primary;
+    font-size: $font-base;
 }
 
 .image-actions {
@@ -175,26 +153,26 @@
 .action-button {
     padding: 8px 16px;
     border: none;
-    border-radius: 6px;
+    border-radius: $border-radius-lg;
     cursor: pointer;
-    font-size: 0.9em;
-    font-weight: 500;
-    transition: all 0.2s ease;
+    font-size: $font-base;
+    font-weight: $font-weight-medium;
+    transition: $transition-standard;
 }
 
 .download-btn {
-    background-color: #28a745;
-    color: white;
+    background-color: $success-color;
+    color: $background-white;
 }
 
 .download-btn:hover {
-    background-color: #218838;
+    background-color: $success-hover;
     transform: translateY(-1px);
 }
 
 .preview-btn {
-    background-color: #6c757d;
-    color: white;
+    background-color: $text-muted;
+    color: $background-white;
 }
 
 .preview-btn:hover {
@@ -223,16 +201,7 @@
 
 /* ===== PROCESSING POPUP ===== */
 .processing-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0, 0, 0, 0.7);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 2000;
+    @include modal-overlay(0.7, 2000);
 }
 
 .processing-content {
@@ -245,21 +214,21 @@
 }
 
 .processing-spinner i {
-    font-size: 3em;
-    color: #007bff;
-    margin-bottom: 20px;
+    font-size: $font-3xl;
+    color: $primary-color;
+    margin-bottom: $spacing-20;
 }
 
 .processing-content h3 {
     margin: 0 0 10px 0;
-    color: #333;
-    font-size: 1.2em;
+    color: $text-primary;
+    font-size: $font-xl;
 }
 
 .processing-content p {
     margin: 0;
-    color: #6c757d;
-    font-size: 0.9em;
+    color: $text-muted;
+    font-size: $font-base;
 }
 
 /* ===== MODAL STYLING ===== */
@@ -294,14 +263,14 @@
 }
 
 .close-button {
-    background: #6c757d;
-    color: white;
+    background: $text-muted;
+    color: $background-white;
     border: none;
-    border-radius: 4px;
-    padding: 6px 12px;
+    border-radius: $border-radius-sm;
+    padding: $spacing-6 $spacing-12;
     cursor: pointer;
-    font-size: 0.9em;
-    transition: background-color 0.2s;
+    font-size: $font-base;
+    transition: $transition-fast;
 }
 
 .close-button:hover {

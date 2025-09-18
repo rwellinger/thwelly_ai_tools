@@ -7,13 +7,14 @@ import { ApiConfigService } from '../services/api-config.service';
 import { NotificationService } from '../services/notification.service';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import {MatIcon} from "@angular/material/icon";
+import {ImageDetailPanelComponent} from '../shared/image-detail-panel/image-detail-panel.component';
 
 @Component({
   selector: 'app-image-generator',
   standalone: true,
-    imports: [CommonModule, ReactiveFormsModule, HeaderComponent, FooterComponent, MatSnackBarModule, MatIcon],
+    imports: [CommonModule, ReactiveFormsModule, HeaderComponent, FooterComponent, MatSnackBarModule, MatIcon, ImageDetailPanelComponent],
   templateUrl: './image-generator.component.html',
-  styleUrl: './image-generator.component.css'
+  styleUrl: './image-generator.component.scss'
 })
 export class ImageGeneratorComponent implements OnInit {
   promptForm!: FormGroup;
@@ -21,6 +22,7 @@ export class ImageGeneratorComponent implements OnInit {
   result = '';
   generatedImageUrl = '';
   showImageModal = false;
+  generatedImageData: any = null;
 
   constructor(
     private fb: FormBuilder,
@@ -55,6 +57,14 @@ export class ImageGeneratorComponent implements OnInit {
 
         if (data.url) {
           this.generatedImageUrl = data.url;
+          // Create data object for shared component
+          this.generatedImageData = {
+            url: data.url,
+            prompt: formValue.prompt,
+            size: formValue.size,
+            model_used: 'DALL-E 3',
+            created_at: new Date().toISOString()
+          };
           this.notificationService.success('Image generated successfully!');
         } else {
           this.notificationService.error('Error generating image.');
@@ -85,5 +95,22 @@ export class ImageGeneratorComponent implements OnInit {
 
   closeImageModal() {
     this.showImageModal = false;
+  }
+
+  // Handlers for shared image detail panel
+  onTitleChanged(newTitle: string) {
+    // For generated images, we don't need to save titles to backend
+    // but we can update the local data if needed
+    if (this.generatedImageData) {
+      this.generatedImageData.title = newTitle;
+    }
+  }
+
+  onDownloadImage() {
+    this.downloadImage();
+  }
+
+  onPreviewImage() {
+    this.openImageModal();
   }
 }

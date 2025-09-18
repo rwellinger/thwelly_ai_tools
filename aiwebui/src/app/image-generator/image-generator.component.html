@@ -35,40 +35,16 @@
     </div>
 
     <!-- Right Side: Image Result -->
-    <div class="image-result-panel">
-        <div *ngIf="!generatedImageUrl && !isLoading" class="no-image">
-            <div class="placeholder-content">
-                <i class="fas fa-image placeholder-icon"></i>
-                <p>Your generated image will appear here</p>
-            </div>
-        </div>
-
-        <!-- Image Result Content -->
-        <div *ngIf="generatedImageUrl" class="image-result-section">
-            <h2>Generated Image</h2>
-
-            <div class="image-info-compact">
-                <div class="image-meta-info">
-                    <p><strong>Prompt:</strong> {{ promptForm.get('prompt')?.value | slice:0:100 }}{{ (promptForm.get('prompt')?.value?.length || 0) > 100 ? '...' : '' }}</p>
-                    <p><strong>Size:</strong> {{ promptForm.get('size')?.value }}</p>
-                    <p><strong>Model:</strong> DALL-E 3</p>
-                </div>
-            </div>
-
-            <div class="image-actions">
-                <button (click)="downloadImage()" class="action-button download-btn">
-                    <i class="fas fa-download"></i> Download
-                </button>
-                <button (click)="openImageModal()" class="action-button preview-btn">
-                    <i class="fas fa-expand"></i> Full Size
-                </button>
-            </div>
-
-            <div class="image-display">
-                <img [src]="generatedImageUrl" alt="Generated Image" class="result-image">
-            </div>
-        </div>
-    </div>
+    <app-image-detail-panel
+        [image]="generatedImageData"
+        [showEditTitle]="false"
+        title="Generated Image"
+        [showMetaInfo]="['model', 'size']"
+        placeholderText="Your generated image will appear here"
+        (titleChanged)="onTitleChanged($event)"
+        (downloadClicked)="onDownloadImage()"
+        (previewClicked)="onPreviewImage()">
+    </app-image-detail-panel>
 </div>
 
 <!-- Processing Popup -->

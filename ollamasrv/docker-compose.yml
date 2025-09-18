@@ -1,6 +1,6 @@
 services:
   webui:
-    image: ghcr.io/open-webui/open-webui:0.6.27
+    image: ghcr.io/open-webui/open-webui:0.6.30
     container_name: ollamasrv-webui
     restart: unless-stopped
     environment:
