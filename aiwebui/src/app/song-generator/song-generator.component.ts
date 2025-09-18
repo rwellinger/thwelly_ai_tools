@@ -28,7 +28,7 @@ export class SongGeneratorComponent implements OnInit {
     resultData: any = null;
     generatedSongData: any = null;
     choices: any[] = [];
-    stemDownloadUrl: string | null = null;
+    stemDownloadUrls: Map<string, string> = new Map();
     showPopupPlayer = false;
     currentSongTitle = '';
 
@@ -157,7 +157,8 @@ export class SongGeneratorComponent implements OnInit {
 
         this.choices = result.choices.map((choice: any) => ({
             ...choice,
-            formattedDuration: this.formatDurationFromMs(choice.duration)
+            formattedDuration: this.formatDurationFromMs(choice.duration),
+            stemDownloadUrl: this.stemDownloadUrls.get(choice.mp3_url || choice.url) || null
         }));
 
         // Create data object for shared component with field mapping for compatibility
@@ -172,7 +173,8 @@ export class SongGeneratorComponent implements OnInit {
             choices: this.choices.map((choice: any) => ({
                 ...choice,
                 mp3_url: choice.url || choice.mp3_url,  // Map API field 'url' to expected 'mp3_url'
-                flac_url: choice.flac_url               // Keep existing flac_url
+                flac_url: choice.flac_url,               // Keep existing flac_url
+                stemDownloadUrl: choice.stemDownloadUrl  // Include stem download URL
             }))
         };
 
@@ -318,15 +320,14 @@ export class SongGeneratorComponent implements OnInit {
             const data = await response.json();
 
             if (data.status === 'SUCCESS' && data.result && data.result.zip_url) {
-                this.stemDownloadUrl = data.result.zip_url;
+                this.stemDownloadUrls.set(mp3Url, data.result.zip_url);
+                this.updateChoicesWithStems();
                 this.notificationService.success('Stems generated successfully!');
             } else {
-                this.stemDownloadUrl = null;
                 this.notificationService.error('Stem generation failed or incomplete.');
                 this.result += '<p>Stem generation failed or incomplete.</p>';
             }
         } catch (error: any) {
-            this.stemDownloadUrl = null;
             this.notificationService.error(`Error generating stem: ${error.message}`);
             this.result += `<p>Error generating stem: ${error.message}</p>`;
         } finally {
@@ -369,6 +370,24 @@ export class SongGeneratorComponent implements OnInit {
         // Simple clipboard copy for generated songs
         if (this.generatedSongData?.lyrics) {
             navigator.clipboard.writeText(this.generatedSongData.lyrics);
+        }
+    }
+
+    private updateChoicesWithStems() {
+        // Update choices with stem download URLs
+        this.choices = this.choices.map(choice => ({
+            ...choice,
+            stemDownloadUrl: this.stemDownloadUrls.get(choice.mp3_url || choice.url) || null
+        }));
+
+        // Update generatedSongData for the shared component
+        if (this.generatedSongData) {
+            this.generatedSongData.choices = this.choices.map((choice: any) => ({
+                ...choice,
+                mp3_url: choice.url || choice.mp3_url,
+                flac_url: choice.flac_url,
+                stemDownloadUrl: choice.stemDownloadUrl
+            }));
         }
     }
 }

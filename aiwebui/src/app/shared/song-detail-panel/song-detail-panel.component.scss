@@ -276,16 +276,24 @@
 }
 
 .choices-table button.active {
-    background-color: #007bff;
+    background-color: #155724;
 }
 
 .choices-table button.active:hover {
-    background-color: #0056b3;
+    background-color: #1e7e34;
 }
 
 .choices-table button:disabled {
     background-color: #6c757d;
     cursor: not-allowed;
+}
+
+.download-stems-btn, .download-flac-btn {
+    background-color: #007bff !important;
+}
+
+.download-stems-btn:hover:not(:disabled), .download-flac-btn:hover:not(:disabled) {
+    background-color: #0056b3 !important;
 }
 
 .not-available {

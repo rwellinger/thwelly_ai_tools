@@ -118,7 +118,8 @@
                         <td>
                             <button type="button"
                                     *ngIf="choice.flac_url"
-                                    (click)="onDownloadFlac(choice.flac_url)">
+                                    (click)="onDownloadFlac(choice.flac_url)"
+                                    class="download-flac-btn">
                                 <i class="fas fa-download"></i> Download FLAC
                             </button>
                             <span *ngIf="!choice.flac_url" class="not-available">N/A</span>
@@ -135,9 +136,15 @@
                         </td>
                         <td>
                             <button type="button"
-                                    *ngIf="choice.mp3_url"
+                                    *ngIf="choice.mp3_url && !choice.stemDownloadUrl"
                                     (click)="onGenerateStem(choice.mp3_url)">
                                 <i class="fas fa-brain"></i> Create Stems
+                            </button>
+                            <button type="button"
+                                    *ngIf="choice.stemDownloadUrl"
+                                    (click)="onDownloadStems(choice.stemDownloadUrl)"
+                                    class="download-stems-btn">
+                                <i class="fas fa-download"></i> Download Stems
                             </button>
                             <span *ngIf="!choice.mp3_url" class="not-available">N/A</span>
                         </td>
