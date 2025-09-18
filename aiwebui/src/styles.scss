@@ -1,6 +1,8 @@
 /* You can add global styles to this file, and also import other style files */
 @import '@angular/material/prebuilt-themes/indigo-pink.css';
 @import 'scss/variables';
+@import 'scss/mixins';
+@import 'scss/components';
 
 // CSS Custom Properties werden durch SCSS-Variablen ersetzt (siehe _variables.scss)
 
@@ -70,9 +72,7 @@ input, textarea, select {
 }
 
 input:focus, textarea:focus, select:focus {
-    outline: none;
-    border-color: $primary-color;
-    box-shadow: 0 0 0 3px rgba(0,123,255,.1);
+    @include input-focus-state();
 }
 
 textarea {
@@ -100,15 +100,7 @@ button:disabled {
 
 /* ===== UTILITY CLASSES ===== */
 .card {
-    background: $background-white;
-    border: 1px solid $border-light;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-    transition: box-shadow 0.2s ease;
-}
-
-.card:hover {
-    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    @include card-container();
 }
 
 .text-muted {
@@ -148,124 +140,15 @@ select {
     margin-right: 10px;
 }
 
-/* ===== LOADING & STATUS ===== */
-#loading,
-.loading,
-.loading-message {
-    margin-top: 10px;
-    font-size: $font-lg;
-    color: $primary-color;
-    font-style: italic;
-    padding: 10px;
-    text-align: center;
-}
-
-/* ===== INFO & RESULT BOXES ===== */
+/* ===== RESULT SECTIONS ===== */
 #result {
     margin-top: 20px;
 }
 
-.result-box {
-    background: $background-white;
-    border: 1px solid $border-standard;
-    border-radius: 6px;
-    padding: 1rem;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, .05);
-    font-size: $font-sm;
-    line-height: $line-height-normal;
-}
-
-.result-box h3 {
-    margin-top: 0;
-    font-size: $font-xl;
-    color: $text-primary;
-}
-
-.result-box p {
-    margin: 0.4rem 0;
-}
-
-.result-box a {
-    color: $primary-color;
-    text-decoration: none;
-}
-
-.result-box a:hover {
-    text-decoration: underline;
-}
-
-.result-box pre {
-    background: #f8f8f8;
-    border: 1px solid #e1e1e1;
-    border-radius: 4px;
-    padding: 0.5rem;
-    font-size: $font-sm;
-    font-family: $font-family-mono;
-    margin: 0.5rem 0;
-}
-
-.info-box {
-    background-color: $background-light;
-    padding: 15px;
-    border-radius: 5px;
-    margin-bottom: 20px;
-    border: 1px solid $border-light;
-}
-
-.info-box p {
-    margin: 5px 0;
-}
-
-.no-images,
-.no-songs-message,
-.no-selection {
-    text-align: center;
-    color: $text-secondary;
-    font-style: italic;
-    padding: 40px 20px;
-    background-color: $background-light;
-    border-radius: 5px;
-    border: 1px solid $border-light;
-}
-
 /* ===== TABLES ===== */
 .result-table {
-    width: 100%;
-    border-collapse: collapse;
+    @include table-styling();
     margin-top: 20px;
-    background: $background-white;
-    border-radius: 8px;
-    overflow: hidden;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-}
-
-.result-table th,
-.result-table td {
-    padding: 10px;
-    text-align: left;
-    border-bottom: 1px solid $border-light;
-    font-size: $table-font-size;
-}
-
-.result-table th {
-    background-color: $background-light;
-    font-weight: $font-weight-semibold;
-    color: $text-primary;
-    border-bottom: 2px solid #dee2e6;
-    font-size: $table-header-font-size;
-}
-
-.result-table tbody tr:nth-child(even) {
-    background-color: #f9f9f9;
-}
-
-.result-table tbody tr:hover {
-    background-color: #f5f5f5;
-}
-
-.result-table tr.selected {
-    background-color: #e3f2fd !important;
-    border-left: 4px solid #2196f3;
 }
 
 .result-table a {
@@ -295,124 +178,27 @@ button:hover:not(:disabled) {
 
 .result-table button,
 .controls button {
-    background-color: $primary-color;
-    color: $background-white;
-    border: none;
-    padding: 8px 16px;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: $button-font-size;
-    font-family: $font-family-base;
-    transition: background-color 0.2s;
+    @include button-style($primary-color);
     margin: 0;
 }
 
-.result-table button:hover,
-.controls button:hover {
-    background-color: $primary-hover;
-}
-
-.result-table button:active,
-.controls button:active {
-    background-color: $primary-active;
-}
-
-.result-table button:disabled,
-.controls button:disabled {
-    background-color: $text-muted;
-    cursor: not-allowed;
-    opacity: 0.6;
-}
-
 .result-table button.active {
-    background-color: $success-color;
-}
-
-.result-table button.active:hover:not(:disabled) {
-    background-color: $success-hover;
+    @include button-style($success-color);
 }
 
 form button[type="submit"] {
-    background-color: $success-color;
-    color: $background-white;
-    border: none;
+    @include button-style($success-color);
     padding: 10px 20px;
-    border-radius: 4px;
-    cursor: pointer;
     font-size: $button-large-font-size;
-}
-
-form button[type="submit"]:hover:not(:disabled) {
-    background-color: $success-hover;
-}
-
-form button[type="submit"]:disabled {
-    background-color: $text-muted;
-    cursor: not-allowed;
 }
 
 form button[type="button"] {
-    background-color: $danger-alt;
-    color: $background-white;
-    border: none;
+    @include button-style($danger-alt, $background-white, maroon);
     padding: 10px 20px;
-    border-radius: 4px;
-    cursor: pointer;
     font-size: $button-large-font-size;
 }
 
-form button[type="button"]:hover:not(:disabled) {
-    background-color: maroon;
-}
-
-form button[type="button"]:disabled {
-    background-color: $text-muted;
-    cursor: not-allowed;
-}
-
-/* ===== CONTROLS ===== */
-.controls {
-    margin: 20px 0;
-    display: flex;
-    gap: 15px;
-    align-items: center;
-}
-
-/* ===== PAGINATION ===== */
-.pagination-controls {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin: 20px 0;
-    padding: 15px;
-    background: $background-white;
-    border-radius: 6px;
-    border: 1px solid $border-light;
-}
-
-.pagination-info,
-.page-info {
-    color: $text-muted;
-    font-size: $font-sm;
-    font-weight: $font-weight-medium;
-}
-
-/* ===== LINKS & DOWNLOADS ===== */
-.download-link {
-    display: inline-block;
-    background-color: $success-color;
-    color: $background-white;
-    text-decoration: none;
-    padding: 10px 20px;
-    border-radius: 4px;
-    transition: background-color 0.2s;
-}
-
-.download-link:hover {
-    background-color: $success-hover;
-    text-decoration: none;
-    color: $background-white;
-}
+// Controls, Pagination, Downloads werden durch _components.scss abgedeckt
 
 /* ===== ANGULAR MATERIAL SNACKBAR ===== */
 .success-snackbar {
@@ -474,37 +260,4 @@ form button[type="button"]:disabled {
     color: white !important;
 }
 
-/* ===== AUDIO & MEDIA ===== */
-.audio-wrapper {
-    display: flex;
-    margin: 30px 0;
-    padding: 20px;
-    justify-content: center;
-    align-items: center;
-    background-color: $background-light;
-    border-radius: 8px;
-    border: 2px solid $primary-color;
-    text-align: center;
-}
-
-.audio-wrapper h3 {
-    margin: 0 0 15px 0;
-    color: $primary-color;
-}
-
-.audio-wrapper audio {
-    width: 100%;
-    max-width: 500px;
-}
-
-.stem-download {
-    display: flex;
-    margin: 30px 0;
-    padding: 20px;
-    justify-content: center;
-    align-items: center;
-    background-color: #d4edda;
-    border-radius: 8px;
-    border: 2px solid $success-color;
-    text-align: center;
-}
+// Audio & Media Komponenten werden durch _components.scss abgedeckt
