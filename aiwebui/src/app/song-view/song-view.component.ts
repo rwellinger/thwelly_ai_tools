@@ -8,11 +8,12 @@ import {ApiConfigService} from '../services/api-config.service';
 import {NotificationService} from '../services/notification.service';
 import {MatSnackBarModule} from '@angular/material/snack-bar';
 import {PopupAudioPlayerComponent} from '../shared/popup-audio-player/popup-audio-player.component';
+import {SongDetailPanelComponent} from '../shared/song-detail-panel/song-detail-panel.component';
 
 @Component({
   selector: 'app-song-view',
   standalone: true,
-  imports: [CommonModule, FormsModule, HeaderComponent, FooterComponent, MatSnackBarModule, PopupAudioPlayerComponent],
+  imports: [CommonModule, FormsModule, HeaderComponent, FooterComponent, MatSnackBarModule, PopupAudioPlayerComponent, SongDetailPanelComponent],
   templateUrl: './song-view.component.html',
   styleUrl: './song-view.component.css',
   encapsulation: ViewEncapsulation.None
@@ -554,13 +555,13 @@ export class SongViewComponent implements OnInit {
   }
 
   // Audio player methods
-  playAudio(mp3Url: string, choiceId: string) {
+  playAudio(mp3Url: string, choiceId: string, choiceNumber?: number) {
     if (this.currentlyPlaying === choiceId) {
       this.stopAudio();
     } else {
       this.audioUrl = mp3Url;
       this.currentlyPlaying = choiceId;
-      this.currentSongTitle = this.getSongTitle(this.selectedSong) + ` (Choice ${choiceId})`;
+      this.currentSongTitle = this.getSongTitle(this.selectedSong) + ` (Choice ${choiceNumber || 'Unknown'})`;
       this.showPopupPlayer = true;
     }
   }
@@ -742,5 +743,36 @@ export class SongViewComponent implements OnInit {
     }
     const tags = this.parseTagsFromString(this.selectedSong.tags);
     return tags.size > 0 ? Array.from(tags).join(', ') : 'No tags';
+  }
+
+  // Handlers for shared song detail panel
+  onTitleChanged(newTitle: string) {
+    this.editTitleValue = newTitle;
+    this.saveTitle();
+  }
+
+  onTagsChanged(newTags: string[]) {
+    this.selectedTags = new Set(newTags);
+    this.saveTags();
+  }
+
+  onDownloadFlac(url: string) {
+    this.downloadFlac(url);
+  }
+
+  onPlayAudio(event: {url: string, id: string, choiceNumber: number}) {
+    this.playAudio(event.url, event.id, event.choiceNumber);
+  }
+
+  onGenerateStem(url: string) {
+    this.generateStem(url);
+  }
+
+  onDownloadStems(url: string) {
+    this.downloadStems(url);
+  }
+
+  onCopyLyrics() {
+    this.copyLyricsToClipboard();
   }
 }

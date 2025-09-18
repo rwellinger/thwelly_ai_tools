@@ -8,11 +8,12 @@ import {ApiConfigService} from '../services/api-config.service';
 import {NotificationService} from '../services/notification.service';
 import {MatSnackBarModule} from '@angular/material/snack-bar';
 import {PopupAudioPlayerComponent} from '../shared/popup-audio-player/popup-audio-player.component';
+import {SongDetailPanelComponent} from '../shared/song-detail-panel/song-detail-panel.component';
 
 @Component({
     selector: 'app-song-generator',
     standalone: true,
-    imports: [CommonModule, ReactiveFormsModule, HeaderComponent, FooterComponent, MatSnackBarModule, PopupAudioPlayerComponent],
+    imports: [CommonModule, ReactiveFormsModule, HeaderComponent, FooterComponent, MatSnackBarModule, PopupAudioPlayerComponent, SongDetailPanelComponent],
     templateUrl: './song-generator.component.html',
     styleUrl: './song-generator.component.css',
     encapsulation: ViewEncapsulation.None
@@ -25,6 +26,7 @@ export class SongGeneratorComponent implements OnInit {
     currentlyPlaying: string | null = null;
     audioUrl: string | null = null;
     resultData: any = null;
+    generatedSongData: any = null;
     choices: any[] = [];
     stemDownloadUrl: string | null = null;
     showPopupPlayer = false;
@@ -158,6 +160,18 @@ export class SongGeneratorComponent implements OnInit {
             formattedDuration: this.formatDurationFromMs(choice.duration)
         }));
 
+        // Create data object for shared component
+        this.generatedSongData = {
+            job_id: result.id,
+            model: result.model,
+            status: 'completed',
+            created_at: new Date(result.created_at * 1000).toISOString(),
+            completed_at: new Date(result.finished_at * 1000).toISOString(),
+            lyrics: this.songForm.get('lyrics')?.value,
+            prompt: this.songForm.get('prompt')?.value,
+            choices: this.choices
+        };
+
         this.result = '';
     }
 
@@ -175,13 +189,13 @@ export class SongGeneratorComponent implements OnInit {
         return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
     }
 
-    playAudio(mp3Url: string, songId: string) {
+    playAudio(mp3Url: string, songId: string, choiceNumber?: number) {
         if (this.currentlyPlaying === songId) {
             this.stopAudio();
         } else {
             this.audioUrl = mp3Url;
             this.currentlyPlaying = songId;
-            this.currentSongTitle = `Generated Song (Choice ${songId})`;
+            this.currentSongTitle = `Generated Song (Choice ${choiceNumber || 'Unknown'})`;
             this.showPopupPlayer = true;
         }
     }
@@ -313,6 +327,44 @@ export class SongGeneratorComponent implements OnInit {
             this.result += `<p>Error generating stem: ${error.message}</p>`;
         } finally {
             this.isLoading = false;
+        }
+    }
+
+    // Handlers for shared song detail panel
+    onTitleChanged(newTitle: string) {
+        // For generated songs, we don't need to save titles to backend
+        if (this.generatedSongData) {
+            this.generatedSongData.title = newTitle;
+        }
+    }
+
+    onTagsChanged(newTags: string[]) {
+        // For generated songs, we don't need to save tags to backend
+        if (this.generatedSongData) {
+            this.generatedSongData.tags = newTags.join(', ');
+        }
+    }
+
+    onDownloadFlac(url: string) {
+        this.downloadFlac(url);
+    }
+
+    onPlayAudio(event: {url: string, id: string, choiceNumber: number}) {
+        this.playAudio(event.url, event.id, event.choiceNumber);
+    }
+
+    onGenerateStem(url: string) {
+        this.generateStem(url);
+    }
+
+    onDownloadStems(url: string) {
+        this.downloadStems(url);
+    }
+
+    onCopyLyrics() {
+        // Simple clipboard copy for generated songs
+        if (this.generatedSongData?.lyrics) {
+            navigator.clipboard.writeText(this.generatedSongData.lyrics);
         }
     }
 }

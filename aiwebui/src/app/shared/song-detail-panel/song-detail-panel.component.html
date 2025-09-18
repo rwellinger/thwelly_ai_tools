@@ -1,0 +1,195 @@
+<div class="song-details-panel">
+    <div *ngIf="!song" class="no-selection">
+        <div class="placeholder-content">
+            <i [class]="placeholderIcon + ' placeholder-icon'"></i>
+            <p>{{ placeholderText }}</p>
+        </div>
+    </div>
+
+    <!-- Song Details Content -->
+    <div *ngIf="song" class="song-details-section">
+        <h2>{{ title }}</h2>
+
+        <div class="song-info-compact">
+            <!-- Editable Title Section -->
+            <div class="song-title-section" *ngIf="showEditTitle">
+                <div class="title-row" *ngIf="!editingTitle">
+                    <h3 class="song-title">{{ getDisplayTitle(song) }}</h3>
+                    <button type="button" class="edit-btn" (click)="startEditTitle()">
+                        <i class="fas fa-edit"></i>
+                    </button>
+                </div>
+                <div class="title-edit-row" *ngIf="editingTitle">
+                    <input type="text"
+                           class="title-input"
+                           [(ngModel)]="editTitleValue"
+                           (keyup.enter)="saveTitle()"
+                           (keyup.escape)="cancelEditTitle()"
+                           #titleInput>
+                    <button type="button" class="save-btn" (click)="saveTitle()">
+                        <i class="fas fa-check"></i>
+                    </button>
+                    <button type="button" class="cancel-btn" (click)="cancelEditTitle()">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Detail Info -->
+            <div class="song-meta-info">
+                <p *ngIf="shouldShowMetaInfo('job_id') && song.job_id"><strong>Mureka Id:</strong> {{ song.job_id }}</p>
+                <p *ngIf="shouldShowMetaInfo('model') && song.model"><strong>Model:</strong> {{ song.model }}</p>
+                <p *ngIf="shouldShowMetaInfo('status') && song.status"><strong>Status:</strong>
+                    <span [class]="'status-' + song.status.toLowerCase()">{{ song.status }}</span>
+                </p>
+                <p *ngIf="shouldShowMetaInfo('created') && song.created_at"><strong>Created:</strong> {{ formatDateDetailed(song.created_at) }}</p>
+                <p *ngIf="shouldShowMetaInfo('completed') && song.completed_at"><strong>Completed:</strong> {{ formatDateDetailed(song.completed_at) }}</p>
+            </div>
+
+            <!-- Tags Section -->
+            <div class="song-tags-section" *ngIf="showEditTags">
+                <div class="tags-row" *ngIf="!editingTags">
+                    <h3 class="tags-title">Tags:</h3>
+                    <span class="tags-display">{{ getSelectedTagsDisplay() }}</span>
+                    <button type="button" class="edit-btn" (click)="startEditTags()">
+                        <i class="fas fa-edit"></i>
+                    </button>
+                </div>
+                <div class="tags-edit-section" *ngIf="editingTags">
+                    <div class="tags-edit-header">
+                        <h3 class="tags-title">Edit Tags:</h3>
+                        <div class="tags-edit-buttons">
+                            <button type="button" class="save-btn" (click)="saveTags()">
+                                <i class="fas fa-check"></i>
+                            </button>
+                            <button type="button" class="cancel-btn" (click)="cancelEditTags()">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="tags-categories">
+                        <!-- Style Tags -->
+                        <div class="tag-category">
+                            <h4 class="category-title">Style</h4>
+                            <div class="tag-checkboxes">
+                                <label *ngFor="let tag of tagCategories.style" class="tag-checkbox">
+                                    <input type="checkbox"
+                                           [checked]="isTagSelected(tag)"
+                                           (change)="toggleTag(tag)">
+                                    <span class="checkmark"></span>
+                                    {{ tag }}
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Theme Tags -->
+                        <div class="tag-category">
+                            <h4 class="category-title">Theme</h4>
+                            <div class="tag-checkboxes">
+                                <label *ngFor="let tag of tagCategories.theme" class="tag-checkbox">
+                                    <input type="checkbox"
+                                           [checked]="isTagSelected(tag)"
+                                           (change)="toggleTag(tag)">
+                                    <span class="checkmark"></span>
+                                    {{ tag }}
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Choices Table -->
+            <div class="song-choices" *ngIf="song.choices && song.choices.length > 0">
+                <h3>Song Choices:</h3>
+                <table class="choices-table">
+                    <thead>
+                    <tr>
+                        <th>Duration</th>
+                        <th>FLAC File</th>
+                        <th>MP3 File</th>
+                        <th>Stem Generation</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr *ngFor="let choice of song.choices; let i = index">
+                        <td>{{ choice.formattedDuration }}</td>
+                        <td>
+                            <button type="button"
+                                    *ngIf="choice.flac_url"
+                                    (click)="onDownloadFlac(choice.flac_url)">
+                                <i class="fas fa-download"></i> Download FLAC
+                            </button>
+                            <span *ngIf="!choice.flac_url" class="not-available">N/A</span>
+                        </td>
+                        <td>
+                            <button type="button"
+                                    *ngIf="choice.mp3_url"
+                                    (click)="onPlayAudio(choice.mp3_url, choice.id, i + 1)"
+                                    [class.active]="currentlyPlayingId === choice.id">
+                                <i class="fas fa-music"></i>
+                                {{ currentlyPlayingId === choice.id ? 'Hide Player' : 'Play' }}
+                            </button>
+                            <span *ngIf="!choice.mp3_url" class="not-available">N/A</span>
+                        </td>
+                        <td>
+                            <button type="button"
+                                    *ngIf="choice.mp3_url"
+                                    (click)="onGenerateStem(choice.mp3_url)">
+                                <i class="fas fa-brain"></i> Create Stems
+                            </button>
+                            <span *ngIf="!choice.mp3_url" class="not-available">N/A</span>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Lyrics Section -->
+            <div class="song-lyrics" *ngIf="song.lyrics">
+                <div class="lyrics-header">
+                    <h3>Lyrics:</h3>
+                    <button type="button" class="copy-button" (click)="openLyricsDialog()">
+                        <i class="fas fa-expand-alt"></i> Show Lyrics
+                    </button>
+                </div>
+                <pre class="lyrics-content">{{ song.lyrics }}</pre>
+            </div>
+
+            <!-- Style Prompt -->
+            <div class="song-prompt" *ngIf="song.prompt">
+                <h3>Style Prompt:</h3>
+                <p class="prompt-content">{{ song.prompt }}</p>
+            </div>
+        </div>
+
+        <div *ngIf="!song.choices || song.choices.length === 0" class="no-choices">
+            <p>No song choices available for this song.</p>
+        </div>
+    </div>
+</div>
+
+
+<!-- Lyrics Dialog -->
+<div *ngIf="showLyricsDialog" class="lyrics-dialog-overlay" (click)="closeLyricsDialog()">
+    <div class="lyrics-dialog" (click)="$event.stopPropagation()">
+        <div class="lyrics-dialog-header">
+            <h3>Lyrics - {{ getDisplayTitle(song) }}</h3>
+            <button type="button" class="close-button" (click)="closeLyricsDialog()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="lyrics-dialog-content">
+            <textarea readonly class="lyrics-textarea" [value]="song.lyrics" #lyricsTextarea></textarea>
+        </div>
+        <div class="lyrics-dialog-actions">
+            <button type="button" class="copy-all-button" (click)="copyLyricsToClipboard()">
+                <i class="fas fa-copy"></i> Copy All
+            </button>
+            <button type="button" class="close-dialog-button" (click)="closeLyricsDialog()">
+                Close
+            </button>
+        </div>
+    </div>
+</div>

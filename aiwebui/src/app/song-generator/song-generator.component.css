@@ -16,6 +16,13 @@
     overflow: hidden;
 }
 
+/* Style the app-song-detail-panel component itself */
+app-song-detail-panel {
+    flex: 1;
+    display: flex;
+    min-width: 0;
+}
+
 .song-result-panel {
     flex: 1;
     border: 1px solid #e9ecef;

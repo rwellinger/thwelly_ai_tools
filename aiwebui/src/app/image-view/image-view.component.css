@@ -226,8 +226,7 @@
 .master-detail-container {
     display: flex;
     gap: 20px;
-    height: calc(100vh - 320px);
-    min-height: 500px;
+    min-height: calc(100vh - 320px);
 }
 
 /* Responsive height adjustments - removed fixed heights */
