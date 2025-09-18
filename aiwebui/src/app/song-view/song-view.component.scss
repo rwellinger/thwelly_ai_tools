@@ -1,3 +1,6 @@
+@import '../../scss/variables';
+@import '../../scss/mixins';
+
 /* ===== SONG VIEW SPECIFIC STYLES ===== */
 
 /* Controls container - side by side layout */
@@ -9,21 +12,15 @@
 }
 
 .controls-section {
-    background: white;
-    border: 1px solid #e9ecef;
-    border-radius: 8px;
-    padding: 15px;
+    @include card-container($border-light, $background-white, $spacing-15);
     min-width: 280px;
     flex: 1;
 }
 
 .controls-section h3 {
-    margin: 0 0 12px 0;
-    color: #333;
-    font-size: var(--font-lg);
-    font-weight: var(--font-weight-semibold);
-    padding-bottom: 8px;
-    border-bottom: 2px solid #f8f9fa;
+    @include section-header($background-light, $font-lg);
+    margin: 0 0 $spacing-12 0;
+    padding-bottom: $spacing-sm;
 }
 
 .selection-section {
@@ -43,42 +40,25 @@
 }
 
 .controls-buttons button {
-    background-color: #007bff !important;
-    color: white !important;
-    border: none !important;
-    padding: 8px 16px !important;
-    border-radius: 6px !important;
-    cursor: pointer !important;
-    font-size: var(--font-sm) !important;
-    transition: all 0.2s ease !important;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.1) !important;
+    @include button-style($primary-color, $background-white, $primary-hover);
+    padding: $spacing-sm $spacing-md !important;
+    font-size: $font-sm !important;
+    box-shadow: $shadow-sm !important;
 }
 
-.controls-buttons button:hover:not(:disabled) {
-    background-color: #0056b3 !important;
-    transform: translateY(-1px) !important;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.15) !important;
-}
-
-.controls-buttons button:disabled {
-    background-color: #6c757d !important;
-    cursor: not-allowed !important;
-    transform: none !important;
-    box-shadow: none !important;
-}
 
 .controls-buttons button.active {
-    background-color: #28a745 !important;
+    background-color: $success-color !important;
     box-shadow: 0 2px 6px rgba(40,167,69,0.3) !important;
 }
 
 .controls-buttons button.active:hover {
-    background-color: #218838 !important;
+    background-color: $success-hover !important;
 }
 
 .selection-section .delete-btn {
-    background-color: #dc3545 !important;
-    color: white !important;
+    background-color: $danger-color !important;
+    color: $background-white !important;
 }
 
 .selection-section .delete-btn:hover:not(:disabled) {
@@ -131,21 +111,17 @@
 
 /* ===== MASTER DETAIL LAYOUT ===== */
 .master-detail-container {
-    display: flex;
-    gap: 20px;
-    height: calc(100vh - 320px);
+    @include master-detail-layout($spacing-20, 40%, calc(100vh - 320px));
     min-height: 500px;
 }
 
 /* Responsive height adjustments - removed fixed heights */
 
 .song-list-panel {
+    @include card-container($border-light, $background-white, 0);
     flex: 0 0 40%;
     display: flex;
     flex-direction: column;
-    border: 1px solid #e9ecef;
-    border-radius: 8px;
-    background: white;
     overflow: hidden;
     max-height: calc(100vh - 260px);
 }
@@ -193,16 +169,16 @@ app-song-detail-panel {
 }
 
 .song-list h2 {
-    color: #333;
-    margin: 0 0 15px 0;
-    font-size: var(--font-xl);
+    color: $text-primary;
+    margin: 0 0 $spacing-15 0;
+    font-size: $font-xl;
 }
 
 .search-controls {
-    margin-bottom: 15px;
-    padding: 10px;
-    background: #f8f9fa;
-    border-radius: 6px;
+    margin-bottom: $spacing-15;
+    padding: $spacing-10;
+    background: $background-light;
+    border-radius: $border-radius-lg;
     box-sizing: border-box;
     max-width: 100%;
 }
@@ -210,23 +186,21 @@ app-song-detail-panel {
 .search-input {
     width: 100%;
     max-width: 100%;
-    padding: 8px 12px;
-    border: 1px solid #e9ecef;
-    border-radius: 4px;
-    font-size: var(--font-sm);
+    padding: $spacing-sm $spacing-12;
+    border: 1px solid $border-light;
+    border-radius: $border-radius-sm;
+    font-size: $font-sm;
     margin-bottom: 5px;
     box-sizing: border-box;
 }
 
 .search-input:focus {
-    outline: none;
-    border-color: #007bff;
-    box-shadow: 0 0 0 2px rgba(0,123,255,.25);
+    @include input-focus-state($primary-color);
 }
 
 .search-hint {
-    color: #6c757d;
-    font-size: var(--font-sm);
+    color: $text-muted;
+    font-size: $font-sm;
     font-style: italic;
 }
 
@@ -547,16 +521,7 @@ app-song-detail-panel {
 
 /* ===== LOADING OVERLAY ===== */
 .loading-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0, 0, 0, 0.5);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 1000;
+    @include modal-overlay(0.5, 1000);
 }
 
 .loading-content {
@@ -640,16 +605,7 @@ app-song-detail-panel {
 
 /* ===== LYRICS DIALOG ===== */
 .lyrics-dialog-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0, 0, 0, 0.5);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 1000;
+    @include modal-overlay(0.5, 1000);
 }
 
 .lyrics-dialog {

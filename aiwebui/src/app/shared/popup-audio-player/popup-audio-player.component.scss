@@ -1,13 +1,16 @@
+@import '../../../scss/variables';
+@import '../../../scss/mixins';
+
 .popup-audio-player {
   position: fixed;
   width: 400px;
   min-height: 120px;
-  background: #f8f9fa;
-  border: 2px solid #dee2e6;
-  border-radius: 8px;
+  background: $background-light;
+  border: 2px solid $border-darker;
+  border-radius: $border-radius-xl;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
   z-index: 10000;
-  font-family: inherit;
+  font-family: $font-family-base;
   backdrop-filter: blur(10px);
 }
 
@@ -15,12 +18,12 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 8px 12px;
-  background: #e9ecef;
-  border-radius: 6px 6px 0 0;
+  padding: $spacing-sm $spacing-12;
+  background: $border-light;
+  border-radius: $border-radius-lg $border-radius-lg 0 0;
   cursor: move;
   user-select: none;
-  border-bottom: 1px solid #dee2e6;
+  border-bottom: 1px solid $border-darker;
 }
 
 .player-header.dragging {
@@ -29,9 +32,9 @@
 
 .player-title {
   margin: 0;
-  font-size: var(--font-sm);
-  font-weight: var(--font-weight-semibold);
-  color: #333;
+  font-size: $font-sm;
+  font-weight: $font-weight-semibold;
+  color: $text-primary;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -41,12 +44,12 @@
 .close-btn {
   background: none;
   border: none;
-  color: #6c757d;
-  font-size: var(--font-base);
+  color: $text-muted;
+  font-size: $font-base;
   cursor: pointer;
   padding: 4px;
-  border-radius: 4px;
-  transition: all 0.2s ease;
+  border-radius: $border-radius-sm;
+  transition: $transition-standard;
   display: flex;
   align-items: center;
   justify-content: center;
