@@ -1,0 +1,86 @@
+// ===== SCSS VARIABLES =====
+
+// Font Families
+$font-family-base: system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+$font-family-mono: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
+
+// Font Sizes (rem-based, 14px = 0.875rem base)
+$font-xs: 0.75rem;     // 12px
+$font-sm: 0.875rem;    // 14px - Base
+$font-base: 1rem;      // 16px
+$font-lg: 1.125rem;    // 18px
+$font-xl: 1.25rem;     // 20px
+$font-2xl: 1.5rem;     // 24px
+$font-3xl: 1.875rem;   // 30px
+$font-4xl: 2.25rem;    // 36px
+
+// Font Weights
+$font-weight-normal: 400;
+$font-weight-medium: 500;
+$font-weight-semibold: 600;
+$font-weight-bold: 700;
+
+// Line Heights
+$line-height-tight: 1.3;
+$line-height-normal: 1.5;
+$line-height-relaxed: 1.6;
+
+// Component-specific Font Sizes
+$table-font-size: $font-sm;
+$table-header-font-size: $font-sm;
+$button-font-size: $font-sm;
+$button-large-font-size: $font-base;
+$input-font-size: $font-sm;
+$nav-font-size: $font-sm;
+
+// Colors
+$primary-color: #007bff;
+$primary-hover: #0056b3;
+$primary-active: #004085;
+
+$success-color: #28a745;
+$success-hover: #218838;
+
+$danger-color: #dc3545;
+$danger-alt: #f44336;
+$danger-hover: maroon;
+
+$info-color: #2196f3;
+$warning-color: #ff9800;
+
+$text-primary: #333;
+$text-muted: #6c757d;
+$text-secondary: #666;
+
+$background-body: #fafafa;
+$background-white: #fff;
+$background-light: #f8f9fa;
+$background-selected: #e3f2fd;
+
+$border-light: #e9ecef;
+$border-standard: #ddd;
+$border-darker: #dee2e6;
+$border-light-alt: #e1e1e1;
+
+// Spacing
+$spacing-xs: 0.25rem;
+$spacing-sm: 0.5rem;
+$spacing-md: 1rem;
+$spacing-lg: 1.5rem;
+$spacing-xl: 2rem;
+
+// Border Radius
+$border-radius-sm: 4px;
+$border-radius-md: 5px;
+$border-radius-lg: 6px;
+$border-radius-xl: 8px;
+
+// Box Shadows
+$shadow-sm: 0 2px 4px rgba(0,0,0,0.05);
+$shadow-md: 0 2px 8px rgba(0,0,0,0.05);
+$shadow-lg: 0 4px 8px rgba(0,0,0,0.1);
+$shadow-focus: 0 0 0 3px rgba(0,123,255,0.1);
+
+// Transitions
+$transition-fast: 0.2s ease;
+$transition-standard: all 0.2s ease;
