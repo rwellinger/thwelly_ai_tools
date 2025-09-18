@@ -146,6 +146,26 @@ export class SongDetailPanelComponent {
         });
     }
 
+    formatDuration(createdAt: string, completedAt: string): string {
+        if (!createdAt || !completedAt) return '';
+
+        const created = new Date(createdAt);
+        const completed = new Date(completedAt);
+        const diffMs = completed.getTime() - created.getTime();
+
+        if (diffMs < 0) return '';
+
+        const totalMinutes = Math.floor(diffMs / (1000 * 60));
+        const hours = Math.floor(totalMinutes / 60);
+        const minutes = totalMinutes % 60;
+
+        if (hours > 0) {
+            return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}h`;
+        } else {
+            return `${minutes.toString().padStart(2, '0')}:${Math.floor((diffMs % (1000 * 60)) / 1000).toString().padStart(2, '0')}m`;
+        }
+    }
+
     formatDateShort(dateString: string): string {
         if (!dateString) return '';
         return new Date(dateString).toLocaleDateString('de-DE');

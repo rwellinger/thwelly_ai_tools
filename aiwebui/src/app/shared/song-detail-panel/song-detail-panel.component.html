@@ -37,13 +37,33 @@
 
             <!-- Detail Info -->
             <div class="song-meta-info">
-                <p *ngIf="shouldShowMetaInfo('job_id') && song.job_id"><strong>Mureka Id:</strong> {{ song.job_id }}</p>
-                <p *ngIf="shouldShowMetaInfo('model') && song.model"><strong>Model:</strong> {{ song.model }}</p>
-                <p *ngIf="shouldShowMetaInfo('status') && song.status"><strong>Status:</strong>
-                    <span [class]="'status-' + song.status.toLowerCase()">{{ song.status }}</span>
-                </p>
-                <p *ngIf="shouldShowMetaInfo('created') && song.created_at"><strong>Created:</strong> {{ formatDateDetailed(song.created_at) }}</p>
-                <p *ngIf="shouldShowMetaInfo('completed') && song.completed_at"><strong>Completed:</strong> {{ formatDateDetailed(song.completed_at) }}</p>
+                <div class="meta-row">
+                    <div class="meta-item" *ngIf="shouldShowMetaInfo('job_id') && song.job_id">
+                        <i class="fas fa-hashtag meta-icon"></i>
+                        <span class="meta-value">{{ song.job_id }}</span>
+                    </div>
+                    <div class="meta-item" *ngIf="shouldShowMetaInfo('model') && song.model">
+                        <i class="fas fa-robot meta-icon"></i>
+                        <span class="meta-value">{{ song.model }}</span>
+                    </div>
+                    <div class="meta-item" *ngIf="shouldShowMetaInfo('status') && song.status">
+                        <i class="fas meta-icon"
+                           [class]="song.status.toLowerCase() === 'success' ? 'fa-check-circle status-icon-completed' :
+                                   song.status.toLowerCase() === 'failure' || song.status.toLowerCase() === 'failed' ? 'fa-times-circle status-icon-failed' :
+                                   'fa-clock status-icon-' + song.status.toLowerCase()"></i>
+                        <span class="meta-value" [class]="'status-' + song.status.toLowerCase()">{{ song.status }}</span>
+                    </div>
+                </div>
+                <div class="meta-row" *ngIf="(shouldShowMetaInfo('completed') && song.completed_at) || (shouldShowMetaInfo('created') && song.created_at && song.completed_at)">
+                    <div class="meta-item" *ngIf="shouldShowMetaInfo('completed') && song.completed_at">
+                        <i class="fas fa-calendar-check meta-icon"></i>
+                        <span class="meta-value">{{ formatDateDetailed(song.completed_at) }}</span>
+                    </div>
+                    <div class="meta-item" *ngIf="shouldShowMetaInfo('created') && song.created_at && song.completed_at">
+                        <i class="fas fa-clock meta-icon"></i>
+                        <span class="meta-value">{{ formatDuration(song.created_at, song.completed_at) }}</span>
+                    </div>
+                </div>
             </div>
 
             <!-- Tags Section -->

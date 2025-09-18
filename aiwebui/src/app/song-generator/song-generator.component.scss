@@ -191,7 +191,7 @@ app-song-detail-panel {
 .song-item-header h3 {
     margin: 0;
     color: #333;
-    font-size: var(--font-lg);
+    font-size: $font-lg;
 }
 
 .duration-badge {
@@ -199,8 +199,8 @@ app-song-detail-panel {
     color: white;
     padding: 4px 8px;
     border-radius: 12px;
-    font-size: var(--font-sm);
-    font-weight: var(--font-weight-medium);
+    font-size: $font-sm;
+    font-weight: $font-weight-medium;
 }
 
 .song-actions {
@@ -215,8 +215,8 @@ app-song-detail-panel {
     border: none;
     border-radius: 6px;
     cursor: pointer;
-    font-size: var(--font-base);
-    font-weight: var(--font-weight-medium);
+    font-size: $font-base;
+    font-weight: $font-weight-medium;
     transition: all 0.2s ease;
     text-decoration: none;
     display: inline-flex;
@@ -309,7 +309,7 @@ app-song-detail-panel {
 }
 
 .processing-spinner i {
-    font-size: var(--font-3xl);
+    font-size: $font-3xl;
     color: #007bff;
     margin-bottom: 20px;
 }
@@ -317,13 +317,13 @@ app-song-detail-panel {
 .processing-content h3 {
     margin: 0 0 10px 0;
     color: #333;
-    font-size: var(--font-xl);
+    font-size: $font-xl;
 }
 
 .processing-content p {
     margin: 0;
     color: #6c757d;
-    font-size: var(--font-base);
+    font-size: $font-base;
 }
 
 /* ===== RESPONSIVE ===== */

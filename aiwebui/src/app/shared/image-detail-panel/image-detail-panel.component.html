@@ -36,9 +36,20 @@
             </div>
 
             <div class="image-meta-info">
-                <p *ngIf="shouldShowMetaInfo('model') && image.model_used"><strong>Model:</strong> {{ image.model_used }}</p>
-                <p *ngIf="shouldShowMetaInfo('size') && image.size"><strong>Size:</strong> {{ image.size }}</p>
-                <p *ngIf="shouldShowMetaInfo('created') && image.created_at"><strong>Created:</strong> {{ formatDate(image.created_at) }}</p>
+                <div class="meta-grid">
+                    <div class="meta-item" *ngIf="shouldShowMetaInfo('model') && image.model_used">
+                        <i class="fas fa-robot meta-icon"></i>
+                        <span class="meta-value">{{ image.model_used }}</span>
+                    </div>
+                    <div class="meta-item" *ngIf="shouldShowMetaInfo('size') && image.size">
+                        <i class="fas fa-expand-arrows-alt meta-icon"></i>
+                        <span class="meta-value">{{ image.size }}</span>
+                    </div>
+                    <div class="meta-item" *ngIf="shouldShowMetaInfo('created') && image.created_at">
+                        <i class="fas fa-calendar meta-icon"></i>
+                        <span class="meta-value">{{ formatDate(image.created_at) }}</span>
+                    </div>
+                </div>
             </div>
 
             <div class="image-prompt" *ngIf="image.prompt">

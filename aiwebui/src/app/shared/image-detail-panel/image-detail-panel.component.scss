@@ -15,7 +15,7 @@
     flex: 1;
     display: flex;
     flex-direction: column;
-    padding: 15px;
+    padding: $spacing-15;
     overflow-y: auto;
     min-height: 0;
 }
@@ -27,8 +27,8 @@
 .image-info-compact {
     display: flex;
     flex-direction: column;
-    gap: 10px;
-    margin-bottom: 20px;
+    gap: $spacing-10;
+    margin-bottom: $spacing-20;
     flex: 1;
     min-height: 0;
 }
@@ -42,25 +42,44 @@
 
 .placeholder-content {
     text-align: center;
-    color: #6c757d;
+    color: $text-muted;
 }
 
 .placeholder-icon {
-    font-size: var(--font-4xl);
-    margin-bottom: 20px;
+    font-size: $font-4xl;
+    margin-bottom: $spacing-20;
     opacity: 0.3;
 }
 
 .image-meta-info {
     background-color: $background-light;
-    padding: $spacing-12;
+    padding: $spacing-sm $spacing-12;
     border-radius: $border-radius-lg;
 }
 
-.image-meta-info p {
-    margin: $spacing-6 0;
+.meta-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: $spacing-sm;
+}
+
+.meta-item {
+    display: flex;
+    align-items: center;
+    gap: $spacing-6;
+}
+
+.meta-icon {
+    color: $primary-color;
+    font-size: $font-sm;
+    width: 14px;
+    flex-shrink: 0;
+}
+
+.meta-value {
     color: $text-primary;
-    font-size: $font-base;
+    font-size: $font-sm;
+    font-weight: $font-weight-medium;
 }
 
 .image-prompt {
@@ -76,18 +95,18 @@
 }
 
 .prompt-content {
-    background: white;
-    padding: 8px;
-    border-radius: 4px;
-    border: 1px solid #e9ecef;
+    background: $background-white;
+    padding: $spacing-sm;
+    border-radius: $border-radius-sm;
+    border: 1px solid $border-light;
     font-style: italic;
     color: #495057;
-    font-size: var(--font-base);
+    font-size: $font-base;
 }
 
 .image-with-actions {
     display: flex;
-    gap: 15px;
+    gap: $spacing-15;
     align-items: flex-start;
     margin-top: 5px;
     flex: 1;
@@ -99,20 +118,20 @@
 .image-actions {
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: $spacing-10;
     min-width: 140px;
     flex-shrink: 0;
 }
 
 .download-link {
     display: block;
-    background-color: #007bff;
+    background-color: $primary-color;
     color: white;
     text-decoration: none;
-    padding: 8px 12px;
-    border-radius: 4px;
-    font-size: var(--font-sm);
-    transition: background-color 0.2s;
+    padding: $spacing-sm $spacing-12;
+    border-radius: $border-radius-sm;
+    font-size: $font-sm;
+    transition: $transition-fast;
     text-align: center;
     white-space: nowrap;
     border: none;
@@ -121,18 +140,18 @@
 }
 
 .download-link:hover {
-    background-color: #0056b3;
+    background-color: $primary-hover;
     text-decoration: none;
     color: white;
 }
 
 .preview-btn {
-    background-color: #007bff !important;
+    background-color: $primary-color !important;
     margin-left: 0;
 }
 
 .preview-btn:hover {
-    background-color: #0056b3 !important;
+    background-color: $primary-hover !important;
 }
 
 .image-display {
@@ -159,7 +178,7 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 8px;
+    gap: $spacing-sm;
 }
 
 .image-title {
@@ -174,7 +193,7 @@
 .title-edit-row {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: $spacing-sm;
 }
 
 .title-input {
@@ -206,9 +225,9 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    border-radius: 8px;
+    border-radius: $border-radius-xl;
     overflow: hidden;
-    background: #f8f9fa;
+    background: $background-light;
 }
 
 .responsive-image {
@@ -217,7 +236,7 @@
     width: auto;
     height: auto;
     object-fit: contain;
-    border-radius: 6px;
+    border-radius: $border-radius-lg;
     box-shadow: 0 4px 8px rgba(0,0,0,0.1);
 }
 
@@ -238,7 +257,7 @@
 @media (max-width: 768px) {
     .image-with-actions {
         flex-direction: column;
-        gap: 10px;
+        gap: $spacing-10;
     }
 
     .image-actions {

@@ -1,3 +1,5 @@
+@import '../../../scss/variables';
+
 .modern-header {
     background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
     border-bottom: 1px solid #e9ecef;
@@ -27,8 +29,8 @@
 /* Logo (far left) */
 .logo {
     flex-shrink: 0;
-    font-weight: bolder;
-    font-size: 26px;
+    font-weight: $font-weight-bold;
+    font-size: $font-3xl;
     color: #ffffff;
 }
 
@@ -38,10 +40,20 @@
 }
 
 .brand-text {
-    font-weight: bolder;
-    font-size: 26px;
+    font-weight: $font-weight-bold;
+    font-size: $font-3xl;
     color: #ffffff;
     letter-spacing: -0.5px;
+}
+
+.version-text {
+    font-size: $font-xs;
+    color: #bdc3c7;
+    font-weight: $font-weight-normal;
+    margin-left: 8px;
+    opacity: 0.7;
+    vertical-align: top;
+    line-height: 1;
 }
 
 /* Navigation Groups */
@@ -64,8 +76,8 @@
     display: flex;
     align-items: center;
     color: #ecf0f1;
-    font-weight: var(--font-weight-medium);
-    font-size: var(--nav-font-size);
+    font-weight: $font-weight-medium;
+    font-size: $nav-font-size;
     margin-bottom: 8px;
     text-transform: uppercase;
     letter-spacing: 0.5px;
@@ -87,8 +99,8 @@
     padding: 6px 12px;
     color: #bdc3c7;
     text-decoration: none;
-    font-size: var(--nav-font-size);
-    font-weight: var(--font-weight-medium);
+    font-size: $nav-font-size;
+    font-weight: $font-weight-medium;
     border-radius: 6px;
     transition: all 0.2s ease;
     position: relative;
@@ -104,7 +116,7 @@
 .group-items a.active {
     color: #3498db;
     background-color: rgba(52, 152, 219, 0.1);
-    font-weight: var(--font-weight-semibold);
+    font-weight: $font-weight-semibold;
 }
 
 .group-items a.active::after {
@@ -126,8 +138,8 @@
     padding: 6px 12px;
     color: #bdc3c7;
     text-decoration: none;
-    font-size: var(--nav-font-size);
-    font-weight: var(--font-weight-medium);
+    font-size: $nav-font-size;
+    font-weight: $font-weight-medium;
     border-radius: 6px;
     transition: all 0.2s ease;
     position: relative;
@@ -142,7 +154,7 @@
 
 .external-link::before {
     content: '↗';
-    font-size: var(--font-xs);
+    font-size: $font-xs;
     margin-right: 4px;
     opacity: 0.6;
 }
@@ -171,7 +183,7 @@
     }
 
     .brand-link {
-        font-size: var(--font-xl);
+        font-size: $font-xl;
     }
 }
 
@@ -186,11 +198,11 @@
 
     .group-items a {
         padding: 5px 8px;
-        font-size: var(--font-xs);
+        font-size: $font-xs;
     }
 
     .group-label {
-        font-size: var(--font-xs);
+        font-size: $font-xs;
         margin-bottom: 6px;
     }
 }

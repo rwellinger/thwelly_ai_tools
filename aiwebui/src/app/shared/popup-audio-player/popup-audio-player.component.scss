@@ -47,36 +47,36 @@
   color: $text-muted;
   font-size: $font-base;
   cursor: pointer;
-  padding: 4px;
+  padding: $spacing-xs;
   border-radius: $border-radius-sm;
   transition: $transition-standard;
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 24px;
-  height: 24px;
+  width: $spacing-lg;
+  height: $spacing-lg;
 }
 
 .close-btn:hover {
-  background: #dee2e6;
-  color: #333;
+  background: $border-darker;
+  color: $text-primary;
 }
 
 .player-content {
-  padding: 16px;
+  padding: $spacing-md;
 }
 
 .popup-audio-control {
   width: 100%;
   height: 40px;
-  background: #ffffff;
-  border: 1px solid #dee2e6;
-  border-radius: 4px;
+  background: $background-white;
+  border: 1px solid $border-darker;
+  border-radius: $border-radius-sm;
   outline: none;
 }
 
 .popup-audio-control::-webkit-media-controls-panel {
-  background-color: #ffffff;
+  background-color: $background-white;
 }
 
 .popup-audio-control::-webkit-media-controls-play-button,
@@ -86,16 +86,16 @@
 }
 
 .popup-audio-control::-webkit-media-controls-timeline {
-  background-color: #e9ecef;
+  background-color: $border-light;
   border-radius: 25px;
-  margin-left: 10px;
-  margin-right: 10px;
+  margin-left: $spacing-10;
+  margin-right: $spacing-10;
 }
 
 .popup-audio-control::-webkit-media-controls-current-time-display,
 .popup-audio-control::-webkit-media-controls-time-remaining-display {
   color: #495057;
-  font-size: var(--font-xs);
+  font-size: $font-xs;
 }
 
 /* Firefox */
@@ -107,7 +107,7 @@
 }
 
 .popup-audio-control::-moz-range-track {
-  background: #e9ecef;
+  background: $border-light;
   border: none;
   border-radius: 25px;
   cursor: pointer;
