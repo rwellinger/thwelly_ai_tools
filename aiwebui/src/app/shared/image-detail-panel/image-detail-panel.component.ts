@@ -7,7 +7,7 @@ import { FormsModule } from '@angular/forms';
   standalone: true,
   imports: [CommonModule, FormsModule],
   templateUrl: './image-detail-panel.component.html',
-  styleUrl: './image-detail-panel.component.css'
+  styleUrl: './image-detail-panel.component.scss'
 })
 export class ImageDetailPanelComponent {
   @Input() image: any = null;

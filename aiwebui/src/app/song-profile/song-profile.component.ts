@@ -11,7 +11,7 @@ import {MatSnackBarModule} from '@angular/material/snack-bar';
     standalone: true,
     imports: [CommonModule, HeaderComponent, FooterComponent, MatSnackBarModule],
     templateUrl: './song-profile.component.html',
-    styleUrl: './song-profile.component.css'
+    styleUrl: './song-profile.component.scss'
 })
 export class SongProfileComponent implements OnInit {
     isLoading = true;

@@ -14,7 +14,7 @@ import {ImageDetailPanelComponent} from '../shared/image-detail-panel/image-deta
   standalone: true,
     imports: [CommonModule, ReactiveFormsModule, HeaderComponent, FooterComponent, MatSnackBarModule, MatIcon, ImageDetailPanelComponent],
   templateUrl: './image-generator.component.html',
-  styleUrl: './image-generator.component.css'
+  styleUrl: './image-generator.component.scss'
 })
 export class ImageGeneratorComponent implements OnInit {
   promptForm!: FormGroup;

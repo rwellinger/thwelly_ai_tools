@@ -35,7 +35,7 @@ interface PaginationInfo {
   standalone: true,
   imports: [CommonModule, FormsModule, HeaderComponent, FooterComponent, MatSnackBarModule, DisplayNamePipe, ImageDetailPanelComponent],
   templateUrl: './image-view.component.html',
-  styleUrl: './image-view.component.css',
+  styleUrl: './image-view.component.scss',
   encapsulation: ViewEncapsulation.None
 })
 export class ImageViewComponent implements OnInit, AfterViewInit {

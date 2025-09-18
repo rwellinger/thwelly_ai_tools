@@ -15,7 +15,7 @@ import {SongDetailPanelComponent} from '../shared/song-detail-panel/song-detail-
     standalone: true,
     imports: [CommonModule, ReactiveFormsModule, HeaderComponent, FooterComponent, MatSnackBarModule, PopupAudioPlayerComponent, SongDetailPanelComponent],
     templateUrl: './song-generator.component.html',
-    styleUrl: './song-generator.component.css',
+    styleUrl: './song-generator.component.scss',
     encapsulation: ViewEncapsulation.None
 })
 export class SongGeneratorComponent implements OnInit {

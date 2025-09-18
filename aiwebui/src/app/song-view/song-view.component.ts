@@ -15,7 +15,7 @@ import {SongDetailPanelComponent} from '../shared/song-detail-panel/song-detail-
   standalone: true,
   imports: [CommonModule, FormsModule, HeaderComponent, FooterComponent, MatSnackBarModule, PopupAudioPlayerComponent, SongDetailPanelComponent],
   templateUrl: './song-view.component.html',
-  styleUrl: './song-view.component.css',
+  styleUrl: './song-view.component.scss',
   encapsulation: ViewEncapsulation.None
 })
 export class SongViewComponent implements OnInit {

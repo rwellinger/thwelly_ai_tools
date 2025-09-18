@@ -7,7 +7,7 @@ import { FormsModule } from '@angular/forms';
   standalone: true,
   imports: [CommonModule, FormsModule],
   templateUrl: './song-detail-panel.component.html',
-  styleUrl: './song-detail-panel.component.css'
+  styleUrl: './song-detail-panel.component.scss'
 })
 export class SongDetailPanelComponent {
   @Input() song: any = null;
