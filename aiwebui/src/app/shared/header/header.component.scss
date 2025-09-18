@@ -27,8 +27,8 @@
 /* Logo (far left) */
 .logo {
     flex-shrink: 0;
-    font-weight: var(--font-weight-bold);
-    font-size: var(--font-2xl);
+    font-weight: bolder;
+    font-size: 26px;
     color: #ffffff;
 }
 
@@ -38,8 +38,8 @@
 }
 
 .brand-text {
-    font-weight: var(--font-weight-bold);
-    font-size: var(--font-2xl);
+    font-weight: bolder;
+    font-size: 26px;
     color: #ffffff;
     letter-spacing: -0.5px;
 }

@@ -45,10 +45,10 @@ export class ImageViewComponent implements OnInit, AfterViewInit {
   isLoading = false;
   loadingMessage = '';
   currentPage = 0;
-  pageSize = 20;
+  pageSize = 15;
   pagination: PaginationInfo = {
     has_more: false,
-    limit: 20,
+    limit: 15,
     offset: 0,
     total: 0
   };

@@ -25,7 +25,7 @@ export class SongViewComponent implements OnInit {
   selectedSong: any = null;
   pagination: any = {
     total: 0,
-    limit: 20,
+    limit: 15,
     offset: 0,
     has_more: false
   };
