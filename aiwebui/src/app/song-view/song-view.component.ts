@@ -7,7 +7,6 @@ import {FooterComponent} from '../shared/footer/footer.component';
 import {ApiConfigService} from '../services/api-config.service';
 import {NotificationService} from '../services/notification.service';
 import {MatSnackBarModule} from '@angular/material/snack-bar';
-import {DisplayNamePipe} from '../pipes/display-name.pipe';
 import {PopupAudioPlayerComponent} from '../shared/popup-audio-player/popup-audio-player.component';
 
 @Component({
