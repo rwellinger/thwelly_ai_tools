@@ -956,3 +956,42 @@
     opacity: 0.5;
     cursor: not-allowed;
 }
+
+/* ===== RESPONSIVE IMAGE SOLUTION ===== */
+.responsive-image-container {
+    width: 100%;
+    height: 100%;
+    max-height: calc(100vh - 400px);
+    min-height: 300px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    overflow: hidden;
+    background: #f8f9fa;
+}
+
+.responsive-image {
+    max-width: 100%;
+    max-height: 100%;
+    width: auto;
+    height: auto;
+    object-fit: contain;
+    border-radius: 6px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .responsive-image-container {
+        max-height: calc(100vh - 350px);
+        min-height: 250px;
+    }
+}
+
+@media (max-width: 480px) {
+    .responsive-image-container {
+        max-height: calc(100vh - 300px);
+        min-height: 200px;
+    }
+}

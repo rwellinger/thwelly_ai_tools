@@ -1,4 +1,4 @@
-import {Component, OnInit, ViewEncapsulation, ViewChild, ElementRef} from '@angular/core';
+import {Component, OnInit, ViewEncapsulation, ViewChild, ElementRef, AfterViewInit} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {FormsModule} from '@angular/forms';
 import {HeaderComponent} from '../shared/header/header.component';
@@ -37,7 +37,7 @@ interface PaginationInfo {
   styleUrl: './image-view.component.css',
   encapsulation: ViewEncapsulation.None
 })
-export class ImageViewComponent implements OnInit {
+export class ImageViewComponent implements OnInit, AfterViewInit {
   images: ImageData[] = [];
   filteredImages: ImageData[] = [];
   selectedImage: ImageData | null = null;
@@ -67,6 +67,16 @@ export class ImageViewComponent implements OnInit {
   editingTitle = false;
   editTitleValue = '';
 
+  // Image placeholder and dimensions analysis
+  @ViewChild('imagePlaceholder') imagePlaceholder!: ElementRef;
+  placeholderDimensions = {
+    width: 0,
+    height: 0,
+    aspectRatio: '0:0',
+    viewportWidth: 0,
+    viewportHeight: 0
+  };
+
   @ViewChild('titleInput') titleInput!: ElementRef;
 
   constructor(
@@ -76,6 +86,41 @@ export class ImageViewComponent implements OnInit {
 
   ngOnInit() {
     this.loadImages();
+  }
+
+  ngAfterViewInit() {
+    // Initial dimension measurement
+    this.measureDimensions();
+
+    // Update dimensions on window resize
+    window.addEventListener('resize', () => {
+      setTimeout(() => this.measureDimensions(), 100);
+    });
+  }
+
+  private measureDimensions() {
+    if (this.imagePlaceholder) {
+      const element = this.imagePlaceholder.nativeElement;
+      const rect = element.getBoundingClientRect();
+
+      this.placeholderDimensions = {
+        width: Math.round(rect.width),
+        height: Math.round(rect.height),
+        aspectRatio: this.calculateAspectRatio(rect.width, rect.height),
+        viewportWidth: window.innerWidth,
+        viewportHeight: window.innerHeight
+      };
+    }
+  }
+
+  private calculateAspectRatio(width: number, height: number): string {
+    if (height === 0) return '0:0';
+    const gcd = this.gcd(Math.round(width), Math.round(height));
+    return `${Math.round(width / gcd)}:${Math.round(height / gcd)}`;
+  }
+
+  private gcd(a: number, b: number): number {
+    return b === 0 ? a : this.gcd(b, a % b);
   }
 
   async loadImages(page: number = 0) {
@@ -106,7 +151,6 @@ export class ImageViewComponent implements OnInit {
         }
       } else {
         this.images = [];
-        this.notificationService.error('No images found');
       }
     } catch (error: any) {
       this.notificationService.error(`Error loading images: ${error.message}`);
@@ -137,6 +181,8 @@ export class ImageViewComponent implements OnInit {
 
   selectImage(image: ImageData) {
     this.loadImageDetail(image);
+    // Measure dimensions when image changes
+    setTimeout(() => this.measureDimensions(), 100);
   }
 
   clearSelection() {

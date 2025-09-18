@@ -193,6 +193,12 @@ export class SongGeneratorComponent implements OnInit {
         this.currentSongTitle = '';
     }
 
+    onAudioLoadError(error: {code: number, message: string}) {
+        console.log('Audio load error handled:', error);
+        this.notificationService.error(`Audio Error: ${error.message}`);
+        this.stopAudio(); // Close the player when error occurs
+    }
+
     onPopupPlayerClose() {
         this.stopAudio();
     }

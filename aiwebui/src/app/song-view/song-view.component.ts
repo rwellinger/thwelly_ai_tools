@@ -13,7 +13,7 @@ import {PopupAudioPlayerComponent} from '../shared/popup-audio-player/popup-audi
 @Component({
   selector: 'app-song-view',
   standalone: true,
-  imports: [CommonModule, FormsModule, HeaderComponent, FooterComponent, MatSnackBarModule, DisplayNamePipe, PopupAudioPlayerComponent],
+  imports: [CommonModule, FormsModule, HeaderComponent, FooterComponent, MatSnackBarModule, PopupAudioPlayerComponent],
   templateUrl: './song-view.component.html',
   styleUrl: './song-view.component.css',
   encapsulation: ViewEncapsulation.None
@@ -573,6 +573,12 @@ export class SongViewComponent implements OnInit {
     this.currentSongTitle = '';
   }
 
+  onAudioLoadError(error: {code: number, message: string}) {
+    console.log('Audio load error handled in song-view:', error);
+    this.notificationService.error(`Audio Error: ${error.message}`);
+    this.stopAudio(); // Close the player when error occurs
+  }
+
   onPopupPlayerClose() {
     this.stopAudio();
   }
@@ -608,7 +614,6 @@ export class SongViewComponent implements OnInit {
   async generateStem(mp3Url: string) {
     this.isLoading = true;
     this.loadingMessage = 'Generating stems...';
-    this.notificationService.loading('Generating stems...');
 
     try {
       const response = await Promise.race([
