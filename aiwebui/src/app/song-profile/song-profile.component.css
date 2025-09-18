@@ -10,7 +10,7 @@
 .account-info h2 {
     color: #333;
     margin-bottom: 15px;
-    font-size: 1.5em;
+    font-size: var(--font-2xl);
 }
 
 /* ===== STATUS BADGES ===== */
@@ -20,8 +20,8 @@
     gap: 8px;
     padding: 6px 12px;
     border-radius: 20px;
-    font-size: 0.9em;
-    font-weight: bold;
+    font-size: var(--font-base);
+    font-weight: var(--font-weight-bold);
     text-transform: uppercase;
 }
 
@@ -51,26 +51,26 @@
 
 /* ===== AMOUNT STYLING ===== */
 .balance-amount {
-    font-weight: bold;
+    font-weight: var(--font-weight-bold);
     color: #28a745;
-    font-size: 1.1em;
+    font-size: var(--font-lg);
 }
 
 .spending-amount {
-    font-weight: bold;
+    font-weight: var(--font-weight-bold);
     color: #dc3545;
-    font-size: 1.1em;
+    font-size: var(--font-lg);
 }
 
 .recharge-amount {
-    font-weight: bold;
+    font-weight: var(--font-weight-bold);
     color: #007bff;
-    font-size: 1.1em;
+    font-size: var(--font-lg);
 }
 
 /* ===== TABLE OVERRIDES ===== */
 .result-table td:first-child {
-    font-weight: bold;
+    font-weight: var(--font-weight-bold);
     background-color: #f8f9fa;
     width: 30%;
 }

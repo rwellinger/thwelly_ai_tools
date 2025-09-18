@@ -20,8 +20,8 @@
 .controls-section h3 {
     margin: 0 0 12px 0;
     color: #333;
-    font-size: 1.1em;
-    font-weight: 600;
+    font-size: var(--font-lg);
+    font-weight: var(--font-weight-semibold);
     padding-bottom: 8px;
     border-bottom: 2px solid #f8f9fa;
 }
@@ -49,7 +49,7 @@
     padding: 8px 16px !important;
     border-radius: 6px !important;
     cursor: pointer !important;
-    font-size: 0.9em !important;
+    font-size: var(--font-base) !important;
     transition: all 0.2s ease !important;
     box-shadow: 0 1px 3px rgba(0,0,0,0.1) !important;
 }
@@ -102,7 +102,7 @@
     }
 
     .controls-buttons button {
-        font-size: 0.8em !important;
+        font-size: var(--font-sm) !important;
         padding: 6px 12px !important;
     }
 }
@@ -148,8 +148,8 @@
 .image-title {
     margin: 0;
     color: #333;
-    font-size: 1.0em;
-    font-weight: 600;
+    font-size: var(--font-base);
+    font-weight: var(--font-weight-semibold);
     flex: 1;
     word-break: break-word;
 }
@@ -161,7 +161,7 @@
     border-radius: 4px !important;
     padding: 6px 10px !important;
     cursor: pointer !important;
-    font-size: 0.8em !important;
+    font-size: var(--font-sm) !important;
     transition: all 0.2s ease !important;
 }
 
@@ -181,8 +181,8 @@
     padding: 8px 12px;
     border: 2px solid #007bff;
     border-radius: 4px;
-    font-size: 1.1em;
-    font-weight: 600;
+    font-size: var(--font-lg);
+    font-weight: var(--font-weight-semibold);
     outline: none;
     background: white;
 }
@@ -199,7 +199,7 @@
     border-radius: 4px !important;
     padding: 8px 12px !important;
     cursor: pointer !important;
-    font-size: 0.9em !important;
+    font-size: var(--font-base) !important;
     transition: all 0.2s ease !important;
 }
 
@@ -214,7 +214,7 @@
     border-radius: 4px !important;
     padding: 8px 12px !important;
     cursor: pointer !important;
-    font-size: 0.9em !important;
+    font-size: var(--font-base) !important;
     transition: all 0.2s ease !important;
 }
 
@@ -290,7 +290,7 @@
 .image-list h2 {
     color: #333;
     margin: 0 0 15px 0;
-    font-size: 1.3em;
+    font-size: var(--font-xl);
 }
 
 .search-controls {
@@ -308,7 +308,7 @@
     padding: 8px 12px;
     border: 1px solid #e9ecef;
     border-radius: 4px;
-    font-size: 0.9em;
+    font-size: var(--font-base);
     margin-bottom: 5px;
     box-sizing: border-box;
 }
@@ -321,7 +321,7 @@
 
 .search-hint {
     color: #6c757d;
-    font-size: 0.75em;
+    font-size: var(--font-sm);
     font-style: italic;
 }
 
@@ -336,13 +336,13 @@
 
 .sortable-header i {
     margin-left: 5px;
-    font-size: 0.8em;
+    font-size: var(--font-sm);
 }
 
 .result-table {
     flex: 1;
     overflow-y: auto;
-    font-size: 0.9em;
+    font-size: var(--font-base);
     max-height: 500px;
     border-collapse: collapse;
     width: 100%;
@@ -376,7 +376,7 @@
     min-width: 80px;
     text-align: center;
     font-family: monospace;
-    font-size: 0.85em;
+    font-size: var(--font-sm);
 }
 
 .result-table th {
@@ -408,7 +408,7 @@
     padding: 4px 8px !important;
     border-radius: 4px !important;
     cursor: pointer !important;
-    font-size: 0.75em !important;
+    font-size: var(--font-sm) !important;
     margin: 0 !important;
 }
 
@@ -442,8 +442,8 @@
 .list-header h2 {
     margin: 0;
     color: #333;
-    font-size: 1.4em;
-    font-weight: 600;
+    font-size: var(--font-xl);
+    font-weight: var(--font-weight-semibold);
 }
 
 .modern-pagination {
@@ -465,7 +465,7 @@
     color: white;
     padding: 2px 6px;
     border-radius: 8px;
-    font-size: 0.7em;
+    font-size: var(--font-sm);
     font-weight: 500;
     box-shadow: 0 1px 3px rgba(0,123,255,0.3);
     margin-right: 10px;
@@ -491,7 +491,7 @@
     padding: 4px 6px;
     border-radius: 8px;
     cursor: pointer;
-    font-size: 0.75em;
+    font-size: var(--font-sm);
     font-weight: 500;
     transition: all 0.15s ease;
     min-width: 24px;
@@ -521,7 +521,7 @@
 
 .pagination-pill.prev,
 .pagination-pill.next {
-    font-size: 0.65em;
+    font-size: var(--font-sm);
     width: 24px;
     font-weight: bold;
 }
@@ -531,7 +531,7 @@
     font-weight: bold;
     padding: 0 4px;
     user-select: none;
-    font-size: 0.75em;
+    font-size: var(--font-sm);
 }
 
 /* ===== IMAGE DETAILS ===== */
@@ -547,8 +547,8 @@
 .image-details-section h2 {
     color: #333;
     margin: 0 0 20px 0;
-    font-size: 1.4em;
-    font-weight: 600;
+    font-size: var(--font-xl);
+    font-weight: var(--font-weight-semibold);
     border-bottom: 2px solid #007bff;
     padding-bottom: 10px;
 }
@@ -596,7 +596,7 @@
 .image-meta-info p {
     margin: 6px 0;
     color: #333;
-    font-size: 0.9em;
+    font-size: var(--font-base);
 }
 
 .image-prompt {
@@ -618,7 +618,7 @@
     border: 1px solid #e9ecef;
     font-style: italic;
     color: #495057;
-    font-size: 0.9em;
+    font-size: var(--font-base);
 }
 
 .image-with-actions {
@@ -647,7 +647,7 @@
     text-decoration: none;
     padding: 8px 12px;
     border-radius: 4px;
-    font-size: 0.8em;
+    font-size: var(--font-sm);
     transition: background-color 0.2s;
     text-align: center;
     white-space: nowrap;
@@ -766,7 +766,7 @@
     .result-table th,
     .result-table td {
         padding: 6px;
-        font-size: 0.8em;
+        font-size: var(--font-sm);
     }
 
     .image-with-actions {
@@ -781,7 +781,7 @@
     }
 
     .download-link {
-        font-size: 0.75em;
+        font-size: var(--font-sm);
         padding: 6px 10px;
         min-width: 100px;
     }
@@ -844,7 +844,7 @@
     border-radius: 4px;
     padding: 6px 12px;
     cursor: pointer;
-    font-size: 0.9em;
+    font-size: var(--font-base);
 }
 
 .close-button:hover {
@@ -881,8 +881,8 @@
 .image-title {
     margin: 0;
     color: #333;
-    font-size: 1.0em;
-    font-weight: 600;
+    font-size: var(--font-base);
+    font-weight: var(--font-weight-semibold);
     flex: 1;
     word-break: break-word;
 }
@@ -898,7 +898,7 @@
     padding: 8px 12px;
     border: 2px solid #007bff;
     border-radius: 4px;
-    font-size: 1.1em;
+    font-size: var(--font-lg);
     font-weight: 500;
     color: #333;
     background: white;
@@ -917,7 +917,7 @@
     padding: 6px 8px;
     border-radius: 4px;
     cursor: pointer;
-    font-size: 0.85em;
+    font-size: var(--font-sm);
     transition: all 0.2s ease;
     min-width: 28px;
     height: 28px;

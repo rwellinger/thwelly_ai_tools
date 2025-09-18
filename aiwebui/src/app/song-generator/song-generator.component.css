@@ -41,7 +41,7 @@ app-song-detail-panel {
 .controls-content h2 {
     color: #333;
     margin: 0 0 20px 0;
-    font-size: 1.4em;
+    font-size: var(--font-xl);
     border-bottom: 2px solid #007bff;
     padding-bottom: 10px;
 }
@@ -54,9 +54,9 @@ app-song-detail-panel {
 .form-group label {
     display: block;
     color: #333;
-    font-weight: 500;
+    font-weight: var(--font-weight-medium);
     margin-bottom: 6px;
-    font-size: 0.9em;
+    font-size: var(--font-base);
 }
 
 .lyrics-input {
@@ -65,7 +65,7 @@ app-song-detail-panel {
     padding: 12px;
     border: 1px solid #e9ecef;
     border-radius: 6px;
-    font-size: 1.0em;
+    font-size: var(--font-base);
     font-family: inherit;
     resize: vertical;
     transition: border-color 0.2s ease;
@@ -79,7 +79,7 @@ app-song-detail-panel {
     padding: 12px;
     border: 1px solid #e9ecef;
     border-radius: 6px;
-    font-size: 0.9em;
+    font-size: var(--font-base);
     font-family: inherit;
     resize: vertical;
     transition: border-color 0.2s ease;
@@ -98,7 +98,7 @@ app-song-detail-panel {
     padding: 10px 12px;
     border: 1px solid #e9ecef;
     border-radius: 6px;
-    font-size: 0.9em;
+    font-size: var(--font-base);
     background: white;
     transition: border-color 0.2s ease;
     box-sizing: border-box;
@@ -125,7 +125,7 @@ app-song-detail-panel {
     border-radius: 6px !important;
     cursor: pointer !important;
     font-size: 1.0em !important;
-    font-weight: 500 !important;
+    font-weight: var(--font-weight-medium) !important;
     transition: all 0.2s ease;
 }
 
@@ -149,7 +149,7 @@ app-song-detail-panel {
     border-radius: 6px !important;
     cursor: pointer !important;
     font-size: 1.0em !important;
-    font-weight: 500 !important;
+    font-weight: var(--font-weight-medium) !important;
     transition: all 0.2s ease;
 }
 
@@ -177,7 +177,7 @@ app-song-detail-panel {
 }
 
 .placeholder-icon {
-    font-size: 4em;
+    font-size: var(--font-4xl);
     margin-bottom: 20px;
     opacity: 0.3;
 }
@@ -191,7 +191,7 @@ app-song-detail-panel {
 .song-result-section h2 {
     color: #333;
     margin: 0 0 20px 0;
-    font-size: 1.4em;
+    font-size: var(--font-xl);
     border-bottom: 2px solid #007bff;
     padding-bottom: 10px;
 }
@@ -209,7 +209,7 @@ app-song-detail-panel {
 .song-meta-info p {
     margin: 6px 0;
     color: #333;
-    font-size: 0.9em;
+    font-size: var(--font-base);
 }
 
 .songs-list {
@@ -234,7 +234,7 @@ app-song-detail-panel {
 .song-item-header h3 {
     margin: 0;
     color: #333;
-    font-size: 1.1em;
+    font-size: var(--font-lg);
 }
 
 .duration-badge {
@@ -242,8 +242,8 @@ app-song-detail-panel {
     color: white;
     padding: 4px 8px;
     border-radius: 12px;
-    font-size: 0.8em;
-    font-weight: 500;
+    font-size: var(--font-sm);
+    font-weight: var(--font-weight-medium);
 }
 
 .song-actions {
@@ -258,8 +258,8 @@ app-song-detail-panel {
     border: none;
     border-radius: 6px;
     cursor: pointer;
-    font-size: 0.9em;
-    font-weight: 500;
+    font-size: var(--font-base);
+    font-weight: var(--font-weight-medium);
     transition: all 0.2s ease;
     text-decoration: none;
     display: inline-flex;
@@ -361,7 +361,7 @@ app-song-detail-panel {
 }
 
 .processing-spinner i {
-    font-size: 3em;
+    font-size: var(--font-3xl);
     color: #007bff;
     margin-bottom: 20px;
 }
@@ -369,13 +369,13 @@ app-song-detail-panel {
 .processing-content h3 {
     margin: 0 0 10px 0;
     color: #333;
-    font-size: 1.2em;
+    font-size: var(--font-xl);
 }
 
 .processing-content p {
     margin: 0;
     color: #6c757d;
-    font-size: 0.9em;
+    font-size: var(--font-base);
 }
 
 /* ===== RESPONSIVE ===== */

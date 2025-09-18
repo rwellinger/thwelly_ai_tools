@@ -29,8 +29,8 @@
 
 .player-title {
   margin: 0;
-  font-size: 14px;
-  font-weight: 600;
+  font-size: var(--font-sm);
+  font-weight: var(--font-weight-semibold);
   color: #333;
   white-space: nowrap;
   overflow: hidden;
@@ -42,7 +42,7 @@
   background: none;
   border: none;
   color: #6c757d;
-  font-size: 16px;
+  font-size: var(--font-base);
   cursor: pointer;
   padding: 4px;
   border-radius: 4px;
@@ -92,7 +92,7 @@
 .popup-audio-control::-webkit-media-controls-current-time-display,
 .popup-audio-control::-webkit-media-controls-time-remaining-display {
   color: #495057;
-  font-size: 12px;
+  font-size: var(--font-xs);
 }
 
 /* Firefox */

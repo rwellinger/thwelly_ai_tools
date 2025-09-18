@@ -160,7 +160,7 @@ export class SongGeneratorComponent implements OnInit {
             formattedDuration: this.formatDurationFromMs(choice.duration)
         }));
 
-        // Create data object for shared component
+        // Create data object for shared component with field mapping for compatibility
         this.generatedSongData = {
             job_id: result.id,
             model: result.model,
@@ -169,7 +169,11 @@ export class SongGeneratorComponent implements OnInit {
             completed_at: new Date(result.finished_at * 1000).toISOString(),
             lyrics: this.songForm.get('lyrics')?.value,
             prompt: this.songForm.get('prompt')?.value,
-            choices: this.choices
+            choices: this.choices.map((choice: any) => ({
+                ...choice,
+                mp3_url: choice.url || choice.mp3_url,  // Map API field 'url' to expected 'mp3_url'
+                flac_url: choice.flac_url               // Keep existing flac_url
+            }))
         };
 
         this.result = '';

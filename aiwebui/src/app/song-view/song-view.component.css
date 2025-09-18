@@ -20,8 +20,8 @@
 .controls-section h3 {
     margin: 0 0 12px 0;
     color: #333;
-    font-size: 1.1em;
-    font-weight: 600;
+    font-size: var(--font-lg);
+    font-weight: var(--font-weight-semibold);
     padding-bottom: 8px;
     border-bottom: 2px solid #f8f9fa;
 }
@@ -49,7 +49,7 @@
     padding: 8px 16px !important;
     border-radius: 6px !important;
     cursor: pointer !important;
-    font-size: 0.9em !important;
+    font-size: var(--font-sm) !important;
     transition: all 0.2s ease !important;
     box-shadow: 0 1px 3px rgba(0,0,0,0.1) !important;
 }
@@ -102,7 +102,7 @@
     }
 
     .controls-buttons button {
-        font-size: 0.8em !important;
+        font-size: var(--font-sm) !important;
         padding: 6px 12px !important;
     }
 }
@@ -195,7 +195,7 @@ app-song-detail-panel {
 .song-list h2 {
     color: #333;
     margin: 0 0 15px 0;
-    font-size: 1.3em;
+    font-size: var(--font-xl);
 }
 
 .search-controls {
@@ -213,7 +213,7 @@ app-song-detail-panel {
     padding: 8px 12px;
     border: 1px solid #e9ecef;
     border-radius: 4px;
-    font-size: 14px;
+    font-size: var(--font-sm);
     margin-bottom: 5px;
     box-sizing: border-box;
 }
@@ -226,7 +226,7 @@ app-song-detail-panel {
 
 .search-hint {
     color: #6c757d;
-    font-size: 12px;
+    font-size: var(--font-sm);
     font-style: italic;
 }
 
@@ -241,13 +241,13 @@ app-song-detail-panel {
 
 .sortable-header i {
     margin-left: 5px;
-    font-size: 0.8em;
+    font-size: var(--font-sm);
 }
 
 .result-table {
     flex: 1;
     overflow-y: auto;
-    font-size: 14px;
+    font-size: var(--font-sm);
     max-height: 500px;
     border-collapse: collapse;
     width: 100%;
@@ -311,7 +311,7 @@ app-song-detail-panel {
     padding: 4px 8px !important;
     border-radius: 4px !important;
     cursor: pointer !important;
-    font-size: 12px !important;
+    font-size: var(--font-sm) !important;
     margin: 0 !important;
 }
 
@@ -345,8 +345,8 @@ app-song-detail-panel {
 .list-header h2 {
     margin: 0;
     color: #333;
-    font-size: 1.4em;
-    font-weight: 600;
+    font-size: var(--font-xl);
+    font-weight: var(--font-weight-semibold);
 }
 
 .modern-pagination {
@@ -368,8 +368,8 @@ app-song-detail-panel {
     color: white;
     padding: 2px 6px;
     border-radius: 8px;
-    font-size: 0.7em;
-    font-weight: 500;
+    font-size: var(--font-xs);
+    font-weight: var(--font-weight-medium);
     box-shadow: 0 1px 3px rgba(0,123,255,0.3);
     margin-right: 10px;
 }
@@ -394,8 +394,8 @@ app-song-detail-panel {
     padding: 4px 6px;
     border-radius: 8px;
     cursor: pointer;
-    font-size: 0.75em;
-    font-weight: 500;
+    font-size: var(--font-xs);
+    font-weight: var(--font-weight-medium);
     transition: all 0.15s ease;
     min-width: 24px;
     height: 24px;
@@ -424,7 +424,7 @@ app-song-detail-panel {
 
 .pagination-pill.prev,
 .pagination-pill.next {
-    font-size: 0.65em;
+    font-size: var(--font-xs);
     width: 24px;
     font-weight: bold;
 }
@@ -434,7 +434,7 @@ app-song-detail-panel {
     font-weight: bold;
     padding: 0 4px;
     user-select: none;
-    font-size: 0.75em;
+    font-size: var(--font-xs);
 }
 
 
@@ -497,7 +497,7 @@ app-song-detail-panel {
 
 .enhanced-audio-player::-webkit-media-controls-current-time-display,
 .enhanced-audio-player::-webkit-media-controls-time-remaining-display {
-    font-size: 13px;
+    font-size: var(--font-sm);
     color: #495057;
     font-family: system-ui, Arial, sans-serif;
 }
@@ -568,14 +568,14 @@ app-song-detail-panel {
 }
 
 .loading-content i {
-    font-size: 2em;
+    font-size: var(--font-3xl);
     color: #007bff;
     margin-bottom: 15px;
 }
 
 .loading-content p {
     margin: 0;
-    font-size: 1.1em;
+    font-size: var(--font-lg);
 }
 
 /* ===== RESPONSIVE ===== */
@@ -623,7 +623,7 @@ app-song-detail-panel {
     }
 
     .choices-table {
-        font-size: 13px;
+        font-size: var(--font-sm);
     }
 
     .choices-table th,
@@ -634,7 +634,7 @@ app-song-detail-panel {
     .result-table th,
     .result-table td {
         padding: 6px;
-        font-size: 13px;
+        font-size: var(--font-sm);
     }
 }
 
@@ -676,15 +676,15 @@ app-song-detail-panel {
 .lyrics-dialog-header h3 {
     margin: 0;
     color: #333;
-    font-size: 1.1em;
-    font-weight: 600;
+    font-size: var(--font-lg);
+    font-weight: var(--font-weight-semibold);
 }
 
 .close-button {
     background: none;
     border: none;
     color: #6c757d;
-    font-size: 1.2em;
+    font-size: var(--font-xl);
     cursor: pointer;
     padding: 5px;
     border-radius: 4px;
@@ -710,7 +710,7 @@ app-song-detail-panel {
     border: 1px solid #e9ecef;
     border-radius: 6px;
     font-family: monospace;
-    font-size: 14px;
+    font-size: var(--font-sm);
     line-height: 1.4;
     resize: vertical;
     background: #f8f9fa;
@@ -741,7 +741,7 @@ app-song-detail-panel {
     padding: 8px 16px !important;
     border-radius: 4px !important;
     cursor: pointer !important;
-    font-size: 14px !important;
+    font-size: var(--font-sm) !important;
     transition: background-color 0.2s;
 }
 
@@ -756,7 +756,7 @@ app-song-detail-panel {
     padding: 8px 16px !important;
     border-radius: 4px !important;
     cursor: pointer !important;
-    font-size: 14px !important;
+    font-size: var(--font-sm) !important;
     transition: background-color 0.2s;
 }
 
