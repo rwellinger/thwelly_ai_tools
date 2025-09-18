@@ -17,11 +17,14 @@
 
   <div class="player-content">
     <audio #player
-           [src]="audioUrl"
+           [src]="sanitizedAudioUrl"
            controls
            preload="metadata"
            (canplaythrough)="onCanPlayThrough()"
            (ended)="onAudioEnded()"
+           (loadstart)="onLoadStart()"
+           (loadedmetadata)="onLoadedMetadata()"
+           (error)="onAudioError($event)"
            class="popup-audio-control">
     </audio>
   </div>

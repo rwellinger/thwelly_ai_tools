@@ -375,7 +375,8 @@
     [audioUrl]="audioUrl"
     [songTitle]="currentSongTitle"
     (closePlayer)="onPopupPlayerClose()"
-    (audioEnded)="onPopupPlayerEnded()">
+    (audioEnded)="onPopupPlayerEnded()"
+    (audioLoadError)="onAudioLoadError($event)">
 </app-popup-audio-player>
 
 <app-footer></app-footer>

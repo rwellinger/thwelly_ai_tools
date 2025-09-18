@@ -190,10 +190,13 @@
 
                 <div class="image-with-actions">
                     <div class="image-display">
-                        <img [src]="selectedImage.url"
-                             [alt]="selectedImage.prompt | displayName"
-                             (error)="onImageError($event)"
-                             loading="lazy">
+                        <div class="responsive-image-container" #imagePlaceholder>
+                            <img [src]="selectedImage.url"
+                                 [alt]="selectedImage.prompt | displayName"
+                                 (error)="onImageError($event)"
+                                 loading="lazy"
+                                 class="responsive-image">
+                        </div>
                     </div>
                     <div class="image-actions">
                         <button type="button" (click)="downloadImage(selectedImage.url)" class="download-link">
