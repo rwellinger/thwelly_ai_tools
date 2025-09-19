@@ -73,7 +73,101 @@
     }
 }
 
-// 5. Table Styling
+// 5. Modern List Table Styling
+@mixin list-table-styling($header-bg: $primary-color, $header-color: $background-white) {
+    width: 100%;
+    border-collapse: collapse;
+    background: $background-white;
+    border-radius: 0; // Tables in containers don't need radius
+    box-shadow: none; // Container provides shadow
+    font-size: $font-sm;
+
+    th {
+        position: sticky;
+        top: 0;
+        background: $header-bg;
+        color: $header-color;
+        font-weight: $font-weight-semibold;
+        font-size: $font-sm;
+        padding: $spacing-6 $spacing-sm;
+        text-align: left;
+        border: none;
+        z-index: 10;
+
+        &.sortable-header {
+            cursor: pointer;
+            user-select: none;
+            transition: background-color 0.2s ease;
+
+            &:hover {
+                background-color: $primary-hover;
+            }
+
+            i {
+                margin-left: 5px;
+                font-size: $font-sm;
+            }
+        }
+
+        &.checkbox-col {
+            width: 40px;
+            text-align: center;
+            padding: $spacing-sm 4px;
+        }
+    }
+
+    td {
+        padding: $spacing-6 $spacing-sm;
+        border-bottom: 1px solid $border-light;
+        font-size: $font-sm;
+        vertical-align: top;
+        line-height: 1.3;
+
+        &.checkbox-col {
+            width: 40px;
+            text-align: center;
+            padding: $spacing-sm 4px;
+
+            input[type="checkbox"] {
+                transform: scale(1.1);
+                cursor: pointer;
+            }
+        }
+    }
+
+    tbody tr {
+        cursor: pointer;
+        transition: background-color 0.2s ease;
+
+        &:hover:not(.selected) {
+            background-color: #f5f5f5;
+        }
+
+        &.selected {
+            background-color: $background-selected !important;
+            border-left: 4px solid $primary-color;
+        }
+
+        &.selection-selected {
+            background-color: #fff3cd !important;
+            border-left: 4px solid $warning-color !important;
+
+            &:hover {
+                background-color: #ffeaa7 !important;
+            }
+        }
+    }
+
+    // Responsive adjustments
+    @include respond-to(mobile) {
+        th, td {
+            padding: $spacing-6;
+            font-size: $font-sm;
+        }
+    }
+}
+
+// 5a. Legacy Table Styling (for backward compatibility)
 @mixin table-styling($header-bg: $background-light, $header-color: $text-primary) {
     width: 100%;
     border-collapse: collapse;
@@ -245,6 +339,186 @@
         box-shadow: $shadow-lg;
     } @else {
         box-shadow: 0 #{$level * 2}px #{$level * 4}px rgba(0,0,0,0.1);
+    }
+}
+
+// 13. Modern List Container Layout
+@mixin list-container-layout() {
+    @include card-container($border-light, $background-white, 0);
+    flex: 0 0 40%;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    height: 100%;
+
+    .list-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: $spacing-20;
+        padding: $spacing-15 $spacing-15 $spacing-15 $spacing-15;
+        border-bottom: 1px solid $border-light;
+
+        h2 {
+            margin: 0;
+            color: $text-primary;
+            font-size: $font-xl;
+            font-weight: $font-weight-semibold;
+        }
+    }
+
+    .search-controls {
+        margin: 0 $spacing-15 $spacing-10 $spacing-15;
+        padding: $spacing-10;
+        background: $background-light;
+        border-radius: $border-radius-lg;
+        box-sizing: border-box;
+
+        .search-input {
+            width: 100%;
+            padding: $spacing-sm $spacing-12;
+            border: 1px solid $border-light;
+            border-radius: $border-radius-sm;
+            font-size: $font-sm;
+            margin-bottom: 5px;
+            box-sizing: border-box;
+
+            &:focus {
+                @include input-focus-state($primary-color);
+            }
+        }
+
+        .search-hint {
+            color: $text-muted;
+            font-size: $font-sm;
+            font-style: italic;
+        }
+    }
+
+    .list-content {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        padding: $spacing-6 $spacing-15 $spacing-15 $spacing-15;
+        overflow-y: auto;
+        min-height: 0;
+
+        .result-table {
+            @include list-table-styling();
+            flex: 1;
+            overflow-y: auto;
+            max-height: 500px;
+
+            @include respond-to(mobile) {
+                max-height: 300px;
+            }
+        }
+
+        .pagination-container {
+            padding: $spacing-sm $spacing-15;
+            border-top: 1px solid $border-light;
+            background: $background-light;
+            margin-top: auto;
+
+            .modern-pagination {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                width: 100%;
+            }
+        }
+
+        .no-results-message, .loading-message {
+            padding: 40px;
+            text-align: center;
+            color: $text-muted;
+        }
+    }
+
+    // Responsive adjustments
+    @include respond-to(tablet) {
+        flex: none;
+        height: 40vh;
+    }
+
+    @include respond-to(mobile) {
+        height: 35vh;
+    }
+}
+
+// 14. Pagination Pills Styling
+@mixin pagination-pills-styling() {
+    .pagination-info-badge {
+        background: linear-gradient(135deg, $primary-color, $primary-hover);
+        color: $background-white;
+        padding: 2px $spacing-6;
+        border-radius: $border-radius-xl;
+        font-size: $font-sm;
+        font-weight: 500;
+        box-shadow: 0 1px 3px rgba(0,123,255,0.3);
+        margin-right: $spacing-10;
+    }
+
+    .pagination-pills {
+        display: flex;
+        align-items: center;
+        gap: 1px;
+        background: $background-white;
+        padding: 2px;
+        border-radius: 12px;
+        box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+        border: 1px solid $border-darker;
+        flex: 1;
+        justify-content: center;
+    }
+
+    .pagination-pill {
+        border: none;
+        background: transparent;
+        color: $text-muted;
+        padding: 4px $spacing-6;
+        border-radius: $border-radius-xl;
+        cursor: pointer;
+        font-size: $font-sm;
+        font-weight: 500;
+        transition: all 0.15s ease;
+        min-width: 24px;
+        height: 24px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0;
+
+        &:hover:not(.disabled) {
+            background: $border-light;
+            color: $primary-color;
+        }
+
+        &.active {
+            background: $primary-color;
+            color: $background-white;
+            box-shadow: 0 1px 3px rgba(0,123,255,0.3);
+        }
+
+        &.disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+
+        &.prev, &.next {
+            font-size: $font-sm;
+            width: 24px;
+            font-weight: bold;
+        }
+    }
+
+    .pagination-ellipsis {
+        color: $text-muted;
+        font-weight: bold;
+        padding: 0 4px;
+        user-select: none;
+        font-size: $font-sm;
     }
 }
 
