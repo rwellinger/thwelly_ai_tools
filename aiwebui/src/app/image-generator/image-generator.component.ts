@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { HeaderComponent } from '../shared/header/header.component';
@@ -24,11 +24,9 @@ export class ImageGeneratorComponent implements OnInit {
   showImageModal = false;
   generatedImageData: any = null;
 
-  constructor(
-    private fb: FormBuilder,
-    private apiConfig: ApiConfigService,
-    private notificationService: NotificationService
-  ) {}
+  private fb = inject(FormBuilder);
+  private apiConfig = inject(ApiConfigService);
+  private notificationService = inject(NotificationService);
 
   ngOnInit() {
     this.promptForm = this.fb.group({

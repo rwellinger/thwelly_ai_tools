@@ -1,6 +1,7 @@
-import {Component, OnInit, ViewEncapsulation, ViewChild, ElementRef} from '@angular/core';
+import {Component, OnInit, ViewEncapsulation, ViewChild, ElementRef, OnDestroy, inject} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {FormsModule} from '@angular/forms';
+import {Subject, debounceTime, distinctUntilChanged, takeUntil} from 'rxjs';
 import {SongService} from '../services/song.service';
 import {HeaderComponent} from '../shared/header/header.component';
 import {FooterComponent} from '../shared/footer/footer.component';
@@ -18,7 +19,7 @@ import {SongDetailPanelComponent} from '../shared/song-detail-panel/song-detail-
   styleUrl: './song-view.component.scss',
   encapsulation: ViewEncapsulation.None
 })
-export class SongViewComponent implements OnInit {
+export class SongViewComponent implements OnInit, OnDestroy {
   // Songs list and pagination
   songs: any[] = [];
   filteredSongs: any[] = [];
@@ -61,6 +62,10 @@ export class SongViewComponent implements OnInit {
   // Make Math available in template
   Math = Math;
 
+  // RxJS subjects for debouncing
+  private searchSubject = new Subject<string>();
+  private destroy$ = new Subject<void>();
+
   // Selection mode state
   isSelectionMode = false;
   selectedSongIds = new Set<string>();
@@ -81,12 +86,27 @@ export class SongViewComponent implements OnInit {
   };
 
   @ViewChild('titleInput') titleInput!: ElementRef;
+  @ViewChild('searchInput') searchInput!: ElementRef;
 
-  constructor(
-    private songService: SongService,
-    private apiConfig: ApiConfigService,
-    private notificationService: NotificationService
-  ) {
+  private songService = inject(SongService);
+  private apiConfig = inject(ApiConfigService);
+  private notificationService = inject(NotificationService);
+
+  constructor() {
+    // Setup search debouncing
+    this.searchSubject.pipe(
+      debounceTime(500),
+      distinctUntilChanged(),
+      takeUntil(this.destroy$)
+    ).subscribe(searchTerm => {
+      const hadFocus = document.activeElement === this.searchInput?.nativeElement;
+      this.searchTerm = searchTerm;
+      this.applyFilterAndSort();
+      // Restore focus if it was in search field
+      if (hadFocus && this.searchInput) {
+        setTimeout(() => this.searchInput.nativeElement.focus(), 0);
+      }
+    });
   }
 
   private delay(ms: number): Promise<void> {
@@ -96,6 +116,11 @@ export class SongViewComponent implements OnInit {
   ngOnInit() {
     (window as any).angularComponentRef = this;
     this.loadSongs();
+  }
+
+  ngOnDestroy() {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   async loadSongs() {
@@ -322,8 +347,7 @@ export class SongViewComponent implements OnInit {
   }
 
   onSearchChange(searchTerm: string) {
-    this.searchTerm = searchTerm;
-    this.applyFilterAndSort();
+    this.searchSubject.next(searchTerm);
   }
 
   toggleSort() {
@@ -480,6 +504,10 @@ export class SongViewComponent implements OnInit {
 
   trackByPage(index: number, page: number | string): number | string {
     return page;
+  }
+
+  trackBySong(index: number, song: any): string {
+    return song.id;
   }
 
   // Modal methods

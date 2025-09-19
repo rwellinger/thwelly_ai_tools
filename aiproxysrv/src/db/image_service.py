@@ -79,23 +79,69 @@ class ImageService:
     
     @staticmethod
     def get_recent_images_paginated(limit: int = 20, offset: int = 0) -> List[GeneratedImage]:
-        """Get most recently generated images with pagination"""
+        """Get most recently generated images with pagination (deprecated - use get_images_paginated)"""
+        return ImageService.get_images_paginated(limit=limit, offset=offset)
+
+    @staticmethod
+    def get_images_paginated(limit: int = 20, offset: int = 0, search: str = '',
+                           sort_by: str = 'created_at', sort_direction: str = 'desc') -> List[GeneratedImage]:
+        """Get images with pagination, search and sorting"""
         db = SessionLocal()
         try:
-            return (db.query(GeneratedImage)
-                   .order_by(GeneratedImage.created_at.desc())
-                   .limit(limit)
-                   .offset(offset)
-                   .all())
+            query = db.query(GeneratedImage)
+
+            # Apply search filter if provided
+            if search:
+                search_term = f"%{search}%"
+                from sqlalchemy import or_
+                query = query.filter(
+                    or_(
+                        GeneratedImage.title.ilike(search_term),
+                        GeneratedImage.prompt.ilike(search_term)
+                    )
+                )
+
+            # Apply sorting
+            if sort_by == 'title':
+                # Handle null titles by treating them as empty strings for sorting
+                if sort_direction == 'desc':
+                    query = query.order_by(GeneratedImage.title.desc().nullslast())
+                else:
+                    query = query.order_by(GeneratedImage.title.asc().nullsfirst())
+            elif sort_by == 'prompt':
+                if sort_direction == 'desc':
+                    query = query.order_by(GeneratedImage.prompt.desc())
+                else:
+                    query = query.order_by(GeneratedImage.prompt.asc())
+            else:  # default to created_at
+                if sort_direction == 'desc':
+                    query = query.order_by(GeneratedImage.created_at.desc())
+                else:
+                    query = query.order_by(GeneratedImage.created_at.asc())
+
+            return query.limit(limit).offset(offset).all()
         finally:
             db.close()
     
     @staticmethod
-    def get_total_images_count() -> int:
-        """Get total count of generated images"""
+    def get_total_images_count(search: str = '') -> int:
+        """Get total count of generated images with optional search filter"""
         db = SessionLocal()
         try:
-            return db.query(GeneratedImage).count()
+            query = db.query(GeneratedImage)
+
+            # Apply search filter if provided
+            if search:
+                search_term = f"%{search}%"
+                from sqlalchemy import or_
+                query = query.filter(
+                    or_(
+                        GeneratedImage.title.ilike(search_term),
+                        GeneratedImage.prompt.ilike(search_term)
+                    )
+                )
+
+            return query.count()
         finally:
             db.close()
     

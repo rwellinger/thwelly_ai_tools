@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { ApiConfigService } from './api-config.service';
 
@@ -67,10 +67,8 @@ interface SongDetailResponse extends Record<string, unknown> {
 export class SongService {
   private readonly STORAGE_KEY = 'songFormData';
 
-  constructor(
-    private http: HttpClient,
-    private apiConfig: ApiConfigService
-  ) { }
+  private http = inject(HttpClient);
+  private apiConfig = inject(ApiConfigService);
 
   async fetchWithTimeout(resource: string, options: FetchOptions = {}): Promise<Response> {
     const { timeout = 30000 } = options;

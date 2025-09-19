@@ -1,4 +1,4 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, OnInit, inject} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {HeaderComponent} from '../shared/header/header.component';
 import {FooterComponent} from '../shared/footer/footer.component';
@@ -17,11 +17,8 @@ export class SongProfileComponent implements OnInit {
     isLoading = true;
     billingInfo: any = null;
 
-    constructor(
-        private apiConfig: ApiConfigService,
-        private notificationService: NotificationService
-    ) {
-    }
+    private apiConfig = inject(ApiConfigService);
+    private notificationService = inject(NotificationService);
 
     ngOnInit() {
         this.loadBillingInfo();
