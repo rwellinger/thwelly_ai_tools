@@ -35,6 +35,12 @@ MUREKA_POLL_INTERVAL=10
 MUREKA_MAX_POLL_ATTEMPTS=360
 
 # ==================================================
+# OLLAMA API CONFIGURATION
+# ==================================================
+OLLAMA_URL=http://10.0.1.120:11434
+OLLAMA_TIMEOUT=360
+
+# ==================================================
 # REDIS CONFIGURATION
 # ==================================================
 REDIS_URL=redis://localhost:6379
@@ -42,8 +48,8 @@ REDIS_URL=redis://localhost:6379
 # ==================================================
 # FLASK SERVER CONFIGURATION
 # ==================================================
-OPENAI_PORT=5050
-OPENAI_HOST=0.0.0.0
+FLASK_SERVER_PORT=5050
+FLASK_SERVER_HOST=0.0.0.0
 
 # ==================================================
 # OPENAI/DALL-E CONFIGURATION

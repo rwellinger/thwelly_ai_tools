@@ -60,3 +60,38 @@ def generate():
     )
 
     return jsonify(response_data), status_code
+
+
+@api_chat_v1.route('/generate-llama3-simple', methods=['POST'])
+def generate_llama3_simple():
+    """Generate chat response with model llama3 and fixed parameters"""
+    raw_json = request.get_json(silent=True)
+
+    if not raw_json:
+        return jsonify({"error": "No JSON provided"}), 400
+
+    # Extract required field
+    prompt = raw_json.get('prompt')
+
+    if not prompt:
+        return jsonify({"error": "Missing prompt parameter"}), 400
+
+    # Extract optional prompt components (allow empty strings)
+    pre_condition = raw_json.get('pre_condition', '')
+    post_condition = raw_json.get('post_condition', '')
+
+    # Fixed parameters
+    model = "llama3.2:3b"
+    temperature = 0.3
+    max_tokens = 30
+
+    response_data, status_code = chat_controller.generate_chat(
+        model=model,
+        pre_condition=pre_condition,
+        prompt=prompt,
+        post_condition=post_condition,
+        temperature=temperature,
+        max_tokens=max_tokens
+    )
+
+    return jsonify(response_data), status_code

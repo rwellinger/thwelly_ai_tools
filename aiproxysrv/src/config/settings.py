@@ -37,10 +37,10 @@ OPENAI_URL = os.getenv("OPENAI_URL")
 OPENAI_MODEL = os.getenv("OPENAI_MODEL")
 
 # --------------------------------------------------
-# Server Config
+# Flask Server Config
 # --------------------------------------------------
-OPENAI_PORT = int(os.getenv("OPENAI_PORT", "5050"))
-OPENAI_HOST = os.getenv("OPENAI_HOST", "0.0.0.0")
+FLASK_SERVER_PORT = int(os.getenv("FLASK_SERVER_PORT", "5050"))
+FLASK_SERVER_HOST = os.getenv("FLASK_SERVER_HOST", "0.0.0.0")
 DEBUG = os.getenv("DEBUG", "false").lower() == "true"
 
 # --------------------------------------------------
