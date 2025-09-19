@@ -56,14 +56,9 @@
     background-color: $success-hover !important;
 }
 
-.selection-section .delete-btn {
-    background-color: $danger-color !important;
-    color: $background-white !important;
-}
 
-.selection-section .delete-btn:hover:not(:disabled) {
-    background-color: #c82333 !important;
-    box-shadow: 0 2px 6px rgba(220,53,69,0.3) !important;
+.selection-section .delete-btn {
+    @include button-danger('base');
 }
 
 /* Responsive controls */
@@ -175,31 +170,13 @@ app-song-detail-panel {
 }
 
 .result-table button {
-    background-color: $success-color !important;
-    color: $background-white !important;
-    border: none !important;
-    padding: 4px $spacing-sm !important;
-    border-radius: $border-radius-sm !important;
-    cursor: pointer !important;
-    font-size: $font-sm !important;
+    @include button-success('sm');
     margin: 0 !important;
-}
-
-.result-table button:hover:not(:disabled) {
-    background-color: $success-hover !important;
+    padding: 4px $spacing-sm !important;
 }
 
 .result-table button.active {
-    background-color: $primary-color !important;
-}
-
-.result-table button.active:hover {
-    background-color: $primary-hover !important;
-}
-
-.result-table button:disabled {
-    background-color: $text-muted !important;
-    cursor: not-allowed !important;
+    @include button-primary('sm');
 }
 
 /* ===== MODERN PAGINATION ===== */
@@ -495,33 +472,13 @@ app-song-detail-panel {
 }
 
 .copy-all-button {
-    background-color: $success-color !important;
-    color: $background-white !important;
-    border: none !important;
+    @include button-success('base');
     padding: $spacing-sm 16px !important;
-    border-radius: $border-radius-sm !important;
-    cursor: pointer !important;
-    font-size: $font-sm !important;
-    transition: background-color 0.2s;
-}
-
-.copy-all-button:hover {
-    background-color: $success-hover !important;
 }
 
 .close-dialog-button {
-    background-color: $text-muted !important;
-    color: white !important;
-    border: none !important;
+    @include button-secondary('base');
     padding: $spacing-sm 16px !important;
-    border-radius: $border-radius-sm !important;
-    cursor: pointer !important;
-    font-size: $font-sm !important;
-    transition: background-color 0.2s;
-}
-
-.close-dialog-button:hover {
-    background-color: #5a6268 !important;
 }
 
 /* Responsive dialog */
