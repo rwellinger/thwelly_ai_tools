@@ -43,6 +43,12 @@ app-song-detail-panel {
     margin-bottom: 20px;
 }
 
+.prompt-input-group {
+    display: flex;
+    gap: $spacing-10;
+    align-items: flex-start;
+}
+
 .form-group label {
     display: block;
     color: $text-primary;
@@ -52,7 +58,7 @@ app-song-detail-panel {
 }
 
 .lyrics-input {
-    width: 100%;
+    flex: 1;
     min-height: 160px;
     padding: $spacing-12;
     border: 1px solid $border-light;
@@ -66,7 +72,7 @@ app-song-detail-panel {
 }
 
 .prompt-input {
-    width: 100%;
+    flex: 1;
     min-height: 100px;
     padding: $spacing-12;
     border: 1px solid $border-light;
@@ -125,6 +131,37 @@ app-song-detail-panel {
 .create-button i,
 .reset-button i {
     margin-right: 8px;
+}
+
+.magic-icon-button {
+    background-color: white !important;
+    border: none;
+    color: black !important;
+    cursor: pointer;
+    font-size: $font-lg;
+    padding: $spacing-sm;
+    border-radius: 50% !important;
+    transition: $transition-fast;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    margin-top: $spacing-xs;
+    flex-shrink: 0;
+}
+
+.magic-icon-button:hover:not(:disabled) {
+    color: $text-primary  !important;
+    background-color: $background-selected !important;
+    transform: scale(1.1);
+}
+
+.magic-icon-button:disabled {
+    color: $text-primary  !important;
+    background-color: $background-white  !important;
+    cursor: not-allowed;
+    transform: none;
 }
 
 /* ===== SONG RESULT STYLING ===== */

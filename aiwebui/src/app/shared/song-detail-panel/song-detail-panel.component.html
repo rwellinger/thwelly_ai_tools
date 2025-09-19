@@ -37,14 +37,10 @@
 
             <!-- Detail Info -->
             <div class="song-meta-info">
-                <div class="meta-row">
+                <div class="meta-grid">
                     <div class="meta-item" *ngIf="shouldShowMetaInfo('job_id') && song.job_id">
                         <i class="fas fa-hashtag meta-icon"></i>
                         <span class="meta-value">{{ song.job_id }}</span>
-                    </div>
-                    <div class="meta-item" *ngIf="shouldShowMetaInfo('model') && song.model">
-                        <i class="fas fa-robot meta-icon"></i>
-                        <span class="meta-value">{{ song.model }}</span>
                     </div>
                     <div class="meta-item" *ngIf="shouldShowMetaInfo('status') && song.status">
                         <i class="fas meta-icon"
@@ -53,8 +49,10 @@
                                    'fa-clock status-icon-' + song.status.toLowerCase()"></i>
                         <span class="meta-value" [class]="'status-' + song.status.toLowerCase()">{{ song.status }}</span>
                     </div>
-                </div>
-                <div class="meta-row" *ngIf="(shouldShowMetaInfo('completed') && song.completed_at) || (shouldShowMetaInfo('created') && song.created_at && song.completed_at)">
+                    <div class="meta-item" *ngIf="shouldShowMetaInfo('model') && song.model">
+                        <i class="fas fa-robot meta-icon"></i>
+                        <span class="meta-value">{{ song.model }}</span>
+                    </div>
                     <div class="meta-item" *ngIf="shouldShowMetaInfo('completed') && song.completed_at">
                         <i class="fas fa-calendar-check meta-icon"></i>
                         <span class="meta-value">{{ formatDateDetailed(song.completed_at) }}</span>

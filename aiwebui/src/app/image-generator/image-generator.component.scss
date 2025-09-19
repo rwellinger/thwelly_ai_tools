@@ -132,13 +132,13 @@ app-image-detail-panel {
 }
 
 .magic-icon-button {
-    background: none;
+    background-color: white !important;
     border: none;
-    color: $info-color;
+    color: black !important;
     cursor: pointer;
     font-size: $font-lg;
     padding: $spacing-sm;
-    border-radius: 50%;
+    border-radius: 50% !important;
     transition: $transition-fast;
     display: flex;
     align-items: center;
@@ -150,13 +150,14 @@ app-image-detail-panel {
 }
 
 .magic-icon-button:hover:not(:disabled) {
-    background-color: rgba(33, 150, 243, 0.1);
-    color: #1976d2;
+    color: $text-primary !important;
+    background-color: $background-selected !important;
     transform: scale(1.1);
 }
 
 .magic-icon-button:disabled {
-    color: $text-muted;
+    color: $text-primary  !important;
+    background-color: $background-white  !important;
     cursor: not-allowed;
     transform: none;
 }

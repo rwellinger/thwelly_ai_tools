@@ -57,15 +57,10 @@
     border-radius: $border-radius-lg;
 }
 
-.meta-row {
-    display: flex;
-    gap: $spacing-15;
-    flex-wrap: wrap;
-    margin-bottom: $spacing-6;
-}
-
-.meta-row:last-child {
-    margin-bottom: 0;
+.meta-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: $spacing-sm;
 }
 
 .meta-item {

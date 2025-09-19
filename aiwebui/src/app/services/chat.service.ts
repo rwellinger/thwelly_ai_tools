@@ -45,9 +45,28 @@ export class ChatService {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        pre_condition: 'One-sentence Music Style prompt:',
+        pre_condition: 'One-sentence Suno Music Style prompt:',
         prompt: prompt,
         post_condition: 'Only respond with the prompt.'
+      })
+    });
+
+    if (!response.ok) {
+      throw new Error(`Chat API error: ${response.status}`);
+    }
+
+    const data: ChatResponse = await response.json();
+    return data.response;
+  }
+
+  async translateLyric(prompt: string): Promise<string> {
+    const response = await fetch(this.apiConfig.endpoints.chat.generateGptOssSimple, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        pre_condition: 'By a britisch songwriter and translate this lyric text to britisch english:',
+        prompt: prompt,
+        post_condition: 'Only respond with the translation.'
       })
     });
 

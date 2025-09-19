@@ -9,24 +9,46 @@
             <form [formGroup]="songForm" (ngSubmit)="onSubmit()">
                 <div class="form-group">
                     <label for="lyrics">Lyrics:</label>
-                    <textarea
-                        id="lyrics"
-                        formControlName="lyrics"
-                        placeholder="Enter your song lyrics here..."
-                        required
-                        class="lyrics-input">
-                    </textarea>
+                    <div class="prompt-input-group">
+                        <textarea
+                            id="lyrics"
+                            formControlName="lyrics"
+                            placeholder="Enter your song lyrics here..."
+                            required
+                            class="lyrics-input">
+                        </textarea>
+                        <button
+                            type="button"
+                            (click)="translateLyrics()"
+                            [disabled]="isTranslatingLyrics || isImprovingPrompt || !songForm.get('lyrics')?.value?.trim()"
+                            class="magic-icon-button"
+                            title="Translate lyrics with AI">
+                            <i class="fas fa-language" *ngIf="!isTranslatingLyrics"></i>
+                            <i class="fas fa-language fa-spinner" *ngIf="isTranslatingLyrics"></i>
+                        </button>
+                    </div>
                 </div>
 
                 <div class="form-group">
                     <label for="prompt">Music Style Prompt:</label>
-                    <textarea
-                        id="prompt"
-                        formControlName="prompt"
-                        placeholder="Describe the music style (e.g., upbeat pop, melancholic ballad, rock anthem)..."
-                        required
-                        class="prompt-input">
-                    </textarea>
+                    <div class="prompt-input-group">
+                        <textarea
+                            id="prompt"
+                            formControlName="prompt"
+                            placeholder="Describe the music style (e.g., upbeat pop, melancholic ballad, rock anthem)..."
+                            required
+                            class="prompt-input">
+                        </textarea>
+                        <button
+                            type="button"
+                            (click)="improvePrompt()"
+                            [disabled]="isImprovingPrompt || isTranslatingLyrics || !songForm.get('prompt')?.value?.trim()"
+                            class="magic-icon-button"
+                            title="Improve music style prompt with AI">
+                            <i class="fas fa-wand-magic-sparkles" *ngIf="!isImprovingPrompt"></i>
+                            <i class="fas fa-wand-magic-sparkles fa-spinner" *ngIf="isImprovingPrompt"></i>
+                        </button>
+                    </div>
                 </div>
 
                 <div class="form-group">
@@ -40,10 +62,10 @@
                 </div>
 
                 <div class="button-group">
-                    <button type="submit" [disabled]="songForm.invalid || isLoading" class="create-button">
+                    <button type="submit" [disabled]="songForm.invalid || isLoading || isImprovingPrompt || isTranslatingLyrics" class="create-button">
                         <i class="fas fa-music"></i> Create Song
                     </button>
-                    <button type="button" (click)="resetForm()" class="reset-button">
+                    <button type="button" (click)="resetForm()" [disabled]="isImprovingPrompt || isTranslatingLyrics" class="reset-button">
                         <i class="fas fa-rotate-left"></i> Reset
                     </button>
                 </div>

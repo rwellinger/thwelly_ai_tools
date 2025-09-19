@@ -6,6 +6,7 @@ import {HeaderComponent} from '../shared/header/header.component';
 import {FooterComponent} from '../shared/footer/footer.component';
 import {ApiConfigService} from '../services/api-config.service';
 import {NotificationService} from '../services/notification.service';
+import {ChatService} from '../services/chat.service';
 import {MatSnackBarModule} from '@angular/material/snack-bar';
 import {PopupAudioPlayerComponent} from '../shared/popup-audio-player/popup-audio-player.component';
 import {SongDetailPanelComponent} from '../shared/song-detail-panel/song-detail-panel.component';
@@ -21,6 +22,8 @@ import {SongDetailPanelComponent} from '../shared/song-detail-panel/song-detail-
 export class SongGeneratorComponent implements OnInit {
     songForm!: FormGroup;
     isLoading = false;
+    isImprovingPrompt = false;
+    isTranslatingLyrics = false;
     loadingMessage = '';
     result = '';
     currentlyPlaying: string | null = null;
@@ -36,6 +39,7 @@ export class SongGeneratorComponent implements OnInit {
     private songService = inject(SongService);
     private apiConfig = inject(ApiConfigService);
     private notificationService = inject(NotificationService);
+    private chatService = inject(ChatService);
 
     ngOnInit() {
         this.songForm = this.fb.group({
@@ -367,6 +371,42 @@ export class SongGeneratorComponent implements OnInit {
         // Simple clipboard copy for generated songs
         if (this.generatedSongData?.lyrics) {
             navigator.clipboard.writeText(this.generatedSongData.lyrics);
+        }
+    }
+
+    async improvePrompt() {
+        const currentPrompt = this.songForm.get('prompt')?.value?.trim();
+        if (!currentPrompt) {
+            this.notificationService.error('Please enter a music style prompt first');
+            return;
+        }
+
+        this.isImprovingPrompt = true;
+        try {
+            const improvedPrompt = await this.chatService.improveMusicStylePrompt(currentPrompt);
+            this.songForm.patchValue({prompt: improvedPrompt});
+        } catch (error: any) {
+            this.notificationService.error(`Error improving prompt: ${error.message}`);
+        } finally {
+            this.isImprovingPrompt = false;
+        }
+    }
+
+    async translateLyrics() {
+        const currentLyrics = this.songForm.get('lyrics')?.value?.trim();
+        if (!currentLyrics) {
+            this.notificationService.error('Please enter lyrics first');
+            return;
+        }
+
+        this.isTranslatingLyrics = true;
+        try {
+            const translatedLyrics = await this.chatService.translateLyric(currentLyrics);
+            this.songForm.patchValue({lyrics: translatedLyrics});
+        } catch (error: any) {
+            this.notificationService.error(`Error translating lyrics: ${error.message}`);
+        } finally {
+            this.isTranslatingLyrics = false;
         }
     }
 
