@@ -222,6 +222,9 @@
 /* ===== MASTER DETAIL LAYOUT ===== */
 .master-detail-container {
     @include master-detail-layout($spacing-20, 40%, calc(100vh - 320px));
+    min-height: 500px;
+    max-height: 70vh;
+    overflow: hidden;
 }
 
 /* Responsive height adjustments - removed fixed heights */
@@ -232,33 +235,10 @@
     display: flex;
     flex-direction: column;
     overflow: hidden;
-    max-height: calc(100vh - 260px);
+    height: 100%;
 }
 
-/* Responsive height adjustments */
-@media (max-height: 900px) {
-    .image-list-panel {
-        max-height: calc(100vh - 180px);
-    }
-}
-
-@media (max-height: 700px) {
-    .image-list-panel {
-        max-height: calc(100vh - 160px);
-    }
-}
-
-@media (max-width: 768px) {
-    .image-list-panel {
-        max-height: calc(100vh - 280px);
-    }
-}
-
-@media (max-width: 480px) {
-    .image-list-panel {
-        max-height: calc(100vh - 260px);
-    }
-}
+/* Height adjustments now handled by fixed max-height on container */
 
 .image-details-panel {
     flex: 1;
@@ -694,19 +674,18 @@
 @media (max-width: 1024px) {
     .master-detail-container {
         flex-direction: column;
+        max-height: none;
         height: auto;
     }
 
     .image-list-panel {
         flex: none;
         height: 40vh;
-        max-height: none;
     }
 
-    .image-details-panel {
+    app-image-detail-panel {
         flex: none;
         height: 50vh;
-        max-height: none;
     }
 
     .image-with-actions {
@@ -739,12 +718,10 @@
 
     .image-list-panel {
         height: 35vh;
-        max-height: none;
     }
 
-    .image-details-panel {
+    app-image-detail-panel {
         height: 45vh;
-        max-height: none;
     }
 
     .pagination-controls {
