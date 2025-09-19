@@ -294,15 +294,19 @@ class SongService:
             print(f"Error getting choice by mureka_choice_id {mureka_choice_id}: {e}", file=sys.stderr)
             return None
     
-    def get_songs_paginated(self, limit: int = 20, offset: int = 0, status: str = None) -> List[Song]:
+    def get_songs_paginated(self, limit: int = 20, offset: int = 0, status: str = None, search: str = '',
+                           sort_by: str = 'created_at', sort_direction: str = 'desc') -> List[Song]:
         """
-        Get songs with pagination and optional status filter
-        
+        Get songs with pagination, search and sorting
+
         Args:
             limit: Number of songs to return (default 20)
-            offset: Number of songs to skip (default 0)  
+            offset: Number of songs to skip (default 0)
             status: Optional status filter (SUCCESS, PENDING, FAILURE, etc.)
-            
+            search: Search term to filter by title, lyrics, or tags
+            sort_by: Field to sort by (created_at, title, lyrics)
+            sort_direction: Sort direction (asc, desc)
+
         Returns:
             List of Song instances with loaded choices
         """
@@ -310,15 +314,44 @@ class SongService:
             db = next(get_db())
             try:
                 query = (db.query(Song)
-                        .options(joinedload(Song.choices))
-                        .order_by(Song.created_at.desc()))
-                
+                        .options(joinedload(Song.choices)))
+
                 # Apply status filter if provided
                 if status:
                     query = query.filter(Song.status == status)
-                
+
+                # Apply search filter if provided
+                if search:
+                    search_term = f"%{search}%"
+                    from sqlalchemy import or_
+                    query = query.filter(
+                        or_(
+                            Song.title.ilike(search_term),
+                            Song.lyrics.ilike(search_term),
+                            Song.tags.ilike(search_term)
+                        )
+                    )
+
+                # Apply sorting
+                if sort_by == 'title':
+                    # Handle null titles by treating them as empty strings for sorting
+                    if sort_direction == 'desc':
+                        query = query.order_by(Song.title.desc().nullslast())
+                    else:
+                        query = query.order_by(Song.title.asc().nullsfirst())
+                elif sort_by == 'lyrics':
+                    if sort_direction == 'desc':
+                        query = query.order_by(Song.lyrics.desc())
+                    else:
+                        query = query.order_by(Song.lyrics.asc())
+                else:  # default to created_at
+                    if sort_direction == 'desc':
+                        query = query.order_by(Song.created_at.desc())
+                    else:
+                        query = query.order_by(Song.created_at.asc())
+
                 songs = query.limit(limit).offset(offset).all()
-                print(f"Retrieved {len(songs)} songs with pagination (limit={limit}, offset={offset}, status={status})", file=sys.stderr)
+                print(f"Retrieved {len(songs)} songs with pagination (limit={limit}, offset={offset}, status={status}, search='{search}', sort={sort_by}:{sort_direction})", file=sys.stderr)
                 return songs
             finally:
                 db.close()
@@ -327,13 +360,14 @@ class SongService:
             print(f"Stacktrace: {traceback.format_exc()}", file=sys.stderr)
             return []
     
-    def get_total_songs_count(self, status: str = None) -> int:
+    def get_total_songs_count(self, status: str = None, search: str = '') -> int:
         """
-        Get total count of songs
-        
+        Get total count of songs with optional search filter
+
         Args:
             status: Optional status filter
-            
+            search: Search term to filter by title, lyrics, or tags
+
         Returns:
             Total number of songs matching the criteria
         """
@@ -341,12 +375,24 @@ class SongService:
             db = next(get_db())
             try:
                 query = db.query(Song)
-                
+
                 if status:
                     query = query.filter(Song.status == status)
-                    
+
+                # Apply search filter if provided
+                if search:
+                    search_term = f"%{search}%"
+                    from sqlalchemy import or_
+                    query = query.filter(
+                        or_(
+                            Song.title.ilike(search_term),
+                            Song.lyrics.ilike(search_term),
+                            Song.tags.ilike(search_term)
+                        )
+                    )
+
                 count = query.count()
-                print(f"Total songs count: {count} (status={status})", file=sys.stderr)
+                print(f"Total songs count: {count} (status={status}, search='{search}')", file=sys.stderr)
                 return count
             finally:
                 db.close()

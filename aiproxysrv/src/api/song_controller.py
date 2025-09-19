@@ -59,22 +59,33 @@ class SongController:
         """Get Queue Status"""
         return self.task_controller.get_queue_status()
     
-    def get_songs(self, limit: int = 20, offset: int = 0, status: str = None) -> Tuple[Dict[str, Any], int]:
+    def get_songs(self, limit: int = 20, offset: int = 0, status: str = None, search: str = '',
+                  sort_by: str = 'created_at', sort_direction: str = 'desc') -> Tuple[Dict[str, Any], int]:
         """
-        Get list of songs with pagination and optional status filter
-        
+        Get list of songs with pagination, search and sorting
+
         Args:
             limit: Number of songs to return (default 20)
             offset: Number of songs to skip (default 0)
             status: Optional status filter (SUCCESS, PENDING, FAILURE, etc.)
-            
+            search: Search term to filter by title, lyrics, or tags
+            sort_by: Field to sort by (created_at, title, lyrics)
+            sort_direction: Sort direction (asc, desc)
+
         Returns:
             Tuple of (response_data, status_code)
         """
         try:
             # Get songs from database via service
-            songs = song_service.get_songs_paginated(limit=limit, offset=offset, status=status)
-            total_count = song_service.get_total_songs_count(status=status)
+            songs = song_service.get_songs_paginated(
+                limit=limit,
+                offset=offset,
+                status=status,
+                search=search,
+                sort_by=sort_by,
+                sort_direction=sort_direction
+            )
+            total_count = song_service.get_total_songs_count(status=status, search=search)
             
             # Convert to API response format (minimal data for list view)
             songs_list = []
