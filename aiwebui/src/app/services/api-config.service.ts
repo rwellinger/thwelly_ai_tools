@@ -46,8 +46,8 @@ export class ApiConfigService {
             info: `${this.baseUrl}/api/v1/song/mureka-account`
         },
         chat: {
-            generateLlama3Simple: `${this.baseUrl}/api/v1/chat/generate-llama3-simple`,
-            generateGptOssSimple: `${this.baseUrl}/api/v1/chat/generate-gpt-oss-simple`
+            generateLlama3Simple: `${this.baseUrl}/api/v1/ollama/chat/generate-llama3-simple`,
+            generateGptOssSimple: `${this.baseUrl}/api/v1/ollama/chat/generate-gpt-oss-simple`
         }
     };
 
