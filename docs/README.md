@@ -657,7 +657,7 @@ services:
 
 ---
 
-*Dokument erstellt am: 2024-12-12*
-*Zuletzt aktualisiert: 2025-09-19*
+*Dokument erstellt am: 01.09.2025*
+*Zuletzt aktualisiert: 19.09.2025*
 *Version: 1.1*
-*Autor: Rob (via Claude)*
+*Autor: Rob (rob.wellinger@gmail.com)*
