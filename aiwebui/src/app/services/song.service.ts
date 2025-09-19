@@ -131,8 +131,21 @@ export class SongService {
 
   async getSongById(songId: string): Promise<SongDetailResponse> {
     const response = await this.fetchWithTimeout(
-      this.apiConfig.endpoints.song.detail(songId), 
+      this.apiConfig.endpoints.song.detail(songId),
       { timeout: 30000 }
+    );
+    return response.json();
+  }
+
+  async updateChoiceRating(choiceId: string, rating: number | null): Promise<any> {
+    const response = await this.fetchWithTimeout(
+      this.apiConfig.endpoints.song.updateChoiceRating(choiceId),
+      {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ rating }),
+        timeout: 30000
+      }
     );
     return response.json();
   }

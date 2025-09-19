@@ -12,15 +12,15 @@
 }
 
 .controls-section {
-    @include card-container($border-light, $background-white, $spacing-15);
+    @include card-container($border-light, $background-white, $spacing-10);
     min-width: 280px;
     flex: 1;
 }
 
 .controls-section h3 {
     @include section-header($background-light, $font-lg);
-    margin: 0 0 $spacing-12 0;
-    padding-bottom: $spacing-sm;
+    margin: 0 0 $spacing-sm 0;
+    padding-bottom: $spacing-xs;
 }
 
 .selection-section {

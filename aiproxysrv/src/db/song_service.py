@@ -500,6 +500,71 @@ class SongService:
             print(f"Stacktrace: {traceback.format_exc()}", file=sys.stderr)
             return None
 
+    def update_choice_rating(self, choice_id: str, rating: Optional[int]) -> bool:
+        """
+        Update rating for a specific song choice
+
+        Args:
+            choice_id: UUID of the choice
+            rating: Rating value (None=unset, 0=thumbs down, 1=thumbs up)
+
+        Returns:
+            True if successful, False otherwise
+        """
+        try:
+            # Validate rating value
+            if rating is not None and rating not in [0, 1]:
+                print(f"Invalid rating value: {rating}. Must be None, 0, or 1", file=sys.stderr)
+                return False
+
+            db = next(get_db())
+            try:
+                choice = db.query(SongChoice).filter(SongChoice.id == choice_id).first()
+                if not choice:
+                    print(f"SongChoice not found: {choice_id}", file=sys.stderr)
+                    return False
+
+                choice.rating = rating
+                choice.updated_at = datetime.utcnow()
+
+                db.commit()
+                print(f"Choice {choice_id} rating updated to {rating}", file=sys.stderr)
+                return True
+
+            except SQLAlchemyError as e:
+                db.rollback()
+                print(f"Database error updating choice rating {choice_id}: {e}", file=sys.stderr)
+                raise
+            finally:
+                db.close()
+
+        except Exception as e:
+            print(f"Error updating choice rating {choice_id}: {type(e).__name__}: {e}", file=sys.stderr)
+            print(f"Stacktrace: {traceback.format_exc()}", file=sys.stderr)
+            return False
+
+    def get_choice_by_id(self, choice_id: str) -> Optional[SongChoice]:
+        """
+        Get a specific choice by ID
+
+        Args:
+            choice_id: UUID of the choice
+
+        Returns:
+            SongChoice instance or None if not found
+        """
+        try:
+            db = next(get_db())
+            try:
+                choice = db.query(SongChoice).filter(SongChoice.id == choice_id).first()
+                print(f"Retrieved choice by ID {choice_id}: {'Found' if choice else 'Not found'}", file=sys.stderr)
+                return choice
+            finally:
+                db.close()
+        except Exception as e:
+            print(f"Error getting choice by ID {choice_id}: {e}", file=sys.stderr)
+            return None
+
 
 # Global service instance
 song_service = SongService()

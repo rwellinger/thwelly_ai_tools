@@ -130,6 +130,7 @@
                         <th>FLAC File</th>
                         <th>MP3 File</th>
                         <th>Stem Generation</th>
+                        <th>Rating</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -167,6 +168,26 @@
                                 <i class="fas fa-download"></i> Download Stems
                             </button>
                             <span *ngIf="!choice.mp3_url" class="not-available">N/A</span>
+                        </td>
+                        <td>
+                            <div class="rating-buttons">
+                                <button type="button"
+                                        class="rating-btn thumbs-up"
+                                        [class.active]="choice.rating === 1"
+                                        [class.inactive]="choice.rating === 0"
+                                        (click)="onUpdateRating(choice.id, choice.rating === 1 ? null : 1)"
+                                        title="Thumbs Up">
+                                    <i class="fas fa-thumbs-up"></i>
+                                </button>
+                                <button type="button"
+                                        class="rating-btn thumbs-down"
+                                        [class.active]="choice.rating === 0"
+                                        [class.inactive]="choice.rating === 1"
+                                        (click)="onUpdateRating(choice.id, choice.rating === 0 ? null : 0)"
+                                        title="Thumbs Down">
+                                    <i class="fas fa-thumbs-down"></i>
+                                </button>
+                            </div>
                         </td>
                     </tr>
                     </tbody>

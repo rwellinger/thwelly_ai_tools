@@ -137,6 +137,19 @@ def bulk_delete_songs():
     return jsonify(response_data), status_code
 
 
+@api_song_v1.route("/choice/<choice_id>/rating", methods=["PUT"])
+def update_choice_rating(choice_id):
+    """Update rating for a specific song choice"""
+    payload = request.get_json(force=True)
+
+    if not payload:
+        return jsonify({"error": "No data provided"}), 400
+
+    response_data, status_code = song_controller.update_choice_rating(choice_id, payload)
+
+    return jsonify(response_data), status_code
+
+
 api_song_task_v1 = Blueprint("api_song_task_v1", __name__, url_prefix="/api/v1/song/task")
 
 @api_song_task_v1.route("/status/<task_id>", methods=["GET"])

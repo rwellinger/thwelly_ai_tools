@@ -781,6 +781,28 @@ export class SongViewComponent implements OnInit {
     this.copyLyricsToClipboard();
   }
 
+  async onUpdateRating(event: { choiceId: string, rating: number | null }) {
+    try {
+      await this.songService.updateChoiceRating(event.choiceId, event.rating);
+
+      // Update the rating in the current song data
+      if (this.selectedSong && this.selectedSong.choices) {
+        const choice = this.selectedSong.choices.find((c: any) => c.id === event.choiceId);
+        if (choice) {
+          choice.rating = event.rating;
+        }
+      }
+
+      // Show success message
+      const ratingText = event.rating === null ? 'removed' :
+                        event.rating === 1 ? 'set to thumbs up' : 'set to thumbs down';
+      this.notificationService.success(`Rating ${ratingText}!`);
+
+    } catch (error: any) {
+      this.notificationService.error(`Error updating rating: ${error.message}`);
+    }
+  }
+
   private updateSelectedSongWithStems() {
     if (!this.selectedSong || !this.selectedSong.choices) return;
 

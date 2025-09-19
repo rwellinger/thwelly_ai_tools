@@ -25,6 +25,7 @@ export class ApiConfigService {
             detail: (songId: string) => `${this.baseUrl}/api/v1/song/id/${songId}`,
             delete: (songId: string) => `${this.baseUrl}/api/v1/song/id/${songId}`,
             update: (songId: string) => `${this.baseUrl}/api/v1/song/id/${songId}`,
+            updateChoiceRating: (choiceId: string) => `${this.baseUrl}/api/v1/song/choice/${choiceId}/rating`,
             bulkDelete: `${this.baseUrl}/api/v1/song/bulk-delete`
         },
         image: {
