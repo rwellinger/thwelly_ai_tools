@@ -47,7 +47,7 @@ export class SongViewComponent implements OnInit, OnDestroy {
   // Audio and features
   currentlyPlaying: string | null = null;
   audioUrl: string | null = null;
-  stemDownloadUrls: Map<string, string> = new Map();
+  stemDownloadUrls = new Map<string, string>();
   showPopupPlayer = false;
   currentSongTitle = '';
 

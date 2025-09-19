@@ -42,6 +42,12 @@ app-image-detail-panel {
     margin-bottom: 20px;
 }
 
+.prompt-input-group {
+    display: flex;
+    gap: $spacing-10;
+    align-items: flex-start;
+}
+
 .form-group label {
     display: block;
     color: $text-primary;
@@ -51,7 +57,7 @@ app-image-detail-panel {
 }
 
 .prompt-input {
-    width: 100%;
+    flex: 1;
     min-height: 120px;
     padding: $spacing-12;
     border: 1px solid $border-light;
@@ -123,6 +129,36 @@ app-image-detail-panel {
 .create-button i,
 .reset-button i {
     margin-right: 8px;
+}
+
+.magic-icon-button {
+    background: none;
+    border: none;
+    color: $info-color;
+    cursor: pointer;
+    font-size: $font-lg;
+    padding: $spacing-sm;
+    border-radius: 50%;
+    transition: $transition-fast;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    margin-top: $spacing-xs;
+    flex-shrink: 0;
+}
+
+.magic-icon-button:hover:not(:disabled) {
+    background-color: rgba(33, 150, 243, 0.1);
+    color: #1976d2;
+    transform: scale(1.1);
+}
+
+.magic-icon-button:disabled {
+    color: $text-muted;
+    cursor: not-allowed;
+    transform: none;
 }
 
 /* ===== IMAGE RESULT STYLING ===== */

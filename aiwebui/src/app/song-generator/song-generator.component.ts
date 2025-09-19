@@ -28,7 +28,7 @@ export class SongGeneratorComponent implements OnInit {
     resultData: any = null;
     generatedSongData: any = null;
     choices: any[] = [];
-    stemDownloadUrls: Map<string, string> = new Map();
+    stemDownloadUrls = new Map<string, string>();
     showPopupPlayer = false;
     currentSongTitle = '';
 
