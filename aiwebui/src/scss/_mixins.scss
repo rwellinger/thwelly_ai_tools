@@ -27,6 +27,44 @@
     }
 }
 
+// 1a. Button Size Variants
+@mixin button-size($size: 'base') {
+    @if $size == 'sm' {
+        padding: $button-padding-sm !important;
+        font-size: $button-font-size !important;
+        min-height: $button-height-sm;
+    } @else if $size == 'lg' {
+        padding: $button-padding-lg !important;
+        font-size: $button-large-font-size !important;
+        min-height: $button-height-lg;
+    } @else {
+        padding: $button-padding-base !important;
+        font-size: $button-font-size !important;
+        min-height: $button-height-base;
+    }
+}
+
+// 1b. Standard Button Variants
+@mixin button-primary($size: 'base') {
+    @include button-style($primary-color, $background-white, $primary-hover);
+    @include button-size($size);
+}
+
+@mixin button-success($size: 'base') {
+    @include button-style($success-color, $background-white, $success-hover);
+    @include button-size($size);
+}
+
+@mixin button-danger($size: 'base') {
+    @include button-style($danger-color, $background-white, $danger-hover);
+    @include button-size($size);
+}
+
+@mixin button-secondary($size: 'base') {
+    @include button-style($text-muted, $background-white, #5a6268);
+    @include button-size($size);
+}
+
 // 2. Card/Panel Container
 @mixin card-container($border-color: $border-light, $bg-color: $background-white, $padding: 15px) {
     background: $bg-color;
@@ -520,6 +558,49 @@
         user-select: none;
         font-size: $font-sm;
     }
+}
+
+// 15. Typography System
+@mixin heading($level: 2) {
+    margin: 0 0 $spacing-15 0;
+    font-weight: $font-weight-semibold;
+    color: $text-primary;
+    line-height: $line-height-tight;
+
+    @if $level == 1 {
+        font-size: $heading-h1;
+    } @else if $level == 2 {
+        font-size: $heading-h2;
+    } @else if $level == 3 {
+        font-size: $heading-h3;
+    } @else if $level == 4 {
+        font-size: $heading-h4;
+    } @else if $level == 5 {
+        font-size: $heading-h5;
+    } @else if $level == 6 {
+        font-size: $heading-h6;
+    }
+}
+
+@mixin body-text($size: 'base') {
+    color: $text-primary;
+    line-height: $line-height-normal;
+
+    @if $size == 'sm' {
+        font-size: $font-sm;
+    } @else if $size == 'lg' {
+        font-size: $font-lg;
+    } @else {
+        font-size: $font-base;
+    }
+}
+
+@mixin label-text() {
+    display: block;
+    color: $text-primary;
+    font-weight: $font-weight-medium;
+    margin-bottom: $spacing-6;
+    font-size: $font-base;
 }
 
 // Animation for loading state
