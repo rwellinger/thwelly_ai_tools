@@ -1,7 +1,7 @@
 graph TB
     subgraph "Mac Studio M1 Max - Production (10.0.1.120)"
         subgraph "Docker Network: webui-network"
-            NGINX[Nginx Reverse Proxy<br/>forward-proxy<br/>:80,:443]
+            NGINX[Nginx Forward Proxy<br/>forward-proxy<br/>:80,:443]
 
             subgraph "API Stack"
                 API_CONTAINER[AI Proxy Server<br/>aiproxysrv<br/>:5050]

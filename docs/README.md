@@ -51,6 +51,7 @@
 
 - [Abbildung 3.1: Fachlicher Kontext](#31-fachlicher-kontext) - `images/3.1_fachlicher_kontext.png`
 - [Abbildung 5.1: Systemübersicht](#51-systemübersicht) - `images/5.1_systemuebersicht.png`
+- [Abbildung 5.2.1: Angular Projektstruktur](#521-aiwebui-frontend) - `images/5.2.1_angular_projektstruktur.png`
 - [Abbildung 6.1: Bildgenerierung (Synchron)](#61-bildgenerierung-synchron) - `images/6.1_bildgenerierung.png`
 - [Abbildung 6.2: Musikgenerierung (Asynchron)](#62-musikgenerierung-asynchron) - `images/6.2_musikgenerierung.png`
 - [Abbildung 7.3: Netzwerk-Architektur](#73-netzwerk-architektur) - `images/7.3_netzwerk_architektur.png`
@@ -152,6 +153,11 @@ Das Mac KI-Service System ist eine persönliche KI-basierte Multimedia-Generieru
 ### 5.2 Komponenten-Details
 
 #### 5.2.1 aiwebui (Frontend)
+
+![Angular Projektstruktur](images/5.2.1_angular_projektstruktur.png)
+
+*Abbildung 5.2.1: Angular Projektstruktur - Komponenten, Services und Module des Frontend*
+
 - **Technologie**: Angular 18 + TypeScript + SCSS
 - **Komponenten**:
   - `image-generator`: UI für Bildgenerierung

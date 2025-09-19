@@ -1,0 +1,91 @@
+graph TB
+    subgraph "aiwebui (Angular 18)"
+        subgraph "Core"
+            APP[app.component.ts<br/>Main App Component]
+            ROUTES[app.routes.ts<br/>Route Configuration]
+            CONFIG[app.config.ts<br/>App Configuration]
+        end
+
+        subgraph "Features"
+            subgraph "Image Generation"
+                IMG_GEN[image-generator.component.ts<br/>Bildgenerierung UI]
+                IMG_VIEW[image-view.component.ts<br/>Bildergalerie & Anzeige]
+            end
+
+            subgraph "Song Generation"
+                SONG_GEN[song-generator.component.ts<br/>Musikgenerierung UI]
+                SONG_VIEW[song-view.component.ts<br/>Song-Liste & Wiedergabe]
+                SONG_PROF[song-profile.component.ts<br/>Mureka Account Info]
+            end
+        end
+
+        subgraph "Shared Components"
+            HEADER[header.component.ts<br/>Navigation & Header]
+            FOOTER[footer.component.ts<br/>Footer Component]
+            IMG_DETAIL[image-detail-panel.component.ts<br/>Bild Detail Panel]
+            SONG_DETAIL[song-detail-panel.component.ts<br/>Song Detail Panel]
+            AUDIO_PLAYER[popup-audio-player.component.ts<br/>Audio Player Popup]
+        end
+
+        subgraph "Services"
+            API_CONFIG[api-config.service.ts<br/>API Konfiguration]
+            SONG_SVC[song.service.ts<br/>Song API Calls]
+            NOTIFY_SVC[notification.service.ts<br/>User Notifications]
+        end
+
+        subgraph "Pipes"
+            DISPLAY_PIPE[display-name.pipe.ts<br/>Display Name Formatting]
+        end
+    end
+
+    subgraph "Backend Integration"
+        API[aiproxysrv API<br/>Flask Backend]
+    end
+
+    subgraph "Build & Deploy"
+        BUILD[npm run build:prod]
+        DEPLOY[forwardproxy/html/aiwebui<br/>Static Files]
+    end
+
+    %% Connections
+    APP --> ROUTES
+    APP --> CONFIG
+
+    IMG_GEN --> API_CONFIG
+    IMG_GEN --> NOTIFY_SVC
+    IMG_VIEW --> API_CONFIG
+    IMG_VIEW --> IMG_DETAIL
+
+    SONG_GEN --> SONG_SVC
+    SONG_GEN --> NOTIFY_SVC
+    SONG_VIEW --> SONG_SVC
+    SONG_VIEW --> SONG_DETAIL
+    SONG_VIEW --> AUDIO_PLAYER
+    SONG_PROF --> SONG_SVC
+
+    SONG_SVC --> API_CONFIG
+    API_CONFIG --> API
+
+    HEADER --> ROUTES
+
+    DISPLAY_PIPE --> SONG_VIEW
+    DISPLAY_PIPE --> SONG_DETAIL
+
+    BUILD --> DEPLOY
+
+    %% Styling
+    classDef core fill:#e1f5fe
+    classDef feature fill:#f3e5f5
+    classDef shared fill:#e8f5e8
+    classDef service fill:#fff3e0
+    classDef pipe fill:#fce4ec
+    classDef backend fill:#f1f8e9
+    classDef build fill:#fff8e1
+
+    class APP,ROUTES,CONFIG core
+    class IMG_GEN,IMG_VIEW,SONG_GEN,SONG_VIEW,SONG_PROF feature
+    class HEADER,FOOTER,IMG_DETAIL,SONG_DETAIL,AUDIO_PLAYER shared
+    class API_CONFIG,SONG_SVC,NOTIFY_SVC service
+    class DISPLAY_PIPE pipe
+    class API backend
+    class BUILD,DEPLOY build
