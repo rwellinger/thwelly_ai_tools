@@ -132,7 +132,7 @@ Das Mac KI-Service System ist eine persönliche KI-basierte Multimedia-Generieru
 - **Containerisiert**: Docker für konsistente Deployments
 
 ### 4.2 Technologie-Stack
-- **Frontend**: Angular 17 + TypeScript + Angular Material
+- **Frontend**: Angular 18 + TypeScript + Angular Material
 - **Backend**: Python Flask + SQLAlchemy + Alembic
 - **Async Processing**: Celery + Redis
 - **Database**: PostgreSQL 15
@@ -152,7 +152,7 @@ Das Mac KI-Service System ist eine persönliche KI-basierte Multimedia-Generieru
 ### 5.2 Komponenten-Details
 
 #### 5.2.1 aiwebui (Frontend)
-- **Technologie**: Angular 17 + TypeScript
+- **Technologie**: Angular 18 + TypeScript + SCSS
 - **Komponenten**:
   - `image-generator`: UI für Bildgenerierung
   - `image-view`: Anzeige generierter Bilder
@@ -160,7 +160,7 @@ Das Mac KI-Service System ist eine persönliche KI-basierte Multimedia-Generieru
   - `song-view`: Anzeige generierter Songs
   - `song-profil`: Mureka Account-Informationen
 - **Services**: API-Integration, Konfiguration
-- **Build**: `npm run build:prod` → Deployment nach `revproxy/html`
+- **Build**: `npm run build:prod` → Deployment nach `forwardproxy/html`
 
 #### 5.2.2 aiproxysrv (Backend API)
 - **Technologie**: Python Flask + SQLAlchemy
@@ -189,7 +189,7 @@ Das Mac KI-Service System ist eine persönliche KI-basierte Multimedia-Generieru
   - **Song-Generierung**: Lyrics mit "0001" → Success, "0002" → Invalid Token, "0003" → Generation Failed
   - **Timing**: Style-Prompt "30s" → 30 Sekunden Sync Duration
 
-#### 5.2.4 revproxy (Nginx)
+#### 5.2.4 forwardproxy (Nginx)
 - **Technologie**: Nginx 1.23.3
 - **Funktionen**:
   - HTTPS Terminierung (TLS 1.3)
@@ -651,6 +651,7 @@ services:
 
 ---
 
-*Dokument erstellt am: 2024-12-12*  
-*Version: 1.0*  
+*Dokument erstellt am: 2024-12-12*
+*Zuletzt aktualisiert: 2025-09-19*
+*Version: 1.1*
 *Autor: Rob (via Claude)*
