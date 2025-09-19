@@ -14,6 +14,13 @@
     overflow: hidden;
 }
 
+/* Style the app-image-detail-panel component itself */
+app-image-detail-panel {
+    flex: 1;
+    display: flex;
+    min-width: 0;
+}
+
 .image-result-panel {
     @include card-container($border-light, $background-white, 0);
     flex: 1;
@@ -35,6 +42,12 @@
     margin-bottom: 20px;
 }
 
+.prompt-input-group {
+    display: flex;
+    gap: $spacing-10;
+    align-items: flex-start;
+}
+
 .form-group label {
     display: block;
     color: $text-primary;
@@ -44,7 +57,7 @@
 }
 
 .prompt-input {
-    width: 100%;
+    flex: 1;
     min-height: 120px;
     padding: $spacing-12;
     border: 1px solid $border-light;
@@ -75,13 +88,31 @@
     @include input-focus-state($primary-color);
 }
 
+.button-group {
+    display: flex;
+    gap: $spacing-10;
+    margin-top: $spacing-20;
+}
+
 .create-button {
     @include button-style($primary-color, $background-white, $primary-hover);
-    width: 100%;
+    flex: 1;
     padding: $spacing-12 $spacing-20 !important;
     font-size: $font-base !important;
     font-weight: $font-weight-medium !important;
-    margin-top: $spacing-10 !important;
+}
+
+.reset-button {
+    @include button-style($danger-color, $background-white, $danger-hover);
+    flex: 0 0 auto;
+    padding: $spacing-12 $spacing-md !important;
+    font-size: $font-base !important;
+    font-weight: $font-weight-medium !important;
+}
+
+.reset-button:hover:not(:disabled) {
+    background-color: $danger-hover !important;
+    transform: translateY(-1px);
 }
 
 .create-button:hover:not(:disabled) {
@@ -95,8 +126,39 @@
     transform: none;
 }
 
-.create-button i {
+.create-button i,
+.reset-button i {
     margin-right: 8px;
+}
+
+.magic-icon-button {
+    background: none;
+    border: none;
+    color: $info-color;
+    cursor: pointer;
+    font-size: $font-lg;
+    padding: $spacing-sm;
+    border-radius: 50%;
+    transition: $transition-fast;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    margin-top: $spacing-xs;
+    flex-shrink: 0;
+}
+
+.magic-icon-button:hover:not(:disabled) {
+    background-color: rgba(33, 150, 243, 0.1);
+    color: #1976d2;
+    transform: scale(1.1);
+}
+
+.magic-icon-button:disabled {
+    color: $text-muted;
+    cursor: not-allowed;
+    transform: none;
 }
 
 /* ===== IMAGE RESULT STYLING ===== */
@@ -326,5 +388,13 @@
 
     .action-button {
         width: 100%;
+    }
+
+    .button-group {
+        flex-direction: column;
+    }
+
+    .reset-button {
+        flex: 1;
     }
 }

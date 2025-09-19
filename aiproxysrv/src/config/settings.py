@@ -37,10 +37,10 @@ OPENAI_URL = os.getenv("OPENAI_URL")
 OPENAI_MODEL = os.getenv("OPENAI_MODEL")
 
 # --------------------------------------------------
-# Server Config
+# Flask Server Config
 # --------------------------------------------------
-OPENAI_PORT = int(os.getenv("OPENAI_PORT", "5050"))
-OPENAI_HOST = os.getenv("OPENAI_HOST", "0.0.0.0")
+FLASK_SERVER_PORT = int(os.getenv("FLASK_SERVER_PORT", "5050"))
+FLASK_SERVER_HOST = os.getenv("FLASK_SERVER_HOST", "0.0.0.0")
 DEBUG = os.getenv("DEBUG", "false").lower() == "true"
 
 # --------------------------------------------------
@@ -55,6 +55,12 @@ DELETE_PHYSICAL_FILES = os.getenv("DELETE_PHYSICAL_FILES", "true").lower() == "t
 # Redis Config (falls verwendet)
 # --------------------------------------------------
 REDIS_URL = os.getenv("REDIS_URL", "redis://localhost:6379/0")
+
+# --------------------------------------------------
+# Ollama Config
+# --------------------------------------------------
+OLLAMA_URL = os.getenv("OLLAMA_URL", "http://10.0.1.120:11434")
+OLLAMA_TIMEOUT = int(os.getenv("OLLAMA_TIMEOUT", "60"))
 
 # --------------------------------------------------
 # Database Config

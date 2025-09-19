@@ -520,8 +520,6 @@ export class ImageViewComponent implements OnInit, AfterViewInit, OnDestroy {
       this.editingTitle = false;
       this.editTitleValue = '';
 
-      this.notificationService.success('Title updated successfully!');
-
     } catch (error: any) {
       this.notificationService.error(`Error updating title: ${error.message}`);
     } finally {
@@ -566,8 +564,6 @@ export class ImageViewComponent implements OnInit, AfterViewInit, OnDestroy {
       }
 
       // No need to update filtered images as we use server-side filtering
-
-      this.notificationService.success('Title updated successfully!');
 
     } catch (error: any) {
       this.notificationService.error(`Error updating title: ${error.message}`);

@@ -10,9 +10,9 @@ Das ist der notwendige Inhalt:
 
     OPENAI_API_KEY=sk-...
     OPENAI_URL=https://api.openai.com/v1/images/generations
-    OPENAI_PORT=5050
+    FLASK_SERVER_PORT=5050
     OPENAI_MODEL=dall-e-3
-    OPENAI_HOST=x.x.x.x
+    FLASK_SERVER_HOST=x.x.x.x
 
 Beachte das der Port im dockerfile nicht aus dem .env gelesen werden kann aber übereinstimmen muss.
 

@@ -44,6 +44,9 @@ export class ApiConfigService {
         },
         billing: {
             info: `${this.baseUrl}/api/v1/song/mureka-account`
+        },
+        chat: {
+            generateLlama3Simple: `${this.baseUrl}/api/v1/chat/generate-llama3-simple`
         }
     };
 
