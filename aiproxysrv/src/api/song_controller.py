@@ -59,22 +59,33 @@ class SongController:
         """Get Queue Status"""
         return self.task_controller.get_queue_status()
     
-    def get_songs(self, limit: int = 20, offset: int = 0, status: str = None) -> Tuple[Dict[str, Any], int]:
+    def get_songs(self, limit: int = 20, offset: int = 0, status: str = None, search: str = '',
+                  sort_by: str = 'created_at', sort_direction: str = 'desc') -> Tuple[Dict[str, Any], int]:
         """
-        Get list of songs with pagination and optional status filter
-        
+        Get list of songs with pagination, search and sorting
+
         Args:
             limit: Number of songs to return (default 20)
             offset: Number of songs to skip (default 0)
             status: Optional status filter (SUCCESS, PENDING, FAILURE, etc.)
-            
+            search: Search term to filter by title, lyrics, or tags
+            sort_by: Field to sort by (created_at, title, lyrics)
+            sort_direction: Sort direction (asc, desc)
+
         Returns:
             Tuple of (response_data, status_code)
         """
         try:
             # Get songs from database via service
-            songs = song_service.get_songs_paginated(limit=limit, offset=offset, status=status)
-            total_count = song_service.get_total_songs_count(status=status)
+            songs = song_service.get_songs_paginated(
+                limit=limit,
+                offset=offset,
+                status=status,
+                search=search,
+                sort_by=sort_by,
+                sort_direction=sort_direction
+            )
+            total_count = song_service.get_total_songs_count(status=status, search=search)
             
             # Convert to API response format (minimal data for list view)
             songs_list = []
@@ -135,6 +146,7 @@ class SongController:
                     "duration": choice.duration,
                     "title": choice.title,
                     "tags": choice.tags,
+                    "rating": choice.rating,
                     "formattedDuration": self._format_duration_from_ms(choice.duration) if choice.duration else None,
                     "created_at": choice.created_at.isoformat() if choice.created_at else None
                 }
@@ -318,4 +330,42 @@ class SongController:
         minutes = total_seconds // 60
         seconds = total_seconds % 60
         return f"{minutes:02d}:{seconds:02d}"
-    
+
+    def update_choice_rating(self, choice_id: str, rating_data: Dict[str, Any]) -> Tuple[Dict[str, Any], int]:
+        """
+        Update rating for a specific song choice
+
+        Args:
+            choice_id: UUID of the choice
+            rating_data: Dictionary containing rating field
+
+        Returns:
+            Tuple of (response_data, status_code)
+        """
+        try:
+            # Validate rating value
+            rating = rating_data.get('rating')
+            if rating is not None and rating not in [0, 1]:
+                return {"error": "Rating must be null, 0 (thumbs down), or 1 (thumbs up)"}, 400
+
+            # Check if choice exists
+            choice = song_service.get_choice_by_id(choice_id)
+            if not choice:
+                return {"error": "Song choice not found"}, 404
+
+            # Update rating
+            success = song_service.update_choice_rating(choice_id, rating)
+            if not success:
+                return {"error": "Failed to update choice rating"}, 500
+
+            # Return updated choice data
+            return {
+                "id": choice_id,
+                "rating": rating,
+                "message": "Rating updated successfully"
+            }, 200
+
+        except Exception as e:
+            print(f"Error updating choice rating {choice_id}: {e}", file=sys.stderr)
+            return {"error": f"Failed to update choice rating: {e}"}, 500
+

@@ -284,9 +284,10 @@
 }
 
 .song-choices h3 {
-    margin: 0 0 10px 0;
+    margin: 0 0 15px 0;
     color: #333;
-    font-size: $font-base;
+    font-size: $font-lg;
+    font-weight: $font-weight-semibold;
 }
 
 .choices-table {
@@ -294,17 +295,39 @@
     font-size: $font-sm;
 }
 
+.choices-table th {
+    padding: 12px 8px;
+    text-align: center;
+    background-color: rgba(23, 162, 184, 0.1);
+    font-weight: $font-weight-semibold;
+}
+
+.choices-table td {
+    vertical-align: middle;
+    padding: 10px 8px;
+    text-align: center;
+}
+
+.choices-table tr:nth-child(even) {
+    background-color: rgba(0, 0, 0, 0.02);
+}
 
 .choices-table button {
     background-color: $success-color;
     color: white;
     border: none;
-    padding: $spacing-xs $spacing-sm;
+    padding: 8px 12px;
     border-radius: $border-radius-sm;
     cursor: pointer;
     font-size: $font-xs;
     transition: background-color 0.2s;
     margin: 0;
+    min-height: 32px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    white-space: nowrap;
 }
 
 .choices-table button:hover:not(:disabled) {
@@ -605,5 +628,176 @@
 
     .tag-checkboxes {
         justify-content: center;
+    }
+}
+
+/* ===== RATING BUTTONS ===== */
+.rating-buttons {
+    display: flex;
+    gap: 6px;
+    justify-content: center;
+    align-items: center;
+}
+
+.rating-btn {
+    background: transparent;
+    border: 1px solid #ddd;
+    padding: 8px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    color: #666;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 36px;
+    height: 32px;
+
+    &:hover {
+        background: #f5f5f5;
+        border-color: #ccc;
+    }
+
+    // Inactive state - when the other button is active
+    &.inactive {
+        opacity: 0.4;
+        color: #999;
+        border-color: #eee;
+
+        &:hover {
+            background: #f9f9f9;
+            border-color: #ddd;
+            opacity: 0.6;
+        }
+    }
+
+    &.thumbs-up {
+        &:hover:not(.inactive) {
+            background: #e8f5e8;
+            color: #28a745;
+            border-color: #28a745;
+        }
+
+        &.active {
+            background: #28a745;
+            color: white;
+            border-color: #28a745;
+
+            &:hover {
+                background: #218838;
+                border-color: #218838;
+            }
+        }
+
+        &.inactive {
+            &:hover {
+                background: #f9f9f9;
+                color: #aaa;
+                border-color: #ddd;
+            }
+        }
+    }
+
+    &.thumbs-down {
+        &:hover:not(.inactive) {
+            background: #f8e8e8;
+            color: #dc3545;
+            border-color: #dc3545;
+        }
+
+        &.active {
+            background: #dc3545;
+            color: white;
+            border-color: #dc3545;
+
+            &:hover {
+                background: #c82333;
+                border-color: #c82333;
+            }
+        }
+
+        &.inactive {
+            &:hover {
+                background: #f9f9f9;
+                color: #aaa;
+                border-color: #ddd;
+            }
+        }
+    }
+
+    i {
+        font-size: 12px;
+    }
+}
+
+// Responsive design for rating buttons
+@media (max-width: 768px) {
+    .rating-buttons {
+        gap: 4px;
+    }
+
+    .rating-btn {
+        padding: 4px 6px;
+        min-width: 28px;
+        height: 24px;
+
+        i {
+            font-size: 10px;
+        }
+    }
+}
+
+// Dark mode support
+@media (prefers-color-scheme: dark) {
+    .rating-btn {
+        border-color: #555;
+        color: #ccc;
+
+        &:hover {
+            background: #333;
+            border-color: #666;
+        }
+
+        &.inactive {
+            opacity: 0.3;
+            color: #777;
+            border-color: #444;
+
+            &:hover {
+                background: #2a2a2a;
+                border-color: #555;
+                opacity: 0.5;
+            }
+        }
+
+        &.thumbs-up {
+            &.active {
+                background: #198754;
+                border-color: #198754;
+            }
+
+            &.inactive {
+                &:hover {
+                    background: #2a2a2a;
+                    color: #777;
+                    border-color: #555;
+                }
+            }
+        }
+
+        &.thumbs-down {
+            &.active {
+                background: #bb2d3b;
+                border-color: #bb2d3b;
+            }
+
+            &.inactive {
+                &:hover {
+                    background: #2a2a2a;
+                    color: #777;
+                    border-color: #555;
+                }
+            }
+        }
     }
 }

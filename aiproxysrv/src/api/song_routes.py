@@ -65,12 +65,11 @@ def force_complete_task(job_id):
 
 @api_song_v1.route("/list", methods=["GET"])
 def list_songs():
-    """Get list of songs with pagination"""
+    """Get list of songs with pagination, search and sorting"""
     # Parse query parameters
     try:
         limit = int(request.args.get('limit', 20))
         offset = int(request.args.get('offset', 0))
-        status = request.args.get('status', None)  # Optional status filter
 
         # Validate parameters
         if limit <= 0 or limit > 100:
@@ -81,10 +80,27 @@ def list_songs():
     except ValueError:
         return jsonify({"error": "Invalid limit or offset parameter"}), 400
 
+    # Parse search and sort parameters
+    status = request.args.get('status', None)  # Optional status filter
+    search = request.args.get('search', '').strip()
+    sort_by = request.args.get('sort_by', 'created_at')
+    sort_direction = request.args.get('sort_direction', 'desc')
+
+    # Validate sort parameters
+    valid_sort_fields = ['created_at', 'title', 'lyrics']
+    if sort_by not in valid_sort_fields:
+        return jsonify({"error": f"Invalid sort_by field. Must be one of: {valid_sort_fields}"}), 400
+
+    if sort_direction not in ['asc', 'desc']:
+        return jsonify({"error": "Invalid sort_direction. Must be 'asc' or 'desc'"}), 400
+
     response_data, status_code = song_controller.get_songs(
         limit=limit,
         offset=offset,
-        status=status
+        status=status,
+        search=search,
+        sort_by=sort_by,
+        sort_direction=sort_direction
     )
 
     return jsonify(response_data), status_code
@@ -133,6 +149,19 @@ def bulk_delete_songs():
         return jsonify({"error": "ids must be an array"}), 400
 
     response_data, status_code = song_controller.bulk_delete_songs(song_ids)
+
+    return jsonify(response_data), status_code
+
+
+@api_song_v1.route("/choice/<choice_id>/rating", methods=["PUT"])
+def update_choice_rating(choice_id):
+    """Update rating for a specific song choice"""
+    payload = request.get_json(force=True)
+
+    if not payload:
+        return jsonify({"error": "No data provided"}), 400
+
+    response_data, status_code = song_controller.update_choice_rating(choice_id, payload)
 
     return jsonify(response_data), status_code
 

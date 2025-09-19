@@ -1,6 +1,7 @@
-import {Component, OnInit, ViewEncapsulation, ViewChild, ElementRef} from '@angular/core';
+import {Component, OnInit, ViewEncapsulation, ViewChild, ElementRef, OnDestroy, inject} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {FormsModule} from '@angular/forms';
+import {Subject, debounceTime, distinctUntilChanged, takeUntil} from 'rxjs';
 import {SongService} from '../services/song.service';
 import {HeaderComponent} from '../shared/header/header.component';
 import {FooterComponent} from '../shared/footer/footer.component';
@@ -18,7 +19,7 @@ import {SongDetailPanelComponent} from '../shared/song-detail-panel/song-detail-
   styleUrl: './song-view.component.scss',
   encapsulation: ViewEncapsulation.None
 })
-export class SongViewComponent implements OnInit {
+export class SongViewComponent implements OnInit, OnDestroy {
   // Songs list and pagination
   songs: any[] = [];
   filteredSongs: any[] = [];
@@ -30,8 +31,9 @@ export class SongViewComponent implements OnInit {
     has_more: false
   };
 
-  // Search and sort
+  // Search and sort (server-based)
   searchTerm: string = '';
+  sortBy: string = 'created_at';
   sortDirection: 'asc' | 'desc' = 'desc';
 
   // UI state
@@ -61,6 +63,10 @@ export class SongViewComponent implements OnInit {
   // Make Math available in template
   Math = Math;
 
+  // RxJS subjects for debouncing
+  private searchSubject = new Subject<string>();
+  private destroy$ = new Subject<void>();
+
   // Selection mode state
   isSelectionMode = false;
   selectedSongIds = new Set<string>();
@@ -81,12 +87,28 @@ export class SongViewComponent implements OnInit {
   };
 
   @ViewChild('titleInput') titleInput!: ElementRef;
+  @ViewChild('searchInput') searchInput!: ElementRef;
 
-  constructor(
-    private songService: SongService,
-    private apiConfig: ApiConfigService,
-    private notificationService: NotificationService
-  ) {
+  private songService = inject(SongService);
+  private apiConfig = inject(ApiConfigService);
+  private notificationService = inject(NotificationService);
+
+  constructor() {
+    // Setup search debouncing
+    this.searchSubject.pipe(
+      debounceTime(300),
+      distinctUntilChanged(),
+      takeUntil(this.destroy$)
+    ).subscribe(searchTerm => {
+      const hadFocus = document.activeElement === this.searchInput?.nativeElement;
+      this.searchTerm = searchTerm;
+      this.loadSongs().then(() => {
+        // Restore focus if it was in search field
+        if (hadFocus && this.searchInput) {
+          setTimeout(() => this.searchInput.nativeElement.focus(), 0);
+        }
+      });
+    });
   }
 
   private delay(ms: number): Promise<void> {
@@ -98,14 +120,29 @@ export class SongViewComponent implements OnInit {
     this.loadSongs();
   }
 
-  async loadSongs() {
+  ngOnDestroy() {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
+  async loadSongs(page: number = 0) {
     this.isLoadingSongs = true;
     try {
-      const data = await this.songService.getSongs(this.pagination.limit, this.pagination.offset, 'SUCCESS');
+      const offset = page * this.pagination.limit;
+      const data = await this.songService.getSongs(
+        this.pagination.limit,
+        offset,
+        'SUCCESS',
+        this.searchTerm.trim(),
+        this.sortBy,
+        this.sortDirection
+      );
       this.songs = data.songs || [];
       this.pagination = data.pagination || this.pagination;
+      this.pagination.offset = offset;
 
-      this.applyFilterAndSort();
+      // Use songs directly (no client-side filtering needed)
+      this.filteredSongs = this.songs;
 
       // Auto-select first song if available and none selected
       if (this.filteredSongs.length > 0 && !this.selectedSong) {
@@ -149,15 +186,15 @@ export class SongViewComponent implements OnInit {
   async nextPage() {
     if (!this.pagination.has_more) return;
 
-    this.pagination.offset += this.pagination.limit;
-    await this.loadSongs();
+    const currentPage = Math.floor(this.pagination.offset / this.pagination.limit);
+    await this.loadSongs(currentPage + 1);
   }
 
   async previousPage() {
     if (this.pagination.offset === 0) return;
 
-    this.pagination.offset = Math.max(0, this.pagination.offset - this.pagination.limit);
-    await this.loadSongs();
+    const currentPage = Math.floor(this.pagination.offset / this.pagination.limit);
+    await this.loadSongs(Math.max(0, currentPage - 1));
   }
 
   async loadMore() {
@@ -166,12 +203,22 @@ export class SongViewComponent implements OnInit {
     this.isLoadingSongs = true;
     try {
       const newOffset = this.pagination.offset + this.pagination.limit;
-      const data = await this.songService.getSongs(this.pagination.limit, newOffset, 'SUCCESS');
+      const data = await this.songService.getSongs(
+        this.pagination.limit,
+        newOffset,
+        'SUCCESS',
+        this.searchTerm.trim(),
+        this.sortBy,
+        this.sortDirection
+      );
 
       // Append new songs to existing list
       this.songs = [...this.songs, ...(data.songs || [])];
       this.pagination = data.pagination || this.pagination;
       this.pagination.offset = newOffset;
+
+      // Update filtered songs (direct assignment as no client-side filtering)
+      this.filteredSongs = this.songs;
     } catch (error: any) {
       this.notificationService.error(`Error loading more songs: ${error.message}`);
     } finally {
@@ -261,7 +308,7 @@ export class SongViewComponent implements OnInit {
           ...this.songs[songIndex],
           title: updatedSong.title
         };
-        this.applyFilterAndSort(); // Refresh filtered list
+        this.loadSongs(0); // Refresh filtered list from server
       }
 
       this.editingTitle = false;
@@ -298,37 +345,16 @@ export class SongViewComponent implements OnInit {
     });
   }
 
-  // Client-side filter and sort
-  applyFilterAndSort() {
-    let filtered = [...this.songs];
-
-    // Apply search filter (search in title and fallback to lyrics)
-    if (this.searchTerm.trim()) {
-      const term = this.searchTerm.toLowerCase().trim();
-      filtered = filtered.filter(song => {
-        const displayTitle = this.getDisplayTitle(song).toLowerCase();
-        return displayTitle.includes(term) || song.lyrics?.toLowerCase().includes(term);
-      });
-    }
-
-    // Apply sort by created date
-    filtered.sort((a, b) => {
-      const dateA = new Date(a.created_at).getTime();
-      const dateB = new Date(b.created_at).getTime();
-      return this.sortDirection === 'desc' ? dateB - dateA : dateA - dateB;
-    });
-
-    this.filteredSongs = filtered;
-  }
+  // Server-side search and sort - no client-side filtering needed
+  // applyFilterAndSort() method removed as filtering is done server-side
 
   onSearchChange(searchTerm: string) {
-    this.searchTerm = searchTerm;
-    this.applyFilterAndSort();
+    this.searchSubject.next(searchTerm);
   }
 
   toggleSort() {
     this.sortDirection = this.sortDirection === 'desc' ? 'asc' : 'desc';
-    this.applyFilterAndSort();
+    this.loadSongs(0); // Reset to first page and reload with new sort
   }
 
   clearSelection() {
@@ -426,7 +452,8 @@ export class SongViewComponent implements OnInit {
       }
 
       // Reload current page
-      await this.loadSongs();
+      const currentPage = Math.floor(this.pagination.offset / this.pagination.limit);
+      await this.loadSongs(currentPage);
 
     } catch (error: any) {
       this.notificationService.error(`Error deleting songs: ${error.message}`);
@@ -473,13 +500,16 @@ export class SongViewComponent implements OnInit {
 
   goToPage(pageIndex: number) {
     if (pageIndex >= 0 && pageIndex < Math.ceil(this.pagination.total / this.pagination.limit) && !this.isLoading) {
-      this.pagination.offset = pageIndex * this.pagination.limit;
-      this.loadSongs();
+      this.loadSongs(pageIndex);
     }
   }
 
   trackByPage(index: number, page: number | string): number | string {
     return page;
+  }
+
+  trackBySong(index: number, song: any): string {
+    return song.id;
   }
 
   // Modal methods
@@ -779,6 +809,28 @@ export class SongViewComponent implements OnInit {
 
   onCopyLyrics() {
     this.copyLyricsToClipboard();
+  }
+
+  async onUpdateRating(event: { choiceId: string, rating: number | null }) {
+    try {
+      await this.songService.updateChoiceRating(event.choiceId, event.rating);
+
+      // Update the rating in the current song data
+      if (this.selectedSong && this.selectedSong.choices) {
+        const choice = this.selectedSong.choices.find((c: any) => c.id === event.choiceId);
+        if (choice) {
+          choice.rating = event.rating;
+        }
+      }
+
+      // Show success message
+      const ratingText = event.rating === null ? 'removed' :
+                        event.rating === 1 ? 'set to thumbs up' : 'set to thumbs down';
+      this.notificationService.success(`Rating ${ratingText}!`);
+
+    } catch (error: any) {
+      this.notificationService.error(`Error updating rating: ${error.message}`);
+    }
   }
 
   private updateSelectedSongWithStems() {

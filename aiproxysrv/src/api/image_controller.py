@@ -144,22 +144,32 @@ class ImageController:
         except Exception as e:
             raise ImageDownloadError(f"Save failed: {e}")
     
-    def get_images(self, limit: int = 20, offset: int = 0) -> Tuple[Dict[str, Any], int]:
+    def get_images(self, limit: int = 20, offset: int = 0, search: str = '',
+                   sort_by: str = 'created_at', sort_direction: str = 'desc') -> Tuple[Dict[str, Any], int]:
         """
-        Get list of generated images with pagination
-        
+        Get list of generated images with pagination, search and sorting
+
         Args:
             limit: Number of images to return (default 20)
             offset: Number of images to skip (default 0)
-            
+            search: Search term for title and prompt (default '')
+            sort_by: Field to sort by (default 'created_at')
+            sort_direction: Sort direction 'asc' or 'desc' (default 'desc')
+
         Returns:
             Tuple of (response_data, status_code)
         """
         try:
-            # Get images from database
-            images = ImageService.get_recent_images_paginated(limit=limit, offset=offset)
-            total_count = ImageService.get_total_images_count()
-            
+            # Get images from database with search and sorting
+            images = ImageService.get_images_paginated(
+                limit=limit,
+                offset=offset,
+                search=search,
+                sort_by=sort_by,
+                sort_direction=sort_direction
+            )
+            total_count = ImageService.get_total_images_count(search=search)
+
             # Convert to API response format (include title for list display)
             image_list = []
             for image in images:
@@ -177,7 +187,7 @@ class ImageController:
                     "prompt_hash": image.prompt_hash
                 }
                 image_list.append(image_data)
-            
+
             response_data = {
                 "images": image_list,
                 "pagination": {
@@ -187,9 +197,9 @@ class ImageController:
                     "has_more": offset + limit < total_count
                 }
             }
-            
+
             return response_data, 200
-            
+
         except Exception as e:
             print(f"Error retrieving images: {e}", file=sys.stderr)
             return {"error": f"Failed to retrieve images: {e}"}, 500

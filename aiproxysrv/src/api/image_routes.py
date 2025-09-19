@@ -34,26 +34,42 @@ def generate():
 
 @api_image_v1.route('/list', methods=['GET'])
 def list_images():
-    """Get list of generated images with pagination"""
+    """Get list of generated images with pagination, search and sorting"""
     # Parse query parameters
     try:
         limit = int(request.args.get('limit', 20))
         offset = int(request.args.get('offset', 0))
-        
+
         # Validate parameters
         if limit <= 0 or limit > 100:
             return jsonify({"error": "Limit must be between 1 and 100"}), 400
         if offset < 0:
             return jsonify({"error": "Offset must be >= 0"}), 400
-            
+
     except ValueError:
         return jsonify({"error": "Invalid limit or offset parameter"}), 400
-    
+
+    # Parse search and sort parameters
+    search = request.args.get('search', '').strip()
+    sort_by = request.args.get('sort_by', 'created_at')
+    sort_direction = request.args.get('sort_direction', 'desc')
+
+    # Validate sort parameters
+    valid_sort_fields = ['created_at', 'title', 'prompt']
+    if sort_by not in valid_sort_fields:
+        return jsonify({"error": f"Invalid sort_by field. Must be one of: {valid_sort_fields}"}), 400
+
+    if sort_direction not in ['asc', 'desc']:
+        return jsonify({"error": "Invalid sort_direction. Must be 'asc' or 'desc'"}), 400
+
     response_data, status_code = image_controller.get_images(
         limit=limit,
-        offset=offset
+        offset=offset,
+        search=search,
+        sort_by=sort_by,
+        sort_direction=sort_direction
     )
-    
+
     return jsonify(response_data), status_code
 
 

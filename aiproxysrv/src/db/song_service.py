@@ -294,15 +294,19 @@ class SongService:
             print(f"Error getting choice by mureka_choice_id {mureka_choice_id}: {e}", file=sys.stderr)
             return None
     
-    def get_songs_paginated(self, limit: int = 20, offset: int = 0, status: str = None) -> List[Song]:
+    def get_songs_paginated(self, limit: int = 20, offset: int = 0, status: str = None, search: str = '',
+                           sort_by: str = 'created_at', sort_direction: str = 'desc') -> List[Song]:
         """
-        Get songs with pagination and optional status filter
-        
+        Get songs with pagination, search and sorting
+
         Args:
             limit: Number of songs to return (default 20)
-            offset: Number of songs to skip (default 0)  
+            offset: Number of songs to skip (default 0)
             status: Optional status filter (SUCCESS, PENDING, FAILURE, etc.)
-            
+            search: Search term to filter by title, lyrics, or tags
+            sort_by: Field to sort by (created_at, title, lyrics)
+            sort_direction: Sort direction (asc, desc)
+
         Returns:
             List of Song instances with loaded choices
         """
@@ -310,15 +314,44 @@ class SongService:
             db = next(get_db())
             try:
                 query = (db.query(Song)
-                        .options(joinedload(Song.choices))
-                        .order_by(Song.created_at.desc()))
-                
+                        .options(joinedload(Song.choices)))
+
                 # Apply status filter if provided
                 if status:
                     query = query.filter(Song.status == status)
-                
+
+                # Apply search filter if provided
+                if search:
+                    search_term = f"%{search}%"
+                    from sqlalchemy import or_
+                    query = query.filter(
+                        or_(
+                            Song.title.ilike(search_term),
+                            Song.lyrics.ilike(search_term),
+                            Song.tags.ilike(search_term)
+                        )
+                    )
+
+                # Apply sorting
+                if sort_by == 'title':
+                    # Handle null titles by treating them as empty strings for sorting
+                    if sort_direction == 'desc':
+                        query = query.order_by(Song.title.desc().nullslast())
+                    else:
+                        query = query.order_by(Song.title.asc().nullsfirst())
+                elif sort_by == 'lyrics':
+                    if sort_direction == 'desc':
+                        query = query.order_by(Song.lyrics.desc())
+                    else:
+                        query = query.order_by(Song.lyrics.asc())
+                else:  # default to created_at
+                    if sort_direction == 'desc':
+                        query = query.order_by(Song.created_at.desc())
+                    else:
+                        query = query.order_by(Song.created_at.asc())
+
                 songs = query.limit(limit).offset(offset).all()
-                print(f"Retrieved {len(songs)} songs with pagination (limit={limit}, offset={offset}, status={status})", file=sys.stderr)
+                print(f"Retrieved {len(songs)} songs with pagination (limit={limit}, offset={offset}, status={status}, search='{search}', sort={sort_by}:{sort_direction})", file=sys.stderr)
                 return songs
             finally:
                 db.close()
@@ -327,13 +360,14 @@ class SongService:
             print(f"Stacktrace: {traceback.format_exc()}", file=sys.stderr)
             return []
     
-    def get_total_songs_count(self, status: str = None) -> int:
+    def get_total_songs_count(self, status: str = None, search: str = '') -> int:
         """
-        Get total count of songs
-        
+        Get total count of songs with optional search filter
+
         Args:
             status: Optional status filter
-            
+            search: Search term to filter by title, lyrics, or tags
+
         Returns:
             Total number of songs matching the criteria
         """
@@ -341,12 +375,24 @@ class SongService:
             db = next(get_db())
             try:
                 query = db.query(Song)
-                
+
                 if status:
                     query = query.filter(Song.status == status)
-                    
+
+                # Apply search filter if provided
+                if search:
+                    search_term = f"%{search}%"
+                    from sqlalchemy import or_
+                    query = query.filter(
+                        or_(
+                            Song.title.ilike(search_term),
+                            Song.lyrics.ilike(search_term),
+                            Song.tags.ilike(search_term)
+                        )
+                    )
+
                 count = query.count()
-                print(f"Total songs count: {count} (status={status})", file=sys.stderr)
+                print(f"Total songs count: {count} (status={status}, search='{search}')", file=sys.stderr)
                 return count
             finally:
                 db.close()
@@ -498,6 +544,71 @@ class SongService:
         except Exception as e:
             print(f"Error updating song {song_id}: {type(e).__name__}: {e}", file=sys.stderr)
             print(f"Stacktrace: {traceback.format_exc()}", file=sys.stderr)
+            return None
+
+    def update_choice_rating(self, choice_id: str, rating: Optional[int]) -> bool:
+        """
+        Update rating for a specific song choice
+
+        Args:
+            choice_id: UUID of the choice
+            rating: Rating value (None=unset, 0=thumbs down, 1=thumbs up)
+
+        Returns:
+            True if successful, False otherwise
+        """
+        try:
+            # Validate rating value
+            if rating is not None and rating not in [0, 1]:
+                print(f"Invalid rating value: {rating}. Must be None, 0, or 1", file=sys.stderr)
+                return False
+
+            db = next(get_db())
+            try:
+                choice = db.query(SongChoice).filter(SongChoice.id == choice_id).first()
+                if not choice:
+                    print(f"SongChoice not found: {choice_id}", file=sys.stderr)
+                    return False
+
+                choice.rating = rating
+                choice.updated_at = datetime.utcnow()
+
+                db.commit()
+                print(f"Choice {choice_id} rating updated to {rating}", file=sys.stderr)
+                return True
+
+            except SQLAlchemyError as e:
+                db.rollback()
+                print(f"Database error updating choice rating {choice_id}: {e}", file=sys.stderr)
+                raise
+            finally:
+                db.close()
+
+        except Exception as e:
+            print(f"Error updating choice rating {choice_id}: {type(e).__name__}: {e}", file=sys.stderr)
+            print(f"Stacktrace: {traceback.format_exc()}", file=sys.stderr)
+            return False
+
+    def get_choice_by_id(self, choice_id: str) -> Optional[SongChoice]:
+        """
+        Get a specific choice by ID
+
+        Args:
+            choice_id: UUID of the choice
+
+        Returns:
+            SongChoice instance or None if not found
+        """
+        try:
+            db = next(get_db())
+            try:
+                choice = db.query(SongChoice).filter(SongChoice.id == choice_id).first()
+                print(f"Retrieved choice by ID {choice_id}: {'Found' if choice else 'Not found'}", file=sys.stderr)
+                return choice
+            finally:
+                db.close()
+        except Exception as e:
+            print(f"Error getting choice by ID {choice_id}: {e}", file=sys.stderr)
             return None
 
 

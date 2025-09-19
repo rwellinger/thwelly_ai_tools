@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, OnDestroy, OnChanges, ViewEncapsulation } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnDestroy, OnChanges, ViewEncapsulation, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
 
@@ -20,7 +20,7 @@ export class PopupAudioPlayerComponent implements OnDestroy, OnChanges {
 
   sanitizedAudioUrl: SafeUrl | null = null;
 
-  constructor(private sanitizer: DomSanitizer) {}
+  private sanitizer = inject(DomSanitizer);
 
   ngOnChanges() {
     if (this.audioUrl) {

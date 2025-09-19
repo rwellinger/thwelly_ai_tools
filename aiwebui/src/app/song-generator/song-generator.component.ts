@@ -1,4 +1,4 @@
-import {Component, OnInit, ViewEncapsulation} from '@angular/core';
+import {Component, OnInit, ViewEncapsulation, inject} from '@angular/core';
 import {FormBuilder, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
 import {CommonModule} from '@angular/common';
 import {SongService} from '../services/song.service';
@@ -32,13 +32,10 @@ export class SongGeneratorComponent implements OnInit {
     showPopupPlayer = false;
     currentSongTitle = '';
 
-    constructor(
-        private fb: FormBuilder,
-        private songService: SongService,
-        private apiConfig: ApiConfigService,
-        private notificationService: NotificationService
-    ) {
-    }
+    private fb = inject(FormBuilder);
+    private songService = inject(SongService);
+    private apiConfig = inject(ApiConfigService);
+    private notificationService = inject(NotificationService);
 
     ngOnInit() {
         this.songForm = this.fb.group({

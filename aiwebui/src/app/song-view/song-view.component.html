@@ -5,7 +5,7 @@
     <div class="controls-section">
         <h3>View Controls</h3>
         <div class="controls-buttons">
-            <button type="button" (click)="loadSongs()" [disabled]="isLoading">
+            <button type="button" (click)="loadSongs(Math.floor(pagination.offset / pagination.limit))" [disabled]="isLoading">
                 <i class="fas fa-refresh"></i> Refresh
             </button>
             <button type="button" (click)="clearSelection()" [disabled]="!selectedSong && !isSelectionMode">
@@ -39,23 +39,25 @@
 <div class="master-detail-container">
     <!-- Left Side: Song List -->
     <div class="song-list-panel">
-        <div *ngIf="songs.length > 0" class="song-list">
-            <div class="list-header">
-                <h2>Available Songs</h2>
-                <div class="pagination-info-badge">
-                    {{ pagination.total }} songs
-                </div>
+        <div class="list-header">
+            <h2>Available Songs</h2>
+            <div class="pagination-info-badge" *ngIf="pagination.total > 0">
+                {{ pagination.total }} songs
             </div>
+        </div>
 
-            <div class="search-controls">
-                <input type="text"
-                       placeholder="Search titles & lyrics..."
-                       class="search-input"
-                       [value]="searchTerm"
-                       (input)="onSearchChange($any($event.target).value)"
-                       [disabled]="isLoadingSongs">
-                <small class="search-hint">Search & sort: current page only</small>
-            </div>
+        <div class="search-controls">
+            <input type="text"
+                   placeholder="Search in titles, lyrics & tags..."
+                   class="search-input"
+                   [(ngModel)]="searchTerm"
+                   (ngModelChange)="onSearchChange($event)"
+                   [disabled]="isLoadingSongs"
+                   #searchInput>
+            <small class="search-hint">Search & sort: server-wide, all results</small>
+        </div>
+
+        <div *ngIf="filteredSongs.length > 0" class="song-list">
 
             <table class="result-table">
                 <thead>
@@ -76,7 +78,7 @@
                 </tr>
                 </thead>
                 <tbody>
-                <tr *ngFor="let song of filteredSongs"
+                <tr *ngFor="let song of filteredSongs; trackBy: trackBySong"
                     [class.selected]="selectedSong?.id === song.id"
                     [class.selection-selected]="isSelectionMode && selectedSongIds.has(song.id)"
                     (click)="isSelectionMode ? toggleSongSelection(song.id) : selectSong(song)"
@@ -130,8 +132,13 @@
 
         </div>
 
-        <div *ngIf="songs.length === 0 && !isLoadingSongs" class="no-songs-message">
+        <div *ngIf="filteredSongs.length === 0 && !isLoadingSongs && songs.length === 0" class="no-songs-message">
             <p>No songs found in the database.</p>
+        </div>
+
+        <div *ngIf="filteredSongs.length === 0 && !isLoadingSongs && songs.length > 0" class="no-results-message">
+            <p>No songs match your search criteria.</p>
+            <small>Try adjusting your search term or clear the search to see all songs.</small>
         </div>
 
         <div *ngIf="isLoadingSongs" class="loading-message">
@@ -154,7 +161,8 @@
         (playAudio)="onPlayAudio($event)"
         (generateStem)="onGenerateStem($event)"
         (downloadStems)="onDownloadStems($event)"
-        (copyLyrics)="onCopyLyrics()">
+        (copyLyrics)="onCopyLyrics()"
+        (updateRating)="onUpdateRating($event)">
     </app-song-detail-panel>
 </div>
 

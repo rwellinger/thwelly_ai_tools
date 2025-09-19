@@ -26,6 +26,7 @@ export class SongDetailPanelComponent {
     @Output() generateStem = new EventEmitter<string>();
     @Output() downloadStems = new EventEmitter<string>();
     @Output() copyLyrics = new EventEmitter<void>();
+    @Output() updateRating = new EventEmitter<{ choiceId: string, rating: number | null }>();
 
     @ViewChild('titleInput') titleInput!: ElementRef;
     @ViewChild('lyricsTextarea') lyricsTextarea!: ElementRef;
@@ -114,6 +115,10 @@ export class SongDetailPanelComponent {
 
     onDownloadStems(url: string) {
         this.downloadStems.emit(url);
+    }
+
+    onUpdateRating(choiceId: string, rating: number | null) {
+        this.updateRating.emit({ choiceId, rating });
     }
 
     // Lyrics methods

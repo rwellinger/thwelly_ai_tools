@@ -1,4 +1,4 @@
-import {Component, OnInit, ViewEncapsulation, ViewChild, ElementRef, AfterViewInit} from '@angular/core';
+import {Component, OnInit, ViewEncapsulation, ViewChild, ElementRef, AfterViewInit, OnDestroy, inject} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {FormsModule} from '@angular/forms';
 import {HeaderComponent} from '../shared/header/header.component';
@@ -8,6 +8,7 @@ import {NotificationService} from '../services/notification.service';
 import {MatSnackBarModule} from '@angular/material/snack-bar';
 import {DisplayNamePipe} from '../pipes/display-name.pipe';
 import {ImageDetailPanelComponent} from '../shared/image-detail-panel/image-detail-panel.component';
+import {Subject, debounceTime, distinctUntilChanged, takeUntil} from 'rxjs';
 
 interface ImageData {
   id: string;
@@ -38,9 +39,8 @@ interface PaginationInfo {
   styleUrl: './image-view.component.scss',
   encapsulation: ViewEncapsulation.None
 })
-export class ImageViewComponent implements OnInit, AfterViewInit {
+export class ImageViewComponent implements OnInit, AfterViewInit, OnDestroy {
   images: ImageData[] = [];
-  filteredImages: ImageData[] = [];
   selectedImage: ImageData | null = null;
   isLoading = false;
   loadingMessage = '';
@@ -53,9 +53,14 @@ export class ImageViewComponent implements OnInit, AfterViewInit {
     total: 0
   };
 
-  // Search and sort
+  // Search and sort (server-based)
   searchTerm: string = '';
+  sortBy: string = 'created_at';
   sortDirection: 'asc' | 'desc' = 'desc';
+
+  // RxJS subjects for debouncing
+  private searchSubject = new Subject<string>();
+  private destroy$ = new Subject<void>();
 
   // Modal state
   showImageModal = false;
@@ -79,14 +84,36 @@ export class ImageViewComponent implements OnInit, AfterViewInit {
   };
 
   @ViewChild('titleInput') titleInput!: ElementRef;
+  @ViewChild('searchInput') searchInput!: ElementRef;
 
-  constructor(
-    private apiConfig: ApiConfigService,
-    private notificationService: NotificationService
-  ) {}
+  private apiConfig = inject(ApiConfigService);
+  private notificationService = inject(NotificationService);
+
+  constructor() {
+    // Setup search debouncing
+    this.searchSubject.pipe(
+      debounceTime(300),
+      distinctUntilChanged(),
+      takeUntil(this.destroy$)
+    ).subscribe(searchTerm => {
+      const hadFocus = document.activeElement === this.searchInput?.nativeElement;
+      this.searchTerm = searchTerm;
+      this.loadImages(0).then(() => {
+        // Restore focus if it was in search field
+        if (hadFocus && this.searchInput) {
+          setTimeout(() => this.searchInput.nativeElement.focus(), 0);
+        }
+      });
+    });
+  }
 
   ngOnInit() {
     this.loadImages();
+  }
+
+  ngOnDestroy() {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   ngAfterViewInit() {
@@ -130,7 +157,20 @@ export class ImageViewComponent implements OnInit, AfterViewInit {
 
     try {
       const offset = page * this.pageSize;
-      const url = this.apiConfig.endpoints.image.list(this.pageSize, offset);
+
+      // Build URL with search and sort parameters
+      const params = new URLSearchParams({
+        limit: this.pageSize.toString(),
+        offset: offset.toString(),
+        sort_by: this.sortBy,
+        sort_direction: this.sortDirection
+      });
+
+      if (this.searchTerm.trim()) {
+        params.append('search', this.searchTerm.trim());
+      }
+
+      const url = `${this.apiConfig.endpoints.image.list(this.pageSize, offset).split('?')[0]}?${params.toString()}`;
 
       const response = await fetch(url);
       if (!response.ok) {
@@ -144,11 +184,9 @@ export class ImageViewComponent implements OnInit, AfterViewInit {
         this.pagination = data.pagination;
         this.currentPage = page;
 
-        this.applyFilterAndSort();
-
         // Auto-select first image if available and none selected
-        if (this.filteredImages.length > 0 && !this.selectedImage) {
-          this.selectImage(this.filteredImages[0]);
+        if (this.images.length > 0 && !this.selectedImage) {
+          this.selectImage(this.images[0]);
         }
       } else {
         this.images = [];
@@ -291,37 +329,17 @@ export class ImageViewComponent implements OnInit, AfterViewInit {
     return page;
   }
 
-  // Client-side filter and sort
-  applyFilterAndSort() {
-    let filtered = [...this.images];
-
-    // Apply search filter (search in title and fallback to prompt)
-    if (this.searchTerm.trim()) {
-      const term = this.searchTerm.toLowerCase().trim();
-      filtered = filtered.filter(image => {
-        const displayTitle = this.getDisplayTitle(image).toLowerCase();
-        return displayTitle.includes(term);
-      });
-    }
-
-    // Apply sort by created date
-    filtered.sort((a, b) => {
-      const dateA = new Date(a.created_at).getTime();
-      const dateB = new Date(b.created_at).getTime();
-      return this.sortDirection === 'desc' ? dateB - dateA : dateA - dateB;
-    });
-
-    this.filteredImages = filtered;
+  trackByImage(index: number, image: ImageData): string {
+    return image.id;
   }
 
   onSearchChange(searchTerm: string) {
-    this.searchTerm = searchTerm;
-    this.applyFilterAndSort();
+    this.searchSubject.next(searchTerm);
   }
 
   toggleSort() {
     this.sortDirection = this.sortDirection === 'desc' ? 'asc' : 'desc';
-    this.applyFilterAndSort();
+    this.loadImages(0); // Reset to first page and reload with new sort
   }
 
   openImageModal() {
@@ -349,7 +367,7 @@ export class ImageViewComponent implements OnInit, AfterViewInit {
   }
 
   selectAllImages() {
-    this.filteredImages.forEach(image => {
+    this.images.forEach(image => {
       this.selectedImageIds.add(image.id);
     });
   }
@@ -496,7 +514,7 @@ export class ImageViewComponent implements OnInit, AfterViewInit {
           title: updatedImage.title,
           tags: updatedImage.tags
         };
-        this.applyFilterAndSort(); // Refresh filtered list
+        this.loadImages(0); // Refresh filtered list
       }
 
       this.editingTitle = false;
@@ -547,11 +565,7 @@ export class ImageViewComponent implements OnInit, AfterViewInit {
         this.images[imageIndex] = { ...this.selectedImage };
       }
 
-      // Update in filtered images if different
-      const filteredIndex = this.filteredImages.findIndex(img => img.id === this.selectedImage!.id);
-      if (filteredIndex !== -1) {
-        this.filteredImages[filteredIndex] = { ...this.selectedImage };
-      }
+      // No need to update filtered images as we use server-side filtering
 
       this.notificationService.success('Title updated successfully!');
 
