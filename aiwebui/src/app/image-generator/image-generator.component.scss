@@ -14,6 +14,13 @@
     overflow: hidden;
 }
 
+/* Style the app-image-detail-panel component itself */
+app-image-detail-panel {
+    flex: 1;
+    display: flex;
+    min-width: 0;
+}
+
 .image-result-panel {
     @include card-container($border-light, $background-white, 0);
     flex: 1;
