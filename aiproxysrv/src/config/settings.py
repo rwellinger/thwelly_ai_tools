@@ -57,6 +57,12 @@ DELETE_PHYSICAL_FILES = os.getenv("DELETE_PHYSICAL_FILES", "true").lower() == "t
 REDIS_URL = os.getenv("REDIS_URL", "redis://localhost:6379/0")
 
 # --------------------------------------------------
+# Ollama Config
+# --------------------------------------------------
+OLLAMA_URL = os.getenv("OLLAMA_URL", "http://10.0.1.120:11434")
+OLLAMA_TIMEOUT = int(os.getenv("OLLAMA_TIMEOUT", "60"))
+
+# --------------------------------------------------
 # Database Config
 # --------------------------------------------------
 DATABASE_URL = os.getenv("DATABASE_URL",
