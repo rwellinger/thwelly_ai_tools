@@ -102,7 +102,7 @@
     background-color: #ffeaa7 !important;
 }
 
-/* Inline Title Editing Styles */
+/* Title Editing Styles */
 .image-title-section {
     background-color: $background-light;
     padding: $spacing-sm;
@@ -172,13 +172,10 @@
     overflow: hidden;
 }
 
-/* Responsive height adjustments - removed fixed heights */
 
 .image-list-panel {
     @include list-container-layout();
 }
-
-/* Height adjustments now handled by fixed max-height on container */
 
 .image-details-panel {
     flex: 1;
@@ -190,12 +187,6 @@
     display: flex;
     flex-direction: column;
 }
-
-// image-list now renamed to list-content to match mixin structure
-
-// Header styling now handled by list-container-layout mixin
-
-// Search controls now handled by list-container-layout mixin
 
 .sortable-header {
     cursor: pointer;
@@ -210,10 +201,6 @@
     margin-left: 5px;
     font-size: $font-sm;
 }
-
-// Table styling now handled by list-container-layout mixin
-
-// Table cell and row styling now handled by list-table-styling mixin
 
 .title-col {
     width: 45%;
@@ -242,10 +229,7 @@
     @include button-primary('sm');
 }
 
-/* ===== COMPACT PAGINATION ===== */
-// List header styling now handled by list-container-layout mixin
-
-// Pagination styling included in list-container-layout mixin with pills
+/* ===== PAGINATION ===== */
 .pagination-container {
     @include pagination-pills-styling();
 
@@ -582,99 +566,6 @@
     border-radius: $border-radius-xl;
 }
 
-/* ===== TITLE EDITING (UNIFIED WITH SONG-VIEW) ===== */
-.image-title-section {
-    background-color: $background-light;
-    padding: $spacing-sm;
-    border-radius: $border-radius-lg;
-    border-left: 4px solid $primary-color;
-    margin-bottom: $spacing-10;
-}
-
-.title-row {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 8px;
-}
-
-.image-title {
-    margin: 0;
-    color: #333;
-    font-size: $font-base;
-    font-weight: $font-weight-semibold;
-    flex: 1;
-    word-break: break-word;
-}
-
-.title-edit-row {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-.title-input {
-    flex: 1;
-    padding: 8px 12px;
-    border: 2px solid #007bff;
-    border-radius: 4px;
-    font-size: $font-lg;
-    font-weight: 500;
-    color: #333;
-    background: white;
-}
-
-.title-input:focus {
-    outline: none;
-    border-color: $primary-hover;
-    box-shadow: 0 0 0 3px rgba(0,123,255,.1);
-}
-
-.edit-btn, .save-btn, .cancel-btn {
-    background: none;
-    border: 2px solid $primary-color;
-    color: $primary-color;
-    padding: $spacing-6 $spacing-sm;
-    border-radius: $border-radius-sm;
-    cursor: pointer;
-    font-size: $font-sm;
-    transition: $transition-standard;
-    min-width: 28px;
-    height: 28px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.edit-btn:hover:not(:disabled) {
-    background-color: $primary-color;
-    color: $background-white;
-}
-
-.save-btn {
-    border-color: $success-color;
-    color: $success-color;
-}
-
-.save-btn:hover:not(:disabled) {
-    background-color: $success-color;
-    color: $background-white;
-}
-
-.cancel-btn {
-    border-color: $text-muted;
-    color: $text-muted;
-}
-
-.cancel-btn:hover:not(:disabled) {
-    background-color: $text-muted;
-    color: $background-white;
-}
-
-.edit-btn:disabled, .save-btn:disabled, .cancel-btn:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-}
 
 /* ===== RESPONSIVE IMAGE SOLUTION ===== */
 .responsive-image-container {
