@@ -142,7 +142,7 @@ app-song-detail-panel {
     flex: 1;
     display: flex;
     flex-direction: column;
-    padding: $spacing-15;
+    padding: $spacing-6 $spacing-15 $spacing-15 $spacing-15;
     overflow-y: auto;
     min-height: 0;
 }
@@ -154,7 +154,7 @@ app-song-detail-panel {
 }
 
 .search-controls {
-    margin-bottom: $spacing-15;
+    margin-bottom: $spacing-10;
     padding: $spacing-10;
     background: $background-light;
     border-radius: $border-radius-lg;
