@@ -13,7 +13,10 @@ from config.settings import (
     MUREKA_API_KEY,
     MUREKA_TIMEOUT,
     MUREKA_POLL_INTERVAL,
-    MUREKA_MAX_POLL_ATTEMPTS
+    MUREKA_MAX_POLL_ATTEMPTS,
+    MUREKA_POLL_INTERVAL_SHORT,
+    MUREKA_POLL_INTERVAL_MEDIUM,
+    MUREKA_POLL_INTERVAL_LONG
 )
 from api.json_helpers import prune
 
@@ -81,13 +84,31 @@ def check_mureka_status(job_id: str) -> Dict[str, Any]:
         raise
 
 
+def get_adaptive_poll_interval(elapsed_seconds: float) -> int:
+    """
+    Berechnet adaptives Polling-Intervall basierend auf elapsed time:
+    - 0-2 Min: MUREKA_POLL_INTERVAL_SHORT (default 5s)
+    - 2-5 Min: MUREKA_POLL_INTERVAL_MEDIUM (default 15s)
+    - 5+ Min: MUREKA_POLL_INTERVAL_LONG (default 30s)
+    """
+    if elapsed_seconds < 120:  # 0-2 Minuten
+        return MUREKA_POLL_INTERVAL_SHORT
+    elif elapsed_seconds < 300:  # 2-5 Minuten
+        return MUREKA_POLL_INTERVAL_MEDIUM
+    else:  # 5+ Minuten
+        return MUREKA_POLL_INTERVAL_LONG
+
+
 def wait_for_mureka_completion(task, job_id: str) -> Dict[str, Any]:
     """Wartet auf die Vollendung einer MUREKA Generierung"""
     max_attempts = MUREKA_MAX_POLL_ATTEMPTS
-    poll_interval = MUREKA_POLL_INTERVAL
+    start_time = time.time()
 
     for attempt in range(max_attempts):
         try:
+            elapsed_time = time.time() - start_time
+            poll_interval = get_adaptive_poll_interval(elapsed_time)
+
             status_response = check_mureka_status(job_id)
             current_status = status_response.get("status", "unknown")
 
@@ -99,6 +120,8 @@ def wait_for_mureka_completion(task, job_id: str) -> Dict[str, Any]:
                     'attempt': attempt + 1,
                     'mureka_status': current_status,
                     'progress': status_response.get("progress", 0),
+                    'elapsed_time': int(elapsed_time),
+                    'poll_interval': poll_interval,
                 }
             )
 
@@ -124,7 +147,9 @@ def wait_for_mureka_completion(task, job_id: str) -> Dict[str, Any]:
         except HTTPError as e:
             if e.response.status_code in [429, 502, 503, 504]:
                 # Temporäre Fehler - weiter versuchen
-                wait_time = poll_interval * 2
+                elapsed_time = time.time() - start_time
+                current_poll_interval = get_adaptive_poll_interval(elapsed_time)
+                wait_time = current_poll_interval * 2
                 print(f"Temporary MUREKA error ({e.response.status_code}), retrying in {wait_time}s", file=sys.stderr)
                 print(f"Response content: {e.response.text if e.response else 'No response'}", file=sys.stderr)
                 time.sleep(wait_time)
@@ -139,4 +164,5 @@ def wait_for_mureka_completion(task, job_id: str) -> Dict[str, Any]:
             print(f"Stacktrace: {traceback.format_exc()}", file=sys.stderr)
             raise
 
-    raise Exception(f"Timeout after {max_attempts} polling attempts ({(max_attempts * poll_interval) // 60} minutes)")
+    total_elapsed = time.time() - start_time
+    raise Exception(f"Timeout after {max_attempts} polling attempts ({int(total_elapsed)} seconds elapsed)")

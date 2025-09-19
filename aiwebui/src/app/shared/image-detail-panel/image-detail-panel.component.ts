@@ -48,7 +48,7 @@ export class ImageDetailPanelComponent {
 
   onDownload() {
     if (this.image?.url) {
-      this.downloadClicked.emit(this.image.url);
+      window.open(this.image.url, '_blank', 'noopener,noreferrer');
     }
   }
 
