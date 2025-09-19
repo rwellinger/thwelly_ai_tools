@@ -314,8 +314,6 @@ export class SongViewComponent implements OnInit, OnDestroy {
       this.editingTitle = false;
       this.editTitleValue = '';
 
-      this.notificationService.success('Title updated successfully!');
-
     } catch (error: any) {
       this.notificationService.error(`Error updating title: ${error.message}`);
     } finally {
@@ -537,7 +535,6 @@ export class SongViewComponent implements OnInit, OnDestroy {
   async copyToClipboard() {
     try {
       await navigator.clipboard.writeText(this.modalContent);
-      this.notificationService.success('Content copied to clipboard!');
     } catch (error) {
       // Fallback for older browsers
       const textArea = document.createElement('textarea');
@@ -547,7 +544,6 @@ export class SongViewComponent implements OnInit, OnDestroy {
       textArea.select();
       try {
         document.execCommand('copy');
-        this.notificationService.success('Content copied to clipboard!');
       } catch (err) {
         this.notificationService.error('Failed to copy to clipboard');
       }
@@ -570,7 +566,6 @@ export class SongViewComponent implements OnInit, OnDestroy {
 
     try {
       await navigator.clipboard.writeText(this.selectedSong.lyrics);
-      this.notificationService.success('Lyrics copied to clipboard!');
     } catch (error) {
       // Fallback for older browsers
       const textArea = document.createElement('textarea');
@@ -580,7 +575,6 @@ export class SongViewComponent implements OnInit, OnDestroy {
       textArea.select();
       try {
         document.execCommand('copy');
-        this.notificationService.success('Lyrics copied to clipboard!');
       } catch (err) {
         this.notificationService.error('Failed to copy lyrics to clipboard');
       }
@@ -763,8 +757,6 @@ export class SongViewComponent implements OnInit, OnDestroy {
       this.editingTags = false;
       this.selectedTags.clear();
 
-      this.notificationService.success('Tags updated successfully!');
-
     } catch (error: any) {
       this.notificationService.error(`Error updating tags: ${error.message}`);
     } finally {
@@ -823,10 +815,6 @@ export class SongViewComponent implements OnInit, OnDestroy {
         }
       }
 
-      // Show success message
-      const ratingText = event.rating === null ? 'removed' :
-                        event.rating === 1 ? 'set to thumbs up' : 'set to thumbs down';
-      this.notificationService.success(`Rating ${ratingText}!`);
 
     } catch (error: any) {
       this.notificationService.error(`Error updating rating: ${error.message}`);

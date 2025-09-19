@@ -37,7 +37,7 @@
 </div>
 
 <div class="master-detail-container">
-    <!-- Left Side: Image List -->
+    <!-- Left Side: Picture List -->
     <div class="image-list-panel">
         <div class="list-header">
             <h2>Available Images</h2>
@@ -146,11 +146,11 @@
         </div>
     </div>
 
-    <!-- Right Side: Image Details -->
+    <!-- Right Side: Picture Details -->
     <app-image-detail-panel
         [image]="selectedImage"
         [showEditTitle]="true"
-        title="Image Details"
+        title="Picture Details"
         [showMetaInfo]="['model', 'size', 'created']"
         placeholderText="Select an image from the list to view details"
         (titleChanged)="onTitleChanged($event)"
@@ -159,7 +159,7 @@
     </app-image-detail-panel>
 </div>
 
-<!-- Image Modal -->
+<!-- Picture Modal -->
 <div *ngIf="showImageModal && selectedImage" class="modal-overlay" (click)="closeImageModal()">
     <div class="modal-content" (click)="$event.stopPropagation()">
         <div class="modal-header">

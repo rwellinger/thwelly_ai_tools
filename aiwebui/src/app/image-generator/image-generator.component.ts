@@ -5,6 +5,7 @@ import { HeaderComponent } from '../shared/header/header.component';
 import { FooterComponent } from '../shared/footer/footer.component';
 import { ApiConfigService } from '../services/api-config.service';
 import { NotificationService } from '../services/notification.service';
+import { ImageService } from '../services/image.service';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import {MatIcon} from "@angular/material/icon";
 import {ImageDetailPanelComponent} from '../shared/image-detail-panel/image-detail-panel.component';
@@ -27,11 +28,21 @@ export class ImageGeneratorComponent implements OnInit {
   private fb = inject(FormBuilder);
   private apiConfig = inject(ApiConfigService);
   private notificationService = inject(NotificationService);
+  private imageService = inject(ImageService);
 
   ngOnInit() {
     this.promptForm = this.fb.group({
       prompt: ['', Validators.required],
       size: ['1024x1024', Validators.required]
+    });
+
+    // Load saved form data
+    const savedData = this.imageService.loadFormData();
+    if (savedData.prompt) this.promptForm.patchValue(savedData);
+
+    // Save form data on changes
+    this.promptForm.valueChanges.subscribe(value => {
+      this.imageService.saveFormData(value);
     });
   }
 
@@ -110,5 +121,12 @@ export class ImageGeneratorComponent implements OnInit {
 
   onPreviewImage() {
     this.openImageModal();
+  }
+
+  resetForm() {
+    this.promptForm.reset({ size: '1024x1024' });
+    this.imageService.clearFormData();
+    this.generatedImageUrl = '';
+    this.generatedImageData = null;
   }
 }

@@ -19,6 +19,7 @@
     <audio #player
            [src]="sanitizedAudioUrl"
            controls
+           autoplay
            preload="metadata"
            (canplaythrough)="onCanPlayThrough()"
            (ended)="onAudioEnded()"
