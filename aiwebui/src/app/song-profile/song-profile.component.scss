@@ -1,4 +1,5 @@
 @import '../../scss/variables';
+@import '../../scss/mixins';
 
 /* ===== SONG PROFILE SPECIFIC STYLES ===== */
 .controls {
@@ -20,35 +21,22 @@
     display: inline-flex;
     align-items: center;
     gap: $spacing-sm;
-    padding: $spacing-6 $spacing-12;
-    border-radius: $spacing-20;
-    font-size: $font-base;
-    font-weight: $font-weight-bold;
-    text-transform: uppercase;
 }
 
 .status-active {
-    background-color: #d4edda;
-    color: #155724;
-    border: 1px solid #c3e6cb;
+    @include status-badge(#d4edda, #155724, #c3e6cb);
 }
 
 .status-inactive {
-    background-color: #f8d7da;
-    color: #721c24;
-    border: 1px solid #f5c6cb;
+    @include status-badge(#f8d7da, #721c24, #f5c6cb);
 }
 
 .status-pending {
-    background-color: #fff3cd;
-    color: #856404;
-    border: 1px solid #ffeaa7;
+    @include status-badge(#fff3cd, #856404, #ffeaa7);
 }
 
 .status-unknown {
-    background-color: #e2e3e5;
-    color: #383d41;
-    border: 1px solid #d6d8db;
+    @include status-badge(#e2e3e5, #383d41, #d6d8db);
 }
 
 /* ===== AMOUNT STYLING ===== */
@@ -71,14 +59,18 @@
 }
 
 /* ===== TABLE OVERRIDES ===== */
-.result-table td:first-child {
-    font-weight: $font-weight-bold;
-    background-color: $background-light;
-    width: 30%;
-}
+.result-table {
+    @include list-table-styling();
 
-.result-table td:last-child {
-    width: 70%;
+    td:first-child {
+        font-weight: $font-weight-bold;
+        background-color: $background-light;
+        width: 30%;
+    }
+
+    td:last-child {
+        width: 70%;
+    }
 }
 
 

@@ -40,37 +40,13 @@
 }
 
 .controls-buttons button {
-    background-color: $primary-color !important;
-    color: $background-white !important;
-    border: none !important;
-    padding: $spacing-sm $spacing-md !important;
-    border-radius: $border-radius-lg !important;
-    cursor: pointer !important;
-    font-size: $font-base !important;
-    transition: $transition-standard !important;
+    @include button-primary('base');
     box-shadow: 0 1px 3px rgba(0,0,0,0.1) !important;
 }
 
-.controls-buttons button:hover:not(:disabled) {
-    background-color: $primary-hover !important;
-    transform: translateY(-1px) !important;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.15) !important;
-}
-
-.controls-buttons button:disabled {
-    background-color: $text-muted !important;
-    cursor: not-allowed !important;
-    transform: none !important;
-    box-shadow: none !important;
-}
-
 .controls-buttons button.active {
-    background-color: $success-color !important;
+    @include button-success('base');
     box-shadow: 0 2px 6px rgba(40,167,69,0.3) !important;
-}
-
-.controls-buttons button.active:hover {
-    background-color: $success-hover !important;
 }
 
 .selection-section .delete-btn {
@@ -126,7 +102,7 @@
     background-color: #ffeaa7 !important;
 }
 
-/* Inline Title Editing Styles */
+/* Title Editing Styles */
 .image-title-section {
     background-color: $background-light;
     padding: $spacing-sm;
@@ -152,19 +128,8 @@
 }
 
 .edit-btn {
-    background: $primary-color !important;
-    color: $background-white !important;
-    border: none !important;
-    border-radius: $border-radius-sm !important;
+    @include button-primary('sm');
     padding: $spacing-6 $spacing-10 !important;
-    cursor: pointer !important;
-    font-size: $font-sm !important;
-    transition: $transition-standard !important;
-}
-
-.edit-btn:hover:not(:disabled) {
-    background: $primary-hover !important;
-    transform: translateY(-1px) !important;
 }
 
 .title-edit-row {
@@ -190,33 +155,13 @@
 }
 
 .save-btn {
-    background: $success-color !important;
-    color: $background-white !important;
-    border: none !important;
-    border-radius: $border-radius-sm !important;
+    @include button-success('base');
     padding: $spacing-sm $spacing-12 !important;
-    cursor: pointer !important;
-    font-size: $font-base !important;
-    transition: $transition-standard !important;
-}
-
-.save-btn:hover:not(:disabled) {
-    background: $success-hover !important;
 }
 
 .cancel-btn {
-    background: $text-muted !important;
-    color: $background-white !important;
-    border: none !important;
-    border-radius: $border-radius-sm !important;
+    @include button-secondary('base');
     padding: $spacing-sm $spacing-12 !important;
-    cursor: pointer !important;
-    font-size: $font-base !important;
-    transition: $transition-standard !important;
-}
-
-.cancel-btn:hover:not(:disabled) {
-    background: #5a6268 !important;
 }
 
 /* ===== MASTER DETAIL LAYOUT ===== */
@@ -227,13 +172,10 @@
     overflow: hidden;
 }
 
-/* Responsive height adjustments - removed fixed heights */
 
 .image-list-panel {
     @include list-container-layout();
 }
-
-/* Height adjustments now handled by fixed max-height on container */
 
 .image-details-panel {
     flex: 1;
@@ -245,12 +187,6 @@
     display: flex;
     flex-direction: column;
 }
-
-// image-list now renamed to list-content to match mixin structure
-
-// Header styling now handled by list-container-layout mixin
-
-// Search controls now handled by list-container-layout mixin
 
 .sortable-header {
     cursor: pointer;
@@ -265,10 +201,6 @@
     margin-left: 5px;
     font-size: $font-sm;
 }
-
-// Table styling now handled by list-container-layout mixin
-
-// Table cell and row styling now handled by list-table-styling mixin
 
 .title-col {
     width: 45%;
@@ -288,47 +220,25 @@
 }
 
 .result-table button {
-    background-color: $success-color !important;
-    color: $background-white !important;
-    border: none !important;
-    padding: 4px $spacing-sm !important;
-    border-radius: $border-radius-sm !important;
-    cursor: pointer !important;
-    font-size: $font-sm !important;
+    @include button-success('sm');
     margin: 0 !important;
-}
-
-.result-table button:hover:not(:disabled) {
-    background-color: $success-hover !important;
+    padding: 4px $spacing-sm !important;
 }
 
 .result-table button.active {
-    background-color: $primary-color !important;
+    @include button-primary('sm');
 }
 
-.result-table button.active:hover {
-    background-color: $primary-hover !important;
-}
-
-.result-table button:disabled {
-    background-color: $text-muted !important;
-    cursor: not-allowed !important;
-}
-
-/* ===== COMPACT PAGINATION ===== */
-// List header styling now handled by list-container-layout mixin
-
-.modern-pagination {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    width: 100%;
-}
-
-// Pagination styling included in list-container-layout mixin
-// Additional pagination pills styling
+/* ===== PAGINATION ===== */
 .pagination-container {
     @include pagination-pills-styling();
+
+    .modern-pagination {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        width: 100%;
+    }
 }
 
 /* ===== IMAGE DETAILS ===== */
@@ -656,99 +566,6 @@
     border-radius: $border-radius-xl;
 }
 
-/* ===== TITLE EDITING (UNIFIED WITH SONG-VIEW) ===== */
-.image-title-section {
-    background-color: $background-light;
-    padding: $spacing-sm;
-    border-radius: $border-radius-lg;
-    border-left: 4px solid $primary-color;
-    margin-bottom: $spacing-10;
-}
-
-.title-row {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 8px;
-}
-
-.image-title {
-    margin: 0;
-    color: #333;
-    font-size: $font-base;
-    font-weight: $font-weight-semibold;
-    flex: 1;
-    word-break: break-word;
-}
-
-.title-edit-row {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-.title-input {
-    flex: 1;
-    padding: 8px 12px;
-    border: 2px solid #007bff;
-    border-radius: 4px;
-    font-size: $font-lg;
-    font-weight: 500;
-    color: #333;
-    background: white;
-}
-
-.title-input:focus {
-    outline: none;
-    border-color: $primary-hover;
-    box-shadow: 0 0 0 3px rgba(0,123,255,.1);
-}
-
-.edit-btn, .save-btn, .cancel-btn {
-    background: none;
-    border: 2px solid $primary-color;
-    color: $primary-color;
-    padding: $spacing-6 $spacing-sm;
-    border-radius: $border-radius-sm;
-    cursor: pointer;
-    font-size: $font-sm;
-    transition: $transition-standard;
-    min-width: 28px;
-    height: 28px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.edit-btn:hover:not(:disabled) {
-    background-color: $primary-color;
-    color: $background-white;
-}
-
-.save-btn {
-    border-color: $success-color;
-    color: $success-color;
-}
-
-.save-btn:hover:not(:disabled) {
-    background-color: $success-color;
-    color: $background-white;
-}
-
-.cancel-btn {
-    border-color: $text-muted;
-    color: $text-muted;
-}
-
-.cancel-btn:hover:not(:disabled) {
-    background-color: $text-muted;
-    color: $background-white;
-}
-
-.edit-btn:disabled, .save-btn:disabled, .cancel-btn:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-}
 
 /* ===== RESPONSIVE IMAGE SOLUTION ===== */
 .responsive-image-container {

@@ -35,7 +35,9 @@ app-song-detail-panel {
 }
 
 .controls-content h2 {
-    @include section-header($primary-color, $font-xl);
+    @include heading(2);
+    border-bottom: 2px solid $primary-color;
+    padding-bottom: $spacing-10;
 }
 
 /* ===== FORM STYLING ===== */
@@ -50,11 +52,7 @@ app-song-detail-panel {
 }
 
 .form-group label {
-    display: block;
-    color: $text-primary;
-    font-weight: $font-weight-medium;
-    margin-bottom: $spacing-6;
-    font-size: $font-base;
+    @include label-text();
 }
 
 .lyrics-input {
@@ -111,19 +109,14 @@ app-song-detail-panel {
 }
 
 .create-button {
-    @include button-style($primary-color, $background-white, $primary-hover);
+    @include button-primary('base');
     flex: 1;
-    padding: $spacing-12 $spacing-20 !important;
-    font-size: $font-base !important;
     font-weight: $font-weight-medium !important;
 }
 
-
 .reset-button {
-    @include button-style($text-muted, $background-white, #5a6268);
+    @include button-secondary('base');
     flex: 0 0 auto;
-    padding: $spacing-12 $spacing-md !important;
-    font-size: $font-base !important;
     font-weight: $font-weight-medium !important;
 }
 
@@ -134,34 +127,21 @@ app-song-detail-panel {
 }
 
 .magic-icon-button {
-    background-color: white !important;
-    border: none;
-    color: black !important;
-    cursor: pointer;
-    font-size: $font-lg;
-    padding: $spacing-sm;
+    @include button-secondary('sm');
     border-radius: 50% !important;
-    transition: $transition-fast;
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 32px;
-    height: 32px;
+    width: $button-height-sm;
+    height: $button-height-sm;
     margin-top: $spacing-xs;
     flex-shrink: 0;
-}
+    font-size: $font-lg;
 
-.magic-icon-button:hover:not(:disabled) {
-    color: $text-primary  !important;
-    background-color: $background-selected !important;
-    transform: scale(1.1);
-}
-
-.magic-icon-button:disabled {
-    color: $text-primary  !important;
-    background-color: $background-white  !important;
-    cursor: not-allowed;
-    transform: none;
+    &:hover:not(:disabled) {
+        background-color: $background-selected !important;
+        transform: scale(1.1);
+    }
 }
 
 /* ===== SONG RESULT STYLING ===== */
@@ -190,7 +170,9 @@ app-song-detail-panel {
 }
 
 .song-result-section h2 {
-    @include section-header($primary-color, $font-xl);
+    @include heading(2);
+    border-bottom: 2px solid $primary-color;
+    padding-bottom: $spacing-10;
 }
 
 .song-info-compact {
@@ -248,20 +230,14 @@ app-song-detail-panel {
 }
 
 .action-button {
-    padding: 8px 16px;
+    @include button-size('base');
     border: none;
-    border-radius: 6px;
-    cursor: pointer;
-    font-size: $font-base;
+    border-radius: $border-radius-sm;
     font-weight: $font-weight-medium;
-    transition: all 0.2s ease;
     text-decoration: none;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    height: 36px !important;
-    min-height: 36px !important;
-    max-height: 36px !important;
     line-height: 1 !important;
     vertical-align: top;
     box-sizing: border-box;
@@ -273,39 +249,15 @@ app-song-detail-panel {
 }
 
 .download-btn {
-    background-color: $success-color;
-    color: $background-white;
-}
-
-.download-btn:hover {
-    background-color: $success-hover;
-    transform: translateY(-1px);
+    @include button-success('base');
 }
 
 .play-btn {
-    background-color: #007bff;
-    color: white;
-}
-
-.play-btn:hover:not(:disabled) {
-    background-color: #0056b3;
-    transform: translateY(-1px);
+    @include button-primary('base');
 }
 
 .stem-btn {
-    background-color: #007bff;
-    color: white;
-}
-
-.stem-btn:hover:not(:disabled) {
-    background-color: #0056b3;
-    transform: translateY(-1px);
-}
-
-.stem-btn:disabled {
-    background-color: #adb5bd;
-    cursor: not-allowed;
-    transform: none;
+    @include button-primary('base');
 }
 
 .audio-wrapper {
@@ -352,15 +304,14 @@ app-song-detail-panel {
 }
 
 .processing-content h3 {
-    margin: 0 0 10px 0;
-    color: #333;
-    font-size: $font-xl;
+    @include heading(3);
+    margin-bottom: $spacing-10;
 }
 
 .processing-content p {
+    @include body-text('base');
+    color: $text-muted;
     margin: 0;
-    color: #6c757d;
-    font-size: $font-base;
 }
 
 /* ===== RESPONSIVE ===== */

@@ -78,6 +78,23 @@ $spacing-15: 0.9375rem; // 15px
 $spacing-18: 1.125rem;  // 18px
 $spacing-20: 1.25rem;   // 20px
 
+// Button Size System
+$button-padding-sm: $spacing-6 $spacing-12;
+$button-padding-base: $spacing-sm $spacing-md;
+$button-padding-lg: $spacing-12 $spacing-20;
+
+$button-height-sm: 32px;
+$button-height-base: 36px;
+$button-height-lg: 44px;
+
+// Typography Scale for consistent headings
+$heading-h1: $font-2xl;
+$heading-h2: $font-xl;
+$heading-h3: $font-lg;
+$heading-h4: $font-base;
+$heading-h5: $font-sm;
+$heading-h6: $font-xs;
+
 // Border Radius
 $border-radius-sm: 4px;
 $border-radius-md: 5px;

@@ -34,7 +34,9 @@ app-image-detail-panel {
 }
 
 .controls-content h2 {
-    @include section-header($primary-color, $font-xl);
+    @include heading(2);
+    border-bottom: 2px solid $primary-color;
+    padding-bottom: $spacing-10;
 }
 
 /* ===== FORM STYLING ===== */
@@ -49,11 +51,7 @@ app-image-detail-panel {
 }
 
 .form-group label {
-    display: block;
-    color: $text-primary;
-    font-weight: $font-weight-medium;
-    margin-bottom: $spacing-6;
-    font-size: $font-base;
+    @include label-text();
 }
 
 .prompt-input {
@@ -95,36 +93,17 @@ app-image-detail-panel {
 }
 
 .create-button {
-    @include button-style($primary-color, $background-white, $primary-hover);
+    @include button-primary('base');
     flex: 1;
-    padding: $spacing-12 $spacing-20 !important;
-    font-size: $font-base !important;
     font-weight: $font-weight-medium !important;
 }
 
 .reset-button {
-    @include button-style($danger-color, $background-white, $danger-hover);
+    @include button-danger('base');
     flex: 0 0 auto;
-    padding: $spacing-12 $spacing-md !important;
-    font-size: $font-base !important;
     font-weight: $font-weight-medium !important;
 }
 
-.reset-button:hover:not(:disabled) {
-    background-color: $danger-hover !important;
-    transform: translateY(-1px);
-}
-
-.create-button:hover:not(:disabled) {
-    background-color: #0056b3 !important;
-    transform: translateY(-1px);
-}
-
-.create-button:disabled {
-    background-color: #6c757d !important;
-    cursor: not-allowed !important;
-    transform: none;
-}
 
 .create-button i,
 .reset-button i {
@@ -132,34 +111,21 @@ app-image-detail-panel {
 }
 
 .magic-icon-button {
-    background-color: white !important;
-    border: none;
-    color: black !important;
-    cursor: pointer;
-    font-size: $font-lg;
-    padding: $spacing-sm;
+    @include button-secondary('sm');
     border-radius: 50% !important;
-    transition: $transition-fast;
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 32px;
-    height: 32px;
+    width: $button-height-sm;
+    height: $button-height-sm;
     margin-top: $spacing-xs;
     flex-shrink: 0;
-}
+    font-size: $font-lg;
 
-.magic-icon-button:hover:not(:disabled) {
-    color: $text-primary !important;
-    background-color: $background-selected !important;
-    transform: scale(1.1);
-}
-
-.magic-icon-button:disabled {
-    color: $text-primary  !important;
-    background-color: $background-white  !important;
-    cursor: not-allowed;
-    transform: none;
+    &:hover:not(:disabled) {
+        background-color: $background-selected !important;
+        transform: scale(1.1);
+    }
 }
 
 /* ===== IMAGE RESULT STYLING ===== */
@@ -188,7 +154,9 @@ app-image-detail-panel {
 }
 
 .image-result-section h2 {
-    @include section-header($primary-color, $font-xl);
+    @include heading(2);
+    border-bottom: 2px solid $primary-color;
+    padding-bottom: $spacing-10;
 }
 
 .image-info-compact {
@@ -214,33 +182,20 @@ app-image-detail-panel {
 }
 
 .action-button {
-    padding: 8px 16px;
+    @include button-size('base');
     border: none;
     border-radius: $border-radius-lg;
     cursor: pointer;
-    font-size: $font-base;
     font-weight: $font-weight-medium;
     transition: $transition-standard;
 }
 
 .download-btn {
-    background-color: $success-color;
-    color: $background-white;
-}
-
-.download-btn:hover {
-    background-color: $success-hover;
-    transform: translateY(-1px);
+    @include button-success('base');
 }
 
 .preview-btn {
-    background-color: $text-muted;
-    color: $background-white;
-}
-
-.preview-btn:hover {
-    background-color: #5a6268;
-    transform: translateY(-1px);
+    @include button-secondary('base');
 }
 
 .image-display {
@@ -283,15 +238,14 @@ app-image-detail-panel {
 }
 
 .processing-content h3 {
-    margin: 0 0 10px 0;
-    color: $text-primary;
-    font-size: $font-xl;
+    @include heading(3);
+    margin-bottom: $spacing-10;
 }
 
 .processing-content p {
-    margin: 0;
+    @include body-text('base');
     color: $text-muted;
-    font-size: $font-base;
+    margin: 0;
 }
 
 /* ===== MODAL STYLING ===== */
@@ -326,18 +280,7 @@ app-image-detail-panel {
 }
 
 .close-button {
-    background: $text-muted;
-    color: $background-white;
-    border: none;
-    border-radius: $border-radius-sm;
-    padding: $spacing-6 $spacing-12;
-    cursor: pointer;
-    font-size: $font-base;
-    transition: $transition-fast;
-}
-
-.close-button:hover {
-    background: #5a6268;
+    @include button-secondary('sm');
 }
 
 .modal-body {
