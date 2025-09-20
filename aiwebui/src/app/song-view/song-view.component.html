@@ -3,9 +3,10 @@
 <div class="controls-container">
     <!-- Main controls -->
     <div class="controls-section">
-        <h3>View Controls</h3>
+        <h3>Song List Controls</h3>
         <div class="controls-buttons">
-            <button type="button" (click)="loadSongs(Math.floor(pagination.offset / pagination.limit))" [disabled]="isLoading">
+            <button type="button" (click)="loadSongs(Math.floor(pagination.offset / pagination.limit))"
+                    [disabled]="isLoading">
                 <i class="fas fa-refresh"></i> Refresh
             </button>
             <button type="button" (click)="clearSelection()" [disabled]="!selectedSong && !isSelectionMode">
@@ -54,7 +55,6 @@
                    (ngModelChange)="onSearchChange($event)"
                    [disabled]="isLoadingSongs"
                    #searchInput>
-            <small class="search-hint">Search & sort: server-wide, all results</small>
         </div>
 
         <div *ngIf="filteredSongs.length > 0" class="list-content">

@@ -495,7 +495,10 @@
     }
 
     .search-controls {
-        margin: 0 $spacing-15 $spacing-10 $spacing-15;
+        margin-bottom: 0;
+        margin-top: 0;
+        margin-left: $spacing-10;
+        margin-right: $spacing-10;
         padding: $spacing-10;
         background: $background-light;
         border-radius: $border-radius-lg;
@@ -526,9 +529,10 @@
         flex: 1;
         display: flex;
         flex-direction: column;
-        padding: $spacing-6 $spacing-15 $spacing-15 $spacing-15;
+        padding: 0 $spacing-15 $spacing-15 0;
         overflow-y: auto;
         min-height: 0;
+        margin-bottom: 0;
 
         .result-table {
             @include list-table-styling();

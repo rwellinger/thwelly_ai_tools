@@ -203,18 +203,20 @@
 }
 
 .title-col {
-    width: 45%;
-    max-width: 200px;
+    width: 55%;
+    max-width: 300px;
     word-break: break-word;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
 }
 
-.size-col {
-    width: 15%;
+th.size-col,
+td.size-col {
+    width: 18%;
     min-width: 80px;
-    text-align: center;
+    text-align: left !important;
+    vertical-align: middle;
     font-family: monospace;
     font-size: $font-sm;
 }

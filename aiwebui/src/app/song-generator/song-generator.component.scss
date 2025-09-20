@@ -5,6 +5,7 @@
 .master-detail-container {
     @include generator-layout();
     min-height: 500px;
+    padding-bottom: 0;
 }
 
 /* Style the app-song-detail-panel component itself */
