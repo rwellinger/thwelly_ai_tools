@@ -1,8 +1,58 @@
 @import '../../scss/variables';
 @import '../../scss/mixins';
 
-/* ===== SONG PROFILE SPECIFIC STYLES ===== */
-.controls {
+/* ===== CONTROLS CONTAINER LAYOUT ===== */
+.controls-container {
+    display: flex;
+    gap: $spacing-20;
+    margin-bottom: $spacing-20;
+    flex-wrap: wrap;
+}
+
+.controls-section {
+    @include card-container($border-light, $background-white, $spacing-15);
+    min-width: 280px;
+    flex: 1;
+}
+
+.controls-section h3 {
+    @include section-header($background-light, $font-lg);
+    margin: 0 0 $spacing-12 0;
+    padding-bottom: $spacing-sm;
+}
+
+.controls-buttons {
+    display: flex;
+    gap: $spacing-sm;
+    flex-wrap: wrap;
+}
+
+.controls-buttons button {
+    @include button-primary('base');
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1) !important;
+    font-weight: $font-weight-medium !important;
+}
+
+.refresh-button i {
+    margin-right: 8px;
+}
+
+/* ===== ACCOUNT CONTENT LAYOUT ===== */
+.account-content {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-20;
+}
+
+.account-info-section {
+    @include card-container($border-light, $background-white, $spacing-20);
+}
+
+/* ===== ACCOUNT RESULT STYLING ===== */
+.account-result-section h2 {
+    @include heading(2);
+    border-bottom: 2px solid $primary-color;
+    padding-bottom: $spacing-10;
     margin-bottom: $spacing-20;
 }
 
@@ -10,52 +60,73 @@
     margin-bottom: $spacing-xl;
 }
 
-.account-info h2 {
-    color: $text-primary;
-    margin-bottom: $spacing-15;
-    font-size: $font-2xl;
+.account-card {
+    @include card-container($border-light, $background-light, $spacing-15);
+    margin-bottom: $spacing-20;
 }
 
-/* ===== STATUS BADGES ===== */
-.status-badge {
+.no-account {
+    text-align: center;
+    padding: $spacing-xl;
+}
+
+.placeholder-content {
+    color: $text-muted;
+}
+
+.placeholder-icon {
+    font-size: $font-4xl;
+    margin-bottom: $spacing-20;
+    opacity: 0.3;
+}
+
+/* ===== STATUS TEXT ===== */
+.status-text {
     display: inline-flex;
     align-items: center;
     gap: $spacing-sm;
+    font-weight: $font-weight-medium;
 }
 
 .status-active {
-    @include status-badge(#d4edda, #155724, #c3e6cb);
+    color: $success-color;
 }
 
 .status-inactive {
-    @include status-badge(#f8d7da, #721c24, #f5c6cb);
+    color: $danger-color;
 }
 
 .status-pending {
-    @include status-badge(#fff3cd, #856404, #ffeaa7);
+    color: $warning-color;
 }
 
 .status-unknown {
-    @include status-badge(#e2e3e5, #383d41, #d6d8db);
+    color: $text-muted;
 }
 
-/* ===== AMOUNT STYLING ===== */
+/* ===== VALUE STYLING ===== */
+.account-value {
+    font-weight: $font-weight-medium;
+    color: $text-primary;
+    font-size: $font-base;
+}
+
 .balance-amount {
     font-weight: $font-weight-bold;
     color: $success-color;
-    font-size: $font-lg;
+    font-size: $font-base;
 }
 
 .spending-amount {
     font-weight: $font-weight-bold;
     color: $danger-color;
-    font-size: $font-lg;
+    font-size: $font-base;
 }
 
 .recharge-amount {
     font-weight: $font-weight-bold;
     color: $primary-color;
-    font-size: $font-lg;
+    font-size: $font-base;
 }
 
 /* ===== TABLE OVERRIDES ===== */
@@ -70,6 +141,78 @@
 
     td:last-child {
         width: 70%;
+    }
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 768px) {
+    .controls-container {
+        flex-direction: column;
+        gap: $spacing-15;
+    }
+
+    .controls-section {
+        min-width: unset;
+    }
+
+    .controls-buttons {
+        flex-direction: column;
+        gap: $spacing-xs;
+    }
+
+    .controls-buttons button {
+        width: 100%;
+    }
+
+    .account-info-section {
+        padding: $spacing-15;
+    }
+
+    .result-table {
+        display: block;
+        overflow-x: auto;
+        white-space: nowrap;
+
+        thead, tbody, th, td, tr {
+            display: block;
+        }
+
+        thead tr {
+            position: absolute;
+            top: -9999px;
+            left: -9999px;
+        }
+
+        tr {
+            border: 1px solid $border-light;
+            margin-bottom: 10px;
+            padding: 10px;
+            border-radius: $border-radius-sm;
+        }
+
+        td {
+            border: none !important;
+            position: relative;
+            padding-left: 50% !important;
+            white-space: normal;
+            text-align: left;
+            width: auto !important;
+        }
+
+        td:before {
+            content: attr(data-label) ": ";
+            position: absolute;
+            left: 6px;
+            width: 45%;
+            padding-right: 10px;
+            white-space: nowrap;
+            font-weight: $font-weight-bold;
+            color: $text-primary;
+        }
+    }
+
+    .account-card {
+        margin: 0 -5px;
     }
 }
 

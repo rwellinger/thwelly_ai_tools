@@ -3,7 +3,7 @@
 <div class="controls-container">
     <!-- Main controls -->
     <div class="controls-section">
-        <h3>View Controls</h3>
+        <h3>Picture Controls</h3>
         <div class="controls-buttons">
             <button type="button" (click)="loadImages(0)" [disabled]="isLoading">
                 <i class="fas fa-refresh"></i> Refresh
@@ -40,21 +40,30 @@
     <!-- Left Side: Picture List -->
     <div class="image-list-panel">
         <div class="list-header">
-            <h2>Available Images</h2>
+            <h2>Available Pictures</h2>
             <div class="pagination-info-badge" *ngIf="pagination.total > 0">
                 {{ pagination.total }} items
             </div>
         </div>
 
         <div class="search-controls">
-            <input type="text"
-                   placeholder="Search in titles and prompts..."
-                   class="search-input"
-                   [(ngModel)]="searchTerm"
-                   (ngModelChange)="onSearchChange($event)"
-                   [disabled]="isLoading"
-                   #searchInput>
-            <small class="search-hint">Search & sort: server-wide, all results</small>
+            <div class="search-input-container">
+                <input type="text"
+                       placeholder="Search in titles and prompts..."
+                       class="search-input"
+                       [(ngModel)]="searchTerm"
+                       (ngModelChange)="onSearchChange($event)"
+                       [disabled]="isLoading"
+                       #searchInput>
+                <button type="button"
+                        class="clear-search-button"
+                        *ngIf="searchTerm"
+                        (click)="clearSearch()"
+                        [disabled]="isLoading"
+                        title="Clear search">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
         </div>
 
         <div *ngIf="images.length > 0" class="list-content">
@@ -69,7 +78,7 @@
                                (change)="onSelectAllChange($event)">
                     </th>
                     <th class="title-col">Title</th>
-                    <th>Size</th>
+                    <th class="size-col">Size</th>
                     <th class="sortable-header" (click)="toggleSort()">
                         Created
                         <i class="fas" [class.fa-sort-down]="sortDirection === 'desc'"

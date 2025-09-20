@@ -3,9 +3,10 @@
 <div class="controls-container">
     <!-- Main controls -->
     <div class="controls-section">
-        <h3>View Controls</h3>
+        <h3>Song List Controls</h3>
         <div class="controls-buttons">
-            <button type="button" (click)="loadSongs(Math.floor(pagination.offset / pagination.limit))" [disabled]="isLoading">
+            <button type="button" (click)="loadSongs(Math.floor(pagination.offset / pagination.limit))"
+                    [disabled]="isLoading">
                 <i class="fas fa-refresh"></i> Refresh
             </button>
             <button type="button" (click)="clearSelection()" [disabled]="!selectedSong && !isSelectionMode">
@@ -47,14 +48,23 @@
         </div>
 
         <div class="search-controls">
-            <input type="text"
-                   placeholder="Search in titles, lyrics & tags..."
-                   class="search-input"
-                   [(ngModel)]="searchTerm"
-                   (ngModelChange)="onSearchChange($event)"
-                   [disabled]="isLoadingSongs"
-                   #searchInput>
-            <small class="search-hint">Search & sort: server-wide, all results</small>
+            <div class="search-input-container">
+                <input type="text"
+                       placeholder="Search in titles, lyrics & tags..."
+                       class="search-input"
+                       [(ngModel)]="searchTerm"
+                       (ngModelChange)="onSearchChange($event)"
+                       [disabled]="isLoadingSongs"
+                       #searchInput>
+                <button type="button"
+                        class="clear-search-button"
+                        *ngIf="searchTerm"
+                        (click)="clearSearch()"
+                        [disabled]="isLoadingSongs"
+                        title="Clear search">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
         </div>
 
         <div *ngIf="filteredSongs.length > 0" class="list-content">

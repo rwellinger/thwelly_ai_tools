@@ -3,15 +3,7 @@
 
 /* ===== MASTER DETAIL LAYOUT ===== */
 .master-detail-container {
-    @include master-detail-layout($spacing-20, 40%, calc(100vh - 320px));
-}
-
-.controls-panel {
-    @include card-container($border-light, $background-white, 0);
-    flex: 0 0 40%;
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
+    @include generator-layout();
 }
 
 /* Style the app-image-detail-panel component itself */
@@ -22,21 +14,7 @@ app-image-detail-panel {
 }
 
 .image-result-panel {
-    @include card-container($border-light, $background-white, 0);
-    flex: 1;
-    overflow-y: auto;
-}
-
-.controls-content {
-    padding: 20px;
-    height: 100%;
-    overflow-y: auto;
-}
-
-.controls-content h2 {
-    @include heading(2);
-    border-bottom: 2px solid $primary-color;
-    padding-bottom: $spacing-10;
+    @extend .result-panel;
 }
 
 /* ===== FORM STYLING ===== */
@@ -99,7 +77,7 @@ app-image-detail-panel {
 }
 
 .reset-button {
-    @include button-danger('base');
+    @include button-secondary('base');
     flex: 0 0 auto;
     font-weight: $font-weight-medium !important;
 }
@@ -218,57 +196,15 @@ app-image-detail-panel {
 }
 
 /* ===== PROCESSING POPUP ===== */
-.processing-overlay {
-    @include modal-overlay(0.7, 2000);
-}
-
-.processing-content {
-    background: white;
-    padding: 40px;
-    border-radius: 12px;
-    text-align: center;
-    box-shadow: 0 8px 24px rgba(0,0,0,0.3);
-    max-width: 300px;
-}
-
-.processing-spinner i {
-    font-size: $font-3xl;
-    color: $primary-color;
-    margin-bottom: $spacing-20;
-}
-
-.processing-content h3 {
-    @include heading(3);
-    margin-bottom: $spacing-10;
-}
-
-.processing-content p {
-    @include body-text('base');
-    color: $text-muted;
-    margin: 0;
-}
+@include processing-popup();
 
 /* ===== MODAL STYLING ===== */
 .modal-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0, 0, 0, 0.8);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 1500;
+    @include modal-overlay(0.8, 1500);
 }
 
 .modal-content {
-    background: white;
-    border-radius: 8px;
-    max-width: 90vw;
-    max-height: 90vh;
-    overflow: hidden;
-    box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+    @include modal-content();
 }
 
 .modal-header {

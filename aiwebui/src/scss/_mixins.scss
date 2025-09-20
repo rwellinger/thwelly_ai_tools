@@ -86,7 +86,7 @@
     box-shadow: 0 0 0 3px rgba($border-color, 0.1);
 }
 
-// 4. Master-Detail Layout
+// 4. Master-Detail Layout - Standardized for all view components
 @mixin master-detail-layout($gap: 20px, $master-width: 40%, $min-height: calc(100vh - 320px)) {
     display: flex;
     gap: $gap;
@@ -108,6 +108,87 @@
         .detail-panel {
             flex: none;
         }
+    }
+}
+
+// 4a. Generator Layout - Standardized for image-generator & song-generator
+@mixin generator-layout() {
+    @include master-detail-layout($spacing-20, 40%, calc(100vh - 320px));
+
+    .controls-panel {
+        @include card-container($border-light, $background-white, 0);
+        flex: 0 0 40%;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+    }
+
+    .result-panel {
+        @include card-container($border-light, $background-white, 0);
+        flex: 1;
+        overflow-y: auto;
+    }
+
+    .controls-content {
+        padding: 20px;
+        height: 100%;
+        overflow-y: auto;
+    }
+
+    .controls-content h2 {
+        @include heading(2);
+        border-bottom: 2px solid $primary-color;
+        padding-bottom: $spacing-10;
+    }
+}
+
+// 4b. Detail Panel Layout - Standardized for image-detail-panel & song-detail-panel
+@mixin detail-panel-layout() {
+    @include card-container($border-light, $background-white, 0);
+    flex: 1;
+    overflow-y: hidden;
+    display: flex;
+    flex-direction: column;
+    max-height: calc(100vh - 260px);
+
+    .details-section {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        padding: $spacing-15;
+        overflow-y: auto;
+        min-height: 0;
+    }
+
+    .details-section h2 {
+        @include section-header($primary-color, $font-xl);
+    }
+
+    .info-compact {
+        display: flex;
+        flex-direction: column;
+        gap: $spacing-10;
+        margin-bottom: $spacing-20;
+        flex: 1;
+        min-height: 0;
+    }
+
+    .no-selection {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .placeholder-content {
+        text-align: center;
+        color: $text-muted;
+    }
+
+    .placeholder-icon {
+        font-size: $font-4xl;
+        margin-bottom: $spacing-20;
+        opacity: 0.3;
     }
 }
 
@@ -205,47 +286,11 @@
     }
 }
 
-// 5a. Legacy Table Styling (for backward compatibility)
-@mixin table-styling($header-bg: $background-light, $header-color: $text-primary) {
-    width: 100%;
-    border-collapse: collapse;
-    background: $background-white;
-    border-radius: $border-radius-xl;
-    overflow: hidden;
-    box-shadow: $shadow-md;
+// 5a. Legacy Table Styling - DEPRECATED: Use list-table-styling instead
+// Kept for backward compatibility only - will be removed in future versions
 
-    th {
-        background-color: $header-bg;
-        color: $header-color;
-        font-weight: $font-weight-semibold;
-        font-size: $table-header-font-size;
-        padding: 10px;
-        text-align: left;
-        border-bottom: 2px solid $border-darker;
-    }
-
-    td {
-        padding: 10px;
-        border-bottom: 1px solid $border-light;
-        font-size: $table-font-size;
-    }
-
-    tbody tr:nth-child(even) {
-        background-color: #f9f9f9;
-    }
-
-    tbody tr:hover {
-        background-color: #f5f5f5;
-    }
-
-    tr.selected {
-        background-color: $background-selected !important;
-        border-left: 4px solid $info-color;
-    }
-}
-
-// 6. Modal/Overlay
-@mixin modal-overlay($bg-opacity: 0.7, $z-index: 1500) {
+// 6. Modal/Overlay - Standardized modal overlay for all components
+@mixin modal-overlay($bg-opacity: 0.7, $z-index: 1500, $blur: false) {
     position: fixed;
     top: 0;
     left: 0;
@@ -256,6 +301,50 @@
     justify-content: center;
     align-items: center;
     z-index: $z-index;
+
+    @if $blur {
+        backdrop-filter: blur(2px);
+    }
+}
+
+// 6a. Standard Modal Content
+@mixin modal-content($max-width: 90vw, $max-height: 90vh, $border-radius: $border-radius-xl) {
+    background: $background-white;
+    border-radius: $border-radius;
+    max-width: $max-width;
+    max-height: $max-height;
+    overflow: hidden;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+}
+
+// 6b. Processing Popup - Standardized for all generators
+@mixin processing-popup($max-width: 300px) {
+    .processing-overlay {
+        @include modal-overlay(0.7, 2000);
+    }
+
+    .processing-content {
+        @include modal-content($max-width, auto, 12px);
+        padding: 40px;
+        text-align: center;
+    }
+
+    .processing-spinner i {
+        font-size: $font-3xl;
+        color: $primary-color;
+        margin-bottom: $spacing-20;
+    }
+
+    .processing-content h3 {
+        @include heading(3);
+        margin-bottom: $spacing-10;
+    }
+
+    .processing-content p {
+        @include body-text('base');
+        color: $text-muted;
+        margin: 0;
+    }
 }
 
 // 7. Section Header
@@ -406,7 +495,10 @@
     }
 
     .search-controls {
-        margin: 0 $spacing-15 $spacing-10 $spacing-15;
+        margin-bottom: 0;
+        margin-top: 0;
+        margin-left: $spacing-10;
+        margin-right: $spacing-10;
         padding: $spacing-10;
         background: $background-light;
         border-radius: $border-radius-lg;
@@ -437,9 +529,10 @@
         flex: 1;
         display: flex;
         flex-direction: column;
-        padding: $spacing-6 $spacing-15 $spacing-15 $spacing-15;
+        padding: 0 $spacing-15 $spacing-15 0;
         overflow-y: auto;
         min-height: 0;
+        margin-bottom: 0;
 
         .result-table {
             @include list-table-styling();

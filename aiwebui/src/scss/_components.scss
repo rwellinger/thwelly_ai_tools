@@ -1,21 +1,21 @@
 // ===== COMPONENT-SPECIFIC SCSS PARTIALS =====
 
-// Loading States
+// Loading States - Standardized
 .loading,
 .loading-message,
 #loading {
     @include loading-state();
-    margin-top: 10px;
+    margin-top: $spacing-10;
     font-size: $font-lg;
 }
 
-// Info Boxes
+// Info Boxes - Standardized
 .info-box {
     @include card-container($border-light, $background-light);
-    margin-bottom: 20px;
+    margin-bottom: $spacing-20;
 
     p {
-        margin: 5px 0;
+        margin: $spacing-xs 0;
     }
 }
 
@@ -67,13 +67,13 @@
     border: 1px solid $border-light;
 }
 
-// Pagination
+// Pagination - Standardized
 .pagination-controls {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin: 20px 0;
-    padding: 15px;
+    margin: $spacing-20 0;
+    padding: $spacing-15;
     background: $background-white;
     border-radius: $border-radius-lg;
     border: 1px solid $border-light;
@@ -99,19 +99,19 @@
     }
 }
 
-// Controls Section
+// Controls Section - Standardized
 .controls {
-    margin: 20px 0;
+    margin: $spacing-20 0;
     display: flex;
-    gap: 15px;
+    gap: $spacing-15;
     align-items: center;
 }
 
-// Audio & Media Components
+// Audio & Media Components - Standardized
 .audio-wrapper {
     display: flex;
-    margin: 30px 0;
-    padding: 20px;
+    margin: $spacing-xl 0;
+    padding: $spacing-20;
     justify-content: center;
     align-items: center;
     background-color: $background-light;
@@ -120,7 +120,7 @@
     text-align: center;
 
     h3 {
-        margin: 0 0 15px 0;
+        margin: 0 0 $spacing-15 0;
         color: $primary-color;
     }
 
@@ -132,8 +132,8 @@
 
 .stem-download {
     display: flex;
-    margin: 30px 0;
-    padding: 20px;
+    margin: $spacing-xl 0;
+    padding: $spacing-20;
     justify-content: center;
     align-items: center;
     background-color: #d4edda;

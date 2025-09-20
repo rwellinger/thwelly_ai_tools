@@ -15,7 +15,7 @@ body {
     font-family: $font-family-base;
     font-size: $font-sm;
     line-height: $line-height-normal;
-    margin: 20px auto;
+    margin: $spacing-20 auto;
     max-width: 1600px;
     width: 95%;
     background: $background-body;
@@ -45,19 +45,19 @@ p {
 nav {
     display: flex;
     justify-content: center;
-    gap: 1.5rem;
+    gap: $spacing-lg;
 }
 
 nav a {
     color: $background-white;
     text-decoration: none;
-    padding: .5rem 1rem;
-    border-radius: 4px;
-}
+    padding: $spacing-sm $spacing-md;
+    border-radius: $border-radius-sm;
 
-nav a:hover {
-    background: rgba(255, 255, 255, .1);
-    text-decoration: underline;
+    &:hover {
+        background: rgba(255, 255, 255, .1);
+        text-decoration: underline;
+    }
 }
 
 /* ===== FORM ELEMENTS ===== */
@@ -66,9 +66,9 @@ input, textarea, select {
     font-size: $input-font-size;
     line-height: $line-height-normal;
     border: 1px solid $border-light;
-    border-radius: 4px;
-    padding: 8px 12px;
-    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    border-radius: $border-radius-sm;
+    padding: $spacing-sm $spacing-12;
+    transition: $transition-standard;
 }
 
 input:focus, textarea:focus, select:focus {
@@ -78,8 +78,8 @@ input:focus, textarea:focus, select:focus {
 textarea {
     width: 95%;
     height: 150px;
-    padding: 10px;
-    margin: 10px 0;
+    padding: $spacing-10;
+    margin: $spacing-10 0;
     resize: vertical;
 }
 
@@ -88,14 +88,14 @@ button {
     font-size: $button-font-size;
     cursor: pointer;
     border: none;
-    border-radius: 4px;
-    padding: 8px 16px;
-    transition: all 0.2s ease;
-}
+    border-radius: $border-radius-sm;
+    padding: $spacing-sm $spacing-md;
+    transition: $transition-standard;
 
-button:disabled {
-    cursor: not-allowed;
-    opacity: 0.6;
+    &:disabled {
+        cursor: not-allowed;
+        opacity: 0.6;
+    }
 }
 
 /* ===== UTILITY CLASSES ===== */
@@ -127,75 +127,56 @@ button:disabled {
 
 label {
     font-size: $font-sm;
-    margin-right: 10px;
+    margin-right: $spacing-10;
 }
 
 select {
-    margin-left: 10px;
+    margin-left: $spacing-10;
     width: min-content;
     font-size: $input-font-size;
-    padding: 8px;
+    padding: $spacing-sm;
     border: 1px solid $border-standard;
-    border-radius: 4px;
-    margin-right: 10px;
+    border-radius: $border-radius-sm;
+    margin-right: $spacing-10;
 }
 
 /* ===== RESULT SECTIONS ===== */
 #result {
-    margin-top: 20px;
+    margin-top: $spacing-20;
 }
 
 /* ===== TABLES ===== */
 .result-table {
-    @include table-styling();
-    margin-top: 20px;
-}
+    @include list-table-styling();
+    margin-top: $spacing-20;
 
-.result-table a {
-    color: $primary-color;
-    text-decoration: none;
-}
+    a {
+        color: $primary-color;
+        text-decoration: none;
 
-.result-table a:hover {
-    text-decoration: underline;
+        &:hover {
+            text-decoration: underline;
+        }
+    }
 }
 
 /* ===== BUTTONS ===== */
-button {
-    margin-top: 20px;
-    padding: 10px 15px;
-    font-size: $button-font-size;
-    cursor: pointer;
-    margin-right: 20px;
-    border: none;
-    border-radius: 4px;
-    transition: background-color 0.2s;
-}
-
-button:hover:not(:disabled) {
-    background: #555;
-}
-
 .result-table button,
 .controls button {
-    @include button-style($primary-color);
+    @include button-primary('base');
     margin: 0;
-}
 
-.result-table button.active {
-    @include button-style($success-color);
+    &.active {
+        @include button-success('base');
+    }
 }
 
 form button[type="submit"] {
-    @include button-style($success-color);
-    padding: 10px 20px;
-    font-size: $button-large-font-size;
+    @include button-success('lg');
 }
 
 form button[type="button"] {
-    @include button-style($danger-alt, $background-white, maroon);
-    padding: 10px 20px;
-    font-size: $button-large-font-size;
+    @include button-danger('lg');
 }
 
 // Controls, Pagination, Downloads werden durch _components.scss abgedeckt
@@ -213,13 +194,13 @@ form button[type="button"] {
 }
 
 .error-snackbar {
-    background-color: $danger-alt !important;
+    background-color: $danger-color !important;
     color: white !important;
 }
 
 .error-snackbar .mat-mdc-snack-bar-container,
 .error-snackbar .mdc-snackbar__surface {
-    background-color: $danger-alt !important;
+    background-color: $danger-color !important;
     color: white !important;
 }
 

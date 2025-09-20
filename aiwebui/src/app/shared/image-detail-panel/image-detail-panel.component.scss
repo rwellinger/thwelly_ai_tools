@@ -3,52 +3,7 @@
 
 /* ===== IMAGE DETAILS PANEL ===== */
 .image-details-panel {
-    @include card-container($border-light, $background-white, 0);
-    flex: 1;
-    overflow-y: hidden;
-    display: flex;
-    flex-direction: column;
-    max-height: calc(100vh - 260px);
-}
-
-.image-details-section {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    padding: $spacing-15;
-    overflow-y: auto;
-    min-height: 0;
-}
-
-.image-details-section h2 {
-    @include section-header($primary-color, $font-xl);
-}
-
-.image-info-compact {
-    display: flex;
-    flex-direction: column;
-    gap: $spacing-10;
-    margin-bottom: $spacing-20;
-    flex: 1;
-    min-height: 0;
-}
-
-.no-selection {
-    flex: 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.placeholder-content {
-    text-align: center;
-    color: $text-muted;
-}
-
-.placeholder-icon {
-    font-size: $font-4xl;
-    margin-bottom: $spacing-20;
-    opacity: 0.3;
+    @include detail-panel-layout();
 }
 
 .image-meta-info {
