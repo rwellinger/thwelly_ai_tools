@@ -3,16 +3,8 @@
 
 /* ===== MASTER DETAIL LAYOUT ===== */
 .master-detail-container {
-    @include master-detail-layout($spacing-20, 40%, calc(100vh - 320px));
+    @include generator-layout();
     min-height: 500px;
-}
-
-.controls-panel {
-    @include card-container($border-light, $background-white, 0);
-    flex: 0 0 40%;
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
 }
 
 /* Style the app-song-detail-panel component itself */
@@ -23,21 +15,7 @@ app-song-detail-panel {
 }
 
 .song-result-panel {
-    @include card-container($border-light, $background-white, 0);
-    flex: 1;
-    overflow-y: auto;
-}
-
-.controls-content {
-    padding: 20px;
-    height: 100%;
-    overflow-y: auto;
-}
-
-.controls-content h2 {
-    @include heading(2);
-    border-bottom: 2px solid $primary-color;
-    padding-bottom: $spacing-10;
+    @extend .result-panel;
 }
 
 /* ===== FORM STYLING ===== */
@@ -71,7 +49,7 @@ app-song-detail-panel {
 
 .prompt-input {
     flex: 1;
-    min-height: 100px;
+    min-height: 120px;
     padding: $spacing-12;
     border: 1px solid $border-light;
     border-radius: $border-radius-lg;
@@ -284,35 +262,7 @@ app-song-detail-panel {
 }
 
 /* ===== PROCESSING POPUP ===== */
-.processing-overlay {
-    @include modal-overlay(0.7, 2000);
-}
-
-.processing-content {
-    background: white;
-    padding: 40px;
-    border-radius: 12px;
-    text-align: center;
-    box-shadow: 0 8px 24px rgba(0,0,0,0.3);
-    max-width: 300px;
-}
-
-.processing-spinner i {
-    font-size: $font-3xl;
-    color: #007bff;
-    margin-bottom: 20px;
-}
-
-.processing-content h3 {
-    @include heading(3);
-    margin-bottom: $spacing-10;
-}
-
-.processing-content p {
-    @include body-text('base');
-    color: $text-muted;
-    margin: 0;
-}
+@include processing-popup();
 
 /* ===== RESPONSIVE ===== */
 @media (max-width: 1024px) {

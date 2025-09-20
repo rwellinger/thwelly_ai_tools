@@ -12,15 +12,15 @@
 }
 
 .controls-section {
-    @include card-container($border-light, $background-white, $spacing-10);
+    @include card-container($border-light, $background-white, $spacing-15);
     min-width: 280px;
     flex: 1;
 }
 
 .controls-section h3 {
     @include section-header($background-light, $font-lg);
-    margin: 0 0 $spacing-sm 0;
-    padding-bottom: $spacing-xs;
+    margin: 0 0 $spacing-12 0;
+    padding-bottom: $spacing-sm;
 }
 
 .selection-section {
@@ -40,25 +40,25 @@
 }
 
 .controls-buttons button {
-    @include button-style($primary-color, $background-white, $primary-hover);
-    padding: $spacing-sm $spacing-md !important;
-    font-size: $font-sm !important;
-    box-shadow: $shadow-sm !important;
+    @include button-primary('base');
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1) !important;
 }
 
 
 .controls-buttons button.active {
-    background-color: $success-color !important;
+    @include button-success('base');
     box-shadow: 0 2px 6px rgba(40,167,69,0.3) !important;
-}
-
-.controls-buttons button.active:hover {
-    background-color: $success-hover !important;
 }
 
 
 .selection-section .delete-btn {
-    @include button-danger('base');
+    background-color: $danger-color !important;
+    color: $background-white !important;
+}
+
+.selection-section .delete-btn:hover:not(:disabled) {
+    background-color: $danger-hover !important;
+    box-shadow: 0 2px 6px rgba(220,53,69,0.3) !important;
 }
 
 /* Responsive controls */
@@ -309,9 +309,8 @@ app-song-detail-panel {
 }
 
 .loading-content {
-    background: white;
+    @include modal-content(300px, auto, $border-radius-lg);
     padding: 30px;
-    border-radius: $spacing-sm;
     text-align: center;
     color: $text-primary;
 }
@@ -386,18 +385,14 @@ app-song-detail-panel {
 
 /* ===== LYRICS DIALOG ===== */
 .lyrics-dialog-overlay {
-    @include modal-overlay(0.5, 1000);
+    @include modal-overlay(0.5, 1000, true);
 }
 
 .lyrics-dialog {
-    background: white;
-    border-radius: $spacing-sm;
+    @include modal-content(600px, 80vh, 12px);
     width: 90%;
-    max-width: 600px;
-    max-height: 80vh;
     display: flex;
     flex-direction: column;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
 }
 
 .lyrics-dialog-header {
