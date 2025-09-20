@@ -57,7 +57,7 @@ export class ImageViewComponent implements OnInit, AfterViewInit, OnDestroy {
     pageSize = 15;
     pagination: PaginationInfo = {
         has_more: false,
-        limit: 15,
+        limit: this.pageSize,
         offset: 0,
         total: 0
     };
