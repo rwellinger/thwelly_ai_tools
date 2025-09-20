@@ -48,13 +48,23 @@
         </div>
 
         <div class="search-controls">
-            <input type="text"
-                   placeholder="Search in titles, lyrics & tags..."
-                   class="search-input"
-                   [(ngModel)]="searchTerm"
-                   (ngModelChange)="onSearchChange($event)"
-                   [disabled]="isLoadingSongs"
-                   #searchInput>
+            <div class="search-input-container">
+                <input type="text"
+                       placeholder="Search in titles, lyrics & tags..."
+                       class="search-input"
+                       [(ngModel)]="searchTerm"
+                       (ngModelChange)="onSearchChange($event)"
+                       [disabled]="isLoadingSongs"
+                       #searchInput>
+                <button type="button"
+                        class="clear-search-button"
+                        *ngIf="searchTerm"
+                        (click)="clearSearch()"
+                        [disabled]="isLoadingSongs"
+                        title="Clear search">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
         </div>
 
         <div *ngIf="filteredSongs.length > 0" class="list-content">

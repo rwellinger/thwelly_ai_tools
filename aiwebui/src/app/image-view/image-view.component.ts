@@ -346,6 +346,11 @@ export class ImageViewComponent implements OnInit, AfterViewInit, OnDestroy {
         this.searchSubject.next(searchTerm);
     }
 
+    clearSearch() {
+        this.searchTerm = '';
+        this.searchSubject.next('');
+    }
+
     toggleSort() {
         this.sortDirection = this.sortDirection === 'desc' ? 'asc' : 'desc';
         this.loadImages(0); // Reset to first page and reload with new sort

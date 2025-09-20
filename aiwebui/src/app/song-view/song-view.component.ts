@@ -350,6 +350,11 @@ export class SongViewComponent implements OnInit, OnDestroy {
     this.searchSubject.next(searchTerm);
   }
 
+  clearSearch() {
+    this.searchTerm = '';
+    this.searchSubject.next('');
+  }
+
   toggleSort() {
     this.sortDirection = this.sortDirection === 'desc' ? 'asc' : 'desc';
     this.loadSongs(0); // Reset to first page and reload with new sort
