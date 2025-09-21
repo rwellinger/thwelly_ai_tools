@@ -295,7 +295,7 @@ class SongService:
             return None
     
     def get_songs_paginated(self, limit: int = 20, offset: int = 0, status: str = None, search: str = '',
-                           sort_by: str = 'created_at', sort_direction: str = 'desc') -> List[Song]:
+                           sort_by: str = 'created_at', sort_direction: str = 'desc', workflow: str = None) -> List[Song]:
         """
         Get songs with pagination, search and sorting
 
@@ -306,6 +306,7 @@ class SongService:
             search: Search term to filter by title, lyrics, or tags
             sort_by: Field to sort by (created_at, title, lyrics)
             sort_direction: Sort direction (asc, desc)
+            workflow: Optional workflow filter (onWork, inUse, notUsed)
 
         Returns:
             List of Song instances with loaded choices
@@ -319,6 +320,10 @@ class SongService:
                 # Apply status filter if provided
                 if status:
                     query = query.filter(Song.status == status)
+
+                # Apply workflow filter if provided
+                if workflow:
+                    query = query.filter(Song.workflow == workflow)
 
                 # Apply search filter if provided
                 if search:
@@ -351,7 +356,7 @@ class SongService:
                         query = query.order_by(Song.created_at.asc())
 
                 songs = query.limit(limit).offset(offset).all()
-                print(f"Retrieved {len(songs)} songs with pagination (limit={limit}, offset={offset}, status={status}, search='{search}', sort={sort_by}:{sort_direction})", file=sys.stderr)
+                print(f"Retrieved {len(songs)} songs with pagination (limit={limit}, offset={offset}, status={status}, search='{search}', workflow={workflow}, sort={sort_by}:{sort_direction})", file=sys.stderr)
                 return songs
             finally:
                 db.close()
@@ -360,13 +365,14 @@ class SongService:
             print(f"Stacktrace: {traceback.format_exc()}", file=sys.stderr)
             return []
     
-    def get_total_songs_count(self, status: str = None, search: str = '') -> int:
+    def get_total_songs_count(self, status: str = None, search: str = '', workflow: str = None) -> int:
         """
-        Get total count of songs with optional search filter
+        Get total count of songs with optional search and workflow filter
 
         Args:
             status: Optional status filter
             search: Search term to filter by title, lyrics, or tags
+            workflow: Optional workflow filter (onWork, inUse, notUsed)
 
         Returns:
             Total number of songs matching the criteria
@@ -378,6 +384,10 @@ class SongService:
 
                 if status:
                     query = query.filter(Song.status == status)
+
+                # Apply workflow filter if provided
+                if workflow:
+                    query = query.filter(Song.workflow == workflow)
 
                 # Apply search filter if provided
                 if search:
@@ -392,7 +402,7 @@ class SongService:
                     )
 
                 count = query.count()
-                print(f"Total songs count: {count} (status={status}, search='{search}')", file=sys.stderr)
+                print(f"Total songs count: {count} (status={status}, search='{search}', workflow={workflow})", file=sys.stderr)
                 return count
             finally:
                 db.close()
@@ -508,6 +518,8 @@ class SongService:
                     song.title = update_data['title']
                 if 'tags' in update_data:
                     song.tags = update_data['tags']
+                if 'workflow' in update_data:
+                    song.workflow = update_data['workflow']
 
                 # Update timestamp
                 song.updated_at = datetime.utcnow()
@@ -519,6 +531,7 @@ class SongService:
                     'id': song.id,
                     'title': song.title,
                     'tags': song.tags,
+                    'workflow': song.workflow,
                     'updated_at': song.updated_at
                 }
 
@@ -530,6 +543,7 @@ class SongService:
                         self.id = data['id']
                         self.title = data['title']
                         self.tags = data['tags']
+                        self.workflow = data['workflow']
                         self.updated_at = data['updated_at']
 
                 return UpdatedSong(updated_song_data)

@@ -13,6 +13,7 @@ export class SongDetailPanelComponent {
     @Input() song: any = null;
     @Input() showEditTitle: boolean = true;
     @Input() showEditTags: boolean = true;
+    @Input() showEditWorkflow: boolean = true;
     @Input() title: string = 'Song Details';
     @Input() showMetaInfo: string[] = ['job_id', 'model', 'status', 'created', 'completed'];
     @Input() placeholderText: string = 'Select a song from the list to view details';
@@ -21,6 +22,7 @@ export class SongDetailPanelComponent {
 
     @Output() titleChanged = new EventEmitter<string>();
     @Output() tagsChanged = new EventEmitter<string[]>();
+    @Output() workflowChanged = new EventEmitter<string>();
     @Output() downloadFlac = new EventEmitter<string>();
     @Output() playAudio = new EventEmitter<{ url: string, id: string, choiceNumber: number }>();
     @Output() generateStem = new EventEmitter<string>();
@@ -36,6 +38,8 @@ export class SongDetailPanelComponent {
     editTitleValue = '';
     editingTags = false;
     selectedTags: string[] = [];
+    editingWorkflow = false;
+    selectedWorkflow = '';
     showLyricsDialog = false;
 
     // Tag categories from song-view
@@ -43,6 +47,14 @@ export class SongDetailPanelComponent {
         style: ['pop', 'rock', 'alternative', 'jazz', 'classical', 'electronic', 'hip-hop', 'country', 'folk', 'blues', 'reggae'],
         theme: ['love', 'friendship', 'adventure', 'nostalgia', 'hope', 'struggle', 'celebration', 'mystery', 'nature', 'dreams']
     };
+
+    // Workflow options
+    workflowOptions = [
+        { value: '', label: 'No Workflow' },
+        { value: 'inUse', label: 'In Use' },
+        { value: 'onWork', label: 'On Work' },
+        { value: 'notUsed', label: 'Not Used' }
+    ];
 
     // Title editing methods
     startEditTitle() {
@@ -98,6 +110,29 @@ export class SongDetailPanelComponent {
     getSelectedTagsDisplay(): string {
         if (!this.song?.tags) return 'No tags';
         return this.song.tags;
+    }
+
+    // Workflow editing methods
+    startEditWorkflow() {
+        if (!this.showEditWorkflow || !this.song) return;
+        this.editingWorkflow = true;
+        this.selectedWorkflow = this.song.workflow || '';
+    }
+
+    saveWorkflow() {
+        this.workflowChanged.emit(this.selectedWorkflow);
+        this.editingWorkflow = false;
+    }
+
+    cancelEditWorkflow() {
+        this.editingWorkflow = false;
+        this.selectedWorkflow = '';
+    }
+
+    getWorkflowDisplay(): string {
+        if (!this.song?.workflow) return 'No Workflow';
+        const option = this.workflowOptions.find(opt => opt.value === this.song.workflow);
+        return option?.label || this.song.workflow;
     }
 
     // Audio methods

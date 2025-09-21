@@ -118,6 +118,39 @@
                 </div>
             </div>
 
+            <!-- Workflow Section -->
+            <div class="song-workflow-section" *ngIf="showEditWorkflow">
+                <div class="workflow-row" *ngIf="!editingWorkflow">
+                    <h3 class="workflow-title">Workflow:</h3>
+                    <span class="workflow-display">{{ getWorkflowDisplay() }}</span>
+                    <button type="button" class="edit-btn" (click)="startEditWorkflow()">
+                        <i class="fas fa-edit"></i>
+                    </button>
+                </div>
+                <div class="workflow-edit-section" *ngIf="editingWorkflow">
+                    <div class="workflow-edit-header">
+                        <h3 class="workflow-title">Edit Workflow:</h3>
+                        <div class="workflow-edit-buttons">
+                            <button type="button" class="save-btn" (click)="saveWorkflow()">
+                                <i class="fas fa-check"></i>
+                            </button>
+                            <button type="button" class="cancel-btn" (click)="cancelEditWorkflow()">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="workflow-options">
+                        <label *ngFor="let option of workflowOptions" class="workflow-option">
+                            <input type="radio"
+                                   name="workflow"
+                                   [value]="option.value"
+                                   [(ngModel)]="selectedWorkflow">
+                            <span class="option-label">{{ option.label }}</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
             <!-- Choices Table -->
             <div class="song-choices" *ngIf="song.choices && song.choices.length > 0">
                 <h3>Song Choices:</h3>

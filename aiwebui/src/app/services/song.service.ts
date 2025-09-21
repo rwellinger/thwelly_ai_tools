@@ -120,7 +120,7 @@ export class SongService {
   }
 
   async getSongs(limit: number = 20, offset: number = 0, status?: string, search: string = '',
-                sort_by: string = 'created_at', sort_direction: string = 'desc'): Promise<SongsResponse> {
+                sort_by: string = 'created_at', sort_direction: string = 'desc', workflow?: string): Promise<SongsResponse> {
     // Build URL with parameters
     const url = new URL(this.apiConfig.endpoints.song.list(limit, offset, status).split('?')[0], window.location.origin);
     url.searchParams.set('limit', limit.toString());
@@ -133,6 +133,9 @@ export class SongService {
     }
     if (search.trim()) {
       url.searchParams.set('search', search.trim());
+    }
+    if (workflow) {
+      url.searchParams.set('workflow', workflow);
     }
 
     const response = await this.fetchWithTimeout(

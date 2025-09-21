@@ -110,6 +110,90 @@
     border-left: 4px solid $success-color;
 }
 
+/* ===== WORKFLOW SECTION ===== */
+.song-workflow-section {
+    background-color: $background-light;
+    padding: $spacing-12;
+    border-radius: $border-radius-lg;
+    border-left: 4px solid $primary-color;
+}
+
+.workflow-row {
+    display: flex;
+    align-items: center;
+    gap: $spacing-10;
+    flex-wrap: wrap;
+}
+
+.workflow-title {
+    margin: 0;
+    color: $text-primary;
+    font-size: $font-base;
+    font-weight: $font-weight-semibold;
+    min-width: 70px;
+}
+
+.workflow-display {
+    color: $text-secondary;
+    font-size: $font-sm;
+    padding: $spacing-6 $spacing-10;
+    background-color: $background-white;
+    border-radius: $border-radius-sm;
+    border: 1px solid $border-light;
+    flex: 1;
+    max-width: 200px;
+}
+
+.workflow-edit-section {
+    margin-top: $spacing-10;
+}
+
+.workflow-edit-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: $spacing-12;
+}
+
+.workflow-edit-buttons {
+    display: flex;
+    gap: $spacing-6;
+}
+
+.workflow-options {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-sm;
+}
+
+.workflow-option {
+    display: flex;
+    align-items: center;
+    gap: $spacing-sm;
+    cursor: pointer;
+    padding: $spacing-6 $spacing-10;
+    border-radius: $border-radius-sm;
+    transition: all 0.2s ease;
+
+    &:hover {
+        background-color: rgba($primary-color, 0.1);
+    }
+
+    input[type="radio"] {
+        margin: 0;
+        width: 16px;
+        height: 16px;
+        cursor: pointer;
+    }
+
+    .option-label {
+        font-size: $font-sm;
+        color: $text-primary;
+        user-select: none;
+        flex: 1;
+    }
+}
+
 .tags-row {
     display: flex;
     align-items: center;
