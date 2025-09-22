@@ -2,7 +2,7 @@
 Song Generation Routes mit MUREKA
 """
 from flask import Blueprint, request, jsonify
-from api.song_controller import SongController
+from api.controllers.song_controller import SongController
 
 api_song_v1 = Blueprint("api_song_v1", __name__, url_prefix="/api/v1/song")
 

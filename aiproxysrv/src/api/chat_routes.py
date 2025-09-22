@@ -4,7 +4,7 @@ Chat Generation Routes - Ollama Integration
 import sys
 import traceback
 from flask import Blueprint, request, jsonify
-from api.chat_controller import ChatController
+from api.controllers.chat_controller import ChatController
 
 api_chat_v1 = Blueprint("api_chat_v1", __name__, url_prefix="/api/v1/ollama/chat")
 

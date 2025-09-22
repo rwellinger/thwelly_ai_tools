@@ -5,7 +5,7 @@ import sys
 import traceback
 from flask import Blueprint, request, jsonify, send_from_directory
 from config.settings import IMAGES_DIR
-from api.image_controller import ImageController
+from api.controllers.image_controller import ImageController
 
 api_image_v1 = Blueprint("api_image_v1", __name__, url_prefix="/api/v1/image")
 
