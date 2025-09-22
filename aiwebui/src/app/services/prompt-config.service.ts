@@ -1,4 +1,7 @@
 import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Observable, of, catchError, map } from 'rxjs';
+import { environment } from '../../environments/environment';
 
 export interface PromptTemplate {
   pre_condition: string;
@@ -12,11 +15,32 @@ export type PromptCategory = Record<string, PromptTemplate>;
 
 export type PromptTemplates = Record<string, PromptCategory>;
 
+interface PromptTemplateResponse extends PromptTemplate {
+  id: number;
+  category: string;
+  action: string;
+  active: boolean;
+  created_at: string;
+  updated_at?: string;
+}
+
+interface PromptTemplatesGroupedResponse {
+  categories: Record<string, Record<string, PromptTemplateResponse>>;
+}
+
 @Injectable({
   providedIn: 'root'
 })
 export class PromptConfigService {
-  private templates: PromptTemplates = {
+  private readonly apiUrl = `${environment.apiUrl}/api/v1/prompts`;
+  private cachedTemplates: PromptTemplates | null = null;
+  private lastCacheTime: number = 0;
+  private readonly cacheTimeout = 5 * 60 * 1000; // 5 minutes
+
+  constructor(private http: HttpClient) {}
+
+  // Fallback templates (same as before)
+  private fallbackTemplates: PromptTemplates = {
     image: {
       enhance: {
         pre_condition: 'One-sentence DALL-E prompt:',
@@ -67,20 +91,107 @@ export class PromptConfigService {
     }
   };
 
-  getPromptTemplate(category: string, action: string): PromptTemplate | null {
-    const categoryTemplates = this.templates[category];
-    if (!categoryTemplates) {
-      return null;
+  private isCacheValid(): boolean {
+    return this.cachedTemplates !== null &&
+           (Date.now() - this.lastCacheTime) < this.cacheTimeout;
+  }
+
+  private convertResponseToTemplates(response: PromptTemplatesGroupedResponse): PromptTemplates {
+    const templates: PromptTemplates = {};
+
+    for (const [category, actions] of Object.entries(response.categories)) {
+      templates[category] = {};
+      for (const [action, template] of Object.entries(actions)) {
+        templates[category][action] = {
+          pre_condition: template.pre_condition,
+          post_condition: template.post_condition,
+          description: template.description,
+          version: template.version,
+          model_hint: template.model_hint
+        };
+      }
     }
 
-    return categoryTemplates[action] || null;
+    return templates;
+  }
+
+  private loadFromAPI(): Observable<PromptTemplates> {
+    return this.http.get<PromptTemplatesGroupedResponse>(this.apiUrl).pipe(
+      map(response => this.convertResponseToTemplates(response)),
+      catchError(error => {
+        console.warn('Failed to load prompt templates from API, using fallback:', error);
+        return of(this.fallbackTemplates);
+      })
+    );
+  }
+
+  getPromptTemplate(category: string, action: string): PromptTemplate | null {
+    // Use cached templates if available and valid
+    if (this.isCacheValid()) {
+      const categoryTemplates = this.cachedTemplates![category];
+      return categoryTemplates ? (categoryTemplates[action] || null) : null;
+    }
+
+    // Fallback to local templates for synchronous access
+    const categoryTemplates = this.fallbackTemplates[category];
+    return categoryTemplates ? (categoryTemplates[action] || null) : null;
+  }
+
+  getPromptTemplateAsync(category: string, action: string): Observable<PromptTemplate | null> {
+    if (this.isCacheValid()) {
+      const template = this.getPromptTemplate(category, action);
+      return of(template);
+    }
+
+    return this.loadFromAPI().pipe(
+      map(templates => {
+        this.cachedTemplates = templates;
+        this.lastCacheTime = Date.now();
+
+        const categoryTemplates = templates[category];
+        return categoryTemplates ? (categoryTemplates[action] || null) : null;
+      })
+    );
   }
 
   getAllTemplates(): PromptTemplates {
-    return this.templates;
+    return this.cachedTemplates || this.fallbackTemplates;
+  }
+
+  getAllTemplatesAsync(): Observable<PromptTemplates> {
+    if (this.isCacheValid()) {
+      return of(this.cachedTemplates!);
+    }
+
+    return this.loadFromAPI().pipe(
+      map(templates => {
+        this.cachedTemplates = templates;
+        this.lastCacheTime = Date.now();
+        return templates;
+      })
+    );
   }
 
   getCategoryTemplates(category: string): PromptCategory | null {
-    return this.templates[category] || null;
+    const templates = this.getAllTemplates();
+    return templates[category] || null;
+  }
+
+  getCategoryTemplatesAsync(category: string): Observable<PromptCategory | null> {
+    return this.getAllTemplatesAsync().pipe(
+      map(templates => templates[category] || null)
+    );
+  }
+
+  refreshCache(): Observable<PromptTemplates> {
+    this.cachedTemplates = null;
+    this.lastCacheTime = 0;
+    return this.loadFromAPI().pipe(
+      map(templates => {
+        this.cachedTemplates = templates;
+        this.lastCacheTime = Date.now();
+        return templates;
+      })
+    );
   }
 }

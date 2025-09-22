@@ -1,5 +1,5 @@
 """Database models"""
-from sqlalchemy import Column, Integer, String, DateTime, Text, Float, ForeignKey
+from sqlalchemy import Column, Integer, String, DateTime, Text, Float, ForeignKey, Boolean
 from sqlalchemy.dialects.postgresql import UUID
 import uuid
 from sqlalchemy.orm import relationship
@@ -112,3 +112,23 @@ class GeneratedImage(Base):
 
     def __repr__(self):
         return f"<GeneratedImage(id={self.id}, filename='{self.filename}', prompt='{self.prompt[:50]}...')>"
+
+
+class PromptTemplate(Base):
+    """Model for storing AI prompt templates for different categories and actions"""
+    __tablename__ = "prompt_templates"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    category = Column(String(50), nullable=False)
+    action = Column(String(50), nullable=False)
+    pre_condition = Column(Text, nullable=False)
+    post_condition = Column(Text, nullable=False)
+    description = Column(Text, nullable=True)
+    version = Column(String(10), nullable=True)
+    model_hint = Column(String(50), nullable=True)
+    active = Column(Boolean, default=True, nullable=False)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), onupdate=func.now())
+
+    def __repr__(self):
+        return f"<PromptTemplate(id={self.id}, category='{self.category}', action='{self.action}', active={self.active})>"
