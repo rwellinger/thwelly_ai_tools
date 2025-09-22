@@ -11,6 +11,19 @@
     box-sizing: border-box;
 }
 
+/* FIX: Prevent horizontal overflow */
+html, body {
+    overflow-x: hidden;
+}
+
+.master-detail-container,
+.song-details-panel,
+.image-details-panel,
+.choices-table {
+    overflow-x: hidden;
+}
+
+
 body {
     font-family: $font-family-base;
     font-size: $font-sm;
