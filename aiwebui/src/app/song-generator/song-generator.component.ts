@@ -104,7 +104,6 @@ export class SongGeneratorComponent implements OnInit {
 
                 if (data.status === 'SUCCESS') {
                     this.renderResultTask(data.result);
-                    this.notificationService.success('Song generation completed successfully!');
                     completed = true;
                 } else if (data.status === 'FAILURE') {
                     const errorMessage = data.result?.error || data.result || 'Song generation failed';
@@ -323,7 +322,6 @@ export class SongGeneratorComponent implements OnInit {
             if (data.status === 'SUCCESS' && data.result && data.result.zip_url) {
                 this.stemDownloadUrls.set(mp3Url, data.result.zip_url);
                 this.updateChoicesWithStems();
-                this.notificationService.success('Stems generated successfully!');
             } else {
                 this.notificationService.error('Stem generation failed or incomplete.');
                 this.result += '<p>Stem generation failed or incomplete.</p>';

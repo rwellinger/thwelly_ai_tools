@@ -435,9 +435,7 @@ export class ImageViewComponent implements OnInit, AfterViewInit, OnDestroy {
                 if (not_found > 0) message += `, ${not_found} not found`;
                 if (errors > 0) message += `, ${errors} errors`;
 
-                if (deleted > 0) {
-                    this.notificationService.success(message);
-                } else {
+                if (deleted <= 0) {
                     this.notificationService.error(message);
                 }
             }
