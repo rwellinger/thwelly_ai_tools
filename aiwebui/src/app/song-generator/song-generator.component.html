@@ -65,21 +65,30 @@
                             <button
                                 type="button"
                                 (click)="toggleStyleDropdown()"
-                                [disabled]="isImprovingPrompt || isTranslatingLyrics || isGeneratingLyrics || !songForm.get('prompt')?.value?.trim()"
+                                [disabled]="isImprovingPrompt || isTranslatingLyrics || isGeneratingLyrics || isTranslatingStylePrompt || !songForm.get('prompt')?.value?.trim()"
                                 class="magic-icon-button"
                                 title="Music style actions">
-                                <i class="fas fa-ellipsis-vertical" *ngIf="!isImprovingPrompt"></i>
-                                <i class="fas fa-spinner fa-spin" *ngIf="isImprovingPrompt"></i>
+                                <i class="fas fa-ellipsis-vertical" *ngIf="!isImprovingPrompt && !isTranslatingStylePrompt"></i>
+                                <i class="fas fa-spinner fa-spin" *ngIf="isImprovingPrompt || isTranslatingStylePrompt"></i>
                             </button>
                             <div class="dropdown-menu" *ngIf="showStyleDropdown" (click)="$event.stopPropagation()">
                                 <button
                                     type="button"
                                     class="dropdown-item"
-                                    [disabled]="isImprovingPrompt || isTranslatingLyrics || isGeneratingLyrics"
+                                    [disabled]="isImprovingPrompt || isTranslatingLyrics || isGeneratingLyrics || isTranslatingStylePrompt"
                                     (click)="selectStyleAction('enhance')">
                                     <i class="fas fa-wand-magic-sparkles"></i>
                                     <span>Enhance Style Prompt</span>
                                     <i class="fas fa-spinner fa-spin action-spinner" *ngIf="isImprovingPrompt"></i>
+                                </button>
+                                <button
+                                    type="button"
+                                    class="dropdown-item"
+                                    [disabled]="isImprovingPrompt || isTranslatingLyrics || isGeneratingLyrics || isTranslatingStylePrompt"
+                                    (click)="selectStyleAction('translate')">
+                                    <i class="fas fa-language"></i>
+                                    <span>Translate to English</span>
+                                    <i class="fas fa-spinner fa-spin action-spinner" *ngIf="isTranslatingStylePrompt"></i>
                                 </button>
                             </div>
                         </div>
@@ -97,10 +106,10 @@
                 </div>
 
                 <div class="button-group">
-                    <button type="submit" [disabled]="songForm.invalid || isLoading || isImprovingPrompt || isTranslatingLyrics || isGeneratingLyrics" class="create-button">
+                    <button type="submit" [disabled]="songForm.invalid || isLoading || isImprovingPrompt || isTranslatingLyrics || isGeneratingLyrics || isTranslatingStylePrompt" class="create-button">
                         <i class="fas fa-music"></i> Create Song
                     </button>
-                    <button type="button" (click)="resetForm()" [disabled]="isImprovingPrompt || isTranslatingLyrics || isGeneratingLyrics" class="reset-button">
+                    <button type="button" (click)="resetForm()" [disabled]="isImprovingPrompt || isTranslatingLyrics || isGeneratingLyrics || isTranslatingStylePrompt" class="reset-button">
                         <i class="fas fa-rotate-left"></i> Reset
                     </button>
                 </div>
@@ -147,5 +156,8 @@
   (audioEnded)="onPopupPlayerEnded()"
   (audioLoadError)="onAudioLoadError($event)">
 </app-popup-audio-player>
+
+<!-- AI Progress Overlay -->
+<app-progress-overlay></app-progress-overlay>
 
 <app-footer costInfo="Song generation: ~$0.15 each"></app-footer>

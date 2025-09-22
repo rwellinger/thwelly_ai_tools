@@ -1,5 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { ApiConfigService } from './api-config.service';
+import { PromptConfigService } from './prompt-config.service';
 
 export interface ChatResponse {
   model: string;
@@ -20,15 +21,21 @@ export interface ChatResponse {
 })
 export class ChatService {
   private apiConfig = inject(ApiConfigService);
+  private promptConfig = inject(PromptConfigService);
 
   async improveImagePrompt(prompt: string): Promise<string> {
+    const template = this.promptConfig.getPromptTemplate('image', 'enhance');
+    if (!template) {
+      throw new Error('Image enhance template not found');
+    }
+
     const response = await fetch(this.apiConfig.endpoints.chat.generateLlama3Simple, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        pre_condition: 'One-sentence DALL-E prompt:',
+        pre_condition: template.pre_condition,
         prompt: prompt,
-        post_condition: 'Only respond with the prompt.'
+        post_condition: template.post_condition
       })
     });
 
@@ -41,13 +48,18 @@ export class ChatService {
   }
 
   async improveMusicStylePrompt(prompt: string): Promise<string> {
+    const template = this.promptConfig.getPromptTemplate('music', 'enhance');
+    if (!template) {
+      throw new Error('Music enhance template not found');
+    }
+
     const response = await fetch(this.apiConfig.endpoints.chat.generateLlama3Simple, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        pre_condition: 'One-sentence Suno Music Style prompt:',
+        pre_condition: template.pre_condition,
         prompt: prompt,
-        post_condition: 'Only respond with the prompt.'
+        post_condition: template.post_condition
       })
     });
 
@@ -77,13 +89,42 @@ export class ChatService {
   }
 
   async translateLyric(prompt: string): Promise<string> {
+    const template = this.promptConfig.getPromptTemplate('lyrics', 'translate');
+    if (!template) {
+      throw new Error('Lyrics translate template not found');
+    }
+
     const response = await fetch(this.apiConfig.endpoints.chat.generateGptOssSimple, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        pre_condition: 'By a britisch songwriter and translate this lyric text to britisch english:',
+        pre_condition: template.pre_condition,
         prompt: prompt,
-        post_condition: 'Only respond with the translation.'
+        post_condition: template.post_condition
+      })
+    });
+
+    if (!response.ok) {
+      throw new Error(`Chat API error: ${response.status}`);
+    }
+
+    const data: ChatResponse = await response.json();
+    return data.response;
+  }
+
+  async translateMusicStylePrompt(prompt: string): Promise<string> {
+    const template = this.promptConfig.getPromptTemplate('music', 'translate');
+    if (!template) {
+      throw new Error('Music translate template not found');
+    }
+
+    const response = await fetch(this.apiConfig.endpoints.chat.generateGptOssSimple, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        pre_condition: template.pre_condition,
+        prompt: prompt,
+        post_condition: template.post_condition
       })
     });
 

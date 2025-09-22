@@ -9,11 +9,13 @@ import {ImageService} from '../services/image.service';
 import {ChatService} from '../services/chat.service';
 import {MatSnackBarModule} from '@angular/material/snack-bar';
 import {ImageDetailPanelComponent} from '../shared/image-detail-panel/image-detail-panel.component';
+import {ProgressOverlayComponent} from '../shared/progress-overlay/progress-overlay.component';
+import {ProgressService} from '../services/progress.service';
 
 @Component({
     selector: 'app-image-generator',
     standalone: true,
-    imports: [CommonModule, ReactiveFormsModule, HeaderComponent, FooterComponent, MatSnackBarModule, ImageDetailPanelComponent],
+    imports: [CommonModule, ReactiveFormsModule, HeaderComponent, FooterComponent, MatSnackBarModule, ImageDetailPanelComponent, ProgressOverlayComponent],
     templateUrl: './image-generator.component.html',
     styleUrl: './image-generator.component.scss'
 })
@@ -32,6 +34,7 @@ export class ImageGeneratorComponent implements OnInit {
     private notificationService = inject(NotificationService);
     private imageService = inject(ImageService);
     private chatService = inject(ChatService);
+    private progressService = inject(ProgressService);
 
     ngOnInit() {
         this.promptForm = this.fb.group({
@@ -135,7 +138,11 @@ export class ImageGeneratorComponent implements OnInit {
 
         this.isImprovingPrompt = true;
         try {
-            const improvedPrompt = await this.chatService.improveImagePrompt(currentPrompt);
+            const improvedPrompt = await this.progressService.executeWithProgress(
+                () => this.chatService.improveImagePrompt(currentPrompt),
+                'Enhancing Prompt...',
+                'AI is improving your image prompt'
+            );
             this.promptForm.patchValue({prompt: improvedPrompt});
         } catch (error: any) {
             this.notificationService.error(`Error improving prompt: ${error.message}`);
