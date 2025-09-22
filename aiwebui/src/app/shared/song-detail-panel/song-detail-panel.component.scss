@@ -102,12 +102,101 @@
     @include input-focus-state($primary-hover);
 }
 
+/* ===== TAGS & WORKFLOW CONTAINER ===== */
+.tags-workflow-container {
+    display: flex;
+    gap: $spacing-12;
+    align-items: flex-start;
+}
+
 /* ===== TAGS SECTION ===== */
 .song-tags-section {
     background-color: $background-light;
     padding: $spacing-12;
     border-radius: $border-radius-lg;
     border-left: 4px solid $success-color;
+    flex: 0 0 60%;
+}
+
+/* ===== WORKFLOW SECTION ===== */
+.song-workflow-section {
+    background-color: $background-light;
+    padding: $spacing-12;
+    border-radius: $border-radius-lg;
+    border-left: 4px solid $primary-color;
+    flex: 0 0 40%;
+}
+
+.workflow-row {
+    display: flex;
+    align-items: center;
+    gap: $spacing-10;
+    flex-wrap: wrap;
+}
+
+.workflow-title {
+    margin: 0;
+    color: $text-primary;
+    font-size: $font-base;
+    font-weight: $font-weight-semibold;
+    min-width: 70px;
+}
+
+.workflow-display {
+    color: $text-secondary;
+    font-size: $font-sm;
+    flex: 1;
+    word-break: break-word;
+}
+
+.workflow-edit-section {
+    margin-top: $spacing-10;
+}
+
+.workflow-edit-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: $spacing-12;
+}
+
+.workflow-edit-buttons {
+    display: flex;
+    gap: $spacing-6;
+}
+
+.workflow-options {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-sm;
+}
+
+.workflow-option {
+    display: flex;
+    align-items: center;
+    gap: $spacing-sm;
+    cursor: pointer;
+    padding: $spacing-6 $spacing-10;
+    border-radius: $border-radius-sm;
+    transition: all 0.2s ease;
+
+    &:hover {
+        background-color: rgba($primary-color, 0.1);
+    }
+
+    input[type="radio"] {
+        margin: 0;
+        width: 16px;
+        height: 16px;
+        cursor: pointer;
+    }
+
+    .option-label {
+        font-size: $font-sm;
+        color: $text-primary;
+        user-select: none;
+        flex: 1;
+    }
 }
 
 .tags-row {
@@ -562,6 +651,16 @@
     .lyrics-dialog-actions {
         flex-direction: column;
     }
+
+    .tags-workflow-container {
+        flex-direction: column;
+        gap: $spacing-10;
+    }
+
+    .song-tags-section,
+    .song-workflow-section {
+        flex: none;
+    }
 }
 
 @media (max-width: 480px) {
@@ -652,14 +751,14 @@
     &.thumbs-down {
         &:hover:not(.inactive) {
             background: #f8e8e8;
-            color: #dc3545;
-            border-color: #dc3545;
+            color: $danger-color;
+            border-color: $danger-color;
         }
 
         &.active {
-            background: #dc3545;
+            background: $danger-color;
             color: white;
-            border-color: #dc3545;
+            border-color: $danger-color;
 
             &:hover {
                 background: #c82333;

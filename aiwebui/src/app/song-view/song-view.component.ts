@@ -26,7 +26,7 @@ export class SongViewComponent implements OnInit, OnDestroy {
   selectedSong: any = null;
   pagination: any = {
     total: 0,
-    limit: 15,
+    limit: 13,
     offset: 0,
     has_more: false
   };
@@ -35,6 +35,9 @@ export class SongViewComponent implements OnInit, OnDestroy {
   searchTerm: string = '';
   sortBy: string = 'created_at';
   sortDirection: 'asc' | 'desc' = 'desc';
+
+  // Workflow filter
+  currentWorkflow: string = 'all';
 
   // UI state
   isLoading = false;
@@ -129,13 +132,15 @@ export class SongViewComponent implements OnInit, OnDestroy {
     this.isLoadingSongs = true;
     try {
       const offset = page * this.pagination.limit;
+      const workflowParam = this.currentWorkflow === 'all' ? undefined : this.currentWorkflow;
       const data = await this.songService.getSongs(
         this.pagination.limit,
         offset,
         'SUCCESS',
         this.searchTerm.trim(),
         this.sortBy,
-        this.sortDirection
+        this.sortDirection,
+        workflowParam
       );
       this.songs = data.songs || [];
       this.pagination = data.pagination || this.pagination;
@@ -144,9 +149,19 @@ export class SongViewComponent implements OnInit, OnDestroy {
       // Use songs directly (no client-side filtering needed)
       this.filteredSongs = this.songs;
 
-      // Auto-select first song if available and none selected
-      if (this.filteredSongs.length > 0 && !this.selectedSong) {
-        await this.selectSong(this.filteredSongs[0]);
+      // Selection logic based on results
+      if (this.filteredSongs.length > 0) {
+        // Check if currently selected song is in the new filtered list
+        const isSelectedSongInList = this.selectedSong &&
+          this.filteredSongs.some(song => song.id === this.selectedSong.id);
+
+        if (!isSelectedSongInList) {
+          // If selected song is not in new list, select first song
+          await this.selectSong(this.filteredSongs[0]);
+        }
+      } else {
+        // Clear selection if no songs found
+        this.clearSelection();
       }
     } catch (error: any) {
       this.notificationService.error(`Error loading songs: ${error.message}`);
@@ -203,13 +218,15 @@ export class SongViewComponent implements OnInit, OnDestroy {
     this.isLoadingSongs = true;
     try {
       const newOffset = this.pagination.offset + this.pagination.limit;
+      const workflowParam = this.currentWorkflow === 'all' ? undefined : this.currentWorkflow;
       const data = await this.songService.getSongs(
         this.pagination.limit,
         newOffset,
         'SUCCESS',
         this.searchTerm.trim(),
         this.sortBy,
-        this.sortDirection
+        this.sortDirection,
+        workflowParam
       );
 
       // Append new songs to existing list
@@ -358,6 +375,11 @@ export class SongViewComponent implements OnInit, OnDestroy {
   toggleSort() {
     this.sortDirection = this.sortDirection === 'desc' ? 'asc' : 'desc';
     this.loadSongs(0); // Reset to first page and reload with new sort
+  }
+
+  setWorkflowFilter(workflow: string) {
+    this.currentWorkflow = workflow;
+    this.loadSongs(0); // Reset to first page and reload with new filter
   }
 
   clearSelection() {
@@ -786,6 +808,53 @@ export class SongViewComponent implements OnInit, OnDestroy {
   onTagsChanged(newTags: string[]) {
     this.selectedTags = new Set(newTags);
     this.saveTags();
+  }
+
+  async onWorkflowChanged(newWorkflow: string) {
+    if (!this.selectedSong) return;
+
+    this.isLoading = true;
+    try {
+      const response = await fetch(this.apiConfig.endpoints.song.update(this.selectedSong.id), {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          workflow: newWorkflow
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const updatedSong = await response.json();
+
+      // Update selected song with new data
+      this.selectedSong = {
+        ...this.selectedSong,
+        workflow: updatedSong.workflow,
+        updated_at: updatedSong.updated_at
+      };
+
+      // Update in songs list too
+      const songIndex = this.songs.findIndex(song => song.id === this.selectedSong!.id);
+      if (songIndex !== -1) {
+        this.songs[songIndex] = {
+          ...this.songs[songIndex],
+          workflow: updatedSong.workflow
+        };
+        this.loadSongs(0); // Refresh filtered list from server
+      }
+
+      this.notificationService.success('Workflow updated successfully!');
+
+    } catch (error: any) {
+      this.notificationService.error(`Error updating workflow: ${error.message}`);
+    } finally {
+      this.isLoading = false;
+    }
   }
 
   onDownloadFlac(url: string) {

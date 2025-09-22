@@ -64,55 +64,91 @@
                 </div>
             </div>
 
-            <!-- Tags Section -->
-            <div class="song-tags-section" *ngIf="showEditTags">
-                <div class="tags-row" *ngIf="!editingTags">
-                    <h3 class="tags-title">Tags:</h3>
-                    <span class="tags-display">{{ getSelectedTagsDisplay() }}</span>
-                    <button type="button" class="edit-btn" (click)="startEditTags()">
-                        <i class="fas fa-edit"></i>
-                    </button>
-                </div>
-                <div class="tags-edit-section" *ngIf="editingTags">
-                    <div class="tags-edit-header">
-                        <h3 class="tags-title">Edit Tags:</h3>
-                        <div class="tags-edit-buttons">
-                            <button type="button" class="save-btn" (click)="saveTags()">
-                                <i class="fas fa-check"></i>
-                            </button>
-                            <button type="button" class="cancel-btn" (click)="cancelEditTags()">
-                                <i class="fas fa-times"></i>
-                            </button>
+            <!-- Tags & Workflow Container -->
+            <div class="tags-workflow-container">
+                <!-- Tags Section -->
+                <div class="song-tags-section" *ngIf="showEditTags">
+                    <div class="tags-row" *ngIf="!editingTags">
+                        <h3 class="tags-title">Tags:</h3>
+                        <span class="tags-display">{{ getSelectedTagsDisplay() }}</span>
+                        <button type="button" class="edit-btn" (click)="startEditTags()">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                    </div>
+                    <div class="tags-edit-section" *ngIf="editingTags">
+                        <div class="tags-edit-header">
+                            <h3 class="tags-title">Edit Tags:</h3>
+                            <div class="tags-edit-buttons">
+                                <button type="button" class="save-btn" (click)="saveTags()">
+                                    <i class="fas fa-check"></i>
+                                </button>
+                                <button type="button" class="cancel-btn" (click)="cancelEditTags()">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="tags-categories">
+                            <!-- Style Tags -->
+                            <div class="tag-category">
+                                <h4 class="category-title">Style</h4>
+                                <div class="tag-checkboxes">
+                                    <label *ngFor="let tag of tagCategories.style" class="tag-checkbox">
+                                        <input type="checkbox"
+                                               [checked]="isTagSelected(tag)"
+                                               (change)="toggleTag(tag)">
+                                        <span class="checkmark"></span>
+                                        {{ tag }}
+                                    </label>
+                                </div>
+                            </div>
+
+                            <!-- Theme Tags -->
+                            <div class="tag-category">
+                                <h4 class="category-title">Theme</h4>
+                                <div class="tag-checkboxes">
+                                    <label *ngFor="let tag of tagCategories.theme" class="tag-checkbox">
+                                        <input type="checkbox"
+                                               [checked]="isTagSelected(tag)"
+                                               (change)="toggleTag(tag)">
+                                        <span class="checkmark"></span>
+                                        {{ tag }}
+                                    </label>
+                                </div>
+                            </div>
                         </div>
                     </div>
+                </div>
 
-                    <div class="tags-categories">
-                        <!-- Style Tags -->
-                        <div class="tag-category">
-                            <h4 class="category-title">Style</h4>
-                            <div class="tag-checkboxes">
-                                <label *ngFor="let tag of tagCategories.style" class="tag-checkbox">
-                                    <input type="checkbox"
-                                           [checked]="isTagSelected(tag)"
-                                           (change)="toggleTag(tag)">
-                                    <span class="checkmark"></span>
-                                    {{ tag }}
-                                </label>
+                <!-- Workflow Section -->
+                <div class="song-workflow-section" *ngIf="showEditWorkflow">
+                    <div class="workflow-row" *ngIf="!editingWorkflow">
+                        <h3 class="workflow-title">Workflow:</h3>
+                        <span class="workflow-display">{{ getWorkflowDisplay() }}</span>
+                        <button type="button" class="edit-btn" (click)="startEditWorkflow()">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                    </div>
+                    <div class="workflow-edit-section" *ngIf="editingWorkflow">
+                        <div class="workflow-edit-header">
+                            <h3 class="workflow-title">Edit Workflow:</h3>
+                            <div class="workflow-edit-buttons">
+                                <button type="button" class="save-btn" (click)="saveWorkflow()">
+                                    <i class="fas fa-check"></i>
+                                </button>
+                                <button type="button" class="cancel-btn" (click)="cancelEditWorkflow()">
+                                    <i class="fas fa-times"></i>
+                                </button>
                             </div>
                         </div>
-
-                        <!-- Theme Tags -->
-                        <div class="tag-category">
-                            <h4 class="category-title">Theme</h4>
-                            <div class="tag-checkboxes">
-                                <label *ngFor="let tag of tagCategories.theme" class="tag-checkbox">
-                                    <input type="checkbox"
-                                           [checked]="isTagSelected(tag)"
-                                           (change)="toggleTag(tag)">
-                                    <span class="checkmark"></span>
-                                    {{ tag }}
-                                </label>
-                            </div>
+                        <div class="workflow-options">
+                            <label *ngFor="let option of workflowOptions" class="workflow-option">
+                                <input type="radio"
+                                       name="workflow"
+                                       [value]="option.value"
+                                       [(ngModel)]="selectedWorkflow">
+                                <span class="option-label">{{ option.label }}</span>
+                            </label>
                         </div>
                     </div>
                 </div>

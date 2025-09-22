@@ -3,7 +3,6 @@
 <div class="controls-container">
     <!-- Main controls -->
     <div class="controls-section">
-        <h3>Song List Controls</h3>
         <div class="controls-buttons">
             <button type="button" (click)="loadSongs(Math.floor(pagination.offset / pagination.limit))"
                     [disabled]="isLoading">
@@ -21,7 +20,6 @@
 
     <!-- Selection controls - only visible in selection mode -->
     <div class="controls-section selection-section" *ngIf="isSelectionMode">
-        <h3>Selection Actions</h3>
         <div class="controls-buttons">
             <button type="button" (click)="selectAllSongs()" [disabled]="isLoading">
                 <i class="fas fa-check-double"></i> Select All
@@ -63,6 +61,39 @@
                         [disabled]="isLoadingSongs"
                         title="Clear search">
                     <i class="fas fa-times"></i>
+                </button>
+            </div>
+        </div>
+
+        <div class="workflow-tabs">
+            <div class="tab-container">
+                <button type="button"
+                        class="workflow-tab"
+                        [class.active]="currentWorkflow === 'all'"
+                        (click)="setWorkflowFilter('all')"
+                        [disabled]="isLoadingSongs">
+                    All
+                </button>
+                <button type="button"
+                        class="workflow-tab"
+                        [class.active]="currentWorkflow === 'inUse'"
+                        (click)="setWorkflowFilter('inUse')"
+                        [disabled]="isLoadingSongs">
+                    In Use
+                </button>
+                <button type="button"
+                        class="workflow-tab"
+                        [class.active]="currentWorkflow === 'onWork'"
+                        (click)="setWorkflowFilter('onWork')"
+                        [disabled]="isLoadingSongs">
+                    On Work
+                </button>
+                <button type="button"
+                        class="workflow-tab"
+                        [class.active]="currentWorkflow === 'notUsed'"
+                        (click)="setWorkflowFilter('notUsed')"
+                        [disabled]="isLoadingSongs">
+                    Not Used
                 </button>
             </div>
         </div>
@@ -161,12 +192,14 @@
         [song]="selectedSong"
         [showEditTitle]="true"
         [showEditTags]="true"
+        [showEditWorkflow]="true"
         title="Song Details"
         [showMetaInfo]="['job_id', 'model', 'status', 'created', 'completed']"
         placeholderText="Select a song from the list to view details"
         [currentlyPlayingId]="currentlyPlaying"
         (titleChanged)="onTitleChanged($event)"
         (tagsChanged)="onTagsChanged($event)"
+        (workflowChanged)="onWorkflowChanged($event)"
         (downloadFlac)="onDownloadFlac($event)"
         (playAudio)="onPlayAudio($event)"
         (generateStem)="onGenerateStem($event)"

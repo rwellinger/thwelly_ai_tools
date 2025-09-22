@@ -6,6 +6,7 @@ from pathlib import Path
 
 from api.openai import openai_routes
 from api.mureka import mureka_routes
+from api.chat import api_chat_mock
 
 
 def create_app():
@@ -20,6 +21,7 @@ def create_app():
 
     app.register_blueprint(openai_routes, url_prefix='/v1')
     app.register_blueprint(mureka_routes, url_prefix='/v1')
+    app.register_blueprint(api_chat_mock)
 
     @app.route('/health')
     def health():

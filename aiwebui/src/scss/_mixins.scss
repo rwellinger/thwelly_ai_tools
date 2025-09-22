@@ -65,6 +65,11 @@
     @include button-size($size);
 }
 
+@mixin button-ai($size: 'base') {
+    @include button-style($ai-color, $background-white, $ai-hover);
+    @include button-size($size);
+}
+
 // 2. Card/Panel Container
 @mixin card-container($border-color: $border-light, $bg-color: $background-white, $padding: 15px) {
     background: $bg-color;

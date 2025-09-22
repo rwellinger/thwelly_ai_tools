@@ -1,4 +1,4 @@
-import {Component, OnInit, ViewEncapsulation, inject} from '@angular/core';
+import {Component, OnInit, ViewEncapsulation, inject, HostListener} from '@angular/core';
 import {FormBuilder, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
 import {CommonModule} from '@angular/common';
 import {SongService} from '../services/song.service';
@@ -10,11 +10,13 @@ import {ChatService} from '../services/chat.service';
 import {MatSnackBarModule} from '@angular/material/snack-bar';
 import {PopupAudioPlayerComponent} from '../shared/popup-audio-player/popup-audio-player.component';
 import {SongDetailPanelComponent} from '../shared/song-detail-panel/song-detail-panel.component';
+import {ProgressOverlayComponent} from '../shared/progress-overlay/progress-overlay.component';
+import {ProgressService} from '../services/progress.service';
 
 @Component({
     selector: 'app-song-generator',
     standalone: true,
-    imports: [CommonModule, ReactiveFormsModule, HeaderComponent, FooterComponent, MatSnackBarModule, PopupAudioPlayerComponent, SongDetailPanelComponent],
+    imports: [CommonModule, ReactiveFormsModule, HeaderComponent, FooterComponent, MatSnackBarModule, PopupAudioPlayerComponent, SongDetailPanelComponent, ProgressOverlayComponent],
     templateUrl: './song-generator.component.html',
     styleUrl: './song-generator.component.scss',
     encapsulation: ViewEncapsulation.None
@@ -24,6 +26,10 @@ export class SongGeneratorComponent implements OnInit {
     isLoading = false;
     isImprovingPrompt = false;
     isTranslatingLyrics = false;
+    isGeneratingLyrics = false;
+    isTranslatingStylePrompt = false;
+    showLyricsDropdown = false;
+    showStyleDropdown = false;
     loadingMessage = '';
     result = '';
     currentlyPlaying: string | null = null;
@@ -40,6 +46,7 @@ export class SongGeneratorComponent implements OnInit {
     private apiConfig = inject(ApiConfigService);
     private notificationService = inject(NotificationService);
     private chatService = inject(ChatService);
+    private progressService = inject(ProgressService);
 
     ngOnInit() {
         this.songForm = this.fb.group({
@@ -104,7 +111,6 @@ export class SongGeneratorComponent implements OnInit {
 
                 if (data.status === 'SUCCESS') {
                     this.renderResultTask(data.result);
-                    this.notificationService.success('Song generation completed successfully!');
                     completed = true;
                 } else if (data.status === 'FAILURE') {
                     const errorMessage = data.result?.error || data.result || 'Song generation failed';
@@ -323,7 +329,6 @@ export class SongGeneratorComponent implements OnInit {
             if (data.status === 'SUCCESS' && data.result && data.result.zip_url) {
                 this.stemDownloadUrls.set(mp3Url, data.result.zip_url);
                 this.updateChoicesWithStems();
-                this.notificationService.success('Stems generated successfully!');
             } else {
                 this.notificationService.error('Stem generation failed or incomplete.');
                 this.result += '<p>Stem generation failed or incomplete.</p>';
@@ -383,12 +388,38 @@ export class SongGeneratorComponent implements OnInit {
 
         this.isImprovingPrompt = true;
         try {
-            const improvedPrompt = await this.chatService.improveMusicStylePrompt(currentPrompt);
+            const improvedPrompt = await this.progressService.executeWithProgress(
+                () => this.chatService.improveMusicStylePrompt(currentPrompt),
+                'Enhancing Style Prompt...',
+                'AI is improving your music style description'
+            );
             this.songForm.patchValue({prompt: improvedPrompt});
         } catch (error: any) {
             this.notificationService.error(`Error improving prompt: ${error.message}`);
         } finally {
             this.isImprovingPrompt = false;
+        }
+    }
+
+    async generateLyrics() {
+        const currentText = this.songForm.get('lyrics')?.value?.trim();
+        if (!currentText) {
+            this.notificationService.error('Please enter text first');
+            return;
+        }
+
+        this.isGeneratingLyrics = true;
+        try {
+            const generatedLyrics = await this.progressService.executeWithProgress(
+                () => this.chatService.generateLyrics(currentText),
+                'Creating Lyrics...',
+                'AI is generating song lyrics from your text'
+            );
+            this.songForm.patchValue({lyrics: generatedLyrics});
+        } catch (error: any) {
+            this.notificationService.error(`Error generating lyrics: ${error.message}`);
+        } finally {
+            this.isGeneratingLyrics = false;
         }
     }
 
@@ -401,12 +432,89 @@ export class SongGeneratorComponent implements OnInit {
 
         this.isTranslatingLyrics = true;
         try {
-            const translatedLyrics = await this.chatService.translateLyric(currentLyrics);
+            const translatedLyrics = await this.progressService.executeWithProgress(
+                () => this.chatService.translateLyric(currentLyrics),
+                'Translating Lyrics...',
+                'AI is translating your lyrics to English'
+            );
             this.songForm.patchValue({lyrics: translatedLyrics});
         } catch (error: any) {
             this.notificationService.error(`Error translating lyrics: ${error.message}`);
         } finally {
             this.isTranslatingLyrics = false;
+        }
+    }
+
+    toggleLyricsDropdown() {
+        this.showLyricsDropdown = !this.showLyricsDropdown;
+    }
+
+    closeLyricsDropdown() {
+        this.showLyricsDropdown = false;
+    }
+
+    selectLyricsAction(action: 'generate' | 'translate') {
+        this.closeLyricsDropdown();
+
+        if (action === 'generate') {
+            this.generateLyrics();
+        } else if (action === 'translate') {
+            this.translateLyrics();
+        }
+    }
+
+    toggleStyleDropdown() {
+        this.showStyleDropdown = !this.showStyleDropdown;
+    }
+
+    closeStyleDropdown() {
+        this.showStyleDropdown = false;
+    }
+
+    selectStyleAction(action: 'enhance' | 'translate') {
+        this.closeStyleDropdown();
+
+        if (action === 'enhance') {
+            this.improvePrompt();
+        } else if (action === 'translate') {
+            this.translateStylePrompt();
+        }
+    }
+
+    async translateStylePrompt() {
+        const currentPrompt = this.songForm.get('prompt')?.value?.trim();
+        if (!currentPrompt) {
+            this.notificationService.error('Please enter a music style prompt first');
+            return;
+        }
+
+        this.isTranslatingStylePrompt = true;
+        try {
+            const translatedPrompt = await this.progressService.executeWithProgress(
+                () => this.chatService.translateMusicStylePrompt(currentPrompt),
+                'Translating Style Prompt...',
+                'AI is translating your music style description to English'
+            );
+            this.songForm.patchValue({prompt: translatedPrompt});
+        } catch (error: any) {
+            this.notificationService.error(`Error translating style prompt: ${error.message}`);
+        } finally {
+            this.isTranslatingStylePrompt = false;
+        }
+    }
+
+    @HostListener('document:click', ['$event'])
+    onDocumentClick(event: Event) {
+        const target = event.target as HTMLElement;
+        const lyricsDropdown = target.closest('.lyrics-dropdown-container');
+        const styleDropdown = target.closest('.style-dropdown-container');
+
+        if (!lyricsDropdown && this.showLyricsDropdown) {
+            this.closeLyricsDropdown();
+        }
+
+        if (!styleDropdown && this.showStyleDropdown) {
+            this.closeStyleDropdown();
         }
     }
 

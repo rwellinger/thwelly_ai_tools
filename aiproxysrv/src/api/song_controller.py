@@ -60,7 +60,7 @@ class SongController:
         return self.task_controller.get_queue_status()
     
     def get_songs(self, limit: int = 20, offset: int = 0, status: str = None, search: str = '',
-                  sort_by: str = 'created_at', sort_direction: str = 'desc') -> Tuple[Dict[str, Any], int]:
+                  sort_by: str = 'created_at', sort_direction: str = 'desc', workflow: str = None) -> Tuple[Dict[str, Any], int]:
         """
         Get list of songs with pagination, search and sorting
 
@@ -71,6 +71,7 @@ class SongController:
             search: Search term to filter by title, lyrics, or tags
             sort_by: Field to sort by (created_at, title, lyrics)
             sort_direction: Sort direction (asc, desc)
+            workflow: Optional workflow filter (onWork, inUse, notUsed)
 
         Returns:
             Tuple of (response_data, status_code)
@@ -83,9 +84,10 @@ class SongController:
                 status=status,
                 search=search,
                 sort_by=sort_by,
-                sort_direction=sort_direction
+                sort_direction=sort_direction,
+                workflow=workflow
             )
-            total_count = song_service.get_total_songs_count(status=status, search=search)
+            total_count = song_service.get_total_songs_count(status=status, search=search, workflow=workflow)
             
             # Convert to API response format (minimal data for list view)
             songs_list = []
@@ -96,6 +98,7 @@ class SongController:
                     "lyrics": song.lyrics,
                     "title": song.title,
                     "model": song.model,
+                    "workflow": song.workflow,
                     "created_at": song.created_at.isoformat() if song.created_at else None,
                 }
                 songs_list.append(song_data)
@@ -162,6 +165,7 @@ class SongController:
                 "model": song.model,
                 "title": song.title,
                 "tags": song.tags,
+                "workflow": song.workflow,
                 "status": song.status,
                 "progress_info": song.progress_info,
                 "error_message": song.error_message,
@@ -198,7 +202,7 @@ class SongController:
                 return {"error": "Song not found"}, 404
 
             # Only allow certain fields to be updated
-            allowed_fields = ['title', 'tags']
+            allowed_fields = ['title', 'tags', 'workflow']
             filtered_data = {k: v for k, v in update_data.items() if k in allowed_fields}
 
             if not filtered_data:
@@ -215,6 +219,7 @@ class SongController:
                 "id": str(updated_song.id),
                 "title": updated_song.title,
                 "tags": updated_song.tags,
+                "workflow": updated_song.workflow,
                 "updated_at": updated_song.updated_at.isoformat() if updated_song.updated_at else None
             }, 200
 

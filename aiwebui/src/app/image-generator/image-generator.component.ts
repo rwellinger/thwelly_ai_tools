@@ -1,4 +1,4 @@
-import {Component, OnInit, inject} from '@angular/core';
+import {Component, OnInit, inject, HostListener} from '@angular/core';
 import {FormBuilder, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
 import {CommonModule} from '@angular/common';
 import {HeaderComponent} from '../shared/header/header.component';
@@ -9,11 +9,13 @@ import {ImageService} from '../services/image.service';
 import {ChatService} from '../services/chat.service';
 import {MatSnackBarModule} from '@angular/material/snack-bar';
 import {ImageDetailPanelComponent} from '../shared/image-detail-panel/image-detail-panel.component';
+import {ProgressOverlayComponent} from '../shared/progress-overlay/progress-overlay.component';
+import {ProgressService} from '../services/progress.service';
 
 @Component({
     selector: 'app-image-generator',
     standalone: true,
-    imports: [CommonModule, ReactiveFormsModule, HeaderComponent, FooterComponent, MatSnackBarModule, ImageDetailPanelComponent],
+    imports: [CommonModule, ReactiveFormsModule, HeaderComponent, FooterComponent, MatSnackBarModule, ImageDetailPanelComponent, ProgressOverlayComponent],
     templateUrl: './image-generator.component.html',
     styleUrl: './image-generator.component.scss'
 })
@@ -21,6 +23,7 @@ export class ImageGeneratorComponent implements OnInit {
     promptForm!: FormGroup;
     isLoading = false;
     isImprovingPrompt = false;
+    showPromptDropdown = false;
     result = '';
     generatedImageUrl = '';
     showImageModal = false;
@@ -31,6 +34,7 @@ export class ImageGeneratorComponent implements OnInit {
     private notificationService = inject(NotificationService);
     private imageService = inject(ImageService);
     private chatService = inject(ChatService);
+    private progressService = inject(ProgressService);
 
     ngOnInit() {
         this.promptForm = this.fb.group({
@@ -134,12 +138,42 @@ export class ImageGeneratorComponent implements OnInit {
 
         this.isImprovingPrompt = true;
         try {
-            const improvedPrompt = await this.chatService.improveImagePrompt(currentPrompt);
+            const improvedPrompt = await this.progressService.executeWithProgress(
+                () => this.chatService.improveImagePrompt(currentPrompt),
+                'Enhancing Prompt...',
+                'AI is improving your image prompt'
+            );
             this.promptForm.patchValue({prompt: improvedPrompt});
         } catch (error: any) {
             this.notificationService.error(`Error improving prompt: ${error.message}`);
         } finally {
             this.isImprovingPrompt = false;
+        }
+    }
+
+    togglePromptDropdown() {
+        this.showPromptDropdown = !this.showPromptDropdown;
+    }
+
+    closePromptDropdown() {
+        this.showPromptDropdown = false;
+    }
+
+    selectPromptAction(action: 'enhance') {
+        this.closePromptDropdown();
+
+        if (action === 'enhance') {
+            this.improvePrompt();
+        }
+    }
+
+    @HostListener('document:click', ['$event'])
+    onDocumentClick(event: Event) {
+        const target = event.target as HTMLElement;
+        const dropdown = target.closest('.prompt-dropdown-container');
+
+        if (!dropdown && this.showPromptDropdown) {
+            this.closePromptDropdown();
         }
     }
 

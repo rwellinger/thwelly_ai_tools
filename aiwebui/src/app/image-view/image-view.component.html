@@ -3,7 +3,6 @@
 <div class="controls-container">
     <!-- Main controls -->
     <div class="controls-section">
-        <h3>Picture Controls</h3>
         <div class="controls-buttons">
             <button type="button" (click)="loadImages(0)" [disabled]="isLoading">
                 <i class="fas fa-refresh"></i> Refresh
@@ -20,7 +19,6 @@
 
     <!-- Selection controls - only visible in selection mode -->
     <div class="controls-section selection-section" *ngIf="isSelectionMode">
-        <h3>Selection Actions</h3>
         <div class="controls-buttons">
             <button type="button" (click)="selectAllImages()" [disabled]="isLoading">
                 <i class="fas fa-check-double"></i> Select All

@@ -85,6 +85,7 @@ def list_songs():
     search = request.args.get('search', '').strip()
     sort_by = request.args.get('sort_by', 'created_at')
     sort_direction = request.args.get('sort_direction', 'desc')
+    workflow = request.args.get('workflow', None)  # Optional workflow filter
 
     # Validate sort parameters
     valid_sort_fields = ['created_at', 'title', 'lyrics']
@@ -100,7 +101,8 @@ def list_songs():
         status=status,
         search=search,
         sort_by=sort_by,
-        sort_direction=sort_direction
+        sort_direction=sort_direction,
+        workflow=workflow
     )
 
     return jsonify(response_data), status_code

@@ -32,7 +32,11 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 h1 { font-size: $font-3xl; }
-h2 { font-size: $font-2xl; }
+h2 {
+    font-size: $font-2xl;
+    padding-left: 10px;
+    padding-top: 10px;
+}
 h3 { font-size: $font-xl; }
 h4 { font-size: $font-lg; }
 
@@ -175,7 +179,13 @@ form button[type="submit"] {
     @include button-success('lg');
 }
 
-form button[type="button"] {
+/* Form buttons - neutral by default, AI-buttons excluded */
+form button[type="button"]:not(.magic-icon-button):not(.dropdown-item) {
+    @include button-secondary('lg');
+}
+
+/* Explicit danger buttons when needed */
+form button[type="button"].btn-danger {
     @include button-danger('lg');
 }
 
