@@ -1,0 +1,420 @@
+@import '../../../scss/variables';
+@import '../../../scss/mixins';
+
+/* ===== PROMPT TEMPLATES SPECIFIC STYLES ===== */
+
+/* Controls container */
+.controls-container {
+    display: flex;
+    gap: $spacing-20;
+    margin-bottom: $spacing-20;
+    flex-wrap: wrap;
+}
+
+.controls-section {
+    @include card-container($border-light, $background-white, $spacing-15);
+    min-width: 280px;
+    flex: 1;
+}
+
+.controls-buttons {
+    display: flex;
+    gap: $spacing-sm;
+    flex-wrap: wrap;
+}
+
+.controls-buttons button {
+    @include button-primary('base');
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1) !important;
+}
+
+/* Master-Detail Layout */
+.master-detail-container {
+    display: grid;
+    grid-template-columns: 1fr 400px;
+    gap: $spacing-lg;
+    height: calc(100vh - 200px);
+    overflow: hidden;
+
+    @media (max-width: 1024px) {
+        grid-template-columns: 1fr;
+        grid-template-rows: 1fr auto;
+        height: auto;
+
+        .template-detail-panel {
+            max-height: 50vh;
+        }
+    }
+}
+
+/* Template List Panel */
+.template-list-panel {
+    overflow-y: auto;
+    min-width: 0;
+    background: $background-white;
+    border-radius: $border-radius-lg;
+    border: 1px solid $border-light;
+    display: flex;
+    flex-direction: column;
+}
+
+.list-header {
+    @include flex-between();
+    padding: $spacing-15 $spacing-20;
+    border-bottom: 1px solid $border-light;
+    background: $background-light;
+    border-radius: $border-radius-lg $border-radius-lg 0 0;
+
+    h2 {
+        @include section-header($background-light, $font-lg);
+        margin: 0;
+        color: $text-primary;
+    }
+}
+
+.pagination-info-badge {
+    @include badge($primary-color, $background-white);
+    font-size: $font-xs;
+    padding: 4px 8px;
+}
+
+/* Search Controls */
+.search-controls {
+    padding: $spacing-15 $spacing-20;
+    border-bottom: 1px solid $border-light;
+}
+
+.search-input-container {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.search-input {
+    @include input-field();
+    padding-left: 40px;
+    padding-right: 40px;
+    font-size: $font-sm;
+}
+
+.search-icon {
+    position: absolute;
+    left: 12px;
+    color: $text-secondary;
+    font-size: $font-sm;
+}
+
+.clear-search-btn {
+    position: absolute;
+    right: 8px;
+    background: none;
+    border: none;
+    color: $text-secondary;
+    cursor: pointer;
+    padding: 4px;
+    border-radius: $border-radius-sm;
+    transition: all 0.2s ease;
+
+    &:hover {
+        color: $error-color;
+        background: rgba($error-color, 0.1);
+    }
+}
+
+/* Template List */
+.template-list-container {
+    flex: 1;
+    overflow-y: auto;
+    position: relative;
+}
+
+.loading-overlay {
+    @include loading-overlay();
+}
+
+.loading-content {
+    @include flex-center();
+    flex-direction: column;
+    gap: $spacing-10;
+    color: $text-secondary;
+}
+
+.loading-icon {
+    font-size: $font-lg;
+    color: $primary-color;
+}
+
+.template-list {
+    padding: $spacing-sm;
+}
+
+.template-item {
+    @include card-container($border-light, $background-white, $spacing-12);
+    margin-bottom: $spacing-sm;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border-left: 4px solid transparent;
+
+    &:hover {
+        @include hover-effect();
+        border-left-color: $primary-color;
+        transform: translateX(2px);
+    }
+
+    &.selected {
+        background: linear-gradient(135deg, $background-selected, $background-white);
+        border-left-color: $primary-color;
+        box-shadow: 0 4px 12px rgba(0,123,255,0.15);
+        transform: translateX(2px);
+    }
+}
+
+.template-header {
+    @include flex-between();
+    margin-bottom: $spacing-sm;
+}
+
+.template-name {
+    font-weight: 600;
+    color: $text-primary;
+    font-size: $font-sm;
+}
+
+.template-version {
+    @include badge($success-color, $background-white);
+    font-size: $font-xs;
+    padding: 2px 6px;
+}
+
+.template-description {
+    color: $text-secondary;
+    font-size: $font-xs;
+    line-height: 1.4;
+    margin-bottom: $spacing-sm;
+}
+
+.template-meta {
+    @include flex-between();
+    font-size: $font-xs;
+    color: $text-secondary;
+}
+
+.template-status {
+    @include flex-center();
+    gap: 4px;
+
+    .fa-circle {
+        font-size: 6px;
+        color: $error-color;
+
+        &.active {
+            color: $success-color;
+        }
+    }
+}
+
+.no-templates {
+    @include flex-center();
+    flex-direction: column;
+    padding: $spacing-30;
+    color: $text-secondary;
+    gap: $spacing-10;
+
+    i {
+        font-size: $font-xxl;
+        margin-bottom: $spacing-sm;
+    }
+
+    p {
+        text-align: center;
+        margin: 0;
+    }
+}
+
+/* Template Detail Panel */
+.template-detail-panel {
+    @include detail-panel-layout();
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+.detail-content {
+    padding: $spacing-20;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.detail-header {
+    @include flex-between();
+    margin-bottom: $spacing-20;
+    padding-bottom: $spacing-15;
+    border-bottom: 1px solid $border-light;
+}
+
+.template-title {
+    h3 {
+        margin: 0 0 $spacing-sm 0;
+        color: $text-primary;
+        font-size: $font-lg;
+    }
+}
+
+.template-info {
+    @include flex-start();
+    gap: $spacing-sm;
+}
+
+.version-badge {
+    @include badge($info-color, $background-white);
+    font-size: $font-xs;
+}
+
+.status-badge {
+    @include badge($error-color, $background-white);
+    font-size: $font-xs;
+
+    &.active {
+        background: $success-color;
+    }
+}
+
+.action-buttons {
+    @include flex-end();
+    gap: $spacing-sm;
+}
+
+.edit-btn {
+    @include button-primary('sm');
+}
+
+/* Template Details */
+.template-details {
+    flex: 1;
+    overflow-y: auto;
+}
+
+.detail-section {
+    margin-bottom: $spacing-20;
+
+    label {
+        display: block;
+        font-weight: 600;
+        color: $text-primary;
+        margin-bottom: $spacing-sm;
+        font-size: $font-sm;
+    }
+}
+
+.readonly-field {
+    background: $background-light;
+    border: 1px solid $border-light;
+    border-radius: $border-radius-sm;
+    padding: $spacing-10;
+    font-size: $font-sm;
+    color: $text-primary;
+    word-wrap: break-word;
+
+    &.multiline {
+        white-space: pre-wrap;
+        font-family: 'Courier New', monospace;
+        font-size: $font-xs;
+        line-height: 1.5;
+        max-height: 200px;
+        overflow-y: auto;
+    }
+}
+
+/* Template Edit Form */
+.template-edit-form {
+    flex: 1;
+    overflow-y: auto;
+}
+
+.form-textarea {
+    @include input-field();
+    resize: vertical;
+    font-family: 'Courier New', monospace;
+    font-size: $font-xs;
+    line-height: 1.5;
+
+    &.small {
+        min-height: 60px;
+    }
+
+    &.medium {
+        min-height: 120px;
+    }
+
+    &.large {
+        min-height: 200px;
+    }
+
+    &:focus {
+        border-color: $primary-color;
+        box-shadow: 0 0 0 3px rgba(0,123,255,0.1);
+    }
+}
+
+.form-actions {
+    @include flex-end();
+    gap: $spacing-sm;
+    margin-top: $spacing-20;
+    padding-top: $spacing-15;
+    border-top: 1px solid $border-light;
+}
+
+.save-btn {
+    @include button-primary('base');
+    background: $success-color;
+
+    &:hover:not(:disabled) {
+        background: darken($success-color, 10%);
+    }
+}
+
+.cancel-btn {
+    @include button-secondary('base');
+}
+
+/* Template Metadata */
+.template-metadata {
+    margin-top: $spacing-20;
+    padding-top: $spacing-15;
+    border-top: 1px solid $border-light;
+}
+
+.meta-item {
+    @include flex-between();
+    margin-bottom: $spacing-sm;
+    font-size: $font-xs;
+
+    label {
+        font-weight: 600;
+        color: $text-secondary;
+        margin: 0;
+    }
+
+    span {
+        color: $text-primary;
+    }
+}
+
+/* No Selection */
+.no-selection {
+    @include flex-center();
+    flex-direction: column;
+    height: 100%;
+    color: $text-secondary;
+    gap: $spacing-15;
+
+    i {
+        font-size: $font-xxl;
+        margin-bottom: $spacing-sm;
+    }
+
+    p {
+        margin: 0;
+        text-align: center;
+    }
+}

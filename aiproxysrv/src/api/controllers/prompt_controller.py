@@ -84,7 +84,7 @@ class PromptController:
 
     @staticmethod
     def update_template(db: Session, category: str, action: str, update_data: PromptTemplateUpdate) -> Tuple[Dict[str, Any], int]:
-        """Update an existing template"""
+        """Update an existing template with automatic version increment"""
         try:
             template = db.query(PromptTemplate).filter(
                 PromptTemplate.category == category,
@@ -99,6 +99,17 @@ class PromptController:
             for field, value in update_dict.items():
                 setattr(template, field, value)
 
+            # Auto-increment version by 0.1
+            current_version = template.version or "1.0"
+            try:
+                version_float = float(current_version)
+                new_version = f"{version_float + 0.1:.1f}"
+                template.version = new_version
+            except (ValueError, TypeError):
+                # If version is not a valid float, start with 1.1
+                template.version = "1.1"
+
+            # updated_at will be set automatically by SQLAlchemy onupdate trigger
             db.commit()
             db.refresh(template)
 
