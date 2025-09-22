@@ -130,3 +130,38 @@ def generate_gpt_oss_simple():
     )
 
     return jsonify(response_data), status_code
+
+
+@api_chat_v1.route('/generate-lyrics', methods=['POST'])
+def generate_lyrics():
+    """Generate lyrics from input text using gpt-oss:20b model"""
+    raw_json = request.get_json(silent=True)
+
+    if not raw_json:
+        return jsonify({"error": "No JSON provided"}), 400
+
+    # Extract required field
+    input_text = raw_json.get('input_text')
+
+    if not input_text:
+        return jsonify({"error": "Missing input_text parameter"}), 400
+
+    # Build system prompt for lyric generation
+    pre_condition = "You are a professional songwriter. Transform the following text into song lyrics with verses and chorus. Create meaningful, rhythmic lyrics that capture the essence of the original text:"
+    post_condition = "Output only the song lyrics in verse-chorus format. Use proper song structure and make it singable."
+
+    # Fixed parameters for lyric generation
+    model = "gpt-oss:20b"
+    temperature = 0.7
+    max_tokens = 800
+
+    response_data, status_code = chat_controller.generate_chat(
+        model=model,
+        pre_condition=pre_condition,
+        prompt=input_text,
+        post_condition=post_condition,
+        temperature=temperature,
+        max_tokens=max_tokens
+    )
+
+    return jsonify(response_data), status_code

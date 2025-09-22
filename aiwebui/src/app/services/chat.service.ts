@@ -59,6 +59,23 @@ export class ChatService {
     return data.response;
   }
 
+  async generateLyrics(inputText: string): Promise<string> {
+    const response = await fetch(this.apiConfig.endpoints.chat.generateLyrics, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        input_text: inputText
+      })
+    });
+
+    if (!response.ok) {
+      throw new Error(`Chat API error: ${response.status}`);
+    }
+
+    const data: ChatResponse = await response.json();
+    return data.response;
+  }
+
   async translateLyric(prompt: string): Promise<string> {
     const response = await fetch(this.apiConfig.endpoints.chat.generateGptOssSimple, {
       method: 'POST',

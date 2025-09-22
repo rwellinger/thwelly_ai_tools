@@ -24,6 +24,7 @@ export class SongGeneratorComponent implements OnInit {
     isLoading = false;
     isImprovingPrompt = false;
     isTranslatingLyrics = false;
+    isGeneratingLyrics = false;
     loadingMessage = '';
     result = '';
     currentlyPlaying: string | null = null;
@@ -387,6 +388,24 @@ export class SongGeneratorComponent implements OnInit {
             this.notificationService.error(`Error improving prompt: ${error.message}`);
         } finally {
             this.isImprovingPrompt = false;
+        }
+    }
+
+    async generateLyrics() {
+        const currentText = this.songForm.get('lyrics')?.value?.trim();
+        if (!currentText) {
+            this.notificationService.error('Please enter text first');
+            return;
+        }
+
+        this.isGeneratingLyrics = true;
+        try {
+            const generatedLyrics = await this.chatService.generateLyrics(currentText);
+            this.songForm.patchValue({lyrics: generatedLyrics});
+        } catch (error: any) {
+            this.notificationService.error(`Error generating lyrics: ${error.message}`);
+        } finally {
+            this.isGeneratingLyrics = false;
         }
     }
 

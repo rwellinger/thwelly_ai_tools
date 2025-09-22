@@ -47,7 +47,8 @@ export class ApiConfigService {
         },
         chat: {
             generateLlama3Simple: `${this.baseUrl}/api/v1/ollama/chat/generate-llama3-simple`,
-            generateGptOssSimple: `${this.baseUrl}/api/v1/ollama/chat/generate-gpt-oss-simple`
+            generateGptOssSimple: `${this.baseUrl}/api/v1/ollama/chat/generate-gpt-oss-simple`,
+            generateLyrics: `${this.baseUrl}/api/v1/ollama/chat/generate-lyrics`
         }
     };
 
