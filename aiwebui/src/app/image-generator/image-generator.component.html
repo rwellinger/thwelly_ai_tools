@@ -17,15 +17,28 @@
                             required
                             class="prompt-input">
                         </textarea>
-                        <button
-                            type="button"
-                            (click)="improvePrompt()"
-                            [disabled]="isImprovingPrompt || !promptForm.get('prompt')?.value?.trim()"
-                            class="magic-icon-button"
-                            title="Improve prompt with AI">
-                            <i class="fas fa-wand-magic-sparkles" *ngIf="!isImprovingPrompt"></i>
-                            <i class="fas fa-wand-magic-sparkles fa-spinner" *ngIf="isImprovingPrompt"></i>
-                        </button>
+                        <div class="prompt-dropdown-container">
+                            <button
+                                type="button"
+                                (click)="togglePromptDropdown()"
+                                [disabled]="isImprovingPrompt || !promptForm.get('prompt')?.value?.trim()"
+                                class="magic-icon-button"
+                                title="Image prompt actions">
+                                <i class="fas fa-ellipsis-vertical" *ngIf="!isImprovingPrompt"></i>
+                                <i class="fas fa-spinner fa-spin" *ngIf="isImprovingPrompt"></i>
+                            </button>
+                            <div class="dropdown-menu" *ngIf="showPromptDropdown" (click)="$event.stopPropagation()">
+                                <button
+                                    type="button"
+                                    class="dropdown-item"
+                                    [disabled]="isImprovingPrompt"
+                                    (click)="selectPromptAction('enhance')">
+                                    <i class="fas fa-wand-magic-sparkles"></i>
+                                    <span>Enhance Prompt</span>
+                                    <i class="fas fa-spinner fa-spin action-spinner" *ngIf="isImprovingPrompt"></i>
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 </div>
 

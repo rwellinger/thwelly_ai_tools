@@ -1,4 +1,4 @@
-import {Component, OnInit, inject} from '@angular/core';
+import {Component, OnInit, inject, HostListener} from '@angular/core';
 import {FormBuilder, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
 import {CommonModule} from '@angular/common';
 import {HeaderComponent} from '../shared/header/header.component';
@@ -21,6 +21,7 @@ export class ImageGeneratorComponent implements OnInit {
     promptForm!: FormGroup;
     isLoading = false;
     isImprovingPrompt = false;
+    showPromptDropdown = false;
     result = '';
     generatedImageUrl = '';
     showImageModal = false;
@@ -140,6 +141,32 @@ export class ImageGeneratorComponent implements OnInit {
             this.notificationService.error(`Error improving prompt: ${error.message}`);
         } finally {
             this.isImprovingPrompt = false;
+        }
+    }
+
+    togglePromptDropdown() {
+        this.showPromptDropdown = !this.showPromptDropdown;
+    }
+
+    closePromptDropdown() {
+        this.showPromptDropdown = false;
+    }
+
+    selectPromptAction(action: 'enhance') {
+        this.closePromptDropdown();
+
+        if (action === 'enhance') {
+            this.improvePrompt();
+        }
+    }
+
+    @HostListener('document:click', ['$event'])
+    onDocumentClick(event: Event) {
+        const target = event.target as HTMLElement;
+        const dropdown = target.closest('.prompt-dropdown-container');
+
+        if (!dropdown && this.showPromptDropdown) {
+            this.closePromptDropdown();
         }
     }
 

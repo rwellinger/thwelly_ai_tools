@@ -179,7 +179,13 @@ form button[type="submit"] {
     @include button-success('lg');
 }
 
-form button[type="button"] {
+/* Form buttons - neutral by default, AI-buttons excluded */
+form button[type="button"]:not(.magic-icon-button):not(.dropdown-item) {
+    @include button-secondary('lg');
+}
+
+/* Explicit danger buttons when needed */
+form button[type="button"].btn-danger {
     @include button-danger('lg');
 }
 

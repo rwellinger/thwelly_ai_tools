@@ -26,6 +26,7 @@ export class SongGeneratorComponent implements OnInit {
     isTranslatingLyrics = false;
     isGeneratingLyrics = false;
     showLyricsDropdown = false;
+    showStyleDropdown = false;
     loadingMessage = '';
     result = '';
     currentlyPlaying: string | null = null;
@@ -446,13 +447,34 @@ export class SongGeneratorComponent implements OnInit {
         }
     }
 
+    toggleStyleDropdown() {
+        this.showStyleDropdown = !this.showStyleDropdown;
+    }
+
+    closeStyleDropdown() {
+        this.showStyleDropdown = false;
+    }
+
+    selectStyleAction(action: 'enhance') {
+        this.closeStyleDropdown();
+
+        if (action === 'enhance') {
+            this.improvePrompt();
+        }
+    }
+
     @HostListener('document:click', ['$event'])
     onDocumentClick(event: Event) {
         const target = event.target as HTMLElement;
-        const dropdown = target.closest('.lyrics-dropdown-container');
+        const lyricsDropdown = target.closest('.lyrics-dropdown-container');
+        const styleDropdown = target.closest('.style-dropdown-container');
 
-        if (!dropdown && this.showLyricsDropdown) {
+        if (!lyricsDropdown && this.showLyricsDropdown) {
             this.closeLyricsDropdown();
+        }
+
+        if (!styleDropdown && this.showStyleDropdown) {
+            this.closeStyleDropdown();
         }
     }
 

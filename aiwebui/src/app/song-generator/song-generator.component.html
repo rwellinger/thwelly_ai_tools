@@ -61,15 +61,28 @@
                             required
                             class="prompt-input">
                         </textarea>
-                        <button
-                            type="button"
-                            (click)="improvePrompt()"
-                            [disabled]="isImprovingPrompt || isTranslatingLyrics || !songForm.get('prompt')?.value?.trim()"
-                            class="magic-icon-button"
-                            title="Improve music style prompt with AI">
-                            <i class="fas fa-wand-magic-sparkles" *ngIf="!isImprovingPrompt"></i>
-                            <i class="fas fa-wand-magic-sparkles fa-spinner" *ngIf="isImprovingPrompt"></i>
-                        </button>
+                        <div class="style-dropdown-container">
+                            <button
+                                type="button"
+                                (click)="toggleStyleDropdown()"
+                                [disabled]="isImprovingPrompt || isTranslatingLyrics || isGeneratingLyrics || !songForm.get('prompt')?.value?.trim()"
+                                class="magic-icon-button"
+                                title="Music style actions">
+                                <i class="fas fa-ellipsis-vertical" *ngIf="!isImprovingPrompt"></i>
+                                <i class="fas fa-spinner fa-spin" *ngIf="isImprovingPrompt"></i>
+                            </button>
+                            <div class="dropdown-menu" *ngIf="showStyleDropdown" (click)="$event.stopPropagation()">
+                                <button
+                                    type="button"
+                                    class="dropdown-item"
+                                    [disabled]="isImprovingPrompt || isTranslatingLyrics || isGeneratingLyrics"
+                                    (click)="selectStyleAction('enhance')">
+                                    <i class="fas fa-wand-magic-sparkles"></i>
+                                    <span>Enhance Style Prompt</span>
+                                    <i class="fas fa-spinner fa-spin action-spinner" *ngIf="isImprovingPrompt"></i>
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 </div>
 

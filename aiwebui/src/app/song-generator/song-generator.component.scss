@@ -106,7 +106,7 @@ app-song-detail-panel {
 }
 
 .magic-icon-button {
-    @include button-secondary('sm');
+    @include button-ai('sm');
     border-radius: 50% !important;
     display: flex;
     align-items: center;
@@ -118,12 +118,13 @@ app-song-detail-panel {
     font-size: $font-lg;
 
     &:hover:not(:disabled) {
-        background-color: $background-selected !important;
+        background-color: $ai-hover !important;
         transform: scale(1.1);
     }
 }
 
-.lyrics-dropdown-container {
+.lyrics-dropdown-container,
+.style-dropdown-container {
     position: relative;
     display: inline-block;
 }
@@ -136,7 +137,7 @@ app-song-detail-panel {
     border: 1px solid $border-light;
     border-radius: $border-radius-lg;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-    min-width: 180px;
+    min-width: 220px;
     z-index: 1000;
     overflow: hidden;
     animation: dropdown-fade-in 0.15s ease-out;
@@ -169,7 +170,7 @@ app-song-detail-panel {
     i {
         width: 16px;
         flex-shrink: 0;
-        color: $text-muted;
+        color: $ai-color;
     }
 
     span {
@@ -179,7 +180,7 @@ app-song-detail-panel {
 
     .action-spinner {
         margin-left: auto;
-        color: $primary-color;
+        color: $ai-color;
         font-size: $font-sm;
     }
 }

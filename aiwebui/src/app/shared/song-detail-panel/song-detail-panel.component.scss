@@ -751,14 +751,14 @@
     &.thumbs-down {
         &:hover:not(.inactive) {
             background: #f8e8e8;
-            color: #dc3545;
-            border-color: #dc3545;
+            color: $danger-color;
+            border-color: $danger-color;
         }
 
         &.active {
-            background: #dc3545;
+            background: $danger-color;
             color: white;
-            border-color: #dc3545;
+            border-color: $danger-color;
 
             &:hover {
                 background: #c82333;
