@@ -39,57 +39,6 @@ export class PromptConfigService {
 
   constructor(private http: HttpClient) {}
 
-  // Fallback templates (same as before)
-  private fallbackTemplates: PromptTemplates = {
-    image: {
-      enhance: {
-        pre_condition: 'One-sentence DALL-E prompt:',
-        post_condition: 'Only respond with the prompt.',
-        description: 'Enhances image generation prompts for DALL-E',
-        version: '1.0',
-        model_hint: 'llama3'
-      },
-      translate: {
-        pre_condition: 'Translate this image prompt to english:',
-        post_condition: 'Only respond with the translation.',
-        description: 'Translates image prompts to English',
-        version: '1.0',
-        model_hint: 'gpt-oss'
-      }
-    },
-    music: {
-      enhance: {
-        pre_condition: 'One-sentence Suno Music Style prompt without artist names or band names:',
-        post_condition: 'Only respond with the prompt.',
-        description: 'Enhances music style prompts for Suno without artist references',
-        version: '1.0',
-        model_hint: 'llama3'
-      },
-      translate: {
-        pre_condition: 'Translate this music style description to english:',
-        post_condition: 'Only respond with the translation.',
-        description: 'Translates music style descriptions to English',
-        version: '1.0',
-        model_hint: 'gpt-oss'
-      }
-    },
-    lyrics: {
-      generate: {
-        pre_condition: 'Generate song lyrics from this text:',
-        post_condition: 'Only respond with the lyrics.',
-        description: 'Generates song lyrics from input text',
-        version: '1.0',
-        model_hint: 'llama3'
-      },
-      translate: {
-        pre_condition: 'By a britisch songwriter and translate this lyric text to britisch english:',
-        post_condition: 'Only respond with the translation.',
-        description: 'Translates lyrics to British English',
-        version: '1.0',
-        model_hint: 'gpt-oss'
-      }
-    }
-  };
 
   private isCacheValid(): boolean {
     return this.cachedTemplates !== null &&
@@ -117,11 +66,7 @@ export class PromptConfigService {
 
   private loadFromAPI(): Observable<PromptTemplates> {
     return this.http.get<PromptTemplatesGroupedResponse>(this.apiUrl).pipe(
-      map(response => this.convertResponseToTemplates(response)),
-      catchError(error => {
-        console.warn('Failed to load prompt templates from API, using fallback:', error);
-        return of(this.fallbackTemplates);
-      })
+      map(response => this.convertResponseToTemplates(response))
     );
   }
 
@@ -132,9 +77,8 @@ export class PromptConfigService {
       return categoryTemplates ? (categoryTemplates[action] || null) : null;
     }
 
-    // Fallback to local templates for synchronous access
-    const categoryTemplates = this.fallbackTemplates[category];
-    return categoryTemplates ? (categoryTemplates[action] || null) : null;
+    // No fallback - templates must be loaded from database
+    throw new Error(`No prompt template found for ${category}/${action} - database not loaded or template missing`);
   }
 
   getPromptTemplateAsync(category: string, action: string): Observable<PromptTemplate | null> {
@@ -155,7 +99,10 @@ export class PromptConfigService {
   }
 
   getAllTemplates(): PromptTemplates {
-    return this.cachedTemplates || this.fallbackTemplates;
+    if (!this.cachedTemplates) {
+      throw new Error('Prompt templates not loaded from database');
+    }
+    return this.cachedTemplates;
   }
 
   getAllTemplatesAsync(): Observable<PromptTemplates> {
@@ -174,7 +121,11 @@ export class PromptConfigService {
 
   getCategoryTemplates(category: string): PromptCategory | null {
     const templates = this.getAllTemplates();
-    return templates[category] || null;
+    const categoryTemplates = templates[category];
+    if (!categoryTemplates) {
+      throw new Error(`No prompt templates found for category '${category}' - check database`);
+    }
+    return categoryTemplates;
   }
 
   getCategoryTemplatesAsync(category: string): Observable<PromptCategory | null> {

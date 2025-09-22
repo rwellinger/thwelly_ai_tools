@@ -3,8 +3,12 @@ Chat Generation Routes - Ollama Integration
 """
 import sys
 import traceback
+import logging
 from flask import Blueprint, request, jsonify
+from sqlalchemy.orm import Session
 from api.controllers.chat_controller import ChatController
+from api.controllers.prompt_controller import PromptController
+from db.database import get_db
 
 api_chat_v1 = Blueprint("api_chat_v1", __name__, url_prefix="/api/v1/ollama/chat")
 
@@ -146,9 +150,29 @@ def generate_lyrics():
     if not input_text:
         return jsonify({"error": "Missing input_text parameter"}), 400
 
-    # Build system prompt for lyric generation
-    pre_condition = "You are a professional songwriter. Transform the following text into song lyrics with verses and chorus. Create meaningful, rhythmic lyrics that capture the essence of the original text:"
-    post_condition = "Output only the song lyrics in verse-chorus format. Use proper song structure and make it singable."
+    # Get prompt template from database
+    db: Session = next(get_db())
+    try:
+        template_response, template_status = PromptController.get_specific_template(db, "lyrics", "generate")
+
+        if template_status == 200:
+            # Use database template
+            pre_condition = template_response.get('pre_condition', '')
+            post_condition = template_response.get('post_condition', '')
+            pre_hint = pre_condition[:50] + "..." if len(pre_condition) > 50 else pre_condition
+            logging.warning(f"Using database prompt template for lyrics/generate - pre_condition: '{pre_hint}'")
+        else:
+            # Fallback to hardcoded prompts
+            pre_condition = "Generate song lyrics from this text:"
+            post_condition = "Only respond with the lyrics."
+            logging.warning(f"Database prompt template lyrics/generate not found (status: {template_status}), using fallback prompts")
+    except Exception as e:
+        # Fallback to hardcoded prompts on any error
+        pre_condition = "Generate song lyrics from this text:"
+        post_condition = "Only respond with the lyrics."
+        logging.error(f"Failed to load database prompt template lyrics/generate: {str(e)}, using fallback prompts")
+    finally:
+        db.close()
 
     # Fixed parameters for lyric generation
     model = "gpt-oss:20b"

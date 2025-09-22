@@ -1,6 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { ApiConfigService } from './api-config.service';
 import { PromptConfigService } from './prompt-config.service';
+import { firstValueFrom } from 'rxjs';
 
 export interface ChatResponse {
   model: string;
@@ -24,7 +25,7 @@ export class ChatService {
   private promptConfig = inject(PromptConfigService);
 
   async improveImagePrompt(prompt: string): Promise<string> {
-    const template = this.promptConfig.getPromptTemplate('image', 'enhance');
+    const template = await firstValueFrom(this.promptConfig.getPromptTemplateAsync('image', 'enhance'));
     if (!template) {
       throw new Error('Image enhance template not found');
     }
@@ -48,7 +49,7 @@ export class ChatService {
   }
 
   async improveMusicStylePrompt(prompt: string): Promise<string> {
-    const template = this.promptConfig.getPromptTemplate('music', 'enhance');
+    const template = await firstValueFrom(this.promptConfig.getPromptTemplateAsync('music', 'enhance'));
     if (!template) {
       throw new Error('Music enhance template not found');
     }
@@ -89,7 +90,7 @@ export class ChatService {
   }
 
   async translateLyric(prompt: string): Promise<string> {
-    const template = this.promptConfig.getPromptTemplate('lyrics', 'translate');
+    const template = await firstValueFrom(this.promptConfig.getPromptTemplateAsync('lyrics', 'translate'));
     if (!template) {
       throw new Error('Lyrics translate template not found');
     }
@@ -113,7 +114,7 @@ export class ChatService {
   }
 
   async translateMusicStylePrompt(prompt: string): Promise<string> {
-    const template = this.promptConfig.getPromptTemplate('music', 'translate');
+    const template = await firstValueFrom(this.promptConfig.getPromptTemplateAsync('music', 'translate'));
     if (!template) {
       throw new Error('Music translate template not found');
     }

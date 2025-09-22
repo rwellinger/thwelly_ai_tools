@@ -6,7 +6,7 @@ from typing import Tuple, Dict, Any
 from config.settings import MUREKA_API_KEY, MUREKA_STATUS_ENDPOINT, MUREKA_STEM_GENERATE_ENDPOINT
 from celery_app import generate_song_task
 from db.song_service import song_service
-from .json_helpers import prune
+from api.json_helpers import prune
 
 
 class SongCreationController:
