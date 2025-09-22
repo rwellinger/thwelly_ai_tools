@@ -17,24 +17,37 @@
                             required
                             class="lyrics-input">
                         </textarea>
-                        <button
-                            type="button"
-                            (click)="generateLyrics()"
-                            [disabled]="isGeneratingLyrics || isTranslatingLyrics || isImprovingPrompt || !songForm.get('lyrics')?.value?.trim()"
-                            class="magic-icon-button"
-                            title="Generate lyrics from text with AI">
-                            <i class="fas fa-music" *ngIf="!isGeneratingLyrics"></i>
-                            <i class="fas fa-music fa-spinner" *ngIf="isGeneratingLyrics"></i>
-                        </button>
-                        <button
-                            type="button"
-                            (click)="translateLyrics()"
-                            [disabled]="isTranslatingLyrics || isImprovingPrompt || isGeneratingLyrics || !songForm.get('lyrics')?.value?.trim()"
-                            class="magic-icon-button"
-                            title="Translate lyrics with AI">
-                            <i class="fas fa-language" *ngIf="!isTranslatingLyrics"></i>
-                            <i class="fas fa-language fa-spinner" *ngIf="isTranslatingLyrics"></i>
-                        </button>
+                        <div class="lyrics-dropdown-container">
+                            <button
+                                type="button"
+                                (click)="toggleLyricsDropdown()"
+                                [disabled]="isGeneratingLyrics || isTranslatingLyrics || isImprovingPrompt || !songForm.get('lyrics')?.value?.trim()"
+                                class="magic-icon-button"
+                                title="Lyrics actions">
+                                <i class="fas fa-ellipsis-vertical" *ngIf="!isGeneratingLyrics && !isTranslatingLyrics"></i>
+                                <i class="fas fa-spinner fa-spin" *ngIf="isGeneratingLyrics || isTranslatingLyrics"></i>
+                            </button>
+                            <div class="dropdown-menu" *ngIf="showLyricsDropdown" (click)="$event.stopPropagation()">
+                                <button
+                                    type="button"
+                                    class="dropdown-item"
+                                    [disabled]="isGeneratingLyrics || isTranslatingLyrics || isImprovingPrompt"
+                                    (click)="selectLyricsAction('generate')">
+                                    <i class="fas fa-music"></i>
+                                    <span>Create Lyrics</span>
+                                    <i class="fas fa-spinner fa-spin action-spinner" *ngIf="isGeneratingLyrics"></i>
+                                </button>
+                                <button
+                                    type="button"
+                                    class="dropdown-item"
+                                    [disabled]="isGeneratingLyrics || isTranslatingLyrics || isImprovingPrompt"
+                                    (click)="selectLyricsAction('translate')">
+                                    <i class="fas fa-language"></i>
+                                    <span>Translate to English</span>
+                                    <i class="fas fa-spinner fa-spin action-spinner" *ngIf="isTranslatingLyrics"></i>
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 </div>
 

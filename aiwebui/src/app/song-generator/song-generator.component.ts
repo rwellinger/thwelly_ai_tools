@@ -1,4 +1,4 @@
-import {Component, OnInit, ViewEncapsulation, inject} from '@angular/core';
+import {Component, OnInit, ViewEncapsulation, inject, HostListener} from '@angular/core';
 import {FormBuilder, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
 import {CommonModule} from '@angular/common';
 import {SongService} from '../services/song.service';
@@ -25,6 +25,7 @@ export class SongGeneratorComponent implements OnInit {
     isImprovingPrompt = false;
     isTranslatingLyrics = false;
     isGeneratingLyrics = false;
+    showLyricsDropdown = false;
     loadingMessage = '';
     result = '';
     currentlyPlaying: string | null = null;
@@ -424,6 +425,34 @@ export class SongGeneratorComponent implements OnInit {
             this.notificationService.error(`Error translating lyrics: ${error.message}`);
         } finally {
             this.isTranslatingLyrics = false;
+        }
+    }
+
+    toggleLyricsDropdown() {
+        this.showLyricsDropdown = !this.showLyricsDropdown;
+    }
+
+    closeLyricsDropdown() {
+        this.showLyricsDropdown = false;
+    }
+
+    selectLyricsAction(action: 'generate' | 'translate') {
+        this.closeLyricsDropdown();
+
+        if (action === 'generate') {
+            this.generateLyrics();
+        } else if (action === 'translate') {
+            this.translateLyrics();
+        }
+    }
+
+    @HostListener('document:click', ['$event'])
+    onDocumentClick(event: Event) {
+        const target = event.target as HTMLElement;
+        const dropdown = target.closest('.lyrics-dropdown-container');
+
+        if (!dropdown && this.showLyricsDropdown) {
+            this.closeLyricsDropdown();
         }
     }
 
