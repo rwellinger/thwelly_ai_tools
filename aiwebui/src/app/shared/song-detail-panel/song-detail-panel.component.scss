@@ -102,12 +102,20 @@
     @include input-focus-state($primary-hover);
 }
 
+/* ===== TAGS & WORKFLOW CONTAINER ===== */
+.tags-workflow-container {
+    display: flex;
+    gap: $spacing-12;
+    align-items: flex-start;
+}
+
 /* ===== TAGS SECTION ===== */
 .song-tags-section {
     background-color: $background-light;
     padding: $spacing-12;
     border-radius: $border-radius-lg;
     border-left: 4px solid $success-color;
+    flex: 0 0 60%;
 }
 
 /* ===== WORKFLOW SECTION ===== */
@@ -116,6 +124,7 @@
     padding: $spacing-12;
     border-radius: $border-radius-lg;
     border-left: 4px solid $primary-color;
+    flex: 0 0 40%;
 }
 
 .workflow-row {
@@ -136,12 +145,8 @@
 .workflow-display {
     color: $text-secondary;
     font-size: $font-sm;
-    padding: $spacing-6 $spacing-10;
-    background-color: $background-white;
-    border-radius: $border-radius-sm;
-    border: 1px solid $border-light;
     flex: 1;
-    max-width: 200px;
+    word-break: break-word;
 }
 
 .workflow-edit-section {
@@ -645,6 +650,16 @@
 
     .lyrics-dialog-actions {
         flex-direction: column;
+    }
+
+    .tags-workflow-container {
+        flex-direction: column;
+        gap: $spacing-10;
+    }
+
+    .song-tags-section,
+    .song-workflow-section {
+        flex: none;
     }
 }
 

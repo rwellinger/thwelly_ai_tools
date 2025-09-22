@@ -26,7 +26,7 @@ export class SongViewComponent implements OnInit, OnDestroy {
   selectedSong: any = null;
   pagination: any = {
     total: 0,
-    limit: 15,
+    limit: 13,
     offset: 0,
     has_more: false
   };

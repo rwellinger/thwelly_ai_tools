@@ -3,7 +3,6 @@
 <div class="controls-container">
     <!-- Main controls -->
     <div class="controls-section">
-        <h3>Song List Controls</h3>
         <div class="controls-buttons">
             <button type="button" (click)="loadSongs(Math.floor(pagination.offset / pagination.limit))"
                     [disabled]="isLoading">
@@ -21,7 +20,6 @@
 
     <!-- Selection controls - only visible in selection mode -->
     <div class="controls-section selection-section" *ngIf="isSelectionMode">
-        <h3>Selection Actions</h3>
         <div class="controls-buttons">
             <button type="button" (click)="selectAllSongs()" [disabled]="isLoading">
                 <i class="fas fa-check-double"></i> Select All
