@@ -23,6 +23,7 @@ export class ImageGeneratorComponent implements OnInit {
     promptForm!: FormGroup;
     isLoading = false;
     isImprovingPrompt = false;
+    isTranslatingPrompt = false;
     showPromptDropdown = false;
     result = '';
     generatedImageUrl = '';
@@ -143,11 +144,33 @@ export class ImageGeneratorComponent implements OnInit {
                 'Enhancing Prompt...',
                 'AI is improving your image prompt'
             );
-            this.promptForm.patchValue({prompt: improvedPrompt});
+            this.promptForm.patchValue({prompt: this.removeQuotes(improvedPrompt)});
         } catch (error: any) {
             this.notificationService.error(`Error improving prompt: ${error.message}`);
         } finally {
             this.isImprovingPrompt = false;
+        }
+    }
+
+    async translatePrompt() {
+        const currentPrompt = this.promptForm.get('prompt')?.value?.trim();
+        if (!currentPrompt) {
+            this.notificationService.error('Please enter a prompt first');
+            return;
+        }
+
+        this.isTranslatingPrompt = true;
+        try {
+            const translatedPrompt = await this.progressService.executeWithProgress(
+                () => this.chatService.translateImagePrompt(currentPrompt),
+                'Translating Prompt...',
+                'AI is translating your image prompt to English'
+            );
+            this.promptForm.patchValue({prompt: this.removeQuotes(translatedPrompt)});
+        } catch (error: any) {
+            this.notificationService.error(`Error translating prompt: ${error.message}`);
+        } finally {
+            this.isTranslatingPrompt = false;
         }
     }
 
@@ -159,11 +182,13 @@ export class ImageGeneratorComponent implements OnInit {
         this.showPromptDropdown = false;
     }
 
-    selectPromptAction(action: 'enhance') {
+    selectPromptAction(action: 'enhance' | 'translate') {
         this.closePromptDropdown();
 
         if (action === 'enhance') {
             this.improvePrompt();
+        } else if (action === 'translate') {
+            this.translatePrompt();
         }
     }
 
@@ -182,5 +207,10 @@ export class ImageGeneratorComponent implements OnInit {
         this.imageService.clearFormData();
         this.generatedImageUrl = '';
         this.generatedImageData = null;
+    }
+
+    private removeQuotes(text: string): string {
+        if (!text) return text;
+        return text.replace(/^["']|["']$/g, '').trim();
     }
 }
