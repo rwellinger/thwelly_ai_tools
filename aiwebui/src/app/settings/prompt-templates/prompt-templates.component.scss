@@ -31,9 +31,11 @@
 /* Master-Detail Layout */
 .master-detail-container {
     display: grid;
-    grid-template-columns: 1fr 400px;
+    grid-template-columns: 40% 60%;
     gap: $spacing-lg;
-    height: calc(100vh - 200px);
+    height: calc(100vh - 250px);
+    min-height: 400px;
+    max-height: 70vh;
     overflow: hidden;
 
     @media (max-width: 1024px) {
@@ -59,7 +61,9 @@
 }
 
 .list-header {
-    @include flex-between();
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
     padding: $spacing-15 $spacing-20;
     border-bottom: 1px solid $border-light;
     background: $background-light;
@@ -73,7 +77,7 @@
 }
 
 .pagination-info-badge {
-    @include badge($primary-color, $background-white);
+    @include status-badge($primary-color, $background-white);
     font-size: $font-xs;
     padding: 4px 8px;
 }
@@ -91,10 +95,19 @@
 }
 
 .search-input {
-    @include input-field();
+    width: 100%;
+    padding: $spacing-sm $spacing-12;
     padding-left: 40px;
     padding-right: 40px;
+    border: 1px solid $border-light;
+    border-radius: $border-radius-sm;
     font-size: $font-sm;
+    margin-bottom: 5px;
+    box-sizing: border-box;
+
+    &:focus {
+        @include input-focus-state($primary-color);
+    }
 }
 
 .search-icon {
@@ -116,24 +129,28 @@
     transition: all 0.2s ease;
 
     &:hover {
-        color: $error-color;
-        background: rgba($error-color, 0.1);
+        color: $danger-color;
+        background: rgba($danger-color, 0.1);
     }
 }
 
 /* Template List */
 .template-list-container {
     flex: 1;
-    overflow-y: auto;
+
     position: relative;
+    max-height: 400px;
 }
 
 .loading-overlay {
-    @include loading-overlay();
+    @include modal-overlay(0.5, 1000);
 }
 
 .loading-content {
-    @include flex-center();
+    @include modal-content(300px, auto, $border-radius-lg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
     flex-direction: column;
     gap: $spacing-10;
     color: $text-secondary;
@@ -149,16 +166,17 @@
 }
 
 .template-item {
-    @include card-container($border-light, $background-white, $spacing-12);
-    margin-bottom: $spacing-sm;
+    @include card-container($border-light, $background-white, $spacing-6);
+    margin-bottom: $spacing-xs;
     cursor: pointer;
     transition: all 0.3s ease;
     border-left: 4px solid transparent;
 
     &:hover {
-        @include hover-effect();
+        background-color: $background-light;
         border-left-color: $primary-color;
         transform: translateX(2px);
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
     }
 
     &.selected {
@@ -170,7 +188,9 @@
 }
 
 .template-header {
-    @include flex-between();
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
     margin-bottom: $spacing-sm;
 }
 
@@ -181,7 +201,7 @@
 }
 
 .template-version {
-    @include badge($success-color, $background-white);
+    @include status-badge($success-color, $background-white);
     font-size: $font-xs;
     padding: 2px 6px;
 }
@@ -194,18 +214,22 @@
 }
 
 .template-meta {
-    @include flex-between();
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
     font-size: $font-xs;
     color: $text-secondary;
 }
 
 .template-status {
-    @include flex-center();
+    display: flex;
+    align-items: center;
+    justify-content: center;
     gap: 4px;
 
     .fa-circle {
         font-size: 6px;
-        color: $error-color;
+        color: $danger-color;
 
         &.active {
             color: $success-color;
@@ -214,14 +238,16 @@
 }
 
 .no-templates {
-    @include flex-center();
+    display: flex;
+    align-items: center;
+    justify-content: center;
     flex-direction: column;
-    padding: $spacing-30;
+    padding: $spacing-20;
     color: $text-secondary;
     gap: $spacing-10;
 
     i {
-        font-size: $font-xxl;
+        font-size: $font-3xl;
         margin-bottom: $spacing-sm;
     }
 
@@ -246,9 +272,12 @@
 }
 
 .detail-header {
-    @include flex-between();
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
     margin-bottom: $spacing-20;
     padding-bottom: $spacing-15;
+    padding-right: $spacing-15;
     border-bottom: 1px solid $border-light;
 }
 
@@ -261,17 +290,19 @@
 }
 
 .template-info {
-    @include flex-start();
+    display: flex;
+    align-items: flex-start;
+    justify-content: flex-start;
     gap: $spacing-sm;
 }
 
 .version-badge {
-    @include badge($info-color, $background-white);
+    @include status-badge($info-color, $background-white);
     font-size: $font-xs;
 }
 
 .status-badge {
-    @include badge($error-color, $background-white);
+    @include status-badge($danger-color, $background-white);
     font-size: $font-xs;
 
     &.active {
@@ -280,7 +311,9 @@
 }
 
 .action-buttons {
-    @include flex-end();
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
     gap: $spacing-sm;
 }
 
@@ -303,6 +336,36 @@
         color: $text-primary;
         margin-bottom: $spacing-sm;
         font-size: $font-sm;
+    }
+}
+
+/* Description Section Layout */
+.description-section {
+    margin-bottom: $spacing-20;
+
+    label {
+        display: block;
+        font-weight: 600;
+        color: $text-primary;
+        margin-bottom: $spacing-sm;
+        font-size: $font-sm;
+    }
+}
+
+.description-textarea {
+    width: 50% !important;
+    min-width: 300px;
+    max-width: 400px;
+}
+
+.main-content-sections {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: $spacing-lg;
+
+    @media (max-width: 768px) {
+        grid-template-columns: 1fr;
+        gap: $spacing-md;
     }
 }
 
@@ -329,14 +392,27 @@
 .template-edit-form {
     flex: 1;
     overflow-y: auto;
+    padding-right: $spacing-15;
 }
 
 .form-textarea {
-    @include input-field();
+    width: 100%;
+    padding: $spacing-sm $spacing-12;
+    border: 1px solid $border-light;
+    border-radius: $border-radius-sm;
     resize: vertical;
     font-family: 'Courier New', monospace;
     font-size: $font-xs;
     line-height: 1.5;
+    box-sizing: border-box;
+
+    &:focus {
+        @include input-focus-state($primary-color);
+    }
+
+    &.tiny {
+        min-height: 40px;
+    }
 
     &.small {
         min-height: 60px;
@@ -357,7 +433,9 @@
 }
 
 .form-actions {
-    @include flex-end();
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
     gap: $spacing-sm;
     margin-top: $spacing-20;
     padding-top: $spacing-15;
@@ -378,38 +456,49 @@
 }
 
 /* Template Metadata */
-.template-metadata {
+.template-meta-info {
     margin-top: $spacing-20;
     padding-top: $spacing-15;
     border-top: 1px solid $border-light;
 }
 
+.meta-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: $spacing-sm;
+}
+
 .meta-item {
-    @include flex-between();
-    margin-bottom: $spacing-sm;
-    font-size: $font-xs;
+    display: flex;
+    align-items: center;
+    gap: $spacing-6;
+}
 
-    label {
-        font-weight: 600;
-        color: $text-secondary;
-        margin: 0;
-    }
+.meta-icon {
+    color: $primary-color;
+    font-size: $font-sm;
+    width: 14px;
+    flex-shrink: 0;
+}
 
-    span {
-        color: $text-primary;
-    }
+.meta-value {
+    color: $text-primary;
+    font-size: $font-sm;
+    font-weight: $font-weight-medium;
 }
 
 /* No Selection */
 .no-selection {
-    @include flex-center();
+    display: flex;
+    align-items: center;
+    justify-content: center;
     flex-direction: column;
     height: 100%;
     color: $text-secondary;
     gap: $spacing-15;
 
     i {
-        font-size: $font-xxl;
+        font-size: $font-3xl;
         margin-bottom: $spacing-sm;
     }
 

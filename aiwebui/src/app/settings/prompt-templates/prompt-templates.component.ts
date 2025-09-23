@@ -104,8 +104,9 @@ export class PromptTemplatesComponent implements OnInit, OnDestroy {
     }
   }
 
-  onSearchChange(searchTerm: string): void {
-    this.searchSubject.next(searchTerm);
+  onSearchChange(event: Event): void {
+    const value = (event.target as HTMLInputElement).value;
+    this.searchSubject.next(value);
   }
 
   clearSearch(): void {

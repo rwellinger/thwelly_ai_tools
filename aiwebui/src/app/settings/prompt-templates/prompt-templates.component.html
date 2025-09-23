@@ -4,9 +4,6 @@
             <button type="button" (click)="loadTemplates()" [disabled]="isLoading">
                 <i class="fas fa-refresh"></i> Refresh
             </button>
-            <button type="button" (click)="clearSearch()" [disabled]="!searchTerm">
-                <i class="fas fa-times"></i> Clear Search
-            </button>
         </div>
     </div>
 </div>
@@ -26,7 +23,7 @@
                 <input type="text"
                        #searchInput
                        [(ngModel)]="searchTerm"
-                       (input)="onSearchChange(($event.target as HTMLInputElement).value)"
+                       (input)="onSearchChange($event)"
                        placeholder="Search templates..."
                        class="search-input">
                 <i class="fas fa-search search-icon"></i>
@@ -96,9 +93,15 @@
                     </div>
                 </div>
 
-                <div class="action-buttons" *ngIf="!editingTemplate">
-                    <button type="button" (click)="startEdit()" [disabled]="isLoading" class="edit-btn">
+                <div class="action-buttons">
+                    <button type="button" *ngIf="!editingTemplate" (click)="startEdit()" [disabled]="isLoading" class="edit-btn">
                         <i class="fas fa-edit"></i> Edit
+                    </button>
+                    <button type="button" *ngIf="editingTemplate" (click)="saveTemplate()" [disabled]="isLoading || !editForm.pre_condition.trim() || !editForm.post_condition.trim()" class="save-btn">
+                        <i class="fas fa-save"></i> Save
+                    </button>
+                    <button type="button" *ngIf="editingTemplate" (click)="cancelEdit()" [disabled]="isLoading" class="cancel-btn">
+                        <i class="fas fa-times"></i> Cancel
                     </button>
                 </div>
             </div>
@@ -106,95 +109,84 @@
             <!-- Read-only view -->
             <div class="template-details" *ngIf="!editingTemplate">
                 <div class="detail-section">
-                    <label>Category:</label>
+                    <span class="field-label">Category:</span>
                     <div class="readonly-field">{{ selectedTemplate.category }}</div>
                 </div>
 
                 <div class="detail-section">
-                    <label>Action:</label>
+                    <span class="field-label">Action:</span>
                     <div class="readonly-field">{{ selectedTemplate.action }}</div>
                 </div>
 
                 <div class="detail-section">
-                    <label>Description:</label>
+                    <span class="field-label">Description:</span>
                     <div class="readonly-field">{{ selectedTemplate.description || 'No description' }}</div>
                 </div>
 
                 <div class="detail-section">
-                    <label>Pre-condition:</label>
+                    <span class="field-label">Pre-condition:</span>
                     <div class="readonly-field multiline">{{ selectedTemplate.pre_condition }}</div>
                 </div>
 
                 <div class="detail-section">
-                    <label>Post-condition:</label>
+                    <span class="field-label">Post-condition:</span>
                     <div class="readonly-field multiline">{{ selectedTemplate.post_condition }}</div>
                 </div>
 
-                <div class="template-metadata">
-                    <div class="meta-item" *ngIf="selectedTemplate.model_hint">
-                        <label>Model Hint:</label>
-                        <span>{{ selectedTemplate.model_hint }}</span>
-                    </div>
-                    <div class="meta-item">
-                        <label>Created:</label>
-                        <span>{{ formatDate(selectedTemplate.created_at) }}</span>
-                    </div>
-                    <div class="meta-item" *ngIf="selectedTemplate.updated_at">
-                        <label>Updated:</label>
-                        <span>{{ formatDate(selectedTemplate.updated_at) }}</span>
+                <div class="template-meta-info">
+                    <div class="meta-grid">
+                        <div class="meta-item">
+                            <i class="fas fa-folder meta-icon"></i>
+                            <span class="meta-value">{{ selectedTemplate.category }}</span>
+                        </div>
+                        <div class="meta-item">
+                            <i class="fas fa-bolt meta-icon"></i>
+                            <span class="meta-value">{{ selectedTemplate.action }}</span>
+                        </div>
+                        <div class="meta-item">
+                            <i class="fas fa-calendar meta-icon"></i>
+                            <span class="meta-value">{{ formatDate(selectedTemplate.created_at) }}</span>
+                        </div>
+                        <div class="meta-item" *ngIf="selectedTemplate.updated_at">
+                            <i class="fas fa-sync meta-icon"></i>
+                            <span class="meta-value">{{ formatDate(selectedTemplate.updated_at) }}</span>
+                        </div>
                     </div>
                 </div>
             </div>
 
             <!-- Edit mode -->
             <div class="template-edit-form" *ngIf="editingTemplate">
-                <div class="detail-section">
-                    <label>Category:</label>
-                    <div class="readonly-field">{{ selectedTemplate.category }}</div>
-                </div>
-
-                <div class="detail-section">
-                    <label>Action:</label>
-                    <div class="readonly-field">{{ selectedTemplate.action }}</div>
-                </div>
-
-                <div class="detail-section">
+                <div class="description-section">
                     <label for="description">Description:</label>
                     <textarea id="description"
                               [(ngModel)]="editForm.description"
-                              class="form-textarea small"
-                              rows="2"
+                              class="form-textarea tiny description-textarea"
+                              rows="1"
                               placeholder="Enter description..."></textarea>
                 </div>
 
-                <div class="detail-section">
-                    <label for="preCondition">Pre-condition: *</label>
-                    <textarea id="preCondition"
-                              #preConditionTextarea
-                              [(ngModel)]="editForm.pre_condition"
-                              class="form-textarea large"
-                              rows="8"
-                              required
-                              placeholder="Enter pre-condition..."></textarea>
-                </div>
+                <div class="main-content-sections">
+                    <div class="detail-section">
+                        <label for="preCondition">Pre-condition: *</label>
+                        <textarea id="preCondition"
+                                  #preConditionTextarea
+                                  [(ngModel)]="editForm.pre_condition"
+                                  class="form-textarea large"
+                                  rows="7"
+                                  required
+                                  placeholder="Enter pre-condition..."></textarea>
+                    </div>
 
-                <div class="detail-section">
-                    <label for="postCondition">Post-condition: *</label>
-                    <textarea id="postCondition"
-                              [(ngModel)]="editForm.post_condition"
-                              class="form-textarea medium"
-                              rows="5"
-                              required
-                              placeholder="Enter post-condition..."></textarea>
-                </div>
-
-                <div class="form-actions">
-                    <button type="button" (click)="saveTemplate()" [disabled]="isLoading || !editForm.pre_condition.trim() || !editForm.post_condition.trim()" class="save-btn">
-                        <i class="fas fa-save"></i> Save
-                    </button>
-                    <button type="button" (click)="cancelEdit()" [disabled]="isLoading" class="cancel-btn">
-                        <i class="fas fa-times"></i> Cancel
-                    </button>
+                    <div class="detail-section">
+                        <label for="postCondition">Post-condition: *</label>
+                        <textarea id="postCondition"
+                                  [(ngModel)]="editForm.post_condition"
+                                  class="form-textarea large"
+                                  rows="7"
+                                  required
+                                  placeholder="Enter post-condition..."></textarea>
+                    </div>
                 </div>
             </div>
         </div>
