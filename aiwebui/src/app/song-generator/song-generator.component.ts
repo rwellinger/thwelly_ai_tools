@@ -393,7 +393,7 @@ export class SongGeneratorComponent implements OnInit {
                 'Enhancing Style Prompt...',
                 'AI is improving your music style description'
             );
-            this.songForm.patchValue({prompt: improvedPrompt});
+            this.songForm.patchValue({prompt: this.removeQuotes(improvedPrompt)});
         } catch (error: any) {
             this.notificationService.error(`Error improving prompt: ${error.message}`);
         } finally {
@@ -415,7 +415,7 @@ export class SongGeneratorComponent implements OnInit {
                 'Creating Lyrics...',
                 'AI is generating song lyrics from your text'
             );
-            this.songForm.patchValue({lyrics: generatedLyrics});
+            this.songForm.patchValue({lyrics: this.removeQuotes(generatedLyrics)});
         } catch (error: any) {
             this.notificationService.error(`Error generating lyrics: ${error.message}`);
         } finally {
@@ -437,7 +437,7 @@ export class SongGeneratorComponent implements OnInit {
                 'Translating Lyrics...',
                 'AI is translating your lyrics to English'
             );
-            this.songForm.patchValue({lyrics: translatedLyrics});
+            this.songForm.patchValue({lyrics: this.removeQuotes(translatedLyrics)});
         } catch (error: any) {
             this.notificationService.error(`Error translating lyrics: ${error.message}`);
         } finally {
@@ -495,7 +495,7 @@ export class SongGeneratorComponent implements OnInit {
                 'Translating Style Prompt...',
                 'AI is translating your music style description to English'
             );
-            this.songForm.patchValue({prompt: translatedPrompt});
+            this.songForm.patchValue({prompt: this.removeQuotes(translatedPrompt)});
         } catch (error: any) {
             this.notificationService.error(`Error translating style prompt: ${error.message}`);
         } finally {
@@ -534,5 +534,10 @@ export class SongGeneratorComponent implements OnInit {
                 stemDownloadUrl: choice.stemDownloadUrl
             }));
         }
+    }
+
+    private removeQuotes(text: string): string {
+        if (!text) return text;
+        return text.replace(/^["']|["']$/g, '').trim();
     }
 }

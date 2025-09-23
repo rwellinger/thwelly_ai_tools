@@ -353,6 +353,67 @@
     }
 }
 
+/* AI Parameters Section */
+.ai-parameters-section {
+    margin-bottom: $spacing-20;
+    padding: $spacing-15;
+    background: $background-light;
+    border: 1px solid $border-light;
+    border-radius: $border-radius-sm;
+
+    h4 {
+        margin: 0 0 $spacing-15 0;
+        color: $text-primary;
+        font-size: $font-sm;
+        font-weight: 600;
+        border-bottom: 1px solid $border-light;
+        padding-bottom: $spacing-sm;
+    }
+}
+
+.parameter-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: $spacing-md;
+
+    @media (max-width: 768px) {
+        grid-template-columns: 1fr;
+        gap: $spacing-sm;
+    }
+}
+
+.parameter-field {
+    display: flex;
+    flex-direction: column;
+
+    label {
+        font-weight: 600;
+        color: $text-primary;
+        margin-bottom: $spacing-xs;
+        font-size: $font-xs;
+    }
+
+    .form-select, .form-input {
+        padding: $spacing-xs $spacing-sm;
+        border: 1px solid $border-light;
+        border-radius: $border-radius-sm;
+        font-size: $font-xs;
+        background: $background-white;
+        box-sizing: border-box;
+
+        &:focus {
+            @include input-focus-state($primary-color);
+        }
+    }
+
+    .field-hint {
+        font-size: $font-xs;
+        color: $text-secondary;
+        margin-top: $spacing-xs;
+        font-style: italic;
+    }
+}
+
 .description-textarea {
     width: 50% !important;
     min-width: 300px;

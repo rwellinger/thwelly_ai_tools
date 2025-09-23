@@ -109,18 +109,23 @@
             <!-- Read-only view -->
             <div class="template-details" *ngIf="!editingTemplate">
                 <div class="detail-section">
-                    <span class="field-label">Category:</span>
-                    <div class="readonly-field">{{ selectedTemplate.category }}</div>
-                </div>
-
-                <div class="detail-section">
-                    <span class="field-label">Action:</span>
-                    <div class="readonly-field">{{ selectedTemplate.action }}</div>
-                </div>
-
-                <div class="detail-section">
                     <span class="field-label">Description:</span>
                     <div class="readonly-field">{{ selectedTemplate.description || 'No description' }}</div>
+                </div>
+
+                <div class="detail-section">
+                    <span class="field-label">Model:</span>
+                    <div class="readonly-field">{{ selectedTemplate.model || 'Default (llama3.2:3b)' }}</div>
+                </div>
+
+                <div class="detail-section">
+                    <span class="field-label">Temperature:</span>
+                    <div class="readonly-field">{{ selectedTemplate.temperature !== null ? selectedTemplate.temperature : 'Default (0.7)' }}</div>
+                </div>
+
+                <div class="detail-section">
+                    <span class="field-label">Max Tokens:</span>
+                    <div class="readonly-field">{{ selectedTemplate.max_tokens !== null && selectedTemplate.max_tokens !== undefined ? selectedTemplate.max_tokens + ' ' + getTokensToWordsHint(selectedTemplate.max_tokens) : 'Default (2048)' }}</div>
                 </div>
 
                 <div class="detail-section">
@@ -135,14 +140,6 @@
 
                 <div class="template-meta-info">
                     <div class="meta-grid">
-                        <div class="meta-item">
-                            <i class="fas fa-folder meta-icon"></i>
-                            <span class="meta-value">{{ selectedTemplate.category }}</span>
-                        </div>
-                        <div class="meta-item">
-                            <i class="fas fa-bolt meta-icon"></i>
-                            <span class="meta-value">{{ selectedTemplate.action }}</span>
-                        </div>
                         <div class="meta-item">
                             <i class="fas fa-calendar meta-icon"></i>
                             <span class="meta-value">{{ formatDate(selectedTemplate.created_at) }}</span>
@@ -164,6 +161,45 @@
                               class="form-textarea tiny description-textarea"
                               rows="1"
                               placeholder="Enter description..."></textarea>
+                </div>
+
+                <!-- AI Parameters Section -->
+                <div class="ai-parameters-section">
+                    <h4>AI Parameters</h4>
+
+                    <div class="parameter-row">
+                        <div class="parameter-field">
+                            <label for="model">Model:</label>
+                            <select id="model" [(ngModel)]="editForm.model" class="form-select">
+                                <option value="">Default (llama3.2:3b)</option>
+                                <option *ngFor="let model of availableModels" [value]="model.value">
+                                    {{ model.label }}
+                                </option>
+                            </select>
+                        </div>
+
+                        <div class="parameter-field">
+                            <label for="temperature">Temperature:</label>
+                            <select id="temperature" [(ngModel)]="editForm.temperature" class="form-select">
+                                <option [ngValue]="null">Default (0.7)</option>
+                                <option *ngFor="let temp of temperatureOptions" [value]="temp.value">
+                                    {{ temp.label }}
+                                </option>
+                            </select>
+                        </div>
+
+                        <div class="parameter-field">
+                            <label for="maxTokens">Max Tokens:</label>
+                            <input type="number"
+                                   id="maxTokens"
+                                   [(ngModel)]="editForm.max_tokens"
+                                   class="form-input"
+                                   min="1"
+                                   max="100000"
+                                   placeholder="Default (2048)">
+                            <small class="field-hint" *ngIf="editForm.max_tokens">{{ getTokensToWordsHint(editForm.max_tokens) }}</small>
+                        </div>
+                    </div>
                 </div>
 
                 <div class="main-content-sections">

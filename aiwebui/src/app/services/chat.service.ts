@@ -136,4 +136,28 @@ export class ChatService {
     const data: ChatResponse = await response.json();
     return data.response;
   }
+
+  async translateImagePrompt(prompt: string): Promise<string> {
+    const template = await firstValueFrom(this.promptConfig.getPromptTemplateAsync('image', 'translate'));
+    if (!template) {
+      throw new Error('Image translate template not found');
+    }
+
+    const response = await fetch(this.apiConfig.endpoints.chat.generateGptOssSimple, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        pre_condition: template.pre_condition,
+        prompt: prompt,
+        post_condition: template.post_condition
+      })
+    });
+
+    if (!response.ok) {
+      throw new Error(`Chat API error: ${response.status}`);
+    }
+
+    const data: ChatResponse = await response.json();
+    return data.response;
+  }
 }
