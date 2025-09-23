@@ -178,8 +178,6 @@ export class PromptTemplatesComponent implements OnInit, OnDestroy {
 
       this.applyFilter();
       this.cancelEdit();
-
-      this.notificationService.success(`Template updated successfully! Version: ${updatedTemplate.version}`);
     } catch (error: any) {
       this.notificationService.error(`Error saving template: ${error.message}`);
     } finally {
