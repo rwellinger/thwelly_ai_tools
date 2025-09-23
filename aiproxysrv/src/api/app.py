@@ -51,6 +51,132 @@ def create_app():
     @app.route("/api/openapi.json")
     def openapi_spec():
         """OpenAPI JSON specification endpoint"""
+        # Generate schema from Pydantic models
+        from schemas.image_schemas import ImageGenerateRequest, ImageResponse
+        from schemas.song_schemas import SongGenerateRequest, SongResponse
+        from schemas.chat_schemas import ChatRequest, ChatResponse
+        from schemas.common_schemas import ErrorResponse, HealthResponse
+
+        # Add schemas to spec
+        spec.components.schema("ImageGenerateRequest", schema=ImageGenerateRequest)
+        spec.components.schema("ImageResponse", schema=ImageResponse)
+        spec.components.schema("SongGenerateRequest", schema=SongGenerateRequest)
+        spec.components.schema("SongResponse", schema=SongResponse)
+        spec.components.schema("ChatRequest", schema=ChatRequest)
+        spec.components.schema("ChatResponse", schema=ChatResponse)
+        spec.components.schema("ErrorResponse", schema=ErrorResponse)
+        spec.components.schema("HealthResponse", schema=HealthResponse)
+
+        # Add paths manually since we're not using decorators
+        spec.path(
+            path="/image/generate",
+            operations={
+                "post": {
+                    "tags": ["Images"],
+                    "summary": "Generate image with DALL-E",
+                    "requestBody": {
+                        "content": {
+                            "application/json": {
+                                "schema": {"$ref": "#/components/schemas/ImageGenerateRequest"}
+                            }
+                        }
+                    },
+                    "responses": {
+                        "200": {
+                            "description": "Image generation started",
+                            "content": {
+                                "application/json": {
+                                    "schema": {"$ref": "#/components/schemas/ImageResponse"}
+                                }
+                            }
+                        },
+                        "400": {
+                            "description": "Validation error",
+                            "content": {
+                                "application/json": {
+                                    "schema": {"$ref": "#/components/schemas/ErrorResponse"}
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        )
+
+        spec.path(
+            path="/song/generate",
+            operations={
+                "post": {
+                    "tags": ["Songs"],
+                    "summary": "Generate song with MUREKA",
+                    "requestBody": {
+                        "content": {
+                            "application/json": {
+                                "schema": {"$ref": "#/components/schemas/SongGenerateRequest"}
+                            }
+                        }
+                    },
+                    "responses": {
+                        "200": {
+                            "description": "Song generation started",
+                            "content": {
+                                "application/json": {
+                                    "schema": {"$ref": "#/components/schemas/SongResponse"}
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        )
+
+        spec.path(
+            path="/ollama/chat/generate",
+            operations={
+                "post": {
+                    "tags": ["Chat"],
+                    "summary": "Generate chat response with Ollama",
+                    "requestBody": {
+                        "content": {
+                            "application/json": {
+                                "schema": {"$ref": "#/components/schemas/ChatRequest"}
+                            }
+                        }
+                    },
+                    "responses": {
+                        "200": {
+                            "description": "Chat response generated",
+                            "content": {
+                                "application/json": {
+                                    "schema": {"$ref": "#/components/schemas/ChatResponse"}
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        )
+
+        spec.path(
+            path="/health",
+            operations={
+                "get": {
+                    "tags": ["System"],
+                    "summary": "Health check endpoint",
+                    "responses": {
+                        "200": {
+                            "description": "Service health status",
+                            "content": {
+                                "application/json": {
+                                    "schema": {"$ref": "#/components/schemas/HealthResponse"}
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        )
+
         return jsonify(spec.to_dict())
 
     @app.route("/api/docs/")
