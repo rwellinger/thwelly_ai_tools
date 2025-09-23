@@ -399,7 +399,8 @@ export class SongViewComponent implements OnInit, OnDestroy {
   toggleSongSelection(songId: string) {
     const song = this.songs.find(s => s.id === songId);
     if (song && !this.canDeleteSong(song)) {
-      this.notificationService.error('Cannot select songs with "In Use" workflow for deletion');
+      const workflowText = song.workflow === 'inUse' ? '"In Use"' : song.workflow === 'onWork' ? '"On Work"' : song.workflow;
+      this.notificationService.error(`Cannot select songs with ${workflowText} workflow for deletion`);
       return;
     }
 
@@ -437,18 +438,23 @@ export class SongViewComponent implements OnInit, OnDestroy {
       return;
     }
 
-    // Check for "In Use" songs that cannot be deleted
-    const inUseSongs = this.songs.filter(song =>
-      this.selectedSongIds.has(song.id) && song.workflow === 'inUse'
+    // Check for protected songs that cannot be deleted
+    const protectedSongs = this.songs.filter(song =>
+      this.selectedSongIds.has(song.id) && !this.canDeleteSong(song)
     );
 
-    if (inUseSongs.length > 0) {
-      const songTitles = inUseSongs.map(song =>
+    if (protectedSongs.length > 0) {
+      const songTitles = protectedSongs.map(song =>
         song.title || song.lyrics?.slice(0, 30) + '...' || 'Untitled'
       ).join(', ');
 
+      const workflowTypes = [...new Set(protectedSongs.map(song => song.workflow))];
+      const workflowText = workflowTypes.map(w =>
+        w === 'inUse' ? '"In Use"' : w === 'onWork' ? '"On Work"' : w
+      ).join(' and ');
+
       this.notificationService.error(
-        `Cannot delete songs with "In Use" workflow: ${songTitles}`
+        `Cannot delete songs with ${workflowText} workflow: ${songTitles}`
       );
       return;
     }
@@ -939,9 +945,9 @@ export class SongViewComponent implements OnInit, OnDestroy {
     }));
   }
 
-  // Check if a song can be deleted (not "In Use")
+  // Check if a song can be deleted (not "In Use" or "On Work")
   canDeleteSong(song: any): boolean {
-    return song.workflow !== 'inUse';
+    return song.workflow !== 'inUse' && song.workflow !== 'onWork';
   }
 
   // Check if the current selection contains any undeletable songs

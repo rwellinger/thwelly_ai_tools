@@ -123,15 +123,16 @@
                     [class.selected]="selectedSong?.id === song.id"
                     [class.selection-selected]="isSelectionMode && selectedSongIds.has(song.id)"
                     [class.in-use]="song.workflow === 'inUse'"
+                    [class.on-work]="song.workflow === 'onWork'"
                     (click)="isSelectionMode ? toggleSongSelection(song.id) : selectSong(song)"
                     [style.cursor]="isLoading ? 'not-allowed' : 'pointer'"
-                    [title]="song.workflow === 'inUse' ? 'This song is In Use and cannot be deleted' : ''">
+                    [title]="song.workflow === 'inUse' ? 'This song is In Use and cannot be deleted' : song.workflow === 'onWork' ? 'This song is On Work and cannot be deleted' : ''">
                     <td *ngIf="isSelectionMode" class="checkbox-col" (click)="$event.stopPropagation()">
                         <input type="checkbox"
                                [checked]="selectedSongIds.has(song.id)"
                                [disabled]="!canDeleteSong(song)"
                                (change)="toggleSongSelection(song.id)"
-                               [title]="!canDeleteSong(song) ? 'Cannot delete songs with In Use workflow' : ''">
+                               [title]="!canDeleteSong(song) ? (song.workflow === 'inUse' ? 'Cannot delete songs with In Use workflow' : song.workflow === 'onWork' ? 'Cannot delete songs with On Work workflow' : 'Cannot delete this song') : ''">
                     </td>
                     <td class="lyrics-col">{{ getDisplayTitle(song) }}</td>
                     <td>{{ song.model }}</td>

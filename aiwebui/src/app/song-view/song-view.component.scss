@@ -460,13 +460,31 @@ app-song-detail-panel {
     align-items: center;
 }
 
-/* ===== IN USE SONG STYLING ===== */
+/* ===== PROTECTED SONGS STYLING ===== */
 tr.in-use {
     background-color: rgba(255, 193, 7, 0.1) !important;
     border-left: 3px solid #ffc107;
 
     &.selected {
         background-color: rgba(255, 193, 7, 0.2) !important;
+    }
+
+    td {
+        opacity: 0.8;
+    }
+
+    input[type="checkbox"]:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+}
+
+tr.on-work {
+    background-color: rgba(255, 152, 0, 0.1) !important;
+    border-left: 3px solid #ff9800;
+
+    &.selected {
+        background-color: rgba(255, 152, 0, 0.2) !important;
     }
 
     td {
