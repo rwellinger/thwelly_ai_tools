@@ -21,5 +21,16 @@ export const routes: Routes = [
     {
         path: 'imageview',
         loadComponent: () => import('./image-view/image-view.component').then(m => m.ImageViewComponent)
+    },
+    {
+        path: 'settings',
+        loadComponent: () => import('./settings/settings.component').then(m => m.SettingsComponent),
+        children: [
+            {
+                path: 'prompt-templates',
+                loadComponent: () => import('./settings/prompt-templates/prompt-templates.component').then(m => m.PromptTemplatesComponent)
+            },
+            {path: '', redirectTo: 'prompt-templates', pathMatch: 'full'}
+        ]
     }
 ];

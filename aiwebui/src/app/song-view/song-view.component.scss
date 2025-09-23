@@ -3,6 +3,12 @@
 
 /* ===== SONG VIEW SPECIFIC STYLES ===== */
 
+/* Pagination info badge */
+.pagination-info-badge {
+    @include status-badge($primary-color, $background-white);
+    font-size: $font-xs;
+}
+
 /* Workflow tabs styling */
 .workflow-tabs {
     margin-bottom: 0;
