@@ -20,7 +20,11 @@ graph TB
 
     CLIENT -->|HTTPS| NGINX
     NGINX -->|/aiwebui/| NGINX
-    NGINX -->|/api/v1/| API
+    NGINX -->|/api/v1/image/| API
+    NGINX -->|/api/v1/song/| API
+    NGINX -->|/api/v1/chat/| API
+    NGINX -->|/api/v1/prompt/| API
+    NGINX -->|/api/v1/redis/| API
     NGINX -->|/| WEBUI
 
     API --> PG

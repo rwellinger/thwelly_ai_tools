@@ -5,12 +5,12 @@ graph TB
 
             subgraph "API Stack"
                 API_CONTAINER[AI Proxy Server<br/>aiproxysrv<br/>:5050]
-                WORKER_CONTAINER[Celery Worker<br/>celery-worker]
+                WORKER_CONTAINER[Celery Worker<br/>celery-worker<br/>Health Check]
             end
 
             subgraph "Data Stack"
-                PROD_PG[(PostgreSQL 15<br/>postgres<br/>:5432)]
-                PROD_REDIS[(Redis Alpine<br/>redis<br/>:6379)]
+                PROD_PG[(PostgreSQL 15<br/>postgres<br/>:5432<br/>Health Check)]
+                PROD_REDIS[(Redis Alpine<br/>redis<br/>:6379<br/>Health Check)]
             end
         end
 
