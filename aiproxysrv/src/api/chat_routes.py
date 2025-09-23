@@ -1,15 +1,18 @@
 """
-Chat Generation Routes - Ollama Integration
+Chat Generation Routes - Ollama Integration with Pydantic validation
 """
 import sys
 import traceback
 import logging
 from flask import Blueprint, request, jsonify
+from flask_pydantic import validate
 from sqlalchemy.orm import Session
 from api.controllers.chat_controller import ChatController
 from api.controllers.prompt_controller import PromptController
 from db.database import get_db
 from utils.prompt_processor import PromptProcessor
+from schemas.chat_schemas import ChatRequest, ChatResponse, ChatErrorResponse
+from schemas.common_schemas import ErrorResponse
 
 api_chat_v1 = Blueprint("api_chat_v1", __name__, url_prefix="/api/v1/ollama/chat")
 
@@ -17,54 +20,22 @@ api_chat_v1 = Blueprint("api_chat_v1", __name__, url_prefix="/api/v1/ollama/chat
 chat_controller = ChatController()
 
 @api_chat_v1.route('/generate', methods=['POST'])
-def generate():
+@validate()
+def generate(body: ChatRequest):
     """Generate chat response with Ollama"""
-    raw_json = request.get_json(silent=True)
-
-    if not raw_json:
-        return jsonify({"error": "No JSON provided"}), 400
-
-    # Extract required fields
-    model = raw_json.get('model')
-    prompt = raw_json.get('prompt')
-
-    if not model:
-        return jsonify({"error": "Missing model parameter"}), 400
-    if not prompt:
-        return jsonify({"error": "Missing prompt parameter"}), 400
-
-    # Extract prompt components (allow empty strings)
-    pre_condition = raw_json.get('pre_condition', '')
-    post_condition = raw_json.get('post_condition', '')
-
-    # Extract options
-    options = raw_json.get('options', {})
-    temperature = options.get('temperature', 0.3)
-    max_tokens = options.get('max_tokens', 30)
-
-    # Validate options
     try:
-        temperature = float(temperature)
-        max_tokens = int(max_tokens)
-
-        if temperature < 0.0 or temperature > 2.0:
-            return jsonify({"error": "Temperature must be between 0.0 and 2.0"}), 400
-        if max_tokens <= 0 or max_tokens > 4000:
-            return jsonify({"error": "max_tokens must be between 1 and 4000"}), 400
-
-    except (ValueError, TypeError):
-        return jsonify({"error": "Invalid temperature or max_tokens value"}), 400
-
-    response_data, status_code = chat_controller.generate_chat(
-        model=model,
-        pre_condition=pre_condition,
-        prompt=prompt,
-        post_condition=post_condition,
-        temperature=temperature,
-        max_tokens=max_tokens
-    )
-
-    return jsonify(response_data), status_code
+        response_data, status_code = chat_controller.generate_chat(
+            model=body.model,
+            pre_condition=body.pre_condition,
+            prompt=body.prompt,
+            post_condition=body.post_condition,
+            temperature=body.options.temperature,
+            max_tokens=body.options.max_tokens
+        )
+        return jsonify(response_data), status_code
+    except Exception as e:
+        error_response = ChatErrorResponse(error=str(e), model=body.model)
+        return jsonify(error_response.dict()), 500
 
 
 @api_chat_v1.route('/generate-llama3-simple', methods=['POST'])
