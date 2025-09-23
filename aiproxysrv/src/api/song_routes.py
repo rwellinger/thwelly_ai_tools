@@ -1,8 +1,15 @@
 """
-Song Generation Routes mit MUREKA
+Song Generation Routes mit MUREKA + Pydantic validation
 """
 from flask import Blueprint, request, jsonify
+from flask_pydantic import validate
 from api.controllers.song_controller import SongController
+from schemas.song_schemas import (
+    SongGenerateRequest, SongGenerateResponse,
+    StemGenerateRequest, StemGenerateResponse,
+    SongHealthResponse
+)
+from schemas.common_schemas import ErrorResponse
 
 api_song_v1 = Blueprint("api_song_v1", __name__, url_prefix="/api/v1/song")
 
@@ -24,27 +31,37 @@ def mureka_account():
 
 
 @api_song_v1.route("/generate", methods=["POST"])
-def song_generate():
+@validate()
+def song_generate(body: SongGenerateRequest):
     """Startet Song-Generierung"""
-    payload = request.get_json(force=True)
-    
-    response_data, status_code = song_controller.generate_song(
-        payload=payload,
-        host_url=request.host_url
-    )
-    
-    return jsonify(response_data), status_code
+    try:
+        # Convert Pydantic model to dict for controller
+        payload = body.dict()
+
+        response_data, status_code = song_controller.generate_song(
+            payload=payload,
+            host_url=request.host_url
+        )
+        return jsonify(response_data), status_code
+    except Exception as e:
+        error_response = ErrorResponse(error=str(e))
+        return jsonify(error_response.dict()), 500
 
 
 
 @api_song_v1.route("/stem/generate", methods=["POST"])
-def stems_generator():
+@validate()
+def stems_generator(body: StemGenerateRequest):
     """Erstelle stems anhand einer MP3"""
-    payload = request.get_json(force=True)
-    
-    response_data, status_code = song_controller.generate_stems(payload)
-    
-    return jsonify(response_data), status_code
+    try:
+        # Convert Pydantic model to dict for controller
+        payload = body.dict()
+
+        response_data, status_code = song_controller.generate_stems(payload)
+        return jsonify(response_data), status_code
+    except Exception as e:
+        error_response = ErrorResponse(error=str(e))
+        return jsonify(error_response.dict()), 500
 
 
 @api_song_v1.route("/query/<job_id>", methods=["GET"])
