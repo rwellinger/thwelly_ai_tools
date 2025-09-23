@@ -397,6 +397,12 @@ export class SongViewComponent implements OnInit, OnDestroy {
   }
 
   toggleSongSelection(songId: string) {
+    const song = this.songs.find(s => s.id === songId);
+    if (song && !this.canDeleteSong(song)) {
+      this.notificationService.error('Cannot select songs with "In Use" workflow for deletion');
+      return;
+    }
+
     if (this.selectedSongIds.has(songId)) {
       this.selectedSongIds.delete(songId);
     } else {
@@ -406,7 +412,9 @@ export class SongViewComponent implements OnInit, OnDestroy {
 
   selectAllSongs() {
     this.filteredSongs.forEach(song => {
-      this.selectedSongIds.add(song.id);
+      if (this.canDeleteSong(song)) {
+        this.selectedSongIds.add(song.id);
+      }
     });
   }
 
@@ -426,6 +434,22 @@ export class SongViewComponent implements OnInit, OnDestroy {
   async bulkDeleteSongs() {
     if (this.selectedSongIds.size === 0) {
       this.notificationService.error('No songs selected for deletion');
+      return;
+    }
+
+    // Check for "In Use" songs that cannot be deleted
+    const inUseSongs = this.songs.filter(song =>
+      this.selectedSongIds.has(song.id) && song.workflow === 'inUse'
+    );
+
+    if (inUseSongs.length > 0) {
+      const songTitles = inUseSongs.map(song =>
+        song.title || song.lyrics?.slice(0, 30) + '...' || 'Untitled'
+      ).join(', ');
+
+      this.notificationService.error(
+        `Cannot delete songs with "In Use" workflow: ${songTitles}`
+      );
       return;
     }
 
@@ -913,5 +937,17 @@ export class SongViewComponent implements OnInit, OnDestroy {
       ...choice,
       stemDownloadUrl: this.stemDownloadUrls.get(choice.mp3_url) || null
     }));
+  }
+
+  // Check if a song can be deleted (not "In Use")
+  canDeleteSong(song: any): boolean {
+    return song.workflow !== 'inUse';
+  }
+
+  // Check if the current selection contains any undeletable songs
+  hasUndeletableSongs(): boolean {
+    return this.songs.some(song =>
+      this.selectedSongIds.has(song.id) && !this.canDeleteSong(song)
+    );
   }
 }

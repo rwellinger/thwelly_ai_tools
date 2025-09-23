@@ -14,6 +14,7 @@ export class SongDetailPanelComponent {
     @Input() showEditTitle: boolean = true;
     @Input() showEditTags: boolean = true;
     @Input() showEditWorkflow: boolean = true;
+    @Input() showRating: boolean = true;
     @Input() title: string = 'Song Details';
     @Input() showMetaInfo: string[] = ['job_id', 'model', 'status', 'created', 'completed'];
     @Input() placeholderText: string = 'Select a song from the list to view details';

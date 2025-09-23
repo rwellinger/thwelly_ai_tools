@@ -460,6 +460,25 @@ app-song-detail-panel {
     align-items: center;
 }
 
+/* ===== IN USE SONG STYLING ===== */
+tr.in-use {
+    background-color: rgba(255, 193, 7, 0.1) !important;
+    border-left: 3px solid #ffc107;
+
+    &.selected {
+        background-color: rgba(255, 193, 7, 0.2) !important;
+    }
+
+    td {
+        opacity: 0.8;
+    }
+
+    input[type="checkbox"]:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+}
+
 /* ===== LOADING OVERLAY ===== */
 .loading-overlay {
     @include modal-overlay(0.5, 1000);

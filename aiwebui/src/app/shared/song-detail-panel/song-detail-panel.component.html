@@ -164,7 +164,7 @@
                         <th>FLAC File</th>
                         <th>MP3 File</th>
                         <th>Stem Generation</th>
-                        <th>Rating</th>
+                        <th *ngIf="showRating">Rating</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -203,7 +203,7 @@
                             </button>
                             <span *ngIf="!choice.mp3_url" class="not-available">N/A</span>
                         </td>
-                        <td>
+                        <td *ngIf="showRating">
                             <div class="rating-buttons">
                                 <button type="button"
                                         class="rating-btn thumbs-up"
