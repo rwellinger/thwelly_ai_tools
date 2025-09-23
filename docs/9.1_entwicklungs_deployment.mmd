@@ -7,11 +7,12 @@ graph TB
 
         subgraph "Docker colima"
             DEV_PG[(PostgreSQL:5432)]
+            DEV_RD[Redis:6379]
         end
 
         subgraph "Local Services"
             FLASK[Flask Dev Server<br/>server.py:5050]
-            CELERY_DEV[Celery Worker<br/>worker.py]
+            CELERY_DEV[Celery Worker<br/>worker.py:6379]
             ANGULAR[Angular Dev<br/>ng serve:4200]
             MOCK[AI Test Mock<br/>aitestmock:8000]
         end
@@ -27,6 +28,7 @@ graph TB
     PYTHON --> CELERY_DEV
     FLASK --> DEV_PG
     CELERY_DEV --> DEV_PG
+    CELERY_DEV --> DEV_RD
 
     FLASK -.->|Optional| MOCK
     CELERY_DEV -.->|Optional| MOCK

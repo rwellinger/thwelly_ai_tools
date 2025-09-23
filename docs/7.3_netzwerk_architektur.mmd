@@ -5,9 +5,9 @@ graph TB
 
     subgraph "Mac Studio Production (10.0.1.120)"
         subgraph "Docker Network: webui-network"
-            NGINX[Nginx Proxy<br/>:80, :443]
+            NGINX[Nginx Proxy<br/>:443]
             API[AI Proxy Server<br/>:5050]
-            WORKER[Celery Worker]
+            WORKER[Celery Worker<br/>:6379]
             PG[PostgreSQL<br/>:5432]
             REDIS[Redis<br/>:6379]
         end
