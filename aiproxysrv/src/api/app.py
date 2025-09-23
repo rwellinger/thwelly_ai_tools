@@ -199,8 +199,7 @@ def create_app():
                     presets: [
                         SwaggerUIBundle.presets.apis,
                         SwaggerUIBundle.presets.standalone
-                    ],
-                    layout: "StandaloneLayout"
+                    ]
                 });
             </script>
         </body>
