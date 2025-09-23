@@ -9,6 +9,7 @@ from sqlalchemy.orm import Session
 from api.controllers.chat_controller import ChatController
 from api.controllers.prompt_controller import PromptController
 from db.database import get_db
+from utils.prompt_processor import PromptProcessor
 
 api_chat_v1 = Blueprint("api_chat_v1", __name__, url_prefix="/api/v1/ollama/chat")
 
@@ -68,7 +69,7 @@ def generate():
 
 @api_chat_v1.route('/generate-llama3-simple', methods=['POST'])
 def generate_llama3_simple():
-    """Generate chat response with model llama3 and fixed parameters"""
+    """Generate chat response using image/enhance template parameters"""
     raw_json = request.get_json(silent=True)
 
     if not raw_json:
@@ -84,18 +85,46 @@ def generate_llama3_simple():
     pre_condition = raw_json.get('pre_condition', '')
     post_condition = raw_json.get('post_condition', '')
 
-    # Fixed parameters
-    model = "llama3.2:3b"
-    temperature = 0.3
-    max_tokens = 30
+    # Get AI parameters from template
+    db: Session = next(get_db())
+    try:
+        template_response, template_status = PromptController.get_specific_template(db, "image", "enhance")
+
+        if template_status == 200:
+            # Convert response to template-like object for PromptProcessor
+            from db.models import PromptTemplate
+            template = PromptTemplate()
+            for key, value in template_response.items():
+                setattr(template, key, value)
+
+            # Get AI parameters using PromptProcessor
+            ai_params = PromptProcessor.resolve_ai_parameters(template)
+            logging.info(f"Using image/enhance template for llama3-simple: {ai_params}")
+        else:
+            # Fallback - use defaults
+            logging.warning(f"Template image/enhance not found (status: {template_status}), using default values")
+            ai_params = {
+                'model': 'llama3.2:3b',
+                'temperature': 0.7,
+                'max_tokens': 2048
+            }
+    except Exception as e:
+        logging.error(f"Error loading template for llama3-simple: {str(e)}, using defaults")
+        ai_params = {
+            'model': 'llama3.2:3b',
+            'temperature': 0.7,
+            'max_tokens': 2048
+        }
+    finally:
+        db.close()
 
     response_data, status_code = chat_controller.generate_chat(
-        model=model,
+        model=ai_params['model'],
         pre_condition=pre_condition,
         prompt=prompt,
         post_condition=post_condition,
-        temperature=temperature,
-        max_tokens=max_tokens
+        temperature=ai_params['temperature'],
+        max_tokens=ai_params['max_tokens']
     )
 
     return jsonify(response_data), status_code
@@ -103,7 +132,7 @@ def generate_llama3_simple():
 
 @api_chat_v1.route('/generate-gpt-oss-simple', methods=['POST'])
 def generate_gpt_oss_simple():
-    """Generate chat response with model gpt-oss:20b and fixed parameters"""
+    """Generate chat response with template-based parameters, fallback to gpt-oss:20b"""
     raw_json = request.get_json(silent=True)
 
     if not raw_json:
@@ -115,22 +144,54 @@ def generate_gpt_oss_simple():
     if not prompt:
         return jsonify({"error": "Missing prompt parameter"}), 400
 
-    # Extract optional prompt components (allow empty strings)
+    # Extract optional prompt components and template hint
     pre_condition = raw_json.get('pre_condition', '')
     post_condition = raw_json.get('post_condition', '')
 
-    # Fixed parameters
-    model = "gpt-oss:20b"
-    temperature = 0.7
-    max_tokens = 800
+    # Try to determine which template to use from optional hint
+    template_category = raw_json.get('template_category', 'image')  # Default to image
+    template_action = raw_json.get('template_action', 'translate')   # Default to translate
+
+    # Get AI parameters from template
+    db: Session = next(get_db())
+    try:
+        template_response, template_status = PromptController.get_specific_template(db, template_category, template_action)
+
+        if template_status == 200:
+            # Convert response to template-like object for PromptProcessor
+            from db.models import PromptTemplate
+            template = PromptTemplate()
+            for key, value in template_response.items():
+                setattr(template, key, value)
+
+            # Get AI parameters using PromptProcessor
+            ai_params = PromptProcessor.resolve_ai_parameters(template)
+            logging.info(f"Using {template_category}/{template_action} template for gpt-oss-simple: {ai_params}")
+        else:
+            # Fallback - use defaults favoring gpt-oss:20b
+            logging.warning(f"Template {template_category}/{template_action} not found (status: {template_status}), using default values")
+            ai_params = {
+                'model': 'gpt-oss:20b',
+                'temperature': 0.7,
+                'max_tokens': 800
+            }
+    except Exception as e:
+        logging.error(f"Error loading template for gpt-oss-simple: {str(e)}, using defaults")
+        ai_params = {
+            'model': 'gpt-oss:20b',
+            'temperature': 0.7,
+            'max_tokens': 800
+        }
+    finally:
+        db.close()
 
     response_data, status_code = chat_controller.generate_chat(
-        model=model,
+        model=ai_params['model'],
         pre_condition=pre_condition,
         prompt=prompt,
         post_condition=post_condition,
-        temperature=temperature,
-        max_tokens=max_tokens
+        temperature=ai_params['temperature'],
+        max_tokens=ai_params['max_tokens']
     )
 
     return jsonify(response_data), status_code
@@ -138,7 +199,7 @@ def generate_gpt_oss_simple():
 
 @api_chat_v1.route('/generate-lyrics', methods=['POST'])
 def generate_lyrics():
-    """Generate lyrics from input text using gpt-oss:20b model"""
+    """Generate lyrics from input text using lyrics/generate template with complete integration"""
     raw_json = request.get_json(silent=True)
 
     if not raw_json:
@@ -150,42 +211,55 @@ def generate_lyrics():
     if not input_text:
         return jsonify({"error": "Missing input_text parameter"}), 400
 
-    # Get prompt template from database
+    # Get complete template from database
     db: Session = next(get_db())
     try:
         template_response, template_status = PromptController.get_specific_template(db, "lyrics", "generate")
 
         if template_status == 200:
-            # Use database template
-            pre_condition = template_response.get('pre_condition', '')
-            post_condition = template_response.get('post_condition', '')
-            pre_hint = pre_condition[:50] + "..." if len(pre_condition) > 50 else pre_condition
-            logging.warning(f"Using database prompt template for lyrics/generate - pre_condition: '{pre_hint}'")
+            # Convert response to template-like object for PromptProcessor
+            from db.models import PromptTemplate
+            template = PromptTemplate()
+            for key, value in template_response.items():
+                setattr(template, key, value)
+
+            # Use complete template processing
+            processed = PromptProcessor.process_template(template, input_text)
+            logging.info(f"Using complete lyrics/generate template integration: model={processed['model']}, temperature={processed['temperature']}, max_tokens={processed['max_tokens']}")
+
+            # The processed prompt already contains pre/post conditions integrated
+            # But chat_controller expects them separate, so we use the original template parts
+            response_data, status_code = chat_controller.generate_chat(
+                model=processed['model'],
+                pre_condition=template.pre_condition or '',
+                prompt=input_text,
+                post_condition=template.post_condition or '',
+                temperature=processed['temperature'],
+                max_tokens=processed['max_tokens']
+            )
         else:
-            # Fallback to hardcoded prompts
-            pre_condition = "Generate song lyrics from this text:"
-            post_condition = "Only respond with the lyrics."
-            logging.warning(f"Database prompt template lyrics/generate not found (status: {template_status}), using fallback prompts")
+            # Fallback to hardcoded values
+            logging.warning(f"Template lyrics/generate not found (status: {template_status}), using fallback values")
+            response_data, status_code = chat_controller.generate_chat(
+                model="gpt-oss:20b",
+                pre_condition="Generate song lyrics from this text:",
+                prompt=input_text,
+                post_condition="Only respond with the lyrics.",
+                temperature=0.7,
+                max_tokens=800
+            )
     except Exception as e:
-        # Fallback to hardcoded prompts on any error
-        pre_condition = "Generate song lyrics from this text:"
-        post_condition = "Only respond with the lyrics."
-        logging.error(f"Failed to load database prompt template lyrics/generate: {str(e)}, using fallback prompts")
+        # Fallback on any error
+        logging.error(f"Error processing lyrics/generate template: {str(e)}, using fallback values")
+        response_data, status_code = chat_controller.generate_chat(
+            model="gpt-oss:20b",
+            pre_condition="Generate song lyrics from this text:",
+            prompt=input_text,
+            post_condition="Only respond with the lyrics.",
+            temperature=0.7,
+            max_tokens=800
+        )
     finally:
         db.close()
-
-    # Fixed parameters for lyric generation
-    model = "gpt-oss:20b"
-    temperature = 0.7
-    max_tokens = 800
-
-    response_data, status_code = chat_controller.generate_chat(
-        model=model,
-        pre_condition=pre_condition,
-        prompt=input_text,
-        post_condition=post_condition,
-        temperature=temperature,
-        max_tokens=max_tokens
-    )
 
     return jsonify(response_data), status_code

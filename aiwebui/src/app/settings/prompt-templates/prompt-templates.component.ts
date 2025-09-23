@@ -34,8 +34,25 @@ export class PromptTemplatesComponent implements OnInit, OnDestroy {
   editForm = {
     pre_condition: '',
     post_condition: '',
-    description: ''
+    description: '',
+    model: '',
+    temperature: null as number | null,
+    max_tokens: null as number | null
   };
+
+  // Available models
+  availableModels = [
+    { value: 'llama3.2:3b', label: 'Llama 3.2 3B' },
+    { value: 'gpt-oss:20b', label: 'GPT-OSS 20B' },
+    { value: 'deepseek-r1:8b', label: 'DeepSeek R1 8B' },
+    { value: 'gemma3:4b', label: 'Gemma 3 4B' }
+  ];
+
+  // Temperature options (0.0 to 2.0 in 0.1 steps)
+  temperatureOptions = Array.from({length: 21}, (_, i) => {
+    const value = (i * 0.1);
+    return { value: Math.round(value * 10) / 10, label: value.toFixed(1) };
+  });
 
   @ViewChild('searchInput') searchInput!: ElementRef;
   @ViewChild('preConditionTextarea') preConditionTextarea!: ElementRef;
@@ -126,7 +143,10 @@ export class PromptTemplatesComponent implements OnInit, OnDestroy {
     this.editForm = {
       pre_condition: this.selectedTemplate.pre_condition,
       post_condition: this.selectedTemplate.post_condition,
-      description: this.selectedTemplate.description || ''
+      description: this.selectedTemplate.description || '',
+      model: this.selectedTemplate.model || '',
+      temperature: this.selectedTemplate.temperature || null,
+      max_tokens: this.selectedTemplate.max_tokens || null
     };
 
     // Focus pre_condition textarea after view updates
@@ -142,7 +162,10 @@ export class PromptTemplatesComponent implements OnInit, OnDestroy {
     this.editForm = {
       pre_condition: '',
       post_condition: '',
-      description: ''
+      description: '',
+      model: '',
+      temperature: null,
+      max_tokens: null
     };
   }
 
@@ -156,7 +179,10 @@ export class PromptTemplatesComponent implements OnInit, OnDestroy {
       const update: PromptTemplateUpdate = {
         pre_condition: this.editForm.pre_condition.trim(),
         post_condition: this.editForm.post_condition.trim(),
-        description: this.editForm.description.trim()
+        description: this.editForm.description.trim(),
+        model: this.editForm.model || undefined,
+        temperature: this.editForm.temperature || undefined,
+        max_tokens: this.editForm.max_tokens || undefined
       };
 
       const updatedTemplate = await this.promptService.updateTemplateAsync(
@@ -205,5 +231,12 @@ export class PromptTemplatesComponent implements OnInit, OnDestroy {
 
   trackByTemplate(index: number, template: PromptTemplate): string {
     return `${template.category}-${template.action}`;
+  }
+
+  getTokensToWordsHint(tokens: number | null | undefined): string {
+    if (!tokens || tokens === null || tokens === undefined) return '';
+    // Rough estimation: 1 token ≈ 0.75 words
+    const words = Math.round(tokens * 0.75);
+    return `(ca. ${words} words)`;
   }
 }

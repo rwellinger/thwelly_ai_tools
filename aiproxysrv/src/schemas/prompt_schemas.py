@@ -1,5 +1,5 @@
 """Pydantic schemas for prompt template validation"""
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, validator
 from typing import Optional, Dict, Any
 from datetime import datetime
 
@@ -12,8 +12,16 @@ class PromptTemplateBase(BaseModel):
     post_condition: str = Field(..., description="Text after user input")
     description: Optional[str] = Field(None, description="Human-readable description of the template")
     version: Optional[str] = Field(None, max_length=10, description="Template version")
-    model_hint: Optional[str] = Field(None, max_length=50, description="Preferred AI model for this template")
+    model: Optional[str] = Field(None, max_length=50, description="AI model for this template (llama3.2:3b, gpt-oss:20b, deepseek-r1:8b, gemma3:4b)")
+    temperature: Optional[float] = Field(None, ge=0.0, le=2.0, description="Ollama Chat API temperature (0.0-2.0)")
+    max_tokens: Optional[int] = Field(None, gt=0, description="Maximum tokens to generate")
     active: bool = Field(True, description="Whether the template is active")
+
+    @validator('model')
+    def validate_model(cls, v):
+        if v is not None and v not in ['llama3.2:3b', 'gpt-oss:20b', 'deepseek-r1:8b', 'gemma3:4b']:
+            raise ValueError('model must be one of: llama3.2:3b, gpt-oss:20b, deepseek-r1:8b, gemma3:4b')
+        return v
 
 
 class PromptTemplateCreate(PromptTemplateBase):
@@ -27,8 +35,16 @@ class PromptTemplateUpdate(BaseModel):
     post_condition: Optional[str] = Field(None, description="Text after user input")
     description: Optional[str] = Field(None, description="Human-readable description of the template")
     version: Optional[str] = Field(None, max_length=10, description="Template version")
-    model_hint: Optional[str] = Field(None, max_length=50, description="Preferred AI model for this template")
+    model: Optional[str] = Field(None, max_length=50, description="AI model for this template (llama3.2:3b, gpt-oss:20b, deepseek-r1:8b, gemma3:4b)")
+    temperature: Optional[float] = Field(None, ge=0.0, le=2.0, description="Ollama Chat API temperature (0.0-2.0)")
+    max_tokens: Optional[int] = Field(None, gt=0, description="Maximum tokens to generate")
     active: Optional[bool] = Field(None, description="Whether the template is active")
+
+    @validator('model')
+    def validate_model(cls, v):
+        if v is not None and v not in ['llama3.2:3b', 'gpt-oss:20b', 'deepseek-r1:8b', 'gemma3:4b']:
+            raise ValueError('model must be one of: llama3.2:3b, gpt-oss:20b, deepseek-r1:8b, gemma3:4b')
+        return v
 
 
 class PromptTemplateResponse(PromptTemplateBase):

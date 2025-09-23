@@ -61,6 +61,7 @@ class Song(Base):
 class SongChoice(Base):
     """Model for storing individual song choice results from MUREKA"""
     __tablename__ = "song_choices"
+    __table_args__ = {'extend_existing': True}
     
     # Primary identifiers
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, index=True)
@@ -96,6 +97,7 @@ class SongChoice(Base):
 class GeneratedImage(Base):
     """Model for storing generated image metadata"""
     __tablename__ = "generated_images"
+    __table_args__ = {'extend_existing': True}
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, index=True)
     prompt = Column(Text, nullable=False)
@@ -117,6 +119,7 @@ class GeneratedImage(Base):
 class PromptTemplate(Base):
     """Model for storing AI prompt templates for different categories and actions"""
     __tablename__ = "prompt_templates"
+    __table_args__ = {'extend_existing': True}
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     category = Column(String(50), nullable=False)
@@ -125,7 +128,9 @@ class PromptTemplate(Base):
     post_condition = Column(Text, nullable=False)
     description = Column(Text, nullable=True)
     version = Column(String(10), nullable=True)
-    model_hint = Column(String(50), nullable=True)
+    model = Column(String(50), nullable=True)  # Renamed from model_hint
+    temperature = Column(Float, nullable=True)  # For Ollama Chat API (0.0-2.0)
+    max_tokens = Column(Integer, nullable=True)  # Maximum tokens to generate
     active = Column(Boolean, default=True, nullable=False)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
