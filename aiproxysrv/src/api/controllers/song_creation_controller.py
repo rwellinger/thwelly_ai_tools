@@ -35,7 +35,7 @@ class SongCreationController:
             task_id=task.id,
             lyrics=payload.get('lyrics', ''),
             prompt=payload.get('prompt', ''),
-            model=payload.get('model', 'chirp-v3-5')
+            model=payload.get('model', 'auto')
         )
         
         if not song:

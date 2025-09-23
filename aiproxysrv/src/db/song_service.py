@@ -22,7 +22,7 @@ class SongService:
         """Get Redis connection"""
         return redis.from_url(self.redis_url)
     
-    def create_song(self, task_id: str, lyrics: str, prompt: str, model: str = "chirp-v3-5") -> Optional[Song]:
+    def create_song(self, task_id: str, lyrics: str, prompt: str, model: str = "auto") -> Optional[Song]:
         """Create a new song record in the database"""
         try:
             db = next(get_db())
@@ -134,6 +134,11 @@ class SongService:
                     mureka_result = result_data['result']
                     song.mureka_response = json.dumps(mureka_result)
                     song.mureka_status = mureka_result.get('status')
+
+                    # Update model with the actual model used by Mureka (not the request model)
+                    if mureka_result.get('model'):
+                        song.model = mureka_result.get('model')
+                        print(f"Updated song model to actual Mureka model: {song.model}", file=sys.stderr)
                     
                     # Process choices array
                     choices_data = mureka_result.get('choices', [])

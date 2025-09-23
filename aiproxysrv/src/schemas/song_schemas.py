@@ -9,6 +9,7 @@ class SongGenerateRequest(BaseModel):
     """Schema for song generation requests"""
     prompt: str = Field(..., min_length=1, max_length=500, description="Song generation prompt")
     lyrics: Optional[str] = Field(None, max_length=2000, description="Custom lyrics (optional)")
+    model: str = Field("auto", description="Model to use for generation")
     style: Optional[str] = Field(None, max_length=100, description="Music style/genre")
     duration: Optional[int] = Field(30, ge=15, le=120, description="Song duration in seconds")
 
@@ -17,6 +18,7 @@ class SongGenerateRequest(BaseModel):
             "example": {
                 "prompt": "Upbeat pop song about summer vacation",
                 "lyrics": "[Verse 1]\nSummer days are here again...",
+                "model": "auto",
                 "style": "pop",
                 "duration": 30
             }

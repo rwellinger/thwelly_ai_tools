@@ -30,7 +30,7 @@ class Song(Base):
     # Input parameters
     lyrics = Column(Text, nullable=False)
     prompt = Column(Text, nullable=False)  # Style prompt
-    model = Column(String(100), nullable=True, default="chirp-v3-5")
+    model = Column(String(100), nullable=True, default="auto")
 
     # User editable metadata
     title = Column(String(500), nullable=True)
