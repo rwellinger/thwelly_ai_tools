@@ -13,7 +13,7 @@ class SongGenerateRequest(BaseModel):
     duration: Optional[int] = Field(30, ge=15, le=120, description="Song duration in seconds")
 
     class Config:
-        schema_extra = {
+        json_schema_extra = {
             "example": {
                 "prompt": "Upbeat pop song about summer vacation",
                 "lyrics": "[Verse 1]\nSummer days are here again...",
@@ -50,7 +50,7 @@ class SongResponse(BaseModel):
 
     class Config:
         from_attributes = True
-        schema_extra = {
+        json_schema_extra = {
             "example": {
                 "id": "song_abc123",
                 "title": "Summer Vibes",
@@ -131,7 +131,7 @@ class SongUpdateRequest(BaseModel):
         return v
 
     class Config:
-        schema_extra = {
+        json_schema_extra = {
             "example": {
                 "title": "Amazing Summer Song",
                 "workflow": "inUse",
@@ -151,7 +151,7 @@ class StemGenerateRequest(BaseModel):
     song_id: str = Field(..., description="Song ID to generate stems for")
 
     class Config:
-        schema_extra = {
+        json_schema_extra = {
             "example": {
                 "song_id": "song_abc123"
             }

@@ -17,7 +17,7 @@ class ImageGenerateRequest(BaseModel):
         return v
 
     class Config:
-        schema_extra = {
+        json_schema_extra = {
             "example": {
                 "prompt": "A beautiful sunset over the ocean with sailing boats",
                 "size": "1024x1024"
@@ -39,7 +39,7 @@ class ImageResponse(BaseModel):
 
     class Config:
         from_attributes = True
-        schema_extra = {
+        json_schema_extra = {
             "example": {
                 "id": "img_abc123",
                 "title": "Ocean Sunset",
@@ -91,7 +91,7 @@ class ImageUpdateRequest(BaseModel):
     tags: Optional[List[str]] = Field(None, description="Image tags")
 
     class Config:
-        schema_extra = {
+        json_schema_extra = {
             "example": {
                 "title": "Beautiful Ocean Sunset",
                 "tags": ["sunset", "ocean", "peaceful", "nature"]

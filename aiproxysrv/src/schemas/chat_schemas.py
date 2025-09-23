@@ -13,7 +13,7 @@ class ChatOptions(BaseModel):
     repeat_penalty: Optional[float] = Field(1.1, ge=0.0, le=2.0, description="Repeat penalty")
 
     class Config:
-        schema_extra = {
+        json_schema_extra = {
             "example": {
                 "temperature": 0.7,
                 "max_tokens": 100,
@@ -39,7 +39,7 @@ class ChatRequest(BaseModel):
         return v
 
     class Config:
-        schema_extra = {
+        json_schema_extra = {
             "example": {
                 "model": "llama3.2:3b",
                 "prompt": "Explain quantum computing in simple terms",
@@ -63,7 +63,7 @@ class ChatResponse(BaseResponse):
     timestamp: datetime = Field(default_factory=datetime.now, description="Response timestamp")
 
     class Config:
-        schema_extra = {
+        json_schema_extra = {
             "example": {
                 "success": True,
                 "data": {
@@ -91,7 +91,7 @@ class ChatErrorResponse(BaseResponse):
     timestamp: datetime = Field(default_factory=datetime.now, description="Error timestamp")
 
     class Config:
-        schema_extra = {
+        json_schema_extra = {
             "example": {
                 "success": False,
                 "error": "Model not available or invalid parameters",
