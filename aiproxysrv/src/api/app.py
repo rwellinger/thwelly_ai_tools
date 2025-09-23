@@ -3,7 +3,8 @@ Flask App mit allen Blueprints + OpenAPI/Swagger Integration
 """
 import sys
 import traceback
-from flask import Flask, jsonify, Blueprint, render_template_string
+import yaml
+from flask import Flask, jsonify, Blueprint, render_template_string, Response
 from flask_cors import CORS
 from apispec import APISpec
 from .image_routes import api_image_v1
@@ -254,6 +255,30 @@ def create_app():
             print(f"OpenAPI spec error: {e}", file=sys.stderr)
             print(f"Stacktrace: {traceback.format_exc()}", file=sys.stderr)
             return jsonify({"error": f"OpenAPI generation failed: {str(e)}"}), 500
+
+    @app.route("/api/openapi.yaml")
+    def openapi_spec_yaml():
+        """OpenAPI YAML specification endpoint"""
+        try:
+            # Get the JSON spec
+            from flask import url_for, request
+            with app.test_request_context():
+                json_response = openapi_spec()
+                if json_response.status_code != 200:
+                    return json_response
+
+                openapi_dict = json_response.get_json()
+                yaml_content = yaml.dump(openapi_dict, default_flow_style=False, allow_unicode=True)
+
+                return Response(
+                    yaml_content,
+                    mimetype='application/x-yaml',
+                    headers={'Content-Disposition': 'inline; filename="openapi.yaml"'}
+                )
+        except Exception as e:
+            print(f"OpenAPI YAML spec error: {e}", file=sys.stderr)
+            print(f"Stacktrace: {traceback.format_exc()}", file=sys.stderr)
+            return jsonify({"error": f"OpenAPI YAML generation failed: {str(e)}"}), 500
 
     @app.route("/api/docs/")
     def swagger_ui():
