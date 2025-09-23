@@ -184,3 +184,50 @@ class SongTaskStatusResponse(BaseResponse):
 class SongDeleteResponse(BaseResponse):
     """Schema for song deletion response"""
     data: dict = Field({"deleted": True}, description="Deletion confirmation")
+
+
+class ChoiceRatingUpdateRequest(BaseModel):
+    """Schema for updating song choice rating"""
+    rating: int = Field(..., ge=1, le=5, description="Rating from 1 to 5")
+
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "rating": 4
+            }
+        }
+
+
+class ChoiceRatingUpdateResponse(BaseResponse):
+    """Schema for choice rating update response"""
+    data: Dict[str, Any] = Field(..., description="Updated choice data")
+
+
+class MurekaAccountResponse(BaseResponse):
+    """Schema for Mureka account information"""
+    data: Dict[str, Any] = Field(..., description="Mureka account data")
+
+
+class CeleryHealthResponse(BaseResponse):
+    """Schema for Celery health check"""
+    data: Dict[str, str] = Field(..., description="Celery status information")
+
+
+class SongJobInfoResponse(BaseResponse):
+    """Schema for Mureka job information"""
+    data: Dict[str, Any] = Field(..., description="MUREKA job information")
+
+
+class ForceCompleteResponse(BaseResponse):
+    """Schema for force complete task response"""
+    data: Dict[str, Any] = Field(..., description="Force completion result")
+
+
+class QueueStatusResponse(BaseResponse):
+    """Schema for queue status response"""
+    data: Dict[str, Any] = Field(..., description="Queue status information")
+
+
+class TaskCancelResponse(BaseResponse):
+    """Schema for task cancellation response"""
+    data: Dict[str, Any] = Field(..., description="Cancellation result")

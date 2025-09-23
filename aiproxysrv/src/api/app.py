@@ -24,16 +24,16 @@ def create_app():
 
     # OpenAPI/Swagger Configuration
     spec = APISpec(
-        title='AI Proxy Service API',
+        title='thWellys AI-Proxy API',
         version='1.3.0',
         openapi_version='3.0.2',
         info=dict(
             description='API für AI-Services: Bildgenerierung, Musikgenerierung und Chat-Integration',
             contact=dict(name='Rob'),
-            license=dict(name='MIT')
+            email=dict(name='rob.wellinger@gmail.com'),
         ),
         servers=[
-            dict(url='http://localhost:8000/api/v1', description='Development Server'),
+            dict(url='http://localhost:5050/api/v1', description='Development Server'),
             dict(url='/api/v1', description='Production Server (relative)')
         ]
     )
@@ -51,133 +51,209 @@ def create_app():
     @app.route("/api/openapi.json")
     def openapi_spec():
         """OpenAPI JSON specification endpoint"""
-        # Generate schema from Pydantic models
-        from schemas.image_schemas import ImageGenerateRequest, ImageResponse
-        from schemas.song_schemas import SongGenerateRequest, SongResponse
-        from schemas.chat_schemas import ChatRequest, ChatResponse
-        from schemas.common_schemas import ErrorResponse, HealthResponse
+        try:
+            # Import and register schemas
+            from schemas.image_schemas import (
+                ImageGenerateRequest, ImageResponse, ImageGenerateResponse,
+                ImageListRequest, ImageListResponse, ImageUpdateRequest,
+                ImageUpdateResponse, ImageDeleteResponse
+            )
+            from schemas.song_schemas import (
+                SongGenerateRequest, SongResponse, SongGenerateResponse,
+                SongListRequest, SongListResponse, SongUpdateRequest, SongUpdateResponse,
+                StemGenerateRequest, StemGenerateResponse, SongHealthResponse,
+                SongTaskStatusResponse, SongDeleteResponse, ChoiceRatingUpdateRequest,
+                ChoiceRatingUpdateResponse, MurekaAccountResponse, CeleryHealthResponse,
+                SongJobInfoResponse, ForceCompleteResponse, QueueStatusResponse, TaskCancelResponse
+            )
+            from schemas.chat_schemas import ChatRequest, ChatResponse
+            from schemas.prompt_schemas import (
+                PromptTemplateCreate, PromptTemplateUpdate, PromptTemplateResponse,
+                PromptTemplateListResponse, PromptCategoryResponse, PromptTemplatesGroupedResponse
+            )
+            from schemas.common_schemas import (
+                ErrorResponse, HealthResponse, BulkDeleteRequest, BulkDeleteResponse,
+                RedisTaskResponse, RedisTaskListResponse, RedisKeyListResponse
+            )
 
-        # Add schemas to spec
-        spec.components.schema("ImageGenerateRequest", schema=ImageGenerateRequest)
-        spec.components.schema("ImageResponse", schema=ImageResponse)
-        spec.components.schema("SongGenerateRequest", schema=SongGenerateRequest)
-        spec.components.schema("SongResponse", schema=SongResponse)
-        spec.components.schema("ChatRequest", schema=ChatRequest)
-        spec.components.schema("ChatResponse", schema=ChatResponse)
-        spec.components.schema("ErrorResponse", schema=ErrorResponse)
-        spec.components.schema("HealthResponse", schema=HealthResponse)
+            # Register schemas with APISpec (only if not already registered)
+            schemas_to_register = [
+                # Image schemas
+                ("ImageGenerateRequest", ImageGenerateRequest),
+                ("ImageResponse", ImageResponse),
+                ("ImageGenerateResponse", ImageGenerateResponse),
+                ("ImageListRequest", ImageListRequest),
+                ("ImageListResponse", ImageListResponse),
+                ("ImageUpdateRequest", ImageUpdateRequest),
+                ("ImageUpdateResponse", ImageUpdateResponse),
+                ("ImageDeleteResponse", ImageDeleteResponse),
+                # Song schemas
+                ("SongGenerateRequest", SongGenerateRequest),
+                ("SongResponse", SongResponse),
+                ("SongGenerateResponse", SongGenerateResponse),
+                ("SongListRequest", SongListRequest),
+                ("SongListResponse", SongListResponse),
+                ("SongUpdateRequest", SongUpdateRequest),
+                ("SongUpdateResponse", SongUpdateResponse),
+                ("StemGenerateRequest", StemGenerateRequest),
+                ("StemGenerateResponse", StemGenerateResponse),
+                ("SongHealthResponse", SongHealthResponse),
+                ("SongTaskStatusResponse", SongTaskStatusResponse),
+                ("SongDeleteResponse", SongDeleteResponse),
+                ("ChoiceRatingUpdateRequest", ChoiceRatingUpdateRequest),
+                ("ChoiceRatingUpdateResponse", ChoiceRatingUpdateResponse),
+                ("MurekaAccountResponse", MurekaAccountResponse),
+                ("CeleryHealthResponse", CeleryHealthResponse),
+                ("SongJobInfoResponse", SongJobInfoResponse),
+                ("ForceCompleteResponse", ForceCompleteResponse),
+                ("QueueStatusResponse", QueueStatusResponse),
+                ("TaskCancelResponse", TaskCancelResponse),
+                # Chat schemas
+                ("ChatRequest", ChatRequest),
+                ("ChatResponse", ChatResponse),
+                # Prompt schemas
+                ("PromptTemplateCreate", PromptTemplateCreate),
+                ("PromptTemplateUpdate", PromptTemplateUpdate),
+                ("PromptTemplateResponse", PromptTemplateResponse),
+                ("PromptTemplateListResponse", PromptTemplateListResponse),
+                ("PromptCategoryResponse", PromptCategoryResponse),
+                ("PromptTemplatesGroupedResponse", PromptTemplatesGroupedResponse),
+                # Common schemas
+                ("ErrorResponse", ErrorResponse),
+                ("HealthResponse", HealthResponse),
+                ("BulkDeleteRequest", BulkDeleteRequest),
+                ("BulkDeleteResponse", BulkDeleteResponse),
+                ("RedisTaskResponse", RedisTaskResponse),
+                ("RedisTaskListResponse", RedisTaskListResponse),
+                ("RedisKeyListResponse", RedisKeyListResponse),
+            ]
 
-        # Add paths manually since we're not using decorators
-        spec.path(
-            path="/image/generate",
-            operations={
-                "post": {
-                    "tags": ["Images"],
-                    "summary": "Generate image with DALL-E",
-                    "requestBody": {
-                        "content": {
-                            "application/json": {
-                                "schema": {"$ref": "#/components/schemas/ImageGenerateRequest"}
-                            }
-                        }
-                    },
-                    "responses": {
-                        "200": {
-                            "description": "Image generation started",
-                            "content": {
-                                "application/json": {
-                                    "schema": {"$ref": "#/components/schemas/ImageResponse"}
-                                }
-                            }
-                        },
-                        "400": {
-                            "description": "Validation error",
-                            "content": {
-                                "application/json": {
-                                    "schema": {"$ref": "#/components/schemas/ErrorResponse"}
-                                }
-                            }
-                        }
-                    }
+            # Only register schemas that aren't already registered
+            for schema_name, schema_class in schemas_to_register:
+                try:
+                    spec.components.schema(schema_name, schema=schema_class)
+                except Exception:
+                    # Schema already registered, skip
+                    pass
+
+            # Automatic route discovery and OpenAPI generation
+            def generate_paths_from_routes():
+                """Automatically generate OpenAPI paths from Flask routes"""
+                import inspect
+
+                # Tag mapping for cleaner organization
+                tag_mapping = {
+                    'api_image_v1': 'Images',
+                    'api_song_v1': 'Songs',
+                    'api_song_task_v1': 'Song Tasks',
+                    'api_prompt_v1': 'Prompt Templates',
+                    'api_redis_v1': 'Redis/Celery',
+                    'api_chat_v1': 'Chat',
+                    'api_v1': 'System'
                 }
-            }
-        )
 
-        spec.path(
-            path="/song/generate",
-            operations={
-                "post": {
-                    "tags": ["Songs"],
-                    "summary": "Generate song with MUREKA",
-                    "requestBody": {
-                        "content": {
-                            "application/json": {
-                                "schema": {"$ref": "#/components/schemas/SongGenerateRequest"}
-                            }
-                        }
-                    },
-                    "responses": {
-                        "200": {
-                            "description": "Song generation started",
-                            "content": {
-                                "application/json": {
-                                    "schema": {"$ref": "#/components/schemas/SongResponse"}
+                current_paths = set(spec.to_dict().get('paths', {}).keys())
+
+                for rule in app.url_map.iter_rules():
+                    # Only process API routes
+                    if not rule.endpoint.startswith(('api_image_v1', 'api_song_v1', 'api_prompt_v1', 'api_redis_v1', 'api_chat_v1', 'api_v1')):
+                        continue
+
+                    # Skip if already added
+                    route_path = rule.rule.replace('/api/v1', '')
+                    if route_path in current_paths:
+                        continue
+
+                    try:
+                        # Get the view function
+                        view_func = app.view_functions.get(rule.endpoint)
+                        if not view_func:
+                            continue
+
+                        # Extract blueprint name for tagging
+                        blueprint_name = rule.endpoint.split('.')[0] if '.' in rule.endpoint else rule.endpoint.split('_')[0] + '_' + rule.endpoint.split('_')[1] + '_v1'
+                        tag = tag_mapping.get(blueprint_name, 'API')
+
+                        # Get function signature for parameter detection
+                        sig = inspect.signature(view_func)
+
+                        # Build operations for each HTTP method
+                        operations = {}
+                        for method in rule.methods:
+                            if method in ['OPTIONS', 'HEAD']:
+                                continue
+
+                            operation = {
+                                "tags": [tag],
+                                "summary": (view_func.__doc__ or f"{method} {route_path}").strip(),
+                                "description": view_func.__doc__ or f"API endpoint for {route_path}",
+                                "responses": {
+                                    "200": {
+                                        "description": "Success",
+                                        "content": {
+                                            "application/json": {
+                                                "schema": {"type": "object"}
+                                            }
+                                        }
+                                    },
+                                    "400": {
+                                        "description": "Bad Request",
+                                        "content": {
+                                            "application/json": {
+                                                "schema": {"$ref": "#/components/schemas/ErrorResponse"}
+                                            }
+                                        }
+                                    }
                                 }
                             }
-                        }
-                    }
-                }
-            }
-        )
 
-        spec.path(
-            path="/ollama/chat/generate",
-            operations={
-                "post": {
-                    "tags": ["Chat"],
-                    "summary": "Generate chat response with Ollama",
-                    "requestBody": {
-                        "content": {
-                            "application/json": {
-                                "schema": {"$ref": "#/components/schemas/ChatRequest"}
-                            }
-                        }
-                    },
-                    "responses": {
-                        "200": {
-                            "description": "Chat response generated",
-                            "content": {
-                                "application/json": {
-                                    "schema": {"$ref": "#/components/schemas/ChatResponse"}
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        )
+                            # Add request body for POST/PUT methods with Pydantic models
+                            if method.lower() in ['post', 'put']:
+                                # Try to detect Pydantic model from function signature
+                                for param_name, param in sig.parameters.items():
+                                    if param_name == 'body' and hasattr(param.annotation, '__name__'):
+                                        schema_name = param.annotation.__name__
+                                        operation["requestBody"] = {
+                                            "required": True,
+                                            "content": {
+                                                "application/json": {
+                                                    "schema": {"$ref": f"#/components/schemas/{schema_name}"}
+                                                }
+                                            }
+                                        }
+                                        break
 
-        spec.path(
-            path="/health",
-            operations={
-                "get": {
-                    "tags": ["System"],
-                    "summary": "Health check endpoint",
-                    "responses": {
-                        "200": {
-                            "description": "Service health status",
-                            "content": {
-                                "application/json": {
-                                    "schema": {"$ref": "#/components/schemas/HealthResponse"}
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        )
+                            # Add path parameters
+                            if '<' in rule.rule:
+                                operation["parameters"] = []
+                                for arg in rule.arguments:
+                                    operation["parameters"].append({
+                                        "name": arg,
+                                        "in": "path",
+                                        "required": True,
+                                        "schema": {"type": "string"},
+                                        "description": f"Path parameter: {arg}"
+                                    })
 
-        return jsonify(spec.to_dict())
+                            operations[method.lower()] = operation
+
+                        # Add path to spec
+                        if operations:
+                            spec.path(path=route_path, operations=operations)
+
+                    except Exception as e:
+                        # Skip problematic routes
+                        print(f"Warning: Could not process route {rule.rule}: {e}", file=sys.stderr)
+                        continue
+
+            # Generate all paths automatically
+            generate_paths_from_routes()
+
+            return jsonify(spec.to_dict())
+        except Exception as e:
+            print(f"OpenAPI spec error: {e}", file=sys.stderr)
+            print(f"Stacktrace: {traceback.format_exc()}", file=sys.stderr)
+            return jsonify({"error": f"OpenAPI generation failed: {str(e)}"}), 500
 
     @app.route("/api/docs/")
     def swagger_ui():

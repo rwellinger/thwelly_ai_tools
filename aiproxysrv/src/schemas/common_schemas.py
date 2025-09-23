@@ -53,3 +53,57 @@ class StatusEnum(str):
     COMPLETED = "completed"
     FAILED = "failed"
     ERROR = "error"
+
+
+class BulkDeleteRequest(BaseModel):
+    """Schema for bulk deletion requests"""
+    ids: List[str] = Field(..., min_items=1, description="List of IDs to delete")
+
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "ids": ["item_1", "item_2", "item_3"]
+            }
+        }
+
+
+class BulkDeleteResponse(BaseResponse):
+    """Schema for bulk deletion response"""
+    data: Dict[str, Any] = Field(..., description="Bulk deletion results")
+
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "success": True,
+                "data": {
+                    "deleted_count": 3,
+                    "failed_count": 0,
+                    "deleted_ids": ["item_1", "item_2", "item_3"],
+                    "failed_ids": []
+                }
+            }
+        }
+
+
+class RedisTaskResponse(BaseModel):
+    """Schema for Redis/Celery task response"""
+    task_id: str = Field(..., description="Celery task ID")
+    status: str = Field(..., description="Task status")
+    result: Optional[Dict[str, Any]] = Field(None, description="Task result if completed")
+    created_at: Optional[datetime] = Field(None, description="Task creation time")
+    updated_at: Optional[datetime] = Field(None, description="Task last update time")
+
+    class Config:
+        from_attributes = True
+
+
+class RedisTaskListResponse(BaseResponse):
+    """Schema for Redis task list response"""
+    data: List[RedisTaskResponse] = Field(..., description="List of Redis tasks")
+    total: int = Field(..., description="Total number of tasks")
+
+
+class RedisKeyListResponse(BaseResponse):
+    """Schema for Redis key list response"""
+    data: List[str] = Field(..., description="List of Redis keys")
+    total: int = Field(..., description="Total number of keys")
