@@ -71,6 +71,7 @@ Das Mac KI-Service System ist eine persönliche KI-basierte Multimedia-Generieru
 - **Bildgenerierung** via DALL-E 3 (OpenAI API)
 - **Musikgenerierung** via Mureka API
 - **Asynchrone Verarbeitung** für zeitaufwendige Generierungsprozesse
+- **Ollama Modelle Chat** für Prompt Verbesserungen via Prompt Templates
 - **Web-basierte Benutzeroberfläche** für einfache Bedienung
 
 ### 1.2 Qualitätsziele
@@ -82,7 +83,7 @@ Das Mac KI-Service System ist eine persönliche KI-basierte Multimedia-Generieru
 | 4         | **Wartbarkeit**    | Einfache Deployment und Updates                         |
 
 ### 1.3 Stakeholder
-- **Rob (Entwickler/Nutzer)**: Einziger Nutzer und Entwickler des Systems
+- **Robert Wellinger (Entwickler/Nutzer)**: Aktuell einziger Nutzer und Entwickler des Systems
 
 ---
 
@@ -121,6 +122,7 @@ Das Mac KI-Service System ist eine persönliche KI-basierte Multimedia-Generieru
 - **Frontend ↔ Backend**: REST API (JSON über HTTPS)
 - **Backend ↔ Database**: PostgreSQL (SQL)
 - **Backend ↔ Cache**: Redis (Key-Value)
+- **Ollama LLM**: Diverse AI Modells Chats (HTTPS/REST)
 
 ---
 
