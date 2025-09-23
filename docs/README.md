@@ -30,8 +30,10 @@
    - [8.2 Image API](#82-image-api-apiv1image)
    - [8.3 Song API](#83-song-api-apiv1song)
    - [8.4 Task Management API](#84-task-management-api-apiv1songtask)
-   - [8.5 Redis Management API](#85-redis-management-api-apiv1redis)
-   - [8.6 AI Test Mock API](#86-ai-test-mock-api-aitestmock---developmenttesting)
+   - [8.5 Chat API](#85-chat-api-apiv1ollamachat)
+   - [8.6 Prompt Templates API](#86-prompt-templates-api-apiv1prompts)
+   - [8.7 Redis Management API](#87-redis-management-api-apiv1redis)
+   - [8.8 AI Test Mock API](#88-ai-test-mock-api-aitestmock---developmenttesting)
 9. [Deployment-Grafik](#9-deployment-grafik)
    - [9.1 Entwicklungs-Deployment](#91-entwicklungs-deployment)
    - [9.2 Produktions-Deployment](#92-produktions-deployment)
@@ -133,7 +135,7 @@ Das Mac KI-Service System ist eine persönliche KI-basierte Multimedia-Generieru
 - **Containerisiert**: Docker für konsistente Deployments
 
 ### 4.2 Technologie-Stack
-- **Frontend**: Angular 18 + TypeScript + Angular Material
+- **Frontend**: Angular 18.2.13 + TypeScript + Angular Material + SCSS
 - **Backend**: Python Flask + SQLAlchemy + Alembic
 - **Async Processing**: Celery + Redis
 - **Database**: PostgreSQL 15
@@ -165,7 +167,10 @@ Das Mac KI-Service System ist eine persönliche KI-basierte Multimedia-Generieru
   - `song-generator`: UI für Musikgenerierung
   - `song-view`: Anzeige generierter Songs
   - `song-profil`: Mureka Account-Informationen
-- **Services**: API-Integration, Konfiguration
+  - `settings`: Systemkonfiguration und Einstellungen
+  - `prompt-templates`: Template-Management für Prompts
+- **Services**: API-Integration, Konfiguration, Prompt-Management, Notifications
+- **Shared Components**: Header, Footer, Detail-Panels, Audio-Player, Progress-Overlay
 - **Build**: `npm run build:prod` → Deployment nach `forwardproxy/html`
 
 #### 5.2.2 aiproxysrv (Backend API)
@@ -174,6 +179,12 @@ Das Mac KI-Service System ist eine persönliche KI-basierte Multimedia-Generieru
   ```
   src/
   ├── api/           # Controllers & Routes
+  │   ├── app.py     # Flask App Factory
+  │   ├── image_routes.py    # Bildgenerierung API
+  │   ├── song_routes.py     # Musikgenerierung API
+  │   ├── chat_routes.py     # Chat API
+  │   ├── prompt_routes.py   # Prompt Templates API
+  │   └── redis_routes.py    # Redis Management API
   ├── db/            # Models & Database
   ├── celery_app/    # Async Processing
   ├── config/        # Konfiguration
@@ -437,26 +448,114 @@ GET /api/v1/song/task/queue-status
 }
 ```
 
-### 8.5 Redis Management API (`/api/v1/redis`)
+### 8.5 Chat API (`/api/v1/ollama/chat`)
 
-#### 8.5.1 Alle Celery Tasks auflisten
+#### 8.5.1 Chat-Generierung
+```http
+POST /api/v1/ollama/chat/generate
+Content-Type: application/json
+
+{
+    "model": "llama3.2:latest",
+    "prompt": "Erkläre mir künstliche Intelligenz",
+    "options": {
+        "temperature": 0.7,
+        "max_tokens": 500
+    }
+}
+```
+
+**Response:**
+```json
+{
+    "success": true,
+    "data": {
+        "response": "Künstliche Intelligenz (KI) ist...",
+        "model": "llama3.2:latest",
+        "prompt_eval_count": 25,
+        "eval_count": 150,
+        "eval_duration": 2500000000
+    }
+}
+```
+
+### 8.6 Prompt Templates API (`/api/v1/prompts`)
+
+#### 8.6.1 Alle Templates abrufen
+```http
+GET /api/v1/prompts
+```
+
+**Response:**
+```json
+{
+    "success": true,
+    "data": {
+        "images": {
+            "generate": {
+                "id": 1,
+                "category": "images",
+                "action": "generate",
+                "template": "Create an image of {subject} in {style} style",
+                "placeholders": ["subject", "style"],
+                "is_active": true
+            }
+        },
+        "songs": {
+            "generate": {
+                "id": 2,
+                "category": "songs",
+                "action": "generate",
+                "template": "Style: {style}\nLyrics: {lyrics}",
+                "placeholders": ["style", "lyrics"],
+                "is_active": true
+            }
+        }
+    }
+}
+```
+
+#### 8.6.2 Kategorie-Templates abrufen
+```http
+GET /api/v1/prompts/{category}
+```
+
+#### 8.6.3 Spezifisches Template abrufen
+```http
+GET /api/v1/prompts/{category}/{action}
+```
+
+#### 8.6.4 Template aktualisieren
+```http
+PUT /api/v1/prompts/{category}/{action}
+Content-Type: application/json
+
+{
+    "template": "Updated template with {placeholder}",
+    "is_active": true
+}
+```
+
+### 8.7 Redis Management API (`/api/v1/redis`)
+
+#### 8.7.1 Alle Celery Tasks auflisten
 ```http
 GET /api/v1/redis/list
 ```
 
-#### 8.5.2 Redis Keys auflisten
+#### 8.7.2 Redis Keys auflisten
 ```http
 GET /api/v1/redis/list/keys
 ```
 
-#### 8.5.3 Redis Key löschen
+#### 8.7.3 Redis Key löschen
 ```http
 DELETE /api/v1/redis/{task_id}
 ```
 
-### 8.6 AI Test Mock API (`aitestmock` - Development/Testing)
+### 8.8 AI Test Mock API (`aitestmock` - Development/Testing)
 
-#### 8.6.1 Mock Server Configuration
+#### 8.8.1 Mock Server Configuration
 ```http
 Base URL: http://localhost:8000 (Development)
 Content-Type: application/json
@@ -464,7 +563,7 @@ Content-Type: application/json
 
 **Zweck**: Ersetzt OpenAI und Mureka APIs in der Entwicklung um Kosten zu sparen
 
-#### 8.6.2 Mock Image Generation
+#### 8.8.2 Mock Image Generation
 ```http
 POST /v1/images/generations
 Content-Type: application/json
@@ -491,7 +590,7 @@ Content-Type: application/json
 }
 ```
 
-#### 8.6.3 Mock Song Generation
+#### 8.8.3 Mock Song Generation
 ```http
 POST /generate
 Content-Type: application/json
@@ -517,7 +616,7 @@ Content-Type: application/json
 }
 ```
 
-#### 8.6.4 Mock Song Status Query
+#### 8.8.4 Mock Song Status Query
 ```http
 GET /query/{job_id}
 ```
@@ -653,11 +752,15 @@ services:
 | **Task ID**    | Celery Task Identifier für Async Operations                                     |
 | **Job ID**     | Mureka Job Identifier für Song Generation                                       |
 | **Choice**     | Einzelne Musikvariante von Mureka (meist 2 pro Generation)                      |
+| **Ollama**     | Open-Source LLM Runtime für lokale Chat-Generierung                             |
+| **Chat API**   | Ollama-basierte Text-Generierung für Conversational AI                          |
+| **Prompt Templates** | Wiederverwendbare Prompt-Vorlagen mit Platzhaltern                        |
+| **Settings**   | Frontend-Komponente für Systemkonfiguration und Benutzereinstellungen           |
 | **aitestmock** | Mock-Server für OpenAI und Mureka APIs zur Kostensenkung in Development/Testing |
 
 ---
 
 *Dokument erstellt am: 01.09.2025*
-*Zuletzt aktualisiert: 19.09.2025*
-*Version: 1.1*
+*Zuletzt aktualisiert: 23.09.2025*
+*Version: 1.4*
 *Autor: Rob (rob.wellinger@gmail.com)*
