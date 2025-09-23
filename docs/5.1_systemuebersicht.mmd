@@ -30,6 +30,7 @@ graph TB
     subgraph "External APIs"
         OPENAI[OpenAI DALL-E 3]
         MRK[Mureka API]
+        OLLAMA[Ollama LLM<br/>10.0.1.120:11434]
     end
 
     UI --> Proxy
@@ -44,10 +45,12 @@ graph TB
     SONG --> CELERY
     CELERY --> MUREKA
     MUREKA --> MRK
+    CHAT --> OLLAMA
 
     API --> PG
     API --> RD
     PROMPT --> PG
     CHAT --> PG
+    CHAT --> PROMPT
     CELERY --> RD
     IMG --> FILES

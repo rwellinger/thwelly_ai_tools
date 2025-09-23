@@ -22,12 +22,13 @@ graph TB
     NGINX -->|/aiwebui/| NGINX
     NGINX -->|/api/v1/image/| API
     NGINX -->|/api/v1/song/| API
-    NGINX -->|/api/v1/chat/| API
-    NGINX -->|/api/v1/prompt/| API
+    NGINX -->|/api/v1/ollama/chat/| API
+    NGINX -->|/api/v1/prompts/| API
     NGINX -->|/api/v1/redis/| API
     NGINX -->|/| WEBUI
 
     API --> PG
     API --> REDIS
+    API -->|Chat Generation| OLLAMA
     WORKER --> REDIS
     WORKER --> PG
