@@ -53,8 +53,8 @@ docker exec "$CONTAINER_NAME" \
 # -------------------------------------------------------------
 if [[ -f "$DUMP_FILE" ]]; then
   echo "Schema-Dump erstellt: $DUMP_FILE"
+  gzip $DUMP_FILE
 else
   echo "Dump fehlgeschlagen."
   exit 1
 fi
-
