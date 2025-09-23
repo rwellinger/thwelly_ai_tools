@@ -30,8 +30,10 @@
    - [8.2 Image API](#82-image-api-apiv1image)
    - [8.3 Song API](#83-song-api-apiv1song)
    - [8.4 Task Management API](#84-task-management-api-apiv1songtask)
-   - [8.5 Redis Management API](#85-redis-management-api-apiv1redis)
-   - [8.6 AI Test Mock API](#86-ai-test-mock-api-aitestmock---developmenttesting)
+   - [8.5 Chat API](#85-chat-api-apiv1ollamachat)
+   - [8.6 Prompt Templates API](#86-prompt-templates-api-apiv1prompts)
+   - [8.7 Redis Management API](#87-redis-management-api-apiv1redis)
+   - [8.8 AI Test Mock API](#88-ai-test-mock-api-aitestmock---developmenttesting)
 9. [Deployment-Grafik](#9-deployment-grafik)
    - [9.1 Entwicklungs-Deployment](#91-entwicklungs-deployment)
    - [9.2 Produktions-Deployment](#92-produktions-deployment)
@@ -46,6 +48,11 @@
     - [11.2 Security](#112-security)
     - [11.3 Monitoring](#113-monitoring)
 12. [Glossar](#12-glossar)
+13. [Datenbank-Schema](#13-datenbank-schema)
+    - [13.1 Entity-Relationship-Diagramm](#131-entity-relationship-diagramm)
+    - [13.2 Tabellen-Übersicht](#132-tabellen-übersicht)
+    - [13.3 Beziehungen und Constraints](#133-beziehungen-und-constraints)
+    - [13.4 Migration und Wartung](#134-migration-und-wartung)
 
 ## Abbildungsverzeichnis
 
@@ -61,6 +68,7 @@
 - [Abbildung 10.2: Error Handling & Retry Logic](#102-error-handling--retry-logic) - `images/10.2_error_handling.png`
 - [Abbildung 10.3: Health Check Prozess](#103-health-check-prozess) - `images/10.3_health_check.png`
 - [Abbildung 10.4: Backup & Recovery Prozess](#104-backup--recovery-prozess) - `images/10.4_backup_recovery.png`
+- [Abbildung 13.1: Datenbank Schema](#131-entity-relationship-diagramm) - `images/13_database_schema.png`
 
 ---
 
@@ -133,7 +141,7 @@ Das Mac KI-Service System ist eine persönliche KI-basierte Multimedia-Generieru
 - **Containerisiert**: Docker für konsistente Deployments
 
 ### 4.2 Technologie-Stack
-- **Frontend**: Angular 18 + TypeScript + Angular Material
+- **Frontend**: Angular 18.2.13 + TypeScript + Angular Material + SCSS
 - **Backend**: Python Flask + SQLAlchemy + Alembic
 - **Async Processing**: Celery + Redis
 - **Database**: PostgreSQL 15
@@ -165,7 +173,10 @@ Das Mac KI-Service System ist eine persönliche KI-basierte Multimedia-Generieru
   - `song-generator`: UI für Musikgenerierung
   - `song-view`: Anzeige generierter Songs
   - `song-profil`: Mureka Account-Informationen
-- **Services**: API-Integration, Konfiguration
+  - `settings`: Systemkonfiguration und Einstellungen
+  - `prompt-templates`: Template-Management für Prompts
+- **Services**: API-Integration, Konfiguration, Prompt-Management, Notifications
+- **Shared Components**: Header, Footer, Detail-Panels, Audio-Player, Progress-Overlay
 - **Build**: `npm run build:prod` → Deployment nach `forwardproxy/html`
 
 #### 5.2.2 aiproxysrv (Backend API)
@@ -174,6 +185,12 @@ Das Mac KI-Service System ist eine persönliche KI-basierte Multimedia-Generieru
   ```
   src/
   ├── api/           # Controllers & Routes
+  │   ├── app.py     # Flask App Factory
+  │   ├── image_routes.py    # Bildgenerierung API
+  │   ├── song_routes.py     # Musikgenerierung API
+  │   ├── chat_routes.py     # Chat API
+  │   ├── prompt_routes.py   # Prompt Templates API
+  │   └── redis_routes.py    # Redis Management API
   ├── db/            # Models & Database
   ├── celery_app/    # Async Processing
   ├── config/        # Konfiguration
@@ -437,26 +454,186 @@ GET /api/v1/song/task/queue-status
 }
 ```
 
-### 8.5 Redis Management API (`/api/v1/redis`)
+### 8.5 Chat API (`/api/v1/ollama/chat`) - Ollama Integration
 
-#### 8.5.1 Alle Celery Tasks auflisten
+Die Chat API bietet Zugang zu Ollama-basierten KI-Modellen für Text-Generierung und erweiterte Prompt-Verarbeitung. Alle Endpunkte nutzen das externe Ollama-System (standardmäßig `http://10.0.1.120:11434`).
+
+#### 8.5.1 Vollständige Chat-Generierung
+```http
+POST /api/v1/ollama/chat/generate
+Content-Type: application/json
+
+{
+    "model": "llama3.2:3b",
+    "prompt": "Erkläre mir künstliche Intelligenz",
+    "pre_condition": "Du bist ein hilfreicher KI-Assistent. ",
+    "post_condition": " Antworte präzise und verständlich.",
+    "options": {
+        "temperature": 0.7,
+        "max_tokens": 500
+    }
+}
+```
+
+**Response:**
+```json
+{
+    "response": "Künstliche Intelligenz (KI) ist...",
+    "model": "llama3.2:3b",
+    "prompt_eval_count": 25,
+    "eval_count": 150,
+    "eval_duration": 2500000000
+}
+```
+
+#### 8.5.2 Llama3-Simple (Template-basiert)
+```http
+POST /api/v1/ollama/chat/generate-llama3-simple
+Content-Type: application/json
+
+{
+    "prompt": "Verbessere diesen Text: Das ist ein Test",
+    "pre_condition": "Zusätzlicher Kontext: ",
+    "post_condition": " Bitte kurz halten."
+}
+```
+
+**Funktionalität:**
+- Nutzt `image/enhance` Template für AI-Parameter
+- Fallback: `llama3.2:3b`, temperature: 0.7, max_tokens: 2048
+
+#### 8.5.3 GPT-OSS-Simple (Template-flexibel)
+```http
+POST /api/v1/ollama/chat/generate-gpt-oss-simple
+Content-Type: application/json
+
+{
+    "prompt": "Übersetze ins Deutsche: Hello world",
+    "template_category": "image",
+    "template_action": "translate",
+    "pre_condition": "Kontext: ",
+    "post_condition": " Nur das Ergebnis."
+}
+```
+
+**Funktionalität:**
+- Template-Auswahl via `template_category`/`template_action`
+- Fallback: `gpt-oss:20b`, temperature: 0.7, max_tokens: 800
+
+#### 8.5.4 Lyrics-Generierung (Spezialisiert)
+```http
+POST /api/v1/ollama/chat/generate-lyrics
+Content-Type: application/json
+
+{
+    "input_text": "Ein Song über Freundschaft und Hoffnung"
+}
+```
+
+**Funktionalität:**
+- Nutzt `lyrics/generate` Template vollständig
+- Automatische Prompt-Verarbeitung mit pre/post conditions
+- Optimiert für Song-Text-Generierung
+
+**Response (alle Endpunkte):**
+```json
+{
+    "response": "Generierter Text...",
+    "model": "verwendetes_modell",
+    "prompt_eval_count": 25,
+    "eval_count": 150,
+    "eval_duration": 2500000000
+}
+```
+
+#### 8.5.5 Konfiguration & Templates
+
+**Ollama-Verbindung:**
+- **URL**: Konfiguriert via `OLLAMA_URL` (Standard: `http://10.0.1.120:11434`)
+- **Timeout**: Konfiguriert via `OLLAMA_TIMEOUT` (Standard: 60s)
+
+**AI Magic Functions:**
+- Templates aus `prompt_templates` Tabelle werden für intelligente Prompt-Erweiterung genutzt
+- Template-Parameter: `model`, `temperature`, `max_tokens`, `pre_condition`, `post_condition`
+- Fallback-Mechanismus bei fehlenden Templates
+
+### 8.6 Prompt Templates API (`/api/v1/prompts`)
+
+#### 8.6.1 Alle Templates abrufen
+```http
+GET /api/v1/prompts
+```
+
+**Response:**
+```json
+{
+    "success": true,
+    "data": {
+        "images": {
+            "generate": {
+                "id": 1,
+                "category": "images",
+                "action": "generate",
+                "template": "Create an image of {subject} in {style} style",
+                "placeholders": ["subject", "style"],
+                "is_active": true
+            }
+        },
+        "songs": {
+            "generate": {
+                "id": 2,
+                "category": "songs",
+                "action": "generate",
+                "template": "Style: {style}\nLyrics: {lyrics}",
+                "placeholders": ["style", "lyrics"],
+                "is_active": true
+            }
+        }
+    }
+}
+```
+
+#### 8.6.2 Kategorie-Templates abrufen
+```http
+GET /api/v1/prompts/{category}
+```
+
+#### 8.6.3 Spezifisches Template abrufen
+```http
+GET /api/v1/prompts/{category}/{action}
+```
+
+#### 8.6.4 Template aktualisieren
+```http
+PUT /api/v1/prompts/{category}/{action}
+Content-Type: application/json
+
+{
+    "template": "Updated template with {placeholder}",
+    "is_active": true
+}
+```
+
+### 8.7 Redis Management API (`/api/v1/redis`)
+
+#### 8.7.1 Alle Celery Tasks auflisten
 ```http
 GET /api/v1/redis/list
 ```
 
-#### 8.5.2 Redis Keys auflisten
+#### 8.7.2 Redis Keys auflisten
 ```http
 GET /api/v1/redis/list/keys
 ```
 
-#### 8.5.3 Redis Key löschen
+#### 8.7.3 Redis Key löschen
 ```http
 DELETE /api/v1/redis/{task_id}
 ```
 
-### 8.6 AI Test Mock API (`aitestmock` - Development/Testing)
+### 8.8 AI Test Mock API (`aitestmock` - Development/Testing)
 
-#### 8.6.1 Mock Server Configuration
+#### 8.8.1 Mock Server Configuration
 ```http
 Base URL: http://localhost:8000 (Development)
 Content-Type: application/json
@@ -464,7 +641,7 @@ Content-Type: application/json
 
 **Zweck**: Ersetzt OpenAI und Mureka APIs in der Entwicklung um Kosten zu sparen
 
-#### 8.6.2 Mock Image Generation
+#### 8.8.2 Mock Image Generation
 ```http
 POST /v1/images/generations
 Content-Type: application/json
@@ -491,7 +668,7 @@ Content-Type: application/json
 }
 ```
 
-#### 8.6.3 Mock Song Generation
+#### 8.8.3 Mock Song Generation
 ```http
 POST /generate
 Content-Type: application/json
@@ -517,7 +694,7 @@ Content-Type: application/json
 }
 ```
 
-#### 8.6.4 Mock Song Status Query
+#### 8.8.4 Mock Song Status Query
 ```http
 GET /query/{job_id}
 ```
@@ -653,11 +830,137 @@ services:
 | **Task ID**    | Celery Task Identifier für Async Operations                                     |
 | **Job ID**     | Mureka Job Identifier für Song Generation                                       |
 | **Choice**     | Einzelne Musikvariante von Mureka (meist 2 pro Generation)                      |
+| **Ollama**     | Open-Source LLM Runtime für lokale Chat-Generierung (10.0.1.120:11434)         |
+| **Chat API**   | Ollama-basierte Text-Generierung für Conversational AI mit 4 Endpunkten         |
+| **AI Magic Functions** | Template-basierte intelligente Prompt-Erweiterung via prompt_templates   |
+| **Prompt Templates** | Wiederverwendbare Prompt-Vorlagen mit pre/post conditions und AI-Parametern |
+| **Template Processing** | Automatische Prompt-Optimierung mit model, temperature, max_tokens       |
+| **Settings**   | Frontend-Komponente für Systemkonfiguration und Benutzereinstellungen           |
+| **Entity-Relationship** | Datenbankschema mit 4 Tabellen und definierten Beziehungen                |
 | **aitestmock** | Mock-Server für OpenAI und Mureka APIs zur Kostensenkung in Development/Testing |
 
 ---
 
+## 13. Datenbank-Schema
+
+### 13.1 Entity-Relationship-Diagramm
+
+![Database Schema](images/13_database_schema.png)
+
+*Abbildung 13.1: Datenbank Schema - Entity-Relationship-Diagramm aller Tabellen und Beziehungen*
+
+### 13.2 Tabellen-Übersicht
+
+#### 13.2.1 songs
+**Zweck**: Haupttabelle für Song-Generierung und -Verwaltung
+
+| Spalte | Typ | Beschreibung |
+|--------|-----|-------------|
+| `id` | UUID | Primary Key |
+| `task_id` | VARCHAR(255) | Celery Task ID (unique) |
+| `job_id` | VARCHAR(255) | MUREKA Job ID |
+| `lyrics` | TEXT | Song-Text Input |
+| `prompt` | TEXT | Style-Prompt für Generierung |
+| `model` | VARCHAR(100) | Generierungsmodell (default: "chirp-v3-5") |
+| `title` | VARCHAR(500) | Benutzerdefinierter Titel |
+| `tags` | VARCHAR(1000) | Benutzerdefinierte Tags |
+| `workflow` | VARCHAR(50) | Status: onWork, inUse, notUsed |
+| `status` | VARCHAR(50) | PENDING, PROGRESS, SUCCESS, FAILURE, CANCELLED |
+| `progress_info` | TEXT | JSON Progress-Details |
+| `error_message` | TEXT | Fehlerinformationen |
+| `mureka_response` | TEXT | Vollständige MUREKA Response (JSON) |
+| `mureka_status` | VARCHAR(100) | MUREKA-spezifischer Status |
+| `created_at` | TIMESTAMP | Erstellungszeitpunkt |
+| `updated_at` | TIMESTAMP | Letzte Aktualisierung |
+| `completed_at` | TIMESTAMP | Abschlusszeitpunkt |
+
+#### 13.2.2 song_choices
+**Zweck**: Einzelne Song-Varianten von MUREKA (1:N zu songs)
+
+| Spalte | Typ | Beschreibung |
+|--------|-----|-------------|
+| `id` | UUID | Primary Key |
+| `song_id` | UUID | Foreign Key zu songs.id |
+| `mureka_choice_id` | VARCHAR(255) | MUREKA Choice Identifier |
+| `choice_index` | INTEGER | Index im choices Array |
+| `mp3_url` | VARCHAR(1000) | MP3 Datei URL |
+| `flac_url` | VARCHAR(1000) | FLAC Datei URL |
+| `video_url` | VARCHAR(1000) | Video Datei URL |
+| `image_url` | VARCHAR(1000) | Cover-Bild URL |
+| `duration` | FLOAT | Dauer in Millisekunden |
+| `title` | VARCHAR(500) | Choice-Titel |
+| `tags` | VARCHAR(1000) | Choice-Tags |
+| `rating` | INTEGER | Bewertung (0=thumbs down, 1=thumbs up) |
+| `created_at` | TIMESTAMP | Erstellungszeitpunkt |
+| `updated_at` | TIMESTAMP | Letzte Aktualisierung |
+
+#### 13.2.3 generated_images
+**Zweck**: Generierte Bilder und Metadaten
+
+| Spalte | Typ | Beschreibung |
+|--------|-----|-------------|
+| `id` | UUID | Primary Key |
+| `prompt` | TEXT | Generierungs-Prompt |
+| `size` | VARCHAR(20) | Bildgröße (z.B. "1024x1024") |
+| `filename` | VARCHAR(255) | Eindeutiger Dateiname |
+| `file_path` | VARCHAR(500) | Lokaler Dateipfad |
+| `local_url` | VARCHAR(500) | Lokale Zugriffs-URL |
+| `model_used` | VARCHAR(100) | Verwendetes Generierungsmodell |
+| `prompt_hash` | VARCHAR(32) | Prompt-Hash für Deduplizierung |
+| `title` | VARCHAR(255) | Benutzerdefinierter Titel |
+| `tags` | TEXT | Benutzerdefinierte Tags |
+| `created_at` | TIMESTAMP | Erstellungszeitpunkt |
+| `updated_at` | TIMESTAMP | Letzte Aktualisierung |
+
+#### 13.2.4 prompt_templates
+**Zweck**: AI-Prompt Templates für verschiedene Kategorien und Aktionen
+
+| Spalte | Typ | Beschreibung |
+|--------|-----|-------------|
+| `id` | INTEGER | Primary Key |
+| `category` | VARCHAR(50) | Template-Kategorie (images, songs, lyrics) |
+| `action` | VARCHAR(50) | Template-Aktion (generate, enhance, translate) |
+| `pre_condition` | TEXT | Text vor dem Prompt |
+| `post_condition` | TEXT | Text nach dem Prompt |
+| `description` | TEXT | Template-Beschreibung |
+| `version` | VARCHAR(10) | Template-Version |
+| `model` | VARCHAR(50) | Ollama Model-Hint |
+| `temperature` | FLOAT | Ollama Temperature (0.0-2.0) |
+| `max_tokens` | INTEGER | Maximale Token-Anzahl |
+| `active` | BOOLEAN | Template ist aktiv |
+| `created_at` | TIMESTAMP | Erstellungszeitpunkt |
+| `updated_at` | TIMESTAMP | Letzte Aktualisierung |
+
+### 13.3 Beziehungen und Constraints
+
+- **songs ↔ song_choices**: 1:N Beziehung mit CASCADE DELETE
+- **Unique Constraints**: `songs.task_id`, `generated_images.filename`
+- **Indexes**: Auf `task_id`, `job_id`, `song_id` für Performance
+- **Foreign Keys**: `song_choices.song_id` → `songs.id`
+
+### 13.4 Migration und Wartung
+
+**Migration Commands:**
+```bash
+# Neue Migration erstellen
+alembic revision --autogenerate -m "description"
+
+# Migrationen anwenden
+alembic upgrade head
+
+# Aktuelle Version prüfen
+alembic current
+```
+
+**Wichtige Überlegungen:**
+- UUID als Primary Keys für bessere Skalierbarkeit
+- JSON-Felder für flexible Metadaten-Speicherung
+- Timestamps für Audit-Trail
+- Cascade Deletes für Datenintegrität
+
+---
+
 *Dokument erstellt am: 01.09.2025*
-*Zuletzt aktualisiert: 19.09.2025*
-*Version: 1.1*
+*Zuletzt aktualisiert: 23.09.2025*
+*Version: 1.5*
 *Autor: Rob (rob.wellinger@gmail.com)*

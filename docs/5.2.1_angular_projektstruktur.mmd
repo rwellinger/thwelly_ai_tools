@@ -17,6 +17,11 @@ graph TB
                 SONG_VIEW[song-view.component.ts<br/>Song-Liste & Wiedergabe]
                 SONG_PROF[song-profile.component.ts<br/>Mureka Account Info]
             end
+
+            subgraph "Settings & Configuration"
+                SETTINGS[settings.component.ts<br/>Systemkonfiguration]
+                PROMPT_TMPL[prompt-templates.component.ts<br/>Template-Management]
+            end
         end
 
         subgraph "Shared Components"
@@ -25,11 +30,13 @@ graph TB
             IMG_DETAIL[image-detail-panel.component.ts<br/>Bild Detail Panel]
             SONG_DETAIL[song-detail-panel.component.ts<br/>Song Detail Panel]
             AUDIO_PLAYER[popup-audio-player.component.ts<br/>Audio Player Popup]
+            PROGRESS[progress-overlay.component.ts<br/>Progress Indicator]
         end
 
         subgraph "Services"
             API_CONFIG[api-config.service.ts<br/>API Konfiguration]
             SONG_SVC[song.service.ts<br/>Song API Calls]
+            PROMPT_SVC[prompt.service.ts<br/>Template API Calls]
             NOTIFY_SVC[notification.service.ts<br/>User Notifications]
         end
 
@@ -63,7 +70,11 @@ graph TB
     SONG_VIEW --> AUDIO_PLAYER
     SONG_PROF --> SONG_SVC
 
+    SETTINGS --> PROMPT_SVC
+    PROMPT_TMPL --> PROMPT_SVC
+
     SONG_SVC --> API_CONFIG
+    PROMPT_SVC --> API_CONFIG
     API_CONFIG --> API
 
     HEADER --> ROUTES
@@ -83,9 +94,9 @@ graph TB
     classDef build fill:#fff8e1
 
     class APP,ROUTES,CONFIG core
-    class IMG_GEN,IMG_VIEW,SONG_GEN,SONG_VIEW,SONG_PROF feature
-    class HEADER,FOOTER,IMG_DETAIL,SONG_DETAIL,AUDIO_PLAYER shared
-    class API_CONFIG,SONG_SVC,NOTIFY_SVC service
+    class IMG_GEN,IMG_VIEW,SONG_GEN,SONG_VIEW,SONG_PROF,SETTINGS,PROMPT_TMPL feature
+    class HEADER,FOOTER,IMG_DETAIL,SONG_DETAIL,AUDIO_PLAYER,PROGRESS shared
+    class API_CONFIG,SONG_SVC,PROMPT_SVC,NOTIFY_SVC service
     class DISPLAY_PIPE pipe
     class API backend
     class BUILD,DEPLOY build

@@ -20,10 +20,15 @@ graph TB
 
     CLIENT -->|HTTPS| NGINX
     NGINX -->|/aiwebui/| NGINX
-    NGINX -->|/api/v1/| API
+    NGINX -->|/api/v1/image/| API
+    NGINX -->|/api/v1/song/| API
+    NGINX -->|/api/v1/ollama/chat/| API
+    NGINX -->|/api/v1/prompts/| API
+    NGINX -->|/api/v1/redis/| API
     NGINX -->|/| WEBUI
 
     API --> PG
     API --> REDIS
+    API -->|Chat Generation| OLLAMA
     WORKER --> REDIS
     WORKER --> PG

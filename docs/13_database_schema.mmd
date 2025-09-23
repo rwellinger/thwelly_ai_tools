@@ -1,0 +1,70 @@
+erDiagram
+    songs {
+        UUID id PK "Primary Key"
+        VARCHAR task_id UK "Celery Task ID"
+        VARCHAR job_id "MUREKA Job ID"
+        TEXT lyrics "Song lyrics input"
+        TEXT prompt "Style prompt"
+        VARCHAR model "Generation model (chirp-v3-5)"
+        VARCHAR title "User-defined title"
+        VARCHAR tags "User tags"
+        VARCHAR workflow "onWork, inUse, notUsed"
+        VARCHAR status "PENDING, PROGRESS, SUCCESS, FAILURE, CANCELLED"
+        TEXT progress_info "JSON progress details"
+        TEXT error_message "Error information"
+        TEXT mureka_response "Full MUREKA response JSON"
+        VARCHAR mureka_status "MUREKA-specific status"
+        TIMESTAMP created_at "Creation timestamp"
+        TIMESTAMP updated_at "Last update timestamp"
+        TIMESTAMP completed_at "Completion timestamp"
+    }
+
+    song_choices {
+        UUID id PK "Primary Key"
+        UUID song_id FK "Foreign Key to songs"
+        VARCHAR mureka_choice_id "MUREKA choice identifier"
+        INTEGER choice_index "Index in choices array"
+        VARCHAR mp3_url "MP3 file URL"
+        VARCHAR flac_url "FLAC file URL"
+        VARCHAR video_url "Video file URL"
+        VARCHAR image_url "Cover image URL"
+        FLOAT duration "Duration in milliseconds"
+        VARCHAR title "Choice title"
+        VARCHAR tags "Choice tags"
+        INTEGER rating "User rating (0=down, 1=up)"
+        TIMESTAMP created_at "Creation timestamp"
+        TIMESTAMP updated_at "Last update timestamp"
+    }
+
+    generated_images {
+        UUID id PK "Primary Key"
+        TEXT prompt "Generation prompt"
+        VARCHAR size "Image size (1024x1024)"
+        VARCHAR filename UK "Unique filename"
+        VARCHAR file_path "Local file path"
+        VARCHAR local_url "Local access URL"
+        VARCHAR model_used "Generation model"
+        VARCHAR prompt_hash "Prompt hash for deduplication"
+        VARCHAR title "User-defined title"
+        TEXT tags "User tags"
+        TIMESTAMP created_at "Creation timestamp"
+        TIMESTAMP updated_at "Last update timestamp"
+    }
+
+    prompt_templates {
+        INTEGER id PK "Primary Key"
+        VARCHAR category "Template category (images, songs, lyrics)"
+        VARCHAR action "Template action (generate, enhance, translate)"
+        TEXT pre_condition "Text prepended to prompt"
+        TEXT post_condition "Text appended to prompt"
+        TEXT description "Template description"
+        VARCHAR version "Template version"
+        VARCHAR model "Ollama model hint"
+        FLOAT temperature "Ollama temperature (0.0-2.0)"
+        INTEGER max_tokens "Maximum tokens to generate"
+        BOOLEAN active "Template is active"
+        TIMESTAMP created_at "Creation timestamp"
+        TIMESTAMP updated_at "Last update timestamp"
+    }
+
+    songs ||--o{ song_choices : "has choices"
