@@ -1,4 +1,4 @@
-import {Component, OnInit, ViewEncapsulation, inject, HostListener} from '@angular/core';
+import {Component, OnInit, ViewEncapsulation, inject, HostListener, ViewChild} from '@angular/core';
 import {FormBuilder, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
 import {CommonModule} from '@angular/common';
 import {SongService} from '../services/song.service';
@@ -34,12 +34,11 @@ export class SongGeneratorComponent implements OnInit {
     result = '';
     currentlyPlaying: string | null = null;
     audioUrl: string | null = null;
-    resultData: any = null;
-    generatedSongData: any = null;
-    choices: any[] = [];
-    stemDownloadUrls = new Map<string, string>();
     showPopupPlayer = false;
     currentSongTitle = '';
+    currentSongId: string | null = null;
+
+    @ViewChild(SongDetailPanelComponent) songDetailPanel!: SongDetailPanelComponent;
 
     private fb = inject(FormBuilder);
     private songService = inject(SongService);
@@ -77,6 +76,14 @@ export class SongGeneratorComponent implements OnInit {
         this.result = '';
     }
 
+    async reloadDetail() {
+        if (this.currentSongId && this.songDetailPanel) {
+            console.log('Manual reload requested for songId:', this.currentSongId);
+            this.songDetailPanel.songId = this.currentSongId;
+            await this.songDetailPanel.reloadSong();
+        }
+    }
+
     async generateSong() {
         const formValue = this.songForm.value;
         this.isLoading = true;
@@ -90,6 +97,11 @@ export class SongGeneratorComponent implements OnInit {
             );
 
             if (data.task_id) {
+                // Store song_id if provided by backend
+                if (data.song_id) {
+                    this.currentSongId = data.song_id;
+                    console.log('Song ID stored:', this.currentSongId);
+                }
                 await this.checkSongStatus(data.task_id);
             } else {
                 this.notificationService.error('Error initiating song generation.');
@@ -110,7 +122,7 @@ export class SongGeneratorComponent implements OnInit {
                 const data = await this.songService.checkSongStatus(taskId);
 
                 if (data.status === 'SUCCESS') {
-                    this.renderResultTask(data.result);
+                    await this.renderResultTask(data.result);
                     completed = true;
                 } else if (data.status === 'FAILURE') {
                     const errorMessage = data.result?.error || data.result || 'Song generation failed';
@@ -133,74 +145,33 @@ export class SongGeneratorComponent implements OnInit {
         this.isLoading = false;
     }
 
-    renderResultTask(data: any): void {
-        let result;
+    async renderResultTask(data: any): Promise<void> {
+        console.log('=== renderResultTask called ===');
+        console.log('data:', data);
+        console.log('currentSongId:', this.currentSongId);
 
-        if (data && data.result && data.result.choices) {
-            result = data.result;
-        } else if (data && data.choices) {
-            result = data;
-        } else {
-            this.result = 'Not yet loaded...';
-            this.resultData = null;
-            this.choices = [];
+        // Only use DB loading - no more MUREKA result fallback
+        if (this.currentSongId && (data.status === 'SUCCESS' || data.status === 'succeeded')) {
+            console.log('Song generated successfully, refreshing detail panel');
+            this.result = '';
+            // Einfach das Detail Panel refreshen - Daten sind bereits in DB
+            if (this.songDetailPanel) {
+                console.log('Calling reloadSong with songId:', this.currentSongId);
+                // Sicherstellen dass die songId gesetzt ist bevor wir reloadSong aufrufen
+                this.songDetailPanel.songId = this.currentSongId;
+
+                await this.songDetailPanel.reloadSong();
+            }
             return;
+        } else if (data.status === 'FAILURE') {
+            // Nur bei FAILURE Fehler zeigen
+            this.result = 'Error: Song generation failed.';
+            this.notificationService.error('Song generation failed');
         }
-
-        if (!result.choices || !Array.isArray(result.choices)) {
-            this.result = 'Not yet loaded...';
-            this.resultData = null;
-            this.choices = [];
-            return;
-        }
-        this.resultData = {
-            id: result.id,
-            model: result.model,
-            createdAt: result.created_at,
-            finishedAt: result.finished_at,
-            formattedDuration: this.formatDuration(result.finished_at - result.created_at),
-            createdAtFormatted: new Date(result.finished_at * 1000).toUTCString()
-        };
-
-        this.choices = result.choices.map((choice: any) => ({
-            ...choice,
-            formattedDuration: this.formatDurationFromMs(choice.duration),
-            stemDownloadUrl: this.stemDownloadUrls.get(choice.mp3_url || choice.url) || null
-        }));
-
-        // Create data object for shared component with field mapping for compatibility
-        this.generatedSongData = {
-            job_id: result.id,
-            model: result.model,
-            status: 'completed',
-            created_at: new Date(result.created_at * 1000).toISOString(),
-            completed_at: new Date(result.finished_at * 1000).toISOString(),
-            lyrics: this.songForm.get('lyrics')?.value,
-            prompt: this.songForm.get('prompt')?.value,
-            choices: this.choices.map((choice: any) => ({
-                ...choice,
-                mp3_url: choice.url || choice.mp3_url,  // Map API field 'url' to expected 'mp3_url'
-                flac_url: choice.flac_url,               // Keep existing flac_url
-                stemDownloadUrl: choice.stemDownloadUrl  // Include stem download URL
-            }))
-        };
-
-        this.result = '';
+        // Bei PROGRESS oder anderen Status einfach nichts machen
     }
 
-    private formatDuration(durationSeconds: number): string {
-        const totalSeconds = Math.floor(durationSeconds);
-        const minutes = Math.floor(totalSeconds / 60);
-        const seconds = totalSeconds % 60;
-        return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
-    }
 
-    private formatDurationFromMs(durationMs: number): string {
-        const totalSeconds = Math.floor(durationMs / 1000);
-        const minutes = Math.floor(totalSeconds / 60);
-        const seconds = totalSeconds % 60;
-        return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
-    }
 
     playAudio(mp3Url: string, songId: string, choiceNumber?: number) {
         if (this.currentlyPlaying === songId) {
@@ -304,6 +275,7 @@ export class SongGeneratorComponent implements OnInit {
     }
 
     async generateStem(choiceId: string) {
+        // Delegate to shared component via API call
         this.isLoading = true;
         this.loadingMessage = 'Generating stems...';
 
@@ -320,44 +292,34 @@ export class SongGeneratorComponent implements OnInit {
             ]);
 
             if (!response.ok) {
-                // noinspection ExceptionCaughtLocallyJS
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
 
             const data = await response.json();
 
-            if (data.status === 'SUCCESS' && data.result && data.result.zip_url) {
-                // Find the choice by choiceId to get the mp3Url for mapping
-                const choice = this.choices.find((c: any) => c.id === choiceId);
-                if (choice?.mp3_url) {
-                    this.stemDownloadUrls.set(choice.mp3_url, data.result.zip_url);
-                    this.updateChoicesWithStems();
-                }
+            if (data.status === 'SUCCESS') {
+                this.notificationService.success('Stems generated successfully!');
             } else {
                 this.notificationService.error('Stem generation failed or incomplete.');
-                this.result += '<p>Stem generation failed or incomplete.</p>';
             }
         } catch (error: any) {
             this.notificationService.error(`Error generating stem: ${error.message}`);
-            this.result += `<p>Error generating stem: ${error.message}</p>`;
         } finally {
             this.isLoading = false;
         }
     }
 
-    // Handlers for shared song detail panel
-    onTitleChanged(newTitle: string) {
-        // For generated songs, we don't need to save titles to backend
-        if (this.generatedSongData) {
-            this.generatedSongData.title = newTitle;
-        }
+    // Handlers for shared song detail panel - now handled directly by the shared component
+    onTitleChanged(_newTitle: string) {
+        // No-op: Shared component handles this
     }
 
-    onTagsChanged(newTags: string[]) {
-        // For generated songs, we don't need to save tags to backend
-        if (this.generatedSongData) {
-            this.generatedSongData.tags = newTags.join(', ');
-        }
+    onTagsChanged(_newTags: string[]) {
+        // No-op: Shared component handles this
+    }
+
+    onWorkflowChanged(_newWorkflow: string) {
+        // No-op: Shared component handles this
     }
 
     onDownloadFlac(url: string) {
@@ -377,10 +339,11 @@ export class SongGeneratorComponent implements OnInit {
     }
 
     onCopyLyrics() {
-        // Simple clipboard copy for generated songs
-        if (this.generatedSongData?.lyrics) {
-            navigator.clipboard.writeText(this.generatedSongData.lyrics);
-        }
+        // No-op: Shared component handles this
+    }
+
+    onUpdateRating(_event: { choiceId: string, rating: number | null }) {
+        // No-op: Shared component handles this
     }
 
     async improvePrompt() {
@@ -522,23 +485,6 @@ export class SongGeneratorComponent implements OnInit {
         }
     }
 
-    private updateChoicesWithStems() {
-        // Update choices with stem download URLs
-        this.choices = this.choices.map(choice => ({
-            ...choice,
-            stemDownloadUrl: this.stemDownloadUrls.get(choice.mp3_url || choice.url) || null
-        }));
-
-        // Update generatedSongData for the shared component
-        if (this.generatedSongData) {
-            this.generatedSongData.choices = this.choices.map((choice: any) => ({
-                ...choice,
-                mp3_url: choice.url || choice.mp3_url,
-                flac_url: choice.flac_url,
-                stemDownloadUrl: choice.stemDownloadUrl
-            }));
-        }
-    }
 
     private removeQuotes(text: string): string {
         if (!text) return text;

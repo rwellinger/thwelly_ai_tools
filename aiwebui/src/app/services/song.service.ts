@@ -18,6 +18,7 @@ interface SongFormData extends Record<string, unknown> {
 
 interface SongGenerateResponse {
   task_id: string;
+  song_id?: string;
   status: string;
   message?: string;
 }

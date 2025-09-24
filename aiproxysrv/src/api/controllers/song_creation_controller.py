@@ -43,11 +43,16 @@ class SongCreationController:
         if not song:
             print(f"Failed to create song record in database for task {task.id}", file=sys.stderr)
             # Continue anyway - fallback to Redis-only mode
+            return {
+                "task_id": task.id,
+                "status_url": f"{host_url}api/v1/song/status/{task.id}"
+            }, 202
         else:
             print(f"Created song record in database: id={song.id}, task_id={task.id}", file=sys.stderr)
 
         return {
             "task_id": task.id,
+            "song_id": str(song.id),
             "status_url": f"{host_url}api/v1/song/status/{task.id}"
         }, 202
     

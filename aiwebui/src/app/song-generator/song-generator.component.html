@@ -112,6 +112,9 @@
                     <button type="button" (click)="resetForm()" [disabled]="isImprovingPrompt || isTranslatingLyrics || isGeneratingLyrics || isTranslatingStylePrompt" class="reset-button">
                         <i class="fas fa-rotate-left"></i> Reset
                     </button>
+                    <button type="button" (click)="reloadDetail()" [disabled]="!currentSongId" class="reload-button" title="Reload Detail (Debug)">
+                        <i class="fas fa-refresh"></i> Reload
+                    </button>
                 </div>
             </form>
         </div>
@@ -119,22 +122,25 @@
 
     <!-- Right Side: Song Results -->
     <app-song-detail-panel
-        [song]="generatedSongData"
-        [showEditTitle]="false"
-        [showEditTags]="false"
-        [showEditWorkflow]="false"
-        [showRating]="false"
+        #songDetailPanel
+        [songId]="currentSongId"
+        [showEditTitle]="true"
+        [showEditTags]="true"
+        [showEditWorkflow]="true"
+        [showRating]="true"
         title="Generated Song"
         [showMetaInfo]="['job_id', 'model', 'status', 'created', 'completed']"
         placeholderText="Your generated song will appear here"
         [currentlyPlayingId]="currentlyPlaying"
         (titleChanged)="onTitleChanged($event)"
         (tagsChanged)="onTagsChanged($event)"
+        (workflowChanged)="onWorkflowChanged($event)"
         (downloadFlac)="onDownloadFlac($event)"
         (playAudio)="onPlayAudio($event)"
         (generateStem)="onGenerateStem($event)"
         (downloadStems)="onDownloadStems($event)"
-        (copyLyrics)="onCopyLyrics()">
+        (copyLyrics)="onCopyLyrics()"
+        (updateRating)="onUpdateRating($event)">
     </app-song-detail-panel>
 </div>
 

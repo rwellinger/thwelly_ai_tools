@@ -24,6 +24,7 @@ export class SongViewComponent implements OnInit, OnDestroy {
   songs: any[] = [];
   filteredSongs: any[] = [];
   selectedSong: any = null;
+  selectedSongId: string | null = null;
   pagination: any = {
     total: 0,
     limit: 13,
@@ -171,30 +172,14 @@ export class SongViewComponent implements OnInit, OnDestroy {
   }
 
   async selectSong(song: any) {
-    this.isLoading = true;
-    this.loadingMessage = 'Loading song details...';
-    // Clear previous stem downloads when selecting new song
-    this.stemDownloadUrls.clear();
+    // Clear previous selection and stop audio
     this.selectedSong = null;
+    this.selectedSongId = song.id;
+    this.stemDownloadUrls.clear();
     this.stopAudio();
 
-    try {
-      // If song already has choices, use it directly
-      if (song.choices && song.choices.length > 0) {
-        this.selectedSong = song;
-      } else {
-        // Otherwise fetch full details
-          this.selectedSong = await this.songService.getSongById(song.id);
-      }
-
-      // Initialize stem download URLs for choices
-      this.initializeStemUrls();
-    } catch (error: any) {
-      this.notificationService.error(`Error loading song: ${error.message}`);
-      this.selectedSong = null;
-    } finally {
-      this.isLoading = false;
-    }
+    // Store basic song info for backwards compatibility with existing template code
+    this.selectedSong = song;
   }
 
   // Pagination methods
@@ -331,6 +316,7 @@ export class SongViewComponent implements OnInit, OnDestroy {
       this.editingTitle = false;
       this.editTitleValue = '';
 
+
     } catch (error: any) {
       this.notificationService.error(`Error updating title: ${error.message}`);
     } finally {
@@ -384,6 +370,7 @@ export class SongViewComponent implements OnInit, OnDestroy {
 
   clearSelection() {
     this.selectedSong = null;
+    this.selectedSongId = null;
     this.stopAudio();
     // Stem downloads are now managed per choice
   }
@@ -818,6 +805,7 @@ export class SongViewComponent implements OnInit, OnDestroy {
       this.editingTags = false;
       this.selectedTags.clear();
 
+
     } catch (error: any) {
       this.notificationService.error(`Error updating tags: ${error.message}`);
     } finally {
@@ -883,6 +871,7 @@ export class SongViewComponent implements OnInit, OnDestroy {
       }
 
       this.notificationService.success('Workflow updated successfully!');
+
 
     } catch (error: any) {
       this.notificationService.error(`Error updating workflow: ${error.message}`);
