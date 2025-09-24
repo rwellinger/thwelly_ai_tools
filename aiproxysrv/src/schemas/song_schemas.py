@@ -1,5 +1,6 @@
 """Pydantic schemas for Song API validation"""
 from pydantic import BaseModel, Field, validator
+from pydantic.types import UUID4
 from typing import Optional, List, Dict, Any
 from datetime import datetime
 from .common_schemas import BaseResponse, PaginationResponse, StatusEnum
@@ -150,12 +151,12 @@ class SongUpdateResponse(BaseResponse):
 
 class StemGenerateRequest(BaseModel):
     """Schema for stems generation requests"""
-    song_id: str = Field(..., description="Song ID to generate stems for")
+    choice_id: UUID4 = Field(..., description="Choice ID to generate stems for")
 
     class Config:
         json_schema_extra = {
             "example": {
-                "song_id": "song_abc123"
+                "choice_id": "1e6cd76e-d574-4058-9eec-9a2dc38dd737"
             }
         }
 

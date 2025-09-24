@@ -192,7 +192,7 @@
                         <td>
                             <button type="button"
                                     *ngIf="choice.mp3_url && !choice.stemDownloadUrl"
-                                    (click)="onGenerateStem(choice.mp3_url)">
+                                    (click)="onGenerateStem(choice.id)">
                                 <i class="fas fa-brain"></i> Create Stems
                             </button>
                             <button type="button"

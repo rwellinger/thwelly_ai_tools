@@ -145,8 +145,8 @@ export class SongDetailPanelComponent {
         this.downloadFlac.emit(url);
     }
 
-    onGenerateStem(url: string) {
-        this.generateStem.emit(url);
+    onGenerateStem(choiceId: string) {
+        this.generateStem.emit(choiceId);
     }
 
     onDownloadStems(url: string) {

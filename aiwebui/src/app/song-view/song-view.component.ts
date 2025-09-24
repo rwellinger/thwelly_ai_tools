@@ -696,7 +696,7 @@ export class SongViewComponent implements OnInit, OnDestroy {
   }
 
   // Stem generation method
-  async generateStem(mp3Url: string) {
+  async generateStem(choiceId: string) {
     this.isLoading = true;
     this.loadingMessage = 'Generating stems...';
 
@@ -705,7 +705,7 @@ export class SongViewComponent implements OnInit, OnDestroy {
         fetch(this.apiConfig.endpoints.song.stems, {
           method: 'POST',
           headers: {'Content-Type': 'application/json'},
-          body: JSON.stringify({url: mp3Url})
+          body: JSON.stringify({choice_id: choiceId})
         }),
         this.delay(120000).then(() => {
           throw new Error('Timeout after 2 minutes');
@@ -719,9 +719,13 @@ export class SongViewComponent implements OnInit, OnDestroy {
       const data = await response.json();
 
       if (data.status === 'SUCCESS' && data.result && data.result.zip_url) {
-        this.stemDownloadUrls.set(mp3Url, data.result.zip_url);
-        this.updateSelectedSongWithStems();
-        this.notificationService.success('Stems generated successfully!');
+        // Find the choice by choiceId to get the mp3Url for mapping
+        const choice = this.selectedSong?.choices?.find((c: any) => c.id === choiceId);
+        if (choice?.mp3_url) {
+          this.stemDownloadUrls.set(choice.mp3_url, data.result.zip_url);
+          this.updateSelectedSongWithStems();
+          this.notificationService.success('Stems generated successfully!');
+        }
       } else {
         // Stem downloads are now managed per choice
         this.notificationService.error('Stem generation failed or incomplete.');
@@ -895,8 +899,8 @@ export class SongViewComponent implements OnInit, OnDestroy {
     this.playAudio(event.url, event.id, event.choiceNumber);
   }
 
-  onGenerateStem(url: string) {
-    this.generateStem(url);
+  onGenerateStem(choiceId: string) {
+    this.generateStem(choiceId);
   }
 
   onDownloadStems(url: string) {
