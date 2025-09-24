@@ -18,6 +18,32 @@ def create_app():
     """Flask App Factory with OpenAPI/Swagger Integration"""
     app = Flask(__name__)
 
+    # Monkey patch json.dumps to handle ValueError serialization globally
+    import json
+    original_dumps = json.dumps
+
+    def patched_dumps(obj, **kwargs):
+        try:
+            return original_dumps(obj, **kwargs)
+        except TypeError as e:
+            if "ValueError" in str(e) and "not JSON serializable" in str(e):
+                # Convert ValueError objects to strings recursively
+                def convert_valueerrors(o):
+                    if isinstance(o, ValueError):
+                        return str(o)
+                    elif isinstance(o, dict):
+                        return {k: convert_valueerrors(v) for k, v in o.items()}
+                    elif isinstance(o, list):
+                        return [convert_valueerrors(item) for item in o]
+                    return o
+
+                converted_obj = convert_valueerrors(obj)
+                return original_dumps(converted_obj, **kwargs)
+            raise e
+
+    # Replace json.dumps globally
+    json.dumps = patched_dumps
+
     # Configure CORS to allow requests from Angular frontend
     CORS(app,
          origins="*",
@@ -325,8 +351,45 @@ def create_app():
         print(f"Stacktrace: {traceback.format_exc()}", file=sys.stderr)
         return jsonify({"error": "Internal server error"}), 500
 
+    # Add specific Pydantic ValidationError handler
+    from pydantic import ValidationError
+
+    @app.errorhandler(ValidationError)
+    def handle_pydantic_validation_error(error):
+        """Handle Pydantic validation errors with HTTP 400"""
+        print(f"Pydantic ValidationError: {error}", file=sys.stderr)
+
+        # Extract field-specific error messages
+        error_details = []
+        for err in error.errors():
+            field = '.'.join(str(x) for x in err['loc'])
+            message = err['msg']
+            error_details.append(f"{field}: {message}")
+
+        error_message = "; ".join(error_details) if error_details else str(error)
+        return jsonify({
+            "error": error_message,
+            "validation_errors": error.errors()
+        }), 400
+
+    @app.errorhandler(ValueError)
+    def handle_value_error(error):
+        """Handle ValueError from Pydantic validators with HTTP 400"""
+        error_str = str(error)
+
+        # Check if this is likely a validation error from our Pydantic validators
+        validation_keywords = ['must be one of', 'must be a valid', 'must be either', 'Field required']
+        if any(keyword in error_str for keyword in validation_keywords):
+            print(f"Pydantic Validator ValueError: {error}", file=sys.stderr)
+            return jsonify({"error": error_str}), 400
+
+        # For other ValueErrors, fall back to 500
+        print(f"General ValueError: {error}", file=sys.stderr)
+        return jsonify({"error": "An unexpected error occurred"}), 500
+
     @app.errorhandler(Exception)
-    def handle_exception(error):
+    def handle_general_exception(error):
+        """Handle all other exceptions with HTTP 500"""
         print(f"Unhandled Exception: {type(error).__name__}: {error}", file=sys.stderr)
         print(f"Stacktrace: {traceback.format_exc()}", file=sys.stderr)
         return jsonify({"error": "An unexpected error occurred"}), 500
