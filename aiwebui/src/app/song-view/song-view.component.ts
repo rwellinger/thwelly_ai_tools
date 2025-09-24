@@ -24,6 +24,7 @@ export class SongViewComponent implements OnInit, OnDestroy {
   songs: any[] = [];
   filteredSongs: any[] = [];
   selectedSong: any = null;
+  selectedSongId: string | null = null;
   pagination: any = {
     total: 0,
     limit: 13,
@@ -171,30 +172,14 @@ export class SongViewComponent implements OnInit, OnDestroy {
   }
 
   async selectSong(song: any) {
-    this.isLoading = true;
-    this.loadingMessage = 'Loading song details...';
-    // Clear previous stem downloads when selecting new song
-    this.stemDownloadUrls.clear();
+    // Clear previous selection and stop audio
     this.selectedSong = null;
+    this.selectedSongId = song.id;
+    this.stemDownloadUrls.clear();
     this.stopAudio();
 
-    try {
-      // If song already has choices, use it directly
-      if (song.choices && song.choices.length > 0) {
-        this.selectedSong = song;
-      } else {
-        // Otherwise fetch full details
-          this.selectedSong = await this.songService.getSongById(song.id);
-      }
-
-      // Initialize stem download URLs for choices
-      this.initializeStemUrls();
-    } catch (error: any) {
-      this.notificationService.error(`Error loading song: ${error.message}`);
-      this.selectedSong = null;
-    } finally {
-      this.isLoading = false;
-    }
+    // Store basic song info for backwards compatibility with existing template code
+    this.selectedSong = song;
   }
 
   // Pagination methods
@@ -331,6 +316,7 @@ export class SongViewComponent implements OnInit, OnDestroy {
       this.editingTitle = false;
       this.editTitleValue = '';
 
+
     } catch (error: any) {
       this.notificationService.error(`Error updating title: ${error.message}`);
     } finally {
@@ -384,6 +370,7 @@ export class SongViewComponent implements OnInit, OnDestroy {
 
   clearSelection() {
     this.selectedSong = null;
+    this.selectedSongId = null;
     this.stopAudio();
     // Stem downloads are now managed per choice
   }
@@ -696,7 +683,7 @@ export class SongViewComponent implements OnInit, OnDestroy {
   }
 
   // Stem generation method
-  async generateStem(mp3Url: string) {
+  async generateStem(choiceId: string) {
     this.isLoading = true;
     this.loadingMessage = 'Generating stems...';
 
@@ -705,7 +692,7 @@ export class SongViewComponent implements OnInit, OnDestroy {
         fetch(this.apiConfig.endpoints.song.stems, {
           method: 'POST',
           headers: {'Content-Type': 'application/json'},
-          body: JSON.stringify({url: mp3Url})
+          body: JSON.stringify({choice_id: choiceId})
         }),
         this.delay(120000).then(() => {
           throw new Error('Timeout after 2 minutes');
@@ -719,9 +706,13 @@ export class SongViewComponent implements OnInit, OnDestroy {
       const data = await response.json();
 
       if (data.status === 'SUCCESS' && data.result && data.result.zip_url) {
-        this.stemDownloadUrls.set(mp3Url, data.result.zip_url);
-        this.updateSelectedSongWithStems();
-        this.notificationService.success('Stems generated successfully!');
+        // Find the choice by choiceId to get the mp3Url for mapping
+        const choice = this.selectedSong?.choices?.find((c: any) => c.id === choiceId);
+        if (choice?.mp3_url) {
+          this.stemDownloadUrls.set(choice.mp3_url, data.result.zip_url);
+          this.updateSelectedSongWithStems();
+          this.notificationService.success('Stems generated successfully!');
+        }
       } else {
         // Stem downloads are now managed per choice
         this.notificationService.error('Stem generation failed or incomplete.');
@@ -814,6 +805,7 @@ export class SongViewComponent implements OnInit, OnDestroy {
       this.editingTags = false;
       this.selectedTags.clear();
 
+
     } catch (error: any) {
       this.notificationService.error(`Error updating tags: ${error.message}`);
     } finally {
@@ -880,6 +872,7 @@ export class SongViewComponent implements OnInit, OnDestroy {
 
       this.notificationService.success('Workflow updated successfully!');
 
+
     } catch (error: any) {
       this.notificationService.error(`Error updating workflow: ${error.message}`);
     } finally {
@@ -895,8 +888,8 @@ export class SongViewComponent implements OnInit, OnDestroy {
     this.playAudio(event.url, event.id, event.choiceNumber);
   }
 
-  onGenerateStem(url: string) {
-    this.generateStem(url);
+  onGenerateStem(choiceId: string) {
+    this.generateStem(choiceId);
   }
 
   onDownloadStems(url: string) {

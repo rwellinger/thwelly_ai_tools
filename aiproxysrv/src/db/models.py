@@ -43,7 +43,7 @@ class Song(Base):
     error_message = Column(Text, nullable=True)
     
     # Relation to song choices (1:n)
-    choices = relationship("SongChoice", back_populates="song", cascade="all, delete-orphan")
+    choices = relationship("SongChoice", back_populates="song", cascade="all, delete-orphan", order_by="SongChoice.choice_index")
     
     # MUREKA response data
     mureka_response = Column(Text, nullable=True)  # JSON string der kompletten MUREKA Response

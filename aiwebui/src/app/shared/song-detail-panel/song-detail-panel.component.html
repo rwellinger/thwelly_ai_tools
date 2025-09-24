@@ -1,5 +1,22 @@
 <div class="song-details-panel">
-    <div *ngIf="!song" class="no-selection">
+    <!-- Loading State -->
+    <div *ngIf="isLoading" class="loading-state">
+        <div class="placeholder-content">
+            <i class="fas fa-spinner fa-spin placeholder-icon"></i>
+            <p>Loading song details...</p>
+        </div>
+    </div>
+
+    <!-- Error State -->
+    <div *ngIf="loadingError && !isLoading" class="error-state">
+        <div class="placeholder-content">
+            <i class="fas fa-exclamation-triangle placeholder-icon error-icon"></i>
+            <p>{{ loadingError }}</p>
+        </div>
+    </div>
+
+    <!-- No Selection State -->
+    <div *ngIf="!song && !isLoading && !loadingError" class="no-selection">
         <div class="placeholder-content">
             <i [class]="placeholderIcon + ' placeholder-icon'"></i>
             <p>{{ placeholderText }}</p>
@@ -192,8 +209,11 @@
                         <td>
                             <button type="button"
                                     *ngIf="choice.mp3_url && !choice.stemDownloadUrl"
-                                    (click)="onGenerateStem(choice.mp3_url)">
-                                <i class="fas fa-brain"></i> Create Stems
+                                    (click)="onGenerateStem(choice.id)"
+                                    [disabled]="stemGenerationInProgress.has(choice.id)">
+                                <i class="fas fa-spinner fa-spin" *ngIf="stemGenerationInProgress.has(choice.id)"></i>
+                                <i class="fas fa-brain" *ngIf="!stemGenerationInProgress.has(choice.id)"></i>
+                                {{ stemGenerationInProgress.has(choice.id) ? 'Generating...' : 'Create Stems' }}
                             </button>
                             <button type="button"
                                     *ngIf="choice.stemDownloadUrl"

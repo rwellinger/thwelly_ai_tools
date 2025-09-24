@@ -6,6 +6,8 @@ from typing import Tuple, Dict, Any
 from config.settings import MUREKA_API_KEY, MUREKA_STATUS_ENDPOINT, MUREKA_STEM_GENERATE_ENDPOINT
 from celery_app import generate_song_task
 from db.song_service import song_service
+from db.database import get_db
+from db.models import SongChoice
 from api.json_helpers import prune
 
 
@@ -41,20 +43,25 @@ class SongCreationController:
         if not song:
             print(f"Failed to create song record in database for task {task.id}", file=sys.stderr)
             # Continue anyway - fallback to Redis-only mode
+            return {
+                "task_id": task.id,
+                "status_url": f"{host_url}api/v1/song/status/{task.id}"
+            }, 202
         else:
             print(f"Created song record in database: id={song.id}, task_id={task.id}", file=sys.stderr)
 
         return {
             "task_id": task.id,
+            "song_id": str(song.id),
             "status_url": f"{host_url}api/v1/song/status/{task.id}"
         }, 202
     
     def generate_stems(self, payload: Dict[str, Any], check_balance_func) -> Tuple[Dict[str, Any], int]:
         """Generate stems from MP3"""
-        url = payload.get("url", None)
-        if not url:
+        choice_id = payload.get("choice_id", None)
+        if not choice_id:
             return {
-                "error": "Missing required field: 'url' is required"
+                "error": "Missing required field: 'choice_id' is required"
             }, 400
 
         if not check_balance_func():
@@ -62,15 +69,32 @@ class SongCreationController:
                 "error": "Insufficient MUREKA balance"
             }, 402  # Payment Required
 
-        print(f"Starting stem generation", file=sys.stderr)
-        print(f"Request URL: {MUREKA_STEM_GENERATE_ENDPOINT}", file=sys.stderr)
-        print(f"Url: {url}", file=sys.stderr)
-
+        # Query song_choices table to get mp3_url
+        db = next(get_db())
         try:
+            choice = db.query(SongChoice).filter(SongChoice.id == choice_id).first()
+            if not choice:
+                return {
+                    "error": f"Choice with ID {choice_id} not found"
+                }, 404
+
+            if not choice.mp3_url:
+                return {
+                    "error": f"Choice {choice_id} has no MP3 URL"
+                }, 400
+
+            mp3_url = choice.mp3_url
+            print(f"Starting stem generation for choice {choice_id}", file=sys.stderr)
+            print(f"Request URL: {MUREKA_STEM_GENERATE_ENDPOINT}", file=sys.stderr)
+            print(f"MP3 URL: {mp3_url}", file=sys.stderr)
+
+            # Prepare payload for MUREKA API
+            mureka_payload = {"url": mp3_url}
+
             headers = {"Authorization": f"Bearer {MUREKA_API_KEY}"}
 
             # Creating stems can take a while. 5 minutes (300) timeout therefore
-            response = requests.post(MUREKA_STEM_GENERATE_ENDPOINT, headers=headers, timeout=(10, 300), json=payload)
+            response = requests.post(MUREKA_STEM_GENERATE_ENDPOINT, headers=headers, timeout=(10, 300), json=mureka_payload)
             response.raise_for_status()
             result = response.json()
 
@@ -83,6 +107,8 @@ class SongCreationController:
         except Exception as e:
             print(f"Error on create stem: {e}", file=sys.stderr)
             return {"error": str(e)}, 500
+        finally:
+            db.close()
     
     def get_song_info(self, job_id: str) -> Tuple[Dict[str, Any], int]:
         """Get Song structure direct from MUREKA again who was generated successfully"""

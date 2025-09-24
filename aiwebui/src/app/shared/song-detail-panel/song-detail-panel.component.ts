@@ -1,6 +1,9 @@
-import {Component, Input, Output, EventEmitter, ViewChild, ElementRef} from '@angular/core';
+import {Component, Input, Output, EventEmitter, ViewChild, ElementRef, OnInit, OnChanges, SimpleChanges, inject} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {FormsModule} from '@angular/forms';
+import {SongService} from '../../services/song.service';
+import {NotificationService} from '../../services/notification.service';
+import {ApiConfigService} from '../../services/api-config.service';
 
 @Component({
     selector: 'app-song-detail-panel',
@@ -9,8 +12,9 @@ import {FormsModule} from '@angular/forms';
     templateUrl: './song-detail-panel.component.html',
     styleUrl: './song-detail-panel.component.scss'
 })
-export class SongDetailPanelComponent {
+export class SongDetailPanelComponent implements OnInit, OnChanges {
     @Input() song: any = null;
+    @Input() songId: string | null = null;
     @Input() showEditTitle: boolean = true;
     @Input() showEditTags: boolean = true;
     @Input() showEditWorkflow: boolean = true;
@@ -20,6 +24,14 @@ export class SongDetailPanelComponent {
     @Input() placeholderText: string = 'Select a song from the list to view details';
     @Input() placeholderIcon: string = 'fas fa-music';
     @Input() currentlyPlayingId: string | null = null;
+
+    // Component state
+    isLoading = false;
+    loadingError: string | null = null;
+
+    // Stem downloads tracking
+    private stemDownloadUrls = new Map<string, string>();
+    public stemGenerationInProgress = new Set<string>();
 
     @Output() titleChanged = new EventEmitter<string>();
     @Output() tagsChanged = new EventEmitter<string[]>();
@@ -33,6 +45,11 @@ export class SongDetailPanelComponent {
 
     @ViewChild('titleInput') titleInput!: ElementRef;
     @ViewChild('lyricsTextarea') lyricsTextarea!: ElementRef;
+
+    // Services
+    private songService = inject(SongService);
+    private notificationService = inject(NotificationService);
+    private apiConfigService = inject(ApiConfigService);
 
     // Component state
     editingTitle = false;
@@ -67,10 +84,33 @@ export class SongDetailPanelComponent {
         });
     }
 
-    saveTitle() {
-        if (!this.song) return;
-        this.titleChanged.emit(this.editTitleValue);
-        this.editingTitle = false;
+    async saveTitle() {
+        if (!this.song || !this.songId) return;
+
+        try {
+            const response = await fetch(this.apiConfigService.endpoints.song.update(this.songId), {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    title: this.editTitleValue.trim()
+                })
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            this.editingTitle = false;
+            this.titleChanged.emit(this.editTitleValue);
+
+            // Auto-refresh to show updated data
+            await this.reloadSong();
+
+        } catch (error: any) {
+            this.notificationService.error(`Error updating title: ${error.message}`);
+        }
     }
 
     cancelEditTitle() {
@@ -85,9 +125,35 @@ export class SongDetailPanelComponent {
         this.selectedTags = this.song.tags ? this.song.tags.split(',').map((tag: string) => tag.trim()) : [];
     }
 
-    saveTags() {
-        this.tagsChanged.emit(this.selectedTags);
-        this.editingTags = false;
+    async saveTags() {
+        if (!this.song || !this.songId) return;
+
+        try {
+            const tagsString = this.selectedTags.join(', ');
+
+            const response = await fetch(this.apiConfigService.endpoints.song.update(this.songId), {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    tags: tagsString
+                })
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            this.editingTags = false;
+            this.tagsChanged.emit(this.selectedTags);
+
+            // Auto-refresh to show updated data
+            await this.reloadSong();
+
+        } catch (error: any) {
+            this.notificationService.error(`Error updating tags: ${error.message}`);
+        }
     }
 
     cancelEditTags() {
@@ -120,9 +186,33 @@ export class SongDetailPanelComponent {
         this.selectedWorkflow = this.song.workflow || '';
     }
 
-    saveWorkflow() {
-        this.workflowChanged.emit(this.selectedWorkflow);
-        this.editingWorkflow = false;
+    async saveWorkflow() {
+        if (!this.song || !this.songId) return;
+
+        try {
+            const response = await fetch(this.apiConfigService.endpoints.song.update(this.songId), {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    workflow: this.selectedWorkflow
+                })
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            this.editingWorkflow = false;
+            this.workflowChanged.emit(this.selectedWorkflow);
+
+            // Auto-refresh to show updated data
+            await this.reloadSong();
+
+        } catch (error: any) {
+            this.notificationService.error(`Error updating workflow: ${error.message}`);
+        }
     }
 
     cancelEditWorkflow() {
@@ -145,16 +235,95 @@ export class SongDetailPanelComponent {
         this.downloadFlac.emit(url);
     }
 
-    onGenerateStem(url: string) {
-        this.generateStem.emit(url);
+    async onGenerateStem(choiceId: string) {
+        this.stemGenerationInProgress.add(choiceId);
+
+        try {
+            const response = await Promise.race([
+                fetch(this.apiConfigService.endpoints.song.stems, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({choice_id: choiceId})
+                }),
+                this.delay(120000).then(() => {
+                    throw new Error('Timeout after 2 minutes');
+                })
+            ]);
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            const data = await response.json();
+
+            if (data.status === 'SUCCESS' && data.result && data.result.zip_url) {
+                // Find the choice by choiceId to get the mp3Url for mapping
+                const choice = this.song?.choices?.find((c: any) => c.id === choiceId);
+                if (choice?.mp3_url) {
+                    this.stemDownloadUrls.set(choice.mp3_url, data.result.zip_url);
+                    this.updateSongWithStems();
+                    this.notificationService.success('Stems generated successfully!');
+                }
+            } else {
+                this.notificationService.error('Stem generation failed or incomplete.');
+            }
+
+            this.generateStem.emit(choiceId);
+
+        } catch (error: any) {
+            this.notificationService.error(`Error generating stem: ${error.message}`);
+        } finally {
+            this.stemGenerationInProgress.delete(choiceId);
+        }
+    }
+
+    private delay(ms: number): Promise<void> {
+        return new Promise(resolve => setTimeout(resolve, ms));
+    }
+
+    private updateSongWithStems() {
+        if (!this.song || !this.song.choices) return;
+
+        // Update choices with stem download URLs
+        this.song.choices = this.song.choices.map((choice: any) => ({
+            ...choice,
+            stemDownloadUrl: this.stemDownloadUrls.get(choice.mp3_url) || choice.stemDownloadUrl || null
+        }));
+    }
+
+    private initializeStemUrls() {
+        if (!this.song?.choices) return;
+
+        // Initialize stem download URLs from existing data
+        this.song.choices.forEach((choice: any) => {
+            if (choice.stemDownloadUrl && choice.mp3_url) {
+                this.stemDownloadUrls.set(choice.mp3_url, choice.stemDownloadUrl);
+            }
+        });
     }
 
     onDownloadStems(url: string) {
         this.downloadStems.emit(url);
     }
 
-    onUpdateRating(choiceId: string, rating: number | null) {
-        this.updateRating.emit({ choiceId, rating });
+    async onUpdateRating(choiceId: string, rating: number | null) {
+        console.log('=== Rating Update ===');
+        console.log('choiceId:', choiceId);
+        console.log('new rating:', rating);
+        console.log('current choice data:', this.song?.choices?.find((c: any) => c.id === choiceId));
+
+        try {
+            await this.songService.updateChoiceRating(choiceId, rating);
+
+            this.updateRating.emit({ choiceId, rating });
+
+            // Auto-refresh to show updated rating
+            await this.reloadSong();
+
+        } catch (error: any) {
+            console.error('Rating update error:', error);
+            this.notificationService.error(`Error updating rating: ${error.message}`);
+        }
     }
 
     // Lyrics methods
@@ -214,5 +383,47 @@ export class SongDetailPanelComponent {
 
     shouldShowMetaInfo(type: string): boolean {
         return this.showMetaInfo.includes(type);
+    }
+
+    ngOnInit() {
+        if (this.songId) {
+            this.loadSongFromDB(this.songId);
+        }
+    }
+
+    ngOnChanges(changes: SimpleChanges) {
+        if (changes['songId'] && this.songId && this.songId !== changes['songId'].previousValue) {
+            this.loadSongFromDB(this.songId);
+        }
+    }
+
+    public async reloadSong() {
+        if (this.songId) {
+            await this.loadSongFromDB(this.songId);
+        }
+    }
+
+    private async loadSongFromDB(songId: string) {
+        this.isLoading = true;
+        this.loadingError = null;
+
+        try {
+            const response = await this.songService.getSongById(songId);
+            if (response && (response as any).data) {
+                this.song = (response as any).data;
+            } else {
+                this.song = response;
+            }
+            console.log('Song loaded in detail panel:', this.song);
+
+            // Initialize stem URLs from loaded song data
+            this.initializeStemUrls();
+        } catch (error: any) {
+            this.loadingError = `Failed to load song: ${error.message}`;
+            this.notificationService.error(`Error loading song details: ${error.message}`);
+            this.song = null;
+        } finally {
+            this.isLoading = false;
+        }
     }
 }
