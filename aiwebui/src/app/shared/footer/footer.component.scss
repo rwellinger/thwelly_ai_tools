@@ -15,3 +15,22 @@ footer p {
     margin: 0;
     line-height: $line-height-tight;
 }
+
+/* External Links Styling */
+.external-link {
+    color: $text-primary;
+    transition: all 0.2s ease;
+    position: relative;
+    text-decoration: none;
+}
+
+.external-link:hover {
+    background-color: rgba(46, 204, 113, 0.1);
+    text-decoration: none;
+    transform: translateY(-1px);
+}
+
+.external-link::before {
+    margin-right: 4px;
+    opacity: 0.6;
+}

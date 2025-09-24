@@ -16,10 +16,10 @@
     .tab-container {
         display: flex;
         gap: 2px;
-        background: $border-light;
         border-radius: $border-radius-lg;
+        margin-left: $spacing-10;
         padding: 4px;
-        width: fit-content;
+        width: 100%;
         box-shadow: 0 2px 8px rgba(0,0,0,0.05);
     }
 
