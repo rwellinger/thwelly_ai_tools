@@ -53,7 +53,7 @@ def create_app():
     # OpenAPI/Swagger Configuration
     spec = APISpec(
         title='thWellys AI-Proxy API',
-        version='1.3.2',
+        version='1.4.0',
         openapi_version='3.0.2',
         info=dict(
             description='API für AI-Services: Bildgenerierung, Musikgenerierung und Chat-Integration',
