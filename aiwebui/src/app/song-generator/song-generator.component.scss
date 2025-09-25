@@ -24,25 +24,66 @@ app-song-detail-panel {
     margin-bottom: 20px;
 }
 
-.checkbox-group {
-    margin-bottom: 20px;
+// Tab Style Control (Improved Contrast) - High Specificity
+form .segment-control {
+    display: flex;
+    border-bottom: 1px solid $border-light;
+    width: fit-content;
+    margin-bottom: 16px;
+    gap: 8px;
 
-    label {
+    .segment-button {
         display: flex;
         align-items: center;
         gap: 8px;
-        cursor: pointer;
+        padding: 10px 20px;
+        border: none;
+        background: $background-white !important;
+        color: $text-muted !important;
+        font-size: $font-sm;
         font-weight: 500;
+        cursor: pointer;
+        transition: all $transition-fast;
+        user-select: none;
+        white-space: nowrap;
+        border-bottom: 2px solid transparent;
+        margin-bottom: -1px;
+        border-radius: $border-radius-sm $border-radius-sm 0 0;
+        border: 1px solid $border-light;
+        border-bottom: none;
 
-        input[type="checkbox"] {
-            width: 18px;
-            height: 18px;
-            cursor: pointer;
+        i {
+            font-size: $font-sm;
+            opacity: 0.7;
         }
 
-        .checkbox-label {
-            color: $text-primary;
-            user-select: none;
+        &:hover:not(:disabled) {
+            background: #f8f9fa !important;
+            color: $text-primary !important;
+
+            i {
+                opacity: 0.9;
+            }
+        }
+
+        &.active {
+            background: #f0f2f5 !important;
+            color: $text-primary !important;
+            font-weight: 600;
+            border-bottom: 2px solid $primary-color;
+            border-left-color: $border-light;
+            border-right-color: $border-light;
+            border-top-color: $border-light;
+
+            i {
+                opacity: 1;
+                color: $primary-color !important;
+            }
+        }
+
+        &:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
         }
     }
 }
@@ -76,6 +117,7 @@ app-song-detail-panel {
     color: $text-muted;
     text-align: right;
     margin-top: 4px;
+    padding-right: 40px;
 }
 
 .disabled-section {
@@ -217,7 +259,8 @@ app-song-detail-panel {
 }
 
 .lyrics-dropdown-container,
-.style-dropdown-container {
+.style-dropdown-container,
+.title-dropdown-container {
     position: relative;
     display: inline-block;
 }
