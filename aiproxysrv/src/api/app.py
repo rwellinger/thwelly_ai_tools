@@ -52,7 +52,7 @@ def create_app():
     # OpenAPI/Swagger Configuration
     spec = APISpec(
         title='thWellys AI-Proxy API',
-        version='1.3.0',
+        version='1.3.2',
         openapi_version='3.0.2',
         info=dict(
             description='API für AI-Services: Bildgenerierung, Musikgenerierung und Chat-Integration',
@@ -60,8 +60,7 @@ def create_app():
             email=dict(name='rob.wellinger@gmail.com'),
         ),
         servers=[
-            dict(url='http://localhost:5050/api/v1', description='Development Server'),
-            dict(url='/api/v1', description='Production Server (relative)')
+            dict(url='http://localhost:5050/api/v1', description='Development Server')
         ]
     )
 
@@ -73,7 +72,7 @@ def create_app():
         """Health check endpoint"""
         from schemas.common_schemas import HealthResponse
         response = HealthResponse()
-        return jsonify(response.dict()), 200
+        return jsonify(response.model_dump()), 200
 
     @app.route("/api/openapi.json")
     def openapi_spec():
@@ -254,6 +253,7 @@ def create_app():
                             if '<' in rule.rule:
                                 operation["parameters"] = []
                                 for arg in rule.arguments:
+                                    # noinspection PyTypeChecker
                                     operation["parameters"].append({
                                         "name": arg,
                                         "in": "path",
