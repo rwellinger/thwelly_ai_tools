@@ -45,6 +45,10 @@ export class ApiConfigService {
         billing: {
             info: `${this.baseUrl}/api/v1/song/mureka-account`
         },
+        instrumental: {
+            generate: `${this.baseUrl}/api/v1/instrumental/generate`,
+            status: (taskId: string) => `${this.baseUrl}/api/v1/instrumental/task/status/${taskId}`
+        },
         chat: {
             generateLlama3Simple: `${this.baseUrl}/api/v1/ollama/chat/generate-llama3-simple`,
             generateGptOssSimple: `${this.baseUrl}/api/v1/ollama/chat/generate-gpt-oss-simple`,

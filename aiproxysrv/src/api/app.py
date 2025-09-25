@@ -7,12 +7,12 @@ import yaml
 from flask import Flask, jsonify, Blueprint, render_template_string, Response
 from flask_cors import CORS
 from apispec import APISpec
-from .image_routes import api_image_v1
-from .song_routes import api_song_v1, api_song_task_v1
-from .instrumental_routes import api_instrumental_v1, api_instrumental_task_v1
-from .redis_routes import api_redis_v1
-from .chat_routes import api_chat_v1
-from .prompt_routes import api_prompt_v1
+from .routes.image_routes import api_image_v1
+from .routes.song_routes import api_song_v1, api_song_task_v1
+from .routes.instrumental_routes import api_instrumental_v1, api_instrumental_task_v1
+from .routes.redis_routes import api_redis_v1
+from .routes.chat_routes import api_chat_v1
+from .routes.prompt_routes import api_prompt_v1
 
 
 def create_app():

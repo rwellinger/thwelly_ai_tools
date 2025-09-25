@@ -51,27 +51,44 @@ export class SongGeneratorComponent implements OnInit {
         this.songForm = this.fb.group({
             lyrics: ['', Validators.required],
             prompt: ['', Validators.required],
-            model: ['auto', Validators.required]
+            model: ['auto', Validators.required],
+            title: ['', [Validators.maxLength(50)]],
+            isInstrumental: [false]
         });
 
         // Load saved form data
         const savedData = this.songService.loadFormData();
-        if (savedData.lyrics) this.songForm.patchValue(savedData);
+        if (savedData.lyrics || savedData.isInstrumental || savedData.title) {
+            this.songForm.patchValue(savedData);
+        }
+
+        // Update validators when isInstrumental changes
+        this.songForm.get('isInstrumental')?.valueChanges.subscribe(isInstrumental => {
+            this.updateValidators(isInstrumental);
+        });
 
         // Save form data on changes
         this.songForm.valueChanges.subscribe(value => {
             this.songService.saveFormData(value);
         });
+
+        // Initialize validators based on current state
+        this.updateValidators(this.songForm.get('isInstrumental')?.value || false);
     }
 
     async onSubmit() {
         if (this.songForm.valid) {
-            await this.generateSong();
+            const isInstrumental = this.songForm.get('isInstrumental')?.value;
+            if (isInstrumental) {
+                await this.generateInstrumental();
+            } else {
+                await this.generateSong();
+            }
         }
     }
 
     resetForm() {
-        this.songForm.reset({model: 'auto'});
+        this.songForm.reset({model: 'auto', isInstrumental: false});
         this.songService.clearFormData();
         this.result = '';
     }
@@ -86,7 +103,8 @@ export class SongGeneratorComponent implements OnInit {
             const data = await this.songService.generateSong(
                 formValue.lyrics.trim(),
                 formValue.prompt.trim(),
-                formValue.model
+                formValue.model,
+                formValue.title?.trim() || undefined
             );
 
             if (data.task_id) {
@@ -95,7 +113,7 @@ export class SongGeneratorComponent implements OnInit {
                     this.currentSongId = data.song_id;
                     console.log('Song ID stored:', this.currentSongId);
                 }
-                await this.checkSongStatus(data.task_id);
+                await this.checkSongStatus(data.task_id, false);
             } else {
                 this.notificationService.error('Error initiating song generation.');
                 this.result = 'Error initiating song generation.';
@@ -106,20 +124,51 @@ export class SongGeneratorComponent implements OnInit {
         }
     }
 
-    async checkSongStatus(taskId: string) {
+    async generateInstrumental() {
+        const formValue = this.songForm.value;
+        this.isLoading = true;
+        this.result = '';
+
+        try {
+            const data = await this.songService.generateInstrumental(
+                formValue.title.trim(),
+                formValue.prompt.trim(),
+                formValue.model
+            );
+
+            if (data.task_id) {
+                // Store song_id if provided by backend
+                if (data.song_id) {
+                    this.currentSongId = data.song_id;
+                    console.log('Instrumental ID stored:', this.currentSongId);
+                }
+                await this.checkSongStatus(data.task_id, true);
+            } else {
+                this.notificationService.error('Error initiating instrumental generation.');
+                this.result = 'Error initiating instrumental generation.';
+            }
+        } catch (err: any) {
+            this.notificationService.error(`Error: ${err.message}`);
+            this.result = `Error: ${err.message}`;
+        }
+    }
+
+    async checkSongStatus(taskId: string, isInstrumental: boolean = false) {
         let completed = false;
         let interval = 5000;
 
         while (!completed) {
             try {
-                const data = await this.songService.checkSongStatus(taskId);
+                const data = isInstrumental
+                    ? await this.songService.checkInstrumentalStatus(taskId)
+                    : await this.songService.checkSongStatus(taskId);
 
                 if (data.status === 'SUCCESS') {
                     await this.renderResultTask(data.result);
                     completed = true;
                 } else if (data.status === 'FAILURE') {
-                    const errorMessage = data.result?.error || data.result || 'Song generation failed';
-                    this.notificationService.error(`Song generation failed: ${errorMessage}`);
+                    const errorMessage = data.result?.error || data.result || `${isInstrumental ? 'Instrumental' : 'Song'} generation failed`;
+                    this.notificationService.error(`${isInstrumental ? 'Instrumental' : 'Song'} generation failed: ${errorMessage}`);
                     this.result = `<div class="error-box">Error: ${errorMessage}</div>`;
                     completed = true;
                 } else {
@@ -449,5 +498,27 @@ export class SongGeneratorComponent implements OnInit {
     private removeQuotes(text: string): string {
         if (!text) return text;
         return text.replace(/^["']|["']$/g, '').trim();
+    }
+
+    private updateValidators(isInstrumental: boolean) {
+        const lyricsControl = this.songForm.get('lyrics');
+        const titleControl = this.songForm.get('title');
+
+        if (isInstrumental) {
+            // For instrumental: lyrics not required, title is required
+            lyricsControl?.clearValidators();
+            titleControl?.setValidators([Validators.required, Validators.maxLength(50)]);
+        } else {
+            // For normal songs: lyrics required, title optional
+            lyricsControl?.setValidators([Validators.required]);
+            titleControl?.setValidators([Validators.maxLength(50)]);
+        }
+
+        lyricsControl?.updateValueAndValidity();
+        titleControl?.updateValueAndValidity();
+    }
+
+    isInstrumental(): boolean {
+        return this.songForm.get('isInstrumental')?.value || false;
     }
 }

@@ -7,28 +7,50 @@
             <h2>Create Song</h2>
 
             <form [formGroup]="songForm" (ngSubmit)="onSubmit()">
+                <!-- Instrumental Checkbox -->
+                <div class="form-group checkbox-group">
+                    <label>
+                        <input type="checkbox" formControlName="isInstrumental" [disabled]="isLoading">
+                        <span class="checkbox-label">Instrumental Song</span>
+                    </label>
+                </div>
+
+                <!-- Title Field (always visible, required only for instrumental) -->
+                <div class="form-group">
+                    <label for="title">Title:<span class="required" *ngIf="isInstrumental()"> *</span></label>
+                    <input
+                        id="title"
+                        type="text"
+                        formControlName="title"
+                        placeholder="Enter song title (max 50 characters)..."
+                        [required]="isInstrumental()"
+                        maxlength="50"
+                        [disabled]="isLoading"
+                        class="title-input">
+                    <div class="char-counter">{{ songForm.get('title')?.value?.length || 0 }}/50</div>
+                </div>
                 <div class="form-group">
                     <label for="lyrics">Lyrics:</label>
-                    <div class="prompt-input-group">
+                    <div class="prompt-input-group" [class.disabled-section]="isInstrumental()">
                         <textarea
                             id="lyrics"
                             formControlName="lyrics"
                             placeholder="Type your lyrics or a song idea here..."
-                            required
-                            [disabled]="isLoading"
+                            [required]="!isInstrumental()"
+                            [disabled]="isLoading || isInstrumental()"
                             class="lyrics-input">
                         </textarea>
                         <div class="lyrics-dropdown-container">
                             <button
                                 type="button"
                                 (click)="toggleLyricsDropdown()"
-                                [disabled]="isLoading || isGeneratingLyrics || isTranslatingLyrics || isImprovingPrompt || !songForm.get('lyrics')?.value?.trim()"
+                                [disabled]="isLoading || isGeneratingLyrics || isTranslatingLyrics || isImprovingPrompt || !songForm.get('lyrics')?.value?.trim() || isInstrumental()"
                                 class="magic-icon-button"
                                 title="Lyrics actions">
                                 <i class="fas fa-ellipsis-vertical" *ngIf="!isGeneratingLyrics && !isTranslatingLyrics"></i>
                                 <i class="fas fa-spinner fa-spin" *ngIf="isGeneratingLyrics || isTranslatingLyrics"></i>
                             </button>
-                            <div class="dropdown-menu" *ngIf="showLyricsDropdown" (click)="$event.stopPropagation()">
+                            <div class="dropdown-menu" *ngIf="showLyricsDropdown && !isInstrumental()" (click)="$event.stopPropagation()">
                                 <button
                                     type="button"
                                     class="dropdown-item"
@@ -49,6 +71,10 @@
                                 </button>
                             </div>
                         </div>
+                    </div>
+                    <div class="instrumental-notice" *ngIf="isInstrumental()">
+                        <i class="fas fa-info-circle"></i>
+                        Lyrics are disabled for instrumental songs
                     </div>
                 </div>
 
@@ -111,7 +137,7 @@
                     <button type="submit" [disabled]="songForm.invalid || isLoading || isImprovingPrompt || isTranslatingLyrics || isGeneratingLyrics || isTranslatingStylePrompt" class="create-button">
                         <i class="fas fa-spinner fa-spin" *ngIf="isLoading"></i>
                         <i class="fas fa-music" *ngIf="!isLoading"></i>
-                        {{ isLoading ? 'Creating...' : 'Create Song' }}
+                        {{ isLoading ? 'Creating...' : (isInstrumental() ? 'Create Instrumental' : 'Create Song') }}
                     </button>
                     <button type="button" (click)="resetForm()" [disabled]="isLoading || isImprovingPrompt || isTranslatingLyrics || isGeneratingLyrics || isTranslatingStylePrompt" class="reset-button">
                         <i class="fas fa-rotate-left"></i> Reset

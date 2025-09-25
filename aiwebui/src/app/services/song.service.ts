@@ -14,6 +14,8 @@ interface SongFormData extends Record<string, unknown> {
   lyrics?: string;
   prompt?: string;
   model?: string;
+  title?: string;
+  isInstrumental?: boolean;
 }
 
 interface SongGenerateResponse {
@@ -100,11 +102,24 @@ export class SongService {
     localStorage.removeItem(this.STORAGE_KEY);
   }
 
-  async generateSong(lyrics: string, prompt: string, model: string): Promise<SongGenerateResponse> {
+  async generateSong(lyrics: string, prompt: string, model: string, title?: string): Promise<SongGenerateResponse> {
+    const body: any = { lyrics, model, prompt };
+    if (title) body.title = title;
+
     const response = await this.fetchWithTimeout(this.apiConfig.endpoints.song.generate, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ lyrics, model, prompt }),
+      body: JSON.stringify(body),
+      timeout: 60000
+    });
+    return response.json();
+  }
+
+  async generateInstrumental(title: string, prompt: string, model: string): Promise<SongGenerateResponse> {
+    const response = await this.fetchWithTimeout(this.apiConfig.endpoints.instrumental.generate, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ title, model, prompt }),
       timeout: 60000
     });
     return response.json();
@@ -112,6 +127,11 @@ export class SongService {
 
   async checkSongStatus(taskId: string): Promise<SongStatusResponse> {
     const response = await this.fetchWithTimeout(this.apiConfig.endpoints.song.status(taskId), { timeout: 60000 });
+    return response.json();
+  }
+
+  async checkInstrumentalStatus(taskId: string): Promise<SongStatusResponse> {
+    const response = await this.fetchWithTimeout(this.apiConfig.endpoints.instrumental.status(taskId), { timeout: 60000 });
     return response.json();
   }
 

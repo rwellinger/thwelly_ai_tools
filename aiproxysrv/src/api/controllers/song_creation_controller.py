@@ -38,7 +38,8 @@ class SongCreationController:
             task_id=task.id,
             lyrics=payload.get('lyrics', ''),
             prompt=payload.get('prompt', ''),
-            model=payload.get('model', 'auto')
+            model=payload.get('model', 'auto'),
+            title=payload.get('title', None)
         )
         
         if not song:
@@ -80,7 +81,8 @@ class SongCreationController:
             lyrics='',  # Empty for instrumental
             prompt=payload.get('prompt', ''),
             model=payload.get('model', 'auto'),
-            is_instrumental=True
+            is_instrumental=True,
+            title=payload.get('title', None)
         )
 
         if not song:
