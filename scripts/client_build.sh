@@ -1,7 +1,7 @@
 #!/bin/zsh
 
 # shellcheck disable=SC2164
-cd forwardproxy
+cd ../forwardproxy
 docker-compose down
 
 rm -rf html/aiwebui
