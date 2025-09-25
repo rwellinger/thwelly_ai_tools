@@ -189,7 +189,7 @@ def create_app():
 
                 for rule in app.url_map.iter_rules():
                     # Only process API routes
-                    if not rule.endpoint.startswith(('api_image_v1', 'api_song_v1', 'api_prompt_v1', 'api_redis_v1', 'api_chat_v1', 'api_v1')):
+                    if not rule.endpoint.startswith(('api_image_v1', 'api_song_v1', 'api_instrumental_v1', 'api_instrumental_task_v1', 'api_prompt_v1', 'api_redis_v1', 'api_chat_v1', 'api_v1')):
                         continue
 
                     # Skip if already added
