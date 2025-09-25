@@ -105,6 +105,7 @@ class SongController:
                     "title": song.title,
                     "model": song.model,
                     "workflow": song.workflow,
+                    "is_instrumental": song.is_instrumental,
                     "created_at": song.created_at.isoformat() if song.created_at else None,
                 }
                 songs_list.append(song_data)
@@ -174,6 +175,7 @@ class SongController:
                 "title": song.title,
                 "tags": song.tags,
                 "workflow": song.workflow,
+                "is_instrumental": song.is_instrumental,
                 "status": song.status,
                 "progress_info": song.progress_info,
                 "error_message": song.error_message,

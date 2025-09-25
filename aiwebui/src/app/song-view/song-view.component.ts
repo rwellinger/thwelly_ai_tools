@@ -879,4 +879,19 @@ export class SongViewComponent implements OnInit, OnDestroy {
       this.selectedSongIds.has(song.id) && !this.canDeleteSong(song)
     );
   }
+
+  // Check if a song is instrumental
+  isInstrumental(song: any): boolean {
+    return song.is_instrumental === true;
+  }
+
+  // Get the appropriate icon class for a song
+  getSongIcon(song: any): string {
+    return this.isInstrumental(song) ? 'fa-guitar' : 'fa-microphone';
+  }
+
+  // Get the song type display text
+  getSongTypeText(song: any): string {
+    return this.isInstrumental(song) ? 'Instrumental' : 'With Vocals';
+  }
 }

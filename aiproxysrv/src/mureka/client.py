@@ -3,6 +3,7 @@ MUREKA API Client
 """
 import sys
 import traceback
+import logging
 import requests
 import time
 from typing import Dict, Any
@@ -21,6 +22,8 @@ from config.settings import (
     MUREKA_POLL_INTERVAL_LONG
 )
 from api.json_helpers import prune
+
+logger = logging.getLogger(__name__)
 
 def start_mureka_generation(payload: dict) -> Dict[str, Any]:
     """Startet eine MUREKA Generierung"""
@@ -218,11 +221,11 @@ def check_mureka_instrumental_status(job_id: str) -> Dict[str, Any]:
             headers=headers,
             timeout=30,
         )
-        print(f"MUREKA Instrumental Status API Response: {resp.status_code}", file=sys.stderr)
+        logger.debug(f"MUREKA Instrumental Status API Response: {resp.status_code}")
         resp.raise_for_status()
 
         status_data = resp.json()
-        print(f"MUREKA instrumental status for job {job_id}: {status_data.get('status')}", file=sys.stderr)
+        logger.info(f"MUREKA instrumental status for job {job_id}: {status_data.get('status')}")
         return status_data
     except HTTPError as e:
         print(f"MUREKA Instrumental Status API HTTP Error: {e}", file=sys.stderr)
@@ -273,7 +276,7 @@ def wait_for_mureka_instrumental_completion(task, job_id: str) -> Dict[str, Any]
                 raise Exception(f"Job failed: {error_reason}")
 
             elif current_status in ["preparing", "queued", "running", "timeouted"]:
-                print(f"MUREKA instrumental job {job_id}: {current_status}")
+                logger.info(f"MUREKA instrumental job {job_id}: {current_status}")
                 time.sleep(poll_interval)
 
             else:

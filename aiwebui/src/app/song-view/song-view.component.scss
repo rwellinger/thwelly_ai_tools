@@ -153,6 +153,31 @@
     cursor: pointer;
 }
 
+/* Icon column styling for instrumental/vocal indicator */
+.icon-col {
+    width: 30px !important;
+    text-align: center !important;
+    padding: $spacing-sm 4px !important;
+}
+
+.icon-col i {
+    font-size: 14px;
+    color: $text-secondary;
+    transition: color 0.2s ease;
+}
+
+.icon-col i.fa-guitar {
+    color: #8B4513; /* Brown color for guitar/instrumental */
+}
+
+.icon-col i.fa-microphone {
+    color: #007bff; /* Blue color for microphone/vocals */
+}
+
+.result-table tbody tr:hover .icon-col i {
+    color: $primary-color;
+}
+
 /* Enhanced selection highlighting */
 .result-table tr.selection-selected {
     background: linear-gradient(135deg,
