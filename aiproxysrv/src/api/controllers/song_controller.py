@@ -28,6 +28,12 @@ class SongController:
         return self.creation_controller.generate_song(
             payload, host_url, self.account_controller.check_balance
         )
+
+    def generate_instrumental(self, payload: Dict[str, Any], host_url: str) -> Tuple[Dict[str, Any], int]:
+        """Start Instrumental Generation"""
+        return self.creation_controller.generate_instrumental(
+            payload, host_url, self.account_controller.check_balance
+        )
     
     def generate_stems(self, payload: Dict[str, Any]) -> Tuple[Dict[str, Any], int]:
         """Generate stems from MP3"""

@@ -9,6 +9,7 @@ from flask_cors import CORS
 from apispec import APISpec
 from .image_routes import api_image_v1
 from .song_routes import api_song_v1, api_song_task_v1
+from .instrumental_routes import api_instrumental_v1, api_instrumental_task_v1
 from .redis_routes import api_redis_v1
 from .chat_routes import api_chat_v1
 from .prompt_routes import api_prompt_v1
@@ -90,7 +91,8 @@ def create_app():
                 StemGenerateRequest, StemGenerateResponse, SongHealthResponse,
                 SongTaskStatusResponse, SongDeleteResponse, ChoiceRatingUpdateRequest,
                 ChoiceRatingUpdateResponse, MurekaAccountResponse, CeleryHealthResponse,
-                SongJobInfoResponse, ForceCompleteResponse, QueueStatusResponse, TaskCancelResponse
+                SongJobInfoResponse, ForceCompleteResponse, QueueStatusResponse, TaskCancelResponse,
+                InstrumentalGenerateRequest, InstrumentalGenerateResponse
             )
             from schemas.chat_schemas import ChatRequest, ChatResponse
             from schemas.prompt_schemas import (
@@ -134,6 +136,9 @@ def create_app():
                 ("ForceCompleteResponse", ForceCompleteResponse),
                 ("QueueStatusResponse", QueueStatusResponse),
                 ("TaskCancelResponse", TaskCancelResponse),
+                # Instrumental schemas
+                ("InstrumentalGenerateRequest", InstrumentalGenerateRequest),
+                ("InstrumentalGenerateResponse", InstrumentalGenerateResponse),
                 # Chat schemas
                 ("ChatRequest", ChatRequest),
                 ("ChatResponse", ChatResponse),
@@ -172,6 +177,8 @@ def create_app():
                     'api_image_v1': 'Images',
                     'api_song_v1': 'Songs',
                     'api_song_task_v1': 'Song Tasks',
+                    'api_instrumental_v1': 'Instrumentals',
+                    'api_instrumental_task_v1': 'Instrumental Tasks',
                     'api_prompt_v1': 'Prompt Templates',
                     'api_redis_v1': 'Redis/Celery',
                     'api_chat_v1': 'Chat',
@@ -399,6 +406,8 @@ def create_app():
     app.register_blueprint(api_image_v1)
     app.register_blueprint(api_song_v1)
     app.register_blueprint(api_song_task_v1)
+    app.register_blueprint(api_instrumental_v1)
+    app.register_blueprint(api_instrumental_task_v1)
     app.register_blueprint(api_redis_v1)
     app.register_blueprint(api_chat_v1)
     app.register_blueprint(api_prompt_v1)

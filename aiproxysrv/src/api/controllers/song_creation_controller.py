@@ -5,7 +5,7 @@ import time
 from datetime import datetime
 from typing import Tuple, Dict, Any
 from config.settings import MUREKA_API_KEY, MUREKA_STATUS_ENDPOINT, MUREKA_STEM_GENERATE_ENDPOINT
-from celery_app import generate_song_task
+from celery_app import generate_song_task, generate_instrumental_task
 from db.song_service import song_service
 from db.database import get_db
 from db.models import SongChoice
@@ -55,6 +55,48 @@ class SongCreationController:
             "task_id": task.id,
             "song_id": str(song.id),
             "status_url": f"{host_url}api/v1/song/status/{task.id}"
+        }, 202
+
+    def generate_instrumental(self, payload: Dict[str, Any], host_url: str, check_balance_func) -> Tuple[Dict[str, Any], int]:
+        """Start Instrumental Generation"""
+        if not payload.get("prompt"):
+            return {
+                "error": "Missing required field: 'prompt' is required"
+            }, 400
+
+        if not check_balance_func():
+            return {
+                "error": "Insufficient MUREKA balance"
+            }, 402  # Payment Required
+
+        print(f"Starting instrumental generation", file=sys.stderr)
+        print(f"Prompt: {payload.get('prompt', '')}", file=sys.stderr)
+
+        task = generate_instrumental_task.delay(payload)
+
+        # Create song record in database with instrumental flag
+        song = song_service.create_song(
+            task_id=task.id,
+            lyrics='',  # Empty for instrumental
+            prompt=payload.get('prompt', ''),
+            model=payload.get('model', 'auto'),
+            is_instrumental=True
+        )
+
+        if not song:
+            print(f"Failed to create instrumental song record in database for task {task.id}", file=sys.stderr)
+            # Continue anyway - fallback to Redis-only mode
+            return {
+                "task_id": task.id,
+                "status_url": f"{host_url}api/v1/instrumental/task/status/{task.id}"
+            }, 202
+        else:
+            print(f"Created instrumental song record in database: id={song.id}, task_id={task.id}", file=sys.stderr)
+
+        return {
+            "task_id": task.id,
+            "song_id": str(song.id),
+            "status_url": f"{host_url}api/v1/instrumental/task/status/{task.id}"
         }, 202
     
     def generate_stems(self, payload: Dict[str, Any], check_balance_func) -> Tuple[Dict[str, Any], int]:
