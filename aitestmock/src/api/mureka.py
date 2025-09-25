@@ -31,3 +31,17 @@ def get_billing_info():
     """Simulation of https://api.mureka.ai/v1/account/billing"""
     print("Getting billing info")
     return controller.get_billing_info()
+
+
+@mureka_routes.route('/instrumental/generate', methods=['POST'])
+def generate_instrumental():
+    """Simulation of https://api.mureka.ai/v1/instrumental/generate"""
+    print("Generating instrumental")
+    return controller.generate_instrumental()
+
+
+@mureka_routes.route('/instrumental/query/<job_id>', methods=['GET'])
+def query_instrumental_status(job_id):
+    """Simulation of https://api.mureka.ai/v1/instrumental/query/<job_id>"""
+    print("Querying instrumental status for job {}".format(job_id))
+    return controller.query_instrumental_status(job_id)

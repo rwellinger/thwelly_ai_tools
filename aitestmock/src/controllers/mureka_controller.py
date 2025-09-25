@@ -51,3 +51,26 @@ class MurekaController:
         result = self.service.get_billing_info()
 
         return jsonify(result)
+
+    def generate_instrumental(self):
+        auth_header = request.headers.get('Authorization')
+        if not auth_header or not auth_header.startswith('Bearer '):
+            return jsonify({'error': 'Missing or invalid authorization'}), 401
+
+        data = request.get_json()
+
+        model = data.get('model', 'auto')
+        prompt = data.get('prompt')  # This is the style prompt
+
+        result = self.service.generate_instrumental(model, prompt)
+
+        return jsonify(result)
+
+    def query_instrumental_status(self, job_id):
+        auth_header = request.headers.get('Authorization')
+        if not auth_header or not auth_header.startswith('Bearer '):
+            return jsonify({'error': 'Missing or invalid authorization'}), 401
+
+        result = self.service.query_instrumental_status(job_id)
+
+        return jsonify(result)
