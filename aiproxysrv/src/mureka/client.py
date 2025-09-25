@@ -32,13 +32,18 @@ def start_mureka_generation(payload: dict) -> Dict[str, Any]:
         "Content-Type": "application/json",
     }
 
+    # Clean payload - only send allowed parameters to MUREKA
+    allowed_params = ["lyrics", "prompt", "model"]
+    mureka_payload = {key: value for key, value in payload.items() if key in allowed_params}
+
     print(f"Starting MUREKA generation - Endpoint: {MUREKA_GENERATE_ENDPOINT}", file=sys.stderr)
-    
+    print(f"Sending payload: {mureka_payload}", file=sys.stderr)
+
     try:
         resp = requests.post(
             MUREKA_GENERATE_ENDPOINT,
             headers=headers,
-            json=payload,
+            json=mureka_payload,
             timeout=MUREKA_TIMEOUT,
         )
         print(f"MUREKA API Response Status: {resp.status_code}", file=sys.stderr)
@@ -180,13 +185,18 @@ def start_mureka_instrumental_generation(payload: dict) -> Dict[str, Any]:
         "Content-Type": "application/json",
     }
 
+    # Clean payload - only send allowed parameters to MUREKA Instrumental API
+    allowed_params = ["prompt", "model"]
+    mureka_payload = {key: value for key, value in payload.items() if key in allowed_params}
+
     print(f"Starting MUREKA instrumental generation - Endpoint: {MUREKA_INSTRUMENTAL_GENERATE_ENDPOINT}", file=sys.stderr)
+    print(f"Sending payload: {mureka_payload}", file=sys.stderr)
 
     try:
         resp = requests.post(
             MUREKA_INSTRUMENTAL_GENERATE_ENDPOINT,
             headers=headers,
-            json=payload,
+            json=mureka_payload,
             timeout=MUREKA_TIMEOUT,
         )
         print(f"MUREKA Instrumental API Response Status: {resp.status_code}", file=sys.stderr)

@@ -15,6 +15,13 @@ class SongGenerateRequest(BaseModel):
     style: Optional[str] = Field(None, max_length=100, description="Music style/genre")
     duration: Optional[int] = Field(30, ge=15, le=120, description="Song duration in seconds")
 
+    @validator('model')
+    def validate_model(cls, v):
+        allowed_models = ['auto', 'mureka-7.5', 'mureka-7', 'mureka-6', 'mureka-o1']
+        if v not in allowed_models:
+            raise ValueError(f'model must be one of: {", ".join(allowed_models)}')
+        return v
+
     class Config:
         json_schema_extra = {
             "example": {
@@ -246,6 +253,13 @@ class InstrumentalGenerateRequest(BaseModel):
     model: str = Field("auto", description="Model to use for generation")
     style: Optional[str] = Field(None, max_length=100, description="Music style/genre")
     duration: Optional[int] = Field(30, ge=15, le=120, description="Instrumental duration in seconds")
+
+    @validator('model')
+    def validate_model(cls, v):
+        allowed_models = ['auto', 'mureka-7.5', 'mureka-7', 'mureka-6', 'mureka-o1']
+        if v not in allowed_models:
+            raise ValueError(f'model must be one of: {", ".join(allowed_models)}')
+        return v
 
     class Config:
         json_schema_extra = {

@@ -17,9 +17,9 @@ class SongCreationController:
     
     def generate_song(self, payload: Dict[str, Any], host_url: str, check_balance_func) -> Tuple[Dict[str, Any], int]:
         """Start Song Generation"""
-        if not payload.get("lyrics") or not payload.get("prompt"):
+        if not payload.get("lyrics") or not payload.get("prompt") or not payload.get("model"):
             return {
-                "error": "Missing required fields: 'lyrics' and 'prompt' are required"
+                "error": "Missing required fields: 'lyrics', 'prompt' and model are required"
             }, 400
 
         if not check_balance_func():
@@ -30,6 +30,7 @@ class SongCreationController:
         print(f"Starting song generation", file=sys.stderr)
         print(f"Lyrics length: {len(payload.get('lyrics', ''))} characters", file=sys.stderr)
         print(f"Prompt: {payload.get('prompt', '')}", file=sys.stderr)
+        print(f"Model: {payload.get('model', '')}", file=sys.stderr)
 
         task = generate_song_task.delay(payload)
 
@@ -60,9 +61,9 @@ class SongCreationController:
 
     def generate_instrumental(self, payload: Dict[str, Any], host_url: str, check_balance_func) -> Tuple[Dict[str, Any], int]:
         """Start Instrumental Generation"""
-        if not payload.get("prompt"):
+        if not payload.get("prompt") or not payload.get("model"):
             return {
-                "error": "Missing required field: 'prompt' is required"
+                "error": "Missing required field: 'prompt' and 'model' is required"
             }, 400
 
         if not check_balance_func():
@@ -72,6 +73,7 @@ class SongCreationController:
 
         print(f"Starting instrumental generation", file=sys.stderr)
         print(f"Prompt: {payload.get('prompt', '')}", file=sys.stderr)
+        print(f"Model: {payload.get('model', '')}", file=sys.stderr)
 
         task = generate_instrumental_task.delay(payload)
 
