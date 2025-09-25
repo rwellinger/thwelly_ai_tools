@@ -24,6 +24,7 @@ export class SongDetailPanelComponent implements OnInit, OnChanges {
     @Input() placeholderText: string = 'Select a song from the list to view details';
     @Input() placeholderIcon: string = 'fas fa-music';
     @Input() currentlyPlayingId: string | null = null;
+    @Input() isGenerating: boolean = false;
 
     // Component state
     isLoading = false;

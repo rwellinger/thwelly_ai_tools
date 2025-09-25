@@ -15,13 +15,14 @@
                             formControlName="lyrics"
                             placeholder="Type your lyrics or a song idea here..."
                             required
+                            [disabled]="isLoading"
                             class="lyrics-input">
                         </textarea>
                         <div class="lyrics-dropdown-container">
                             <button
                                 type="button"
                                 (click)="toggleLyricsDropdown()"
-                                [disabled]="isGeneratingLyrics || isTranslatingLyrics || isImprovingPrompt || !songForm.get('lyrics')?.value?.trim()"
+                                [disabled]="isLoading || isGeneratingLyrics || isTranslatingLyrics || isImprovingPrompt || !songForm.get('lyrics')?.value?.trim()"
                                 class="magic-icon-button"
                                 title="Lyrics actions">
                                 <i class="fas fa-ellipsis-vertical" *ngIf="!isGeneratingLyrics && !isTranslatingLyrics"></i>
@@ -31,7 +32,7 @@
                                 <button
                                     type="button"
                                     class="dropdown-item"
-                                    [disabled]="isGeneratingLyrics || isTranslatingLyrics || isImprovingPrompt"
+                                    [disabled]="isLoading || isGeneratingLyrics || isTranslatingLyrics || isImprovingPrompt"
                                     (click)="selectLyricsAction('generate')">
                                     <i class="fas fa-music"></i>
                                     <span>Create Lyrics</span>
@@ -40,7 +41,7 @@
                                 <button
                                     type="button"
                                     class="dropdown-item"
-                                    [disabled]="isGeneratingLyrics || isTranslatingLyrics || isImprovingPrompt"
+                                    [disabled]="isLoading || isGeneratingLyrics || isTranslatingLyrics || isImprovingPrompt"
                                     (click)="selectLyricsAction('translate')">
                                     <i class="fas fa-language"></i>
                                     <span>Translate to English</span>
@@ -59,13 +60,14 @@
                             formControlName="prompt"
                             placeholder="Describe the music style (e.g., upbeat pop, melancholic ballad, rock anthem)..."
                             required
+                            [disabled]="isLoading"
                             class="prompt-input">
                         </textarea>
                         <div class="style-dropdown-container">
                             <button
                                 type="button"
                                 (click)="toggleStyleDropdown()"
-                                [disabled]="isImprovingPrompt || isTranslatingLyrics || isGeneratingLyrics || isTranslatingStylePrompt || !songForm.get('prompt')?.value?.trim()"
+                                [disabled]="isLoading || isImprovingPrompt || isTranslatingLyrics || isGeneratingLyrics || isTranslatingStylePrompt || !songForm.get('prompt')?.value?.trim()"
                                 class="magic-icon-button"
                                 title="Music style actions">
                                 <i class="fas fa-ellipsis-vertical" *ngIf="!isImprovingPrompt && !isTranslatingStylePrompt"></i>
@@ -75,7 +77,7 @@
                                 <button
                                     type="button"
                                     class="dropdown-item"
-                                    [disabled]="isImprovingPrompt || isTranslatingLyrics || isGeneratingLyrics || isTranslatingStylePrompt"
+                                    [disabled]="isLoading || isImprovingPrompt || isTranslatingLyrics || isGeneratingLyrics || isTranslatingStylePrompt"
                                     (click)="selectStyleAction('enhance')">
                                     <i class="fas fa-wand-magic-sparkles"></i>
                                     <span>Enhance Style Prompt</span>
@@ -84,7 +86,7 @@
                                 <button
                                     type="button"
                                     class="dropdown-item"
-                                    [disabled]="isImprovingPrompt || isTranslatingLyrics || isGeneratingLyrics || isTranslatingStylePrompt"
+                                    [disabled]="isLoading || isImprovingPrompt || isTranslatingLyrics || isGeneratingLyrics || isTranslatingStylePrompt"
                                     (click)="selectStyleAction('translate')">
                                     <i class="fas fa-language"></i>
                                     <span>Translate to English</span>
@@ -97,7 +99,7 @@
 
                 <div class="form-group">
                     <label for="model">Model:</label>
-                    <select id="model" formControlName="model" required class="model-select">
+                    <select id="model" formControlName="model" required [disabled]="isLoading" class="model-select">
                         <option value="auto">Auto</option>
                         <option value="mureka-7">Mureka 7</option>
                         <option value="mureka-6">Mureka 6</option>
@@ -107,11 +109,20 @@
 
                 <div class="button-group">
                     <button type="submit" [disabled]="songForm.invalid || isLoading || isImprovingPrompt || isTranslatingLyrics || isGeneratingLyrics || isTranslatingStylePrompt" class="create-button">
-                        <i class="fas fa-music"></i> Create Song
+                        <i class="fas fa-spinner fa-spin" *ngIf="isLoading"></i>
+                        <i class="fas fa-music" *ngIf="!isLoading"></i>
+                        {{ isLoading ? 'Creating...' : 'Create Song' }}
                     </button>
-                    <button type="button" (click)="resetForm()" [disabled]="isImprovingPrompt || isTranslatingLyrics || isGeneratingLyrics || isTranslatingStylePrompt" class="reset-button">
+                    <button type="button" (click)="resetForm()" [disabled]="isLoading || isImprovingPrompt || isTranslatingLyrics || isGeneratingLyrics || isTranslatingStylePrompt" class="reset-button">
                         <i class="fas fa-rotate-left"></i> Reset
                     </button>
+                </div>
+
+                <div *ngIf="isLoading && loadingMessage" class="loading-status">
+                    <small class="loading-text">
+                        <i class="fas fa-info-circle"></i>
+                        {{ loadingMessage }} - This may take several minutes
+                    </small>
                 </div>
             </form>
         </div>
@@ -125,6 +136,7 @@
         [showEditTags]="true"
         [showEditWorkflow]="true"
         [showRating]="true"
+        [isGenerating]="isLoading"
         title="Generated Song"
         [showMetaInfo]="['job_id', 'model', 'status', 'created', 'completed']"
         placeholderText="Your generated song will appear here"
@@ -140,17 +152,6 @@
     </app-song-detail-panel>
 </div>
 
-<!-- Processing Popup -->
-<div *ngIf="isLoading" class="processing-overlay">
-    <div class="processing-content">
-        <div class="processing-spinner">
-            <i class="fas fa-spinner fa-spin"></i>
-        </div>
-        <h3>{{ loadingMessage || 'Creating Song...' }}</h3>
-        <p>This may take several minutes</p>
-    </div>
-</div>
-
 <!-- Popup Audio Player -->
 <app-popup-audio-player
   [visible]="showPopupPlayer"
@@ -161,7 +162,5 @@
   (audioLoadError)="onAudioLoadError($event)">
 </app-popup-audio-player>
 
-<!-- AI Progress Overlay -->
-<app-progress-overlay></app-progress-overlay>
 
 <app-footer costInfo="Song generation: ~$0.15 each"></app-footer>

@@ -269,15 +269,18 @@ export class SongGeneratorComponent implements OnInit {
 
 
     // Handlers for shared song detail panel - now handled directly by the shared component
-    onTitleChanged(newTitle: string) {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    onTitleChanged(_newTitle: string) {
         // No-op: Shared component handles this
     }
 
-    onTagsChanged(newTags: string[]) {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    onTagsChanged(_newTags: string[]) {
         // No-op: Shared component handles this
     }
 
-    onWorkflowChanged(newWorkflow: string) {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    onWorkflowChanged(_newWorkflow: string) {
         // No-op: Shared component handles this
     }
 
@@ -298,7 +301,8 @@ export class SongGeneratorComponent implements OnInit {
         // No-op: Shared component handles this
     }
 
-    onUpdateRating(event: { choiceId: string, rating: number | null }) {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    onUpdateRating(_event: { choiceId: string, rating: number | null }) {
         // No-op: Shared component handles this
     }
 

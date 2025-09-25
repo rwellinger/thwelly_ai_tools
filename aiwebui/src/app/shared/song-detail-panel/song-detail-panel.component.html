@@ -32,7 +32,7 @@
             <div class="song-title-section" *ngIf="showEditTitle">
                 <div class="title-row" *ngIf="!editingTitle">
                     <h3 class="song-title">{{ getDisplayTitle(song) }}</h3>
-                    <button type="button" class="edit-btn" (click)="startEditTitle()">
+                    <button type="button" class="edit-btn" (click)="startEditTitle()" [disabled]="isGenerating">
                         <i class="fas fa-edit"></i>
                     </button>
                 </div>
@@ -88,7 +88,7 @@
                     <div class="tags-row" *ngIf="!editingTags">
                         <h3 class="tags-title">Tags:</h3>
                         <span class="tags-display">{{ getSelectedTagsDisplay() }}</span>
-                        <button type="button" class="edit-btn" (click)="startEditTags()">
+                        <button type="button" class="edit-btn" (click)="startEditTags()" [disabled]="isGenerating">
                             <i class="fas fa-edit"></i>
                         </button>
                     </div>
@@ -142,7 +142,7 @@
                     <div class="workflow-row" *ngIf="!editingWorkflow">
                         <h3 class="workflow-title">Workflow:</h3>
                         <span class="workflow-display">{{ getWorkflowDisplay() }}</span>
-                        <button type="button" class="edit-btn" (click)="startEditWorkflow()">
+                        <button type="button" class="edit-btn" (click)="startEditWorkflow()" [disabled]="isGenerating">
                             <i class="fas fa-edit"></i>
                         </button>
                     </div>
