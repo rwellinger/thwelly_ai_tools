@@ -3,12 +3,15 @@ MUREKA API Client
 """
 import sys
 import traceback
+import logging
 import requests
 import time
 from typing import Dict, Any
 from requests import HTTPError
 from config.settings import (
     MUREKA_GENERATE_ENDPOINT,
+    MUREKA_INSTRUMENTAL_GENERATE_ENDPOINT,
+    MUREKA_INSTRUMENTAL_STATUS_ENDPOINT,
     MUREKA_STATUS_ENDPOINT,
     MUREKA_API_KEY,
     MUREKA_TIMEOUT,
@@ -19,6 +22,8 @@ from config.settings import (
     MUREKA_POLL_INTERVAL_LONG
 )
 from api.json_helpers import prune
+
+logger = logging.getLogger(__name__)
 
 def start_mureka_generation(payload: dict) -> Dict[str, Any]:
     """Startet eine MUREKA Generierung"""
@@ -166,3 +171,137 @@ def wait_for_mureka_completion(task, job_id: str) -> Dict[str, Any]:
 
     total_elapsed = time.time() - start_time
     raise Exception(f"Timeout after {max_attempts} polling attempts ({int(total_elapsed)} seconds elapsed)")
+
+
+def start_mureka_instrumental_generation(payload: dict) -> Dict[str, Any]:
+    """Startet eine MUREKA Instrumental-Generierung"""
+    headers = {
+        "Authorization": f"Bearer {MUREKA_API_KEY}",
+        "Content-Type": "application/json",
+    }
+
+    print(f"Starting MUREKA instrumental generation - Endpoint: {MUREKA_INSTRUMENTAL_GENERATE_ENDPOINT}", file=sys.stderr)
+
+    try:
+        resp = requests.post(
+            MUREKA_INSTRUMENTAL_GENERATE_ENDPOINT,
+            headers=headers,
+            json=payload,
+            timeout=MUREKA_TIMEOUT,
+        )
+        print(f"MUREKA Instrumental API Response Status: {resp.status_code}", file=sys.stderr)
+        resp.raise_for_status()
+
+        response_data = resp.json()
+        job_id = response_data.get("id")
+        print(f"MUREKA instrumental generation started successfully. Job ID: {job_id}", file=sys.stderr)
+        return response_data
+    except HTTPError as e:
+        print(f"MUREKA Instrumental API HTTP Error: {e}", file=sys.stderr)
+        print(f"Response content: {e.response.text if e.response else 'No response'}", file=sys.stderr)
+        raise
+    except Exception as e:
+        print(f"MUREKA instrumental generation error: {type(e).__name__}: {e}", file=sys.stderr)
+        print(f"Stacktrace: {traceback.format_exc()}", file=sys.stderr)
+        raise
+
+
+def check_mureka_instrumental_status(job_id: str) -> Dict[str, Any]:
+    """Überprüft den Status einer MUREKA Instrumental-Generierung"""
+    headers = {
+        "Authorization": f"Bearer {MUREKA_API_KEY}",
+    }
+
+    status_url = f"{MUREKA_INSTRUMENTAL_STATUS_ENDPOINT}/{job_id}"
+    print(f"Checking MUREKA instrumental status: {status_url}", file=sys.stderr)
+
+    try:
+        resp = requests.get(
+            status_url,
+            headers=headers,
+            timeout=30,
+        )
+        logger.debug(f"MUREKA Instrumental Status API Response: {resp.status_code}")
+        resp.raise_for_status()
+
+        status_data = resp.json()
+        logger.info(f"MUREKA instrumental status for job {job_id}: {status_data.get('status')}")
+        return status_data
+    except HTTPError as e:
+        print(f"MUREKA Instrumental Status API HTTP Error: {e}", file=sys.stderr)
+        print(f"Response content: {e.response.text if e.response else 'No response'}", file=sys.stderr)
+        raise
+    except Exception as e:
+        print(f"MUREKA instrumental status check error: {type(e).__name__}: {e}", file=sys.stderr)
+        print(f"Stacktrace: {traceback.format_exc()}", file=sys.stderr)
+        raise
+
+
+def wait_for_mureka_instrumental_completion(task, job_id: str) -> Dict[str, Any]:
+    """Wartet auf die Vollendung einer MUREKA Instrumental-Generierung"""
+    max_attempts = MUREKA_MAX_POLL_ATTEMPTS
+    start_time = time.time()
+
+    for attempt in range(max_attempts):
+        try:
+            elapsed_time = time.time() - start_time
+            poll_interval = get_adaptive_poll_interval(elapsed_time)
+
+            status_response = check_mureka_instrumental_status(job_id)
+            current_status = status_response.get("status", "unknown")
+
+            task.update_state(
+                state='PROGRESS',
+                meta={
+                    'status': 'POLLING',
+                    'job_id': job_id,
+                    'attempt': attempt + 1,
+                    'mureka_status': current_status,
+                    'progress': status_response.get("progress", 0),
+                    'elapsed_time': int(elapsed_time),
+                    'poll_interval': poll_interval,
+                    'type': 'instrumental'
+                }
+            )
+
+            if current_status == "succeeded":
+                print(f"MUREKA instrumental job completed: {job_id}")
+                keys_to_remove = {"lyrics_sections"}
+                cleaned_json = prune(status_response, keys_to_remove)
+                return cleaned_json
+
+            elif current_status in ["failed", "cancelled"]:
+                error_reason = status_response.get("failed_reason", "Instrumental processing failed")
+                print(f"MUREKA instrumental job failed: {job_id} - {error_reason}")
+                raise Exception(f"Job failed: {error_reason}")
+
+            elif current_status in ["preparing", "queued", "running", "timeouted"]:
+                logger.info(f"MUREKA instrumental job {job_id}: {current_status}")
+                time.sleep(poll_interval)
+
+            else:
+                print(f"Unknown MUREKA instrumental status: {current_status} for job {job_id}")
+                time.sleep(poll_interval)
+
+        except HTTPError as e:
+            if e.response.status_code in [429, 502, 503, 504]:
+                # Temporäre Fehler - weiter versuchen
+                elapsed_time = time.time() - start_time
+                current_poll_interval = get_adaptive_poll_interval(elapsed_time)
+                wait_time = current_poll_interval * 2
+                print(f"Temporary MUREKA instrumental error ({e.response.status_code}), retrying in {wait_time}s", file=sys.stderr)
+                print(f"Response content: {e.response.text if e.response else 'No response'}", file=sys.stderr)
+                time.sleep(wait_time)
+                continue
+            else:
+                print(f"HTTP error checking MUREKA instrumental status: {e}", file=sys.stderr)
+                print(f"Response content: {e.response.text if e.response else 'No response'}", file=sys.stderr)
+                print(f"Stacktrace: {traceback.format_exc()}", file=sys.stderr)
+                raise
+        except Exception as e:
+            print(f"Unexpected error in MUREKA instrumental polling: {type(e).__name__}: {e}", file=sys.stderr)
+            print(f"Stacktrace: {traceback.format_exc()}", file=sys.stderr)
+            raise
+
+    total_elapsed = time.time() - start_time
+    raise Exception(f"Instrumental timeout after {max_attempts} polling attempts ({int(total_elapsed)} seconds elapsed)")

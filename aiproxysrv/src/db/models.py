@@ -36,6 +36,7 @@ class Song(Base):
     title = Column(String(500), nullable=True)
     tags = Column(String(1000), nullable=True)
     workflow = Column(String(50), nullable=True)  # onWork, inUse, notUsed, or NULL
+    is_instrumental = Column(Boolean, nullable=True, default=False)  # True for instrumental songs
     
     # Status tracking
     status = Column(String(50), nullable=False, default="PENDING")  # PENDING, PROGRESS, SUCCESS, FAILURE, CANCELLED

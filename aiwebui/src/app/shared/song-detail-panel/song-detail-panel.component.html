@@ -70,6 +70,12 @@
                         <i class="fas fa-robot meta-icon"></i>
                         <span class="meta-value">{{ song.model }}</span>
                     </div>
+                    <div class="meta-item">
+                        <i class="fas meta-icon"
+                           [class.fa-guitar]="song.is_instrumental === true"
+                           [class.fa-microphone]="song.is_instrumental !== true"></i>
+                        <span class="meta-value">{{ song.is_instrumental === true ? 'Instrumental' : 'With Vocals' }}</span>
+                    </div>
                     <div class="meta-item" *ngIf="shouldShowMetaInfo('completed') && song.completed_at">
                         <i class="fas fa-calendar-check meta-icon"></i>
                         <span class="meta-value">{{ formatDateDetailed(song.completed_at) }}</span>

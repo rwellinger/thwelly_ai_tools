@@ -43,8 +43,8 @@ module.exports = tseslint.config(
           style: "kebab-case",
         },
       ],
-      // Erlaubt 'any' type für bestehenden Code
-      "@typescript-eslint/no-explicit-any": "warn",
+      // Deaktiviert 'any' type warnings für bestehenden Code
+      "@typescript-eslint/no-explicit-any": "off",
       // Erlaubt constructor injection (nicht nur inject())
       "@angular-eslint/prefer-inject": "warn",
       // Erlaubt inferrable types

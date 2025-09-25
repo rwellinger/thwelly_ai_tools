@@ -10,6 +10,7 @@ class SongGenerateRequest(BaseModel):
     """Schema for song generation requests"""
     prompt: str = Field(..., min_length=1, max_length=500, description="Song generation prompt")
     lyrics: Optional[str] = Field(None, max_length=2000, description="Custom lyrics (optional)")
+    title: Optional[str] = Field(None, min_length=1, max_length=50, description="Optional title for the song")
     model: str = Field("auto", description="Model to use for generation")
     style: Optional[str] = Field(None, max_length=100, description="Music style/genre")
     duration: Optional[int] = Field(30, ge=15, le=120, description="Song duration in seconds")
@@ -19,6 +20,7 @@ class SongGenerateRequest(BaseModel):
             "example": {
                 "prompt": "Upbeat pop song about summer vacation",
                 "lyrics": "[Verse 1]\nSummer days are here again...",
+                "title": "Summer Vacation Anthem",
                 "model": "auto",
                 "style": "pop",
                 "duration": 30
@@ -41,6 +43,7 @@ class SongResponse(BaseModel):
     stems_url: Optional[str] = Field(None, description="Stems ZIP file URL")
     workflow: Optional[str] = Field("notUsed", description="Workflow status")
     rating: Optional[int] = Field(None, ge=1, le=5, description="User rating")
+    is_instrumental: Optional[bool] = Field(False, description="True if this is an instrumental song")
     created_at: datetime = Field(..., description="Creation timestamp")
     completed_at: Optional[datetime] = Field(None, description="Completion timestamp")
     tags: Optional[List[str]] = Field(None, description="Song tags")
@@ -234,3 +237,29 @@ class QueueStatusResponse(BaseResponse):
 class TaskCancelResponse(BaseResponse):
     """Schema for task cancellation response"""
     data: Dict[str, Any] = Field(..., description="Cancellation result")
+
+
+class InstrumentalGenerateRequest(BaseModel):
+    """Schema for instrumental generation requests"""
+    title: str = Field(..., min_length=1, max_length=50, description="Title for the instrumental song")
+    prompt: str = Field(..., min_length=1, max_length=500, description="Instrumental generation prompt")
+    model: str = Field("auto", description="Model to use for generation")
+    style: Optional[str] = Field(None, max_length=100, description="Music style/genre")
+    duration: Optional[int] = Field(30, ge=15, le=120, description="Instrumental duration in seconds")
+
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "title": "Passionate R&B Instrumental",
+                "prompt": "r&b, slow, passionate",
+                "model": "auto",
+                "style": "r&b",
+                "duration": 30
+            }
+        }
+
+
+class InstrumentalGenerateResponse(BaseResponse):
+    """Schema for instrumental generation response"""
+    data: SongResponse = Field(..., description="Generated instrumental data")
+    task_id: Optional[str] = Field(None, description="Celery task ID for tracking")

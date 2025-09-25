@@ -106,6 +106,7 @@
                                [indeterminate]="selectedSongIds.size > 0 && selectedSongIds.size < filteredSongs.length"
                                (change)="onSelectAllChange($event)">
                     </th>
+                    <th class="icon-col"></th>
                     <th class="lyrics-col">Title</th>
                     <th>Model</th>
                     <th class="sortable-header" (click)="toggleSort()">
@@ -130,6 +131,12 @@
                                [disabled]="!canDeleteSong(song)"
                                (change)="toggleSongSelection(song.id)"
                                [title]="!canDeleteSong(song) ? (song.workflow === 'inUse' ? 'Cannot delete songs with In Use workflow' : song.workflow === 'onWork' ? 'Cannot delete songs with On Work workflow' : 'Cannot delete this song') : ''">
+                    </td>
+                    <td class="icon-col">
+                        <i class="fas"
+                           [class.fa-guitar]="song.is_instrumental === true"
+                           [class.fa-microphone]="song.is_instrumental !== true"
+                           [title]="song.is_instrumental === true ? 'Instrumental' : 'With Vocals'"></i>
                     </td>
                     <td class="lyrics-col">{{ getDisplayTitle(song) }}</td>
                     <td>{{ song.model }}</td>

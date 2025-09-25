@@ -20,7 +20,9 @@ IMAGES_DIR=/Users/robertw/Workspace/mac_ki_service/aiproxysrv/images
 # ==================================================
 MUREKA_API_KEY=
 MUREKA_GENERATE_ENDPOINT=https://api.mureka.ai/v1/song/generate
+MUREKA_INSTRUMENTAL_GENERATE_ENDPOINT=https://api.mureka.ai/v1/instrumental/generate
 MUREKA_STATUS_ENDPOINT=https://api.mureka.ai/v1/song/query
+MUREKA_INSTRUMENTAL_STATUS_ENDPOINT=https://api.mureka.ai/v1/instrumental/query
 MUREKA_BILLING_URL=https://api.mureka.ai/v1/account/billing
 MUREKA_STEM_GENERATE_ENDPOINT=https://api.mureka.ai/v1/song/stem
 MUREKA_MODEL=auto

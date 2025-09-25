@@ -28,6 +28,12 @@ class SongController:
         return self.creation_controller.generate_song(
             payload, host_url, self.account_controller.check_balance
         )
+
+    def generate_instrumental(self, payload: Dict[str, Any], host_url: str) -> Tuple[Dict[str, Any], int]:
+        """Start Instrumental Generation"""
+        return self.creation_controller.generate_instrumental(
+            payload, host_url, self.account_controller.check_balance
+        )
     
     def generate_stems(self, payload: Dict[str, Any]) -> Tuple[Dict[str, Any], int]:
         """Generate stems from MP3"""
@@ -99,6 +105,7 @@ class SongController:
                     "title": song.title,
                     "model": song.model,
                     "workflow": song.workflow,
+                    "is_instrumental": song.is_instrumental,
                     "created_at": song.created_at.isoformat() if song.created_at else None,
                 }
                 songs_list.append(song_data)
@@ -168,6 +175,7 @@ class SongController:
                 "title": song.title,
                 "tags": song.tags,
                 "workflow": song.workflow,
+                "is_instrumental": song.is_instrumental,
                 "status": song.status,
                 "progress_info": song.progress_info,
                 "error_message": song.error_message,

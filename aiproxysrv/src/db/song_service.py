@@ -22,7 +22,7 @@ class SongService:
         """Get Redis connection"""
         return redis.from_url(self.redis_url)
     
-    def create_song(self, task_id: str, lyrics: str, prompt: str, model: str = "auto") -> Optional[Song]:
+    def create_song(self, task_id: str, lyrics: str, prompt: str, model: str = "auto", is_instrumental: bool = False, title: str = None) -> Optional[Song]:
         """Create a new song record in the database"""
         try:
             db = next(get_db())
@@ -32,7 +32,9 @@ class SongService:
                     lyrics=lyrics,
                     prompt=prompt,
                     model=model,
-                    status=SongStatus.PENDING.value
+                    status=SongStatus.PENDING.value,
+                    is_instrumental=is_instrumental,
+                    title=title
                 )
                 
                 db.add(song)
