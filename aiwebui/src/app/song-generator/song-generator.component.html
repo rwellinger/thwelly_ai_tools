@@ -8,27 +8,67 @@
 
             <form [formGroup]="songForm" (ngSubmit)="onSubmit()">
 
+                <!-- Mode Selection -->
+                <div class="form-group">
+                    <div class="segment-control">
+                        <button
+                            type="button"
+                            class="segment-button"
+                            [class.active]="!isInstrumental()"
+                            [disabled]="isLoading"
+                            (click)="setMode('song')">
+                            <i class="fas fa-microphone"></i>
+                            <span>With Lyrics</span>
+                        </button>
+                        <button
+                            type="button"
+                            class="segment-button"
+                            [class.active]="isInstrumental()"
+                            [disabled]="isLoading"
+                            (click)="setMode('instrumental')">
+                            <i class="fas fa-guitar"></i>
+                            <span>Instrumental</span>
+                        </button>
+                    </div>
+                </div>
+
                 <!-- Title Field (always visible, required only for instrumental) -->
                 <div class="form-group">
                     <label for="title">Title:<span class="required" *ngIf="isInstrumental()"> *</span></label>
-                    <input
-                        id="title"
-                        type="text"
-                        formControlName="title"
-                        placeholder="Enter song title (max 50 characters)..."
-                        [required]="isInstrumental()"
-                        maxlength="50"
-                        [disabled]="isLoading"
-                        class="title-input">
+                    <div class="prompt-input-group">
+                        <input
+                            id="title"
+                            type="text"
+                            formControlName="title"
+                            placeholder="Enter song title (max 50 characters)..."
+                            [required]="isInstrumental()"
+                            maxlength="50"
+                            [disabled]="isLoading"
+                            class="title-input">
+                        <div class="title-dropdown-container">
+                            <button
+                                type="button"
+                                (click)="toggleTitleDropdown()"
+                                [disabled]="isLoading || isGeneratingTitle"
+                                class="magic-icon-button"
+                                title="Title actions">
+                                <i class="fas fa-ellipsis-vertical" *ngIf="!isGeneratingTitle"></i>
+                                <i class="fas fa-spinner fa-spin" *ngIf="isGeneratingTitle"></i>
+                            </button>
+                            <div class="dropdown-menu" *ngIf="showTitleDropdown" (click)="$event.stopPropagation()">
+                                <button
+                                    type="button"
+                                    class="dropdown-item"
+                                    [disabled]="isLoading || isGeneratingTitle"
+                                    (click)="selectTitleAction('generate')">
+                                    <i class="fas fa-wand-magic-sparkles"></i>
+                                    <span>Generate Title</span>
+                                    <i class="fas fa-spinner fa-spin action-spinner" *ngIf="isGeneratingTitle"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
                     <div class="char-counter">{{ songForm.get('title')?.value?.length || 0 }}/50</div>
-                </div>
-
-                <!-- Instrumental Checkbox -->
-                <div class="form-group checkbox-group">
-                    <label>
-                        <input type="checkbox" formControlName="isInstrumental" [disabled]="isLoading">
-                        <span class="checkbox-label">Instrumental</span>
-                    </label>
                 </div>
 
                 <div class="form-group">
@@ -136,12 +176,12 @@
                 </div>
 
                 <div class="button-group">
-                    <button type="submit" [disabled]="songForm.invalid || isLoading || isImprovingPrompt || isTranslatingLyrics || isGeneratingLyrics || isTranslatingStylePrompt" class="create-button">
+                    <button type="submit" [disabled]="songForm.invalid || isLoading || isImprovingPrompt || isTranslatingLyrics || isGeneratingLyrics || isTranslatingStylePrompt || isGeneratingTitle" class="create-button">
                         <i class="fas fa-spinner fa-spin" *ngIf="isLoading"></i>
                         <i class="fas fa-music" *ngIf="!isLoading"></i>
                         {{ isLoading ? 'Creating...' : (isInstrumental() ? 'Create Instrumental' : 'Create Song') }}
                     </button>
-                    <button type="button" (click)="resetForm()" [disabled]="isLoading || isImprovingPrompt || isTranslatingLyrics || isGeneratingLyrics || isTranslatingStylePrompt" class="reset-button">
+                    <button type="button" (click)="resetForm()" [disabled]="isLoading || isImprovingPrompt || isTranslatingLyrics || isGeneratingLyrics || isTranslatingStylePrompt || isGeneratingTitle" class="reset-button">
                         <i class="fas fa-rotate-left"></i> Reset
                     </button>
                 </div>

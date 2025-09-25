@@ -28,8 +28,10 @@ export class SongGeneratorComponent implements OnInit {
     isTranslatingLyrics = false;
     isGeneratingLyrics = false;
     isTranslatingStylePrompt = false;
+    isGeneratingTitle = false;
     showLyricsDropdown = false;
     showStyleDropdown = false;
+    showTitleDropdown = false;
     loadingMessage = '';
     result = '';
     currentlyPlaying: string | null = null;
@@ -484,6 +486,7 @@ export class SongGeneratorComponent implements OnInit {
         const target = event.target as HTMLElement;
         const lyricsDropdown = target.closest('.lyrics-dropdown-container');
         const styleDropdown = target.closest('.style-dropdown-container');
+        const titleDropdown = target.closest('.title-dropdown-container');
 
         if (!lyricsDropdown && this.showLyricsDropdown) {
             this.closeLyricsDropdown();
@@ -491,6 +494,10 @@ export class SongGeneratorComponent implements OnInit {
 
         if (!styleDropdown && this.showStyleDropdown) {
             this.closeStyleDropdown();
+        }
+
+        if (!titleDropdown && this.showTitleDropdown) {
+            this.closeTitleDropdown();
         }
     }
 
@@ -520,5 +527,63 @@ export class SongGeneratorComponent implements OnInit {
 
     isInstrumental(): boolean {
         return this.songForm.get('isInstrumental')?.value || false;
+    }
+
+    setMode(mode: 'song' | 'instrumental') {
+        const isInstrumental = mode === 'instrumental';
+        this.songForm.patchValue({isInstrumental: isInstrumental});
+    }
+
+    async generateTitle() {
+        const isInstrumental = this.isInstrumental();
+        let inputText = '';
+
+        // Priority logic: Title > Lyrics (non-instrumental) / Style (instrumental) > Fallback
+        const currentTitle = this.songForm.get('title')?.value?.trim();
+        const currentLyrics = this.songForm.get('lyrics')?.value?.trim();
+        const currentStyle = this.songForm.get('prompt')?.value?.trim();
+
+        if (currentTitle) {
+            inputText = currentTitle;
+        } else if (isInstrumental && currentStyle) {
+            // For instrumental: use style prompt
+            inputText = currentStyle;
+        } else if (!isInstrumental && currentLyrics) {
+            // For regular songs: use lyrics
+            inputText = currentLyrics;
+        } else {
+            // Fallback constant
+            inputText = 'Generate a creative song title';
+        }
+
+        this.isGeneratingTitle = true;
+        try {
+            const generatedTitle = await this.progressService.executeWithProgress(
+                () => this.chatService.generateTitle(inputText),
+                'Generating Title...',
+                'AI is creating a song title for you'
+            );
+            this.songForm.patchValue({title: this.removeQuotes(generatedTitle)});
+        } catch (error: any) {
+            this.notificationService.error(`Error generating title: ${error.message}`);
+        } finally {
+            this.isGeneratingTitle = false;
+        }
+    }
+
+    toggleTitleDropdown() {
+        this.showTitleDropdown = !this.showTitleDropdown;
+    }
+
+    closeTitleDropdown() {
+        this.showTitleDropdown = false;
+    }
+
+    selectTitleAction(action: 'generate') {
+        this.closeTitleDropdown();
+
+        if (action === 'generate') {
+            this.generateTitle();
+        }
     }
 }
