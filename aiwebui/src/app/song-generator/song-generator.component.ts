@@ -76,13 +76,6 @@ export class SongGeneratorComponent implements OnInit {
         this.result = '';
     }
 
-    async reloadDetail() {
-        if (this.currentSongId && this.songDetailPanel) {
-            console.log('Manual reload requested for songId:', this.currentSongId);
-            this.songDetailPanel.songId = this.currentSongId;
-            await this.songDetailPanel.reloadSong();
-        }
-    }
 
     async generateSong() {
         const formValue = this.songForm.value;
@@ -274,51 +267,17 @@ export class SongGeneratorComponent implements OnInit {
         document.body.removeChild(link);
     }
 
-    async generateStem(choiceId: string) {
-        // Delegate to shared component via API call
-        this.isLoading = true;
-        this.loadingMessage = 'Generating stems...';
-
-        try {
-            const response = await Promise.race([
-                fetch(this.apiConfig.endpoints.song.stems, {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({choice_id: choiceId})
-                }),
-                this.delay(120000).then(() => {
-                    throw new Error('Timeout after 2 minutes');
-                })
-            ]);
-
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-
-            const data = await response.json();
-
-            if (data.status === 'SUCCESS') {
-                this.notificationService.success('Stems generated successfully!');
-            } else {
-                this.notificationService.error('Stem generation failed or incomplete.');
-            }
-        } catch (error: any) {
-            this.notificationService.error(`Error generating stem: ${error.message}`);
-        } finally {
-            this.isLoading = false;
-        }
-    }
 
     // Handlers for shared song detail panel - now handled directly by the shared component
-    onTitleChanged(_newTitle: string) {
+    onTitleChanged(newTitle: string) {
         // No-op: Shared component handles this
     }
 
-    onTagsChanged(_newTags: string[]) {
+    onTagsChanged(newTags: string[]) {
         // No-op: Shared component handles this
     }
 
-    onWorkflowChanged(_newWorkflow: string) {
+    onWorkflowChanged(newWorkflow: string) {
         // No-op: Shared component handles this
     }
 
@@ -330,9 +289,6 @@ export class SongGeneratorComponent implements OnInit {
         this.playAudio(event.url, event.id, event.choiceNumber);
     }
 
-    onGenerateStem(choiceId: string) {
-        this.generateStem(choiceId);
-    }
 
     onDownloadStems(url: string) {
         this.downloadStems(url);
@@ -342,7 +298,7 @@ export class SongGeneratorComponent implements OnInit {
         // No-op: Shared component handles this
     }
 
-    onUpdateRating(_event: { choiceId: string, rating: number | null }) {
+    onUpdateRating(event: { choiceId: string, rating: number | null }) {
         // No-op: Shared component handles this
     }
 

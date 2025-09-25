@@ -51,7 +51,6 @@ export class SongViewComponent implements OnInit, OnDestroy {
   // Audio and features
   currentlyPlaying: string | null = null;
   audioUrl: string | null = null;
-  stemDownloadUrls = new Map<string, string>();
   showPopupPlayer = false;
   currentSongTitle = '';
 
@@ -162,7 +161,9 @@ export class SongViewComponent implements OnInit, OnDestroy {
         }
       } else {
         // Clear selection if no songs found
-        this.clearSelection();
+        this.selectedSong = null;
+        this.selectedSongId = null;
+        this.stopAudio();
       }
     } catch (error: any) {
       this.notificationService.error(`Error loading songs: ${error.message}`);
@@ -175,7 +176,6 @@ export class SongViewComponent implements OnInit, OnDestroy {
     // Clear previous selection and stop audio
     this.selectedSong = null;
     this.selectedSongId = song.id;
-    this.stemDownloadUrls.clear();
     this.stopAudio();
 
     // Store basic song info for backwards compatibility with existing template code
@@ -368,12 +368,6 @@ export class SongViewComponent implements OnInit, OnDestroy {
     this.loadSongs(0); // Reset to first page and reload with new filter
   }
 
-  clearSelection() {
-    this.selectedSong = null;
-    this.selectedSongId = null;
-    this.stopAudio();
-    // Stem downloads are now managed per choice
-  }
 
   // Selection mode methods
   toggleSelectionMode() {
@@ -682,48 +676,6 @@ export class SongViewComponent implements OnInit, OnDestroy {
     document.body.removeChild(link);
   }
 
-  // Stem generation method
-  async generateStem(choiceId: string) {
-    this.isLoading = true;
-    this.loadingMessage = 'Generating stems...';
-
-    try {
-      const response = await Promise.race([
-        fetch(this.apiConfig.endpoints.song.stems, {
-          method: 'POST',
-          headers: {'Content-Type': 'application/json'},
-          body: JSON.stringify({choice_id: choiceId})
-        }),
-        this.delay(120000).then(() => {
-          throw new Error('Timeout after 2 minutes');
-        })
-      ]);
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      const data = await response.json();
-
-      if (data.status === 'SUCCESS' && data.result && data.result.zip_url) {
-        // Find the choice by choiceId to get the mp3Url for mapping
-        const choice = this.selectedSong?.choices?.find((c: any) => c.id === choiceId);
-        if (choice?.mp3_url) {
-          this.stemDownloadUrls.set(choice.mp3_url, data.result.zip_url);
-          this.updateSelectedSongWithStems();
-          this.notificationService.success('Stems generated successfully!');
-        }
-      } else {
-        // Stem downloads are now managed per choice
-        this.notificationService.error('Stem generation failed or incomplete.');
-      }
-    } catch (error: any) {
-      // Stem downloads are now managed per choice
-      this.notificationService.error(`Error generating stem: ${error.message}`);
-    } finally {
-      this.isLoading = false;
-    }
-  }
 
   // Tags editing methods
   parseTagsFromString(tagsString: string): Set<string> {
@@ -888,9 +840,6 @@ export class SongViewComponent implements OnInit, OnDestroy {
     this.playAudio(event.url, event.id, event.choiceNumber);
   }
 
-  onGenerateStem(choiceId: string) {
-    this.generateStem(choiceId);
-  }
 
   onDownloadStems(url: string) {
     this.downloadStems(url);
@@ -918,25 +867,6 @@ export class SongViewComponent implements OnInit, OnDestroy {
     }
   }
 
-  private updateSelectedSongWithStems() {
-    if (!this.selectedSong || !this.selectedSong.choices) return;
-
-    // Update choices with stem download URLs
-    this.selectedSong.choices = this.selectedSong.choices.map((choice: any) => ({
-      ...choice,
-      stemDownloadUrl: this.stemDownloadUrls.get(choice.mp3_url) || null
-    }));
-  }
-
-  private initializeStemUrls() {
-    if (!this.selectedSong || !this.selectedSong.choices) return;
-
-    // Set stemDownloadUrl for each choice based on existing stem URLs
-    this.selectedSong.choices = this.selectedSong.choices.map((choice: any) => ({
-      ...choice,
-      stemDownloadUrl: this.stemDownloadUrls.get(choice.mp3_url) || null
-    }));
-  }
 
   // Check if a song can be deleted (not "In Use" or "On Work")
   canDeleteSong(song: any): boolean {

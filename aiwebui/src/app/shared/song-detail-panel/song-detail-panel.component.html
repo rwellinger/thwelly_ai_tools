@@ -208,16 +208,16 @@
                         </td>
                         <td>
                             <button type="button"
-                                    *ngIf="choice.mp3_url && !choice.stemDownloadUrl"
+                                    *ngIf="choice.mp3_url && !choice.stem_url"
                                     (click)="onGenerateStem(choice.id)"
                                     [disabled]="stemGenerationInProgress.has(choice.id)">
                                 <i class="fas fa-spinner fa-spin" *ngIf="stemGenerationInProgress.has(choice.id)"></i>
                                 <i class="fas fa-brain" *ngIf="!stemGenerationInProgress.has(choice.id)"></i>
-                                {{ stemGenerationInProgress.has(choice.id) ? 'Generating...' : 'Create Stems' }}
+                                {{ stemGenerationInProgress.has(choice.id) ? 'Generating...' : 'Generate Stems' }}
                             </button>
                             <button type="button"
-                                    *ngIf="choice.stemDownloadUrl"
-                                    (click)="onDownloadStems(choice.stemDownloadUrl)"
+                                    *ngIf="choice.stem_url"
+                                    (click)="onDownloadStems(choice.stem_url)"
                                     class="download-stems-btn">
                                 <i class="fas fa-download"></i> Download Stems
                             </button>

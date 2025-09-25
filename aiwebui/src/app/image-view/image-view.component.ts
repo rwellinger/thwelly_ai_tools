@@ -233,9 +233,6 @@ export class ImageViewComponent implements OnInit, AfterViewInit, OnDestroy {
         setTimeout(() => this.measureDimensions(), 100);
     }
 
-    clearSelection() {
-        this.selectedImage = null;
-    }
 
     nextPage() {
         if (this.pagination.has_more) {

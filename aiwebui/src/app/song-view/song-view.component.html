@@ -8,9 +8,6 @@
                     [disabled]="isLoading">
                 <i class="fas fa-refresh"></i> Refresh
             </button>
-            <button type="button" (click)="clearSelection()" [disabled]="!selectedSong && !isSelectionMode">
-                <i class="fas fa-times"></i> Clear Selection
-            </button>
             <button type="button" (click)="toggleSelectionMode()" [disabled]="isLoading"
                     [class.active]="isSelectionMode">
                 <i class="fas fa-check-square"></i> {{ isSelectionMode ? 'Exit Select' : 'Select Mode' }}
@@ -207,7 +204,6 @@
         (workflowChanged)="onWorkflowChanged($event)"
         (downloadFlac)="onDownloadFlac($event)"
         (playAudio)="onPlayAudio($event)"
-        (generateStem)="onGenerateStem($event)"
         (downloadStems)="onDownloadStems($event)"
         (copyLyrics)="onCopyLyrics()"
         (updateRating)="onUpdateRating($event)">
