@@ -17,12 +17,12 @@ from db.models import PromptTemplate
 TITLE_TEMPLATE = {
     "category": "titel",
     "action": "generate",
-    "pre_condition": "Generate a creative and catchy song title based on this input:",
-    "post_condition": "Only respond with the title, maximum 50 characters.",
+    "pre_condition": "Generate a short, creative, and catchy song title in the same language as the input text. The title should feel natural, memorable, and relevant to the given input: ",
+    "post_condition": " Respond only with the title, maximum 50 characters. Do not include any explanations, notes, or introductions.",
     "description": "Generates song titles from various inputs (title, lyrics, style, or default)",
     "version": "1.0",
-    "model": "llama3.2:3b",  # llama3.2:3b
-    "temperature": 1.2,
+    "model": "llama3.2:3b",
+    "temperature": 1.4,
     "max_tokens": 10
 }
 
