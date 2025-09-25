@@ -76,16 +76,18 @@ class SongChoice(Base):
     flac_url = Column(String(1000), nullable=True)
     video_url = Column(String(1000), nullable=True)  # Falls verfügbar
     image_url = Column(String(1000), nullable=True)  # Cover image
+    stem_url = Column(String(1000), nullable=True)  # Stems ZIP file URL
     
     # Metadata
     duration = Column(Float, nullable=True)  # Duration in milliseconds (as returned by MUREKA)
     title = Column(String(500), nullable=True)
     tags = Column(String(1000), nullable=True)  # Comma-separated
     rating = Column(Integer, nullable=True)  # User rating: NULL=not set, 0=thumbs down, 1=thumbs up
-    
+
     # Timestamps
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
+    stem_generated_at = Column(DateTime(timezone=True), nullable=True)  # When stems were generated
     
     # Relation back to song
     song = relationship("Song", back_populates="choices")

@@ -146,6 +146,8 @@ class SongController:
                     "flac_url": choice.flac_url,
                     "video_url": choice.video_url,
                     "image_url": choice.image_url,
+                    "stem_url": choice.stem_url,
+                    "stem_generated_at": choice.stem_generated_at.isoformat() if choice.stem_generated_at else None,
                     "duration": choice.duration,
                     "title": choice.title,
                     "tags": choice.tags,

@@ -311,8 +311,18 @@
 }
 
 /* ===== BUTTONS ===== */
-.edit-btn, .save-btn, .cancel-btn {
+.save-btn, .cancel-btn {
     @include inline-edit-controls();
+}
+
+.edit-btn {
+    @include button-primary('sm');
+    padding: $spacing-6 $spacing-10 !important;
+}
+
+.save-btn {
+    @include button-success('base');
+    padding: $spacing-sm $spacing-12 !important;
 }
 
 

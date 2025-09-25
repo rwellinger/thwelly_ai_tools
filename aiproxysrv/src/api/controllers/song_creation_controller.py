@@ -2,6 +2,7 @@
 import sys
 import requests
 import time
+from datetime import datetime
 from typing import Tuple, Dict, Any
 from config.settings import MUREKA_API_KEY, MUREKA_STATUS_ENDPOINT, MUREKA_STEM_GENERATE_ENDPOINT
 from celery_app import generate_song_task
@@ -97,6 +98,13 @@ class SongCreationController:
             response = requests.post(MUREKA_STEM_GENERATE_ENDPOINT, headers=headers, timeout=(10, 300), json=mureka_payload)
             response.raise_for_status()
             result = response.json()
+
+            # Save stem URL to database if generation was successful
+            if result and result.get('zip_url'):
+                choice.stem_url = result['zip_url']
+                choice.stem_generated_at = datetime.utcnow()
+                db.commit()
+                print(f"Saved stem URL to database for choice {choice_id}: {result['zip_url']}", file=sys.stderr)
 
             return {
                 "status": "SUCCESS",

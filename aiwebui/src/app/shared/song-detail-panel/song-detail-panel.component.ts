@@ -24,13 +24,13 @@ export class SongDetailPanelComponent implements OnInit, OnChanges {
     @Input() placeholderText: string = 'Select a song from the list to view details';
     @Input() placeholderIcon: string = 'fas fa-music';
     @Input() currentlyPlayingId: string | null = null;
+    @Input() isGenerating: boolean = false;
 
     // Component state
     isLoading = false;
     loadingError: string | null = null;
 
-    // Stem downloads tracking
-    private stemDownloadUrls = new Map<string, string>();
+    // Stem generation tracking
     public stemGenerationInProgress = new Set<string>();
 
     @Output() titleChanged = new EventEmitter<string>();
@@ -38,7 +38,6 @@ export class SongDetailPanelComponent implements OnInit, OnChanges {
     @Output() workflowChanged = new EventEmitter<string>();
     @Output() downloadFlac = new EventEmitter<string>();
     @Output() playAudio = new EventEmitter<{ url: string, id: string, choiceNumber: number }>();
-    @Output() generateStem = new EventEmitter<string>();
     @Output() downloadStems = new EventEmitter<string>();
     @Output() copyLyrics = new EventEmitter<void>();
     @Output() updateRating = new EventEmitter<{ choiceId: string, rating: number | null }>();
@@ -257,18 +256,11 @@ export class SongDetailPanelComponent implements OnInit, OnChanges {
             const data = await response.json();
 
             if (data.status === 'SUCCESS' && data.result && data.result.zip_url) {
-                // Find the choice by choiceId to get the mp3Url for mapping
-                const choice = this.song?.choices?.find((c: any) => c.id === choiceId);
-                if (choice?.mp3_url) {
-                    this.stemDownloadUrls.set(choice.mp3_url, data.result.zip_url);
-                    this.updateSongWithStems();
-                    this.notificationService.success('Stems generated successfully!');
-                }
+                await this.reloadSong();
             } else {
                 this.notificationService.error('Stem generation failed or incomplete.');
             }
 
-            this.generateStem.emit(choiceId);
 
         } catch (error: any) {
             this.notificationService.error(`Error generating stem: ${error.message}`);
@@ -281,26 +273,6 @@ export class SongDetailPanelComponent implements OnInit, OnChanges {
         return new Promise(resolve => setTimeout(resolve, ms));
     }
 
-    private updateSongWithStems() {
-        if (!this.song || !this.song.choices) return;
-
-        // Update choices with stem download URLs
-        this.song.choices = this.song.choices.map((choice: any) => ({
-            ...choice,
-            stemDownloadUrl: this.stemDownloadUrls.get(choice.mp3_url) || choice.stemDownloadUrl || null
-        }));
-    }
-
-    private initializeStemUrls() {
-        if (!this.song?.choices) return;
-
-        // Initialize stem download URLs from existing data
-        this.song.choices.forEach((choice: any) => {
-            if (choice.stemDownloadUrl && choice.mp3_url) {
-                this.stemDownloadUrls.set(choice.mp3_url, choice.stemDownloadUrl);
-            }
-        });
-    }
 
     onDownloadStems(url: string) {
         this.downloadStems.emit(url);
@@ -415,9 +387,6 @@ export class SongDetailPanelComponent implements OnInit, OnChanges {
                 this.song = response;
             }
             console.log('Song loaded in detail panel:', this.song);
-
-            // Initialize stem URLs from loaded song data
-            this.initializeStemUrls();
         } catch (error: any) {
             this.loadingError = `Failed to load song: ${error.message}`;
             this.notificationService.error(`Error loading song details: ${error.message}`);
