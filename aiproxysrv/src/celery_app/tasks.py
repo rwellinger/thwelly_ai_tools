@@ -9,7 +9,7 @@ from requests import HTTPError
 
 from .celery_config import celery_app
 from .slot_manager import wait_for_mureka_slot, release_mureka_slot
-from mureka.client import start_mureka_generation, wait_for_mureka_completion, start_mureka_instrumental_generation, wait_for_mureka_instrumental_completion
+from mureka import start_mureka_generation, wait_for_mureka_completion, start_mureka_instrumental_generation, wait_for_mureka_instrumental_completion
 from mureka.handlers import handle_http_error
 from db.song_service import song_service
 
