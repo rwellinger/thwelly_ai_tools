@@ -83,6 +83,36 @@ class ChatResponse(BaseResponse):
         }
 
 
+class UnifiedChatRequest(BaseModel):
+    """Schema for unified chat generation requests"""
+    pre_condition: str = Field("", description="Text before user input")
+    post_condition: str = Field("", description="Text after user input")
+    input_text: str = Field(..., min_length=1, max_length=2000, description="Input text for generation")
+    temperature: Optional[float] = Field(None, ge=0.0, le=2.0, description="Temperature for text generation (overrides template)")
+    max_tokens: Optional[int] = Field(None, gt=0, le=4000, description="Maximum tokens to generate (overrides template)")
+    model: Optional[str] = Field(None, description="AI model to use (overrides template)")
+
+    @validator('model')
+    def validate_model(cls, v):
+        if v is not None:
+            valid_models = ['llama3.2:3b', 'gpt-oss:20b', 'deepseek-r1:8b', 'gemma3:4b']
+            if v not in valid_models:
+                raise ValueError(f'model must be one of: {", ".join(valid_models)}')
+        return v
+
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "pre_condition": "You are a helpful AI assistant.",
+                "post_condition": "Keep your answer concise.",
+                "input_text": "Explain quantum computing",
+                "temperature": 0.7,
+                "max_tokens": 150,
+                "model": "llama3.2:3b"
+            }
+        }
+
+
 class ChatErrorResponse(BaseResponse):
     """Schema for chat error responses"""
     success: bool = Field(False, description="Request success status")

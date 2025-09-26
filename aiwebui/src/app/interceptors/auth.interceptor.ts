@@ -46,7 +46,10 @@ function isAuthEndpoint(url: string): boolean {
   const authEndpoints = [
     '/api/v1/user/login',
     '/api/v1/user/create',
-    '/api/v1/user/validate-token'
+    '/api/v1/user/validate-token',
+    '/aiproxysrv/api/v1/user/login',
+    '/aiproxysrv/api/v1/user/create',
+    '/aiproxysrv/api/v1/user/validate-token'
   ];
   return authEndpoints.some(endpoint => url.includes(endpoint));
 }

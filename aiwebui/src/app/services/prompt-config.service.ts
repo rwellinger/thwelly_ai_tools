@@ -8,7 +8,9 @@ export interface PromptTemplate {
   post_condition: string;
   description?: string;
   version?: string;
-  model_hint?: string;
+  model?: string;
+  temperature?: number;
+  max_tokens?: number;
 }
 
 export type PromptCategory = Record<string, PromptTemplate>;
@@ -22,6 +24,9 @@ interface PromptTemplateResponse extends PromptTemplate {
   active: boolean;
   created_at: string;
   updated_at?: string;
+  model?: string;
+  temperature?: number;
+  max_tokens?: number;
 }
 
 interface PromptTemplatesGroupedResponse {
@@ -35,7 +40,7 @@ export class PromptConfigService {
   private readonly apiUrl = `${environment.apiUrl}/api/v1/prompts`;
   private cachedTemplates: PromptTemplates | null = null;
   private lastCacheTime: number = 0;
-  private readonly cacheTimeout = 5 * 60 * 1000; // 5 minutes
+  private readonly cacheTimeout = 60 * 1000; // 60 seconds
 
   private http = inject(HttpClient);
 
@@ -56,7 +61,9 @@ export class PromptConfigService {
           post_condition: template.post_condition,
           description: template.description,
           version: template.version,
-          model_hint: template.model_hint
+          model: template.model,
+          temperature: template.temperature,
+          max_tokens: template.max_tokens
         };
       }
     }

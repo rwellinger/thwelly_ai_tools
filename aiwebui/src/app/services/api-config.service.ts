@@ -50,9 +50,7 @@ export class ApiConfigService {
             status: (taskId: string) => `${this.baseUrl}/api/v1/instrumental/task/status/${taskId}`
         },
         chat: {
-            generateLlama3Simple: `${this.baseUrl}/api/v1/ollama/chat/generate-llama3-simple`,
-            generateGptOssSimple: `${this.baseUrl}/api/v1/ollama/chat/generate-gpt-oss-simple`,
-            generateLyrics: `${this.baseUrl}/api/v1/ollama/chat/generate-lyrics`
+            generateUnified: `${this.baseUrl}/api/v1/ollama/chat/generate-unified`
         },
         prompt: {
             list: `${this.baseUrl}/api/v1/prompts`,
