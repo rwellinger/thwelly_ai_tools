@@ -1,7 +1,7 @@
 @import '../../../scss/variables';
 
 .modern-header {
-    background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     border-bottom: 1px solid #e9ecef;
     box-shadow: 0 2px 4px rgba(0,0,0,0.06);
     margin-bottom: 20px;
@@ -108,15 +108,15 @@
 }
 
 .group-items a:hover {
-    color: #3498db;
-    background-color: rgba(52, 152, 219, 0.1);
+    color: #e8d5ff;
+    background-color: rgba(232, 213, 255, 0.15);
     text-decoration: none;
     transform: translateY(-1px);
 }
 
 .group-items a.active {
-    color: #3498db;
-    background-color: rgba(52, 152, 219, 0.1);
+    color: #e8d5ff;
+    background-color: rgba(232, 213, 255, 0.15);
     font-weight: $font-weight-semibold;
 }
 
@@ -128,7 +128,7 @@
     transform: translateX(-50%);
     width: 4px;
     height: 4px;
-    background-color: #3498db;
+    background-color: #e8d5ff;
     border-radius: 50%;
 }
 
@@ -197,7 +197,7 @@
     font-weight: $font-weight-medium;
 
     i {
-        color: #3498db;
+        color: #e8d5ff;
         font-size: 16px;
     }
 
@@ -241,9 +241,9 @@
     display: flex;
     align-items: center;
     gap: 6px;
-    background: rgba(52, 152, 219, 0.1);
-    border: 1px solid rgba(52, 152, 219, 0.3);
-    color: #3498db;
+    background: rgba(232, 213, 255, 0.15);
+    border: 1px solid rgba(232, 213, 255, 0.3);
+    color: #e8d5ff;
     padding: 8px 12px;
     border-radius: 6px;
     text-decoration: none;
@@ -252,9 +252,9 @@
     transition: all 0.2s ease;
 
     &:hover {
-        background: rgba(52, 152, 219, 0.2);
-        border-color: rgba(52, 152, 219, 0.5);
-        color: #3498db;
+        background: rgba(232, 213, 255, 0.25);
+        border-color: rgba(232, 213, 255, 0.5);
+        color: #e8d5ff;
         text-decoration: none;
         transform: translateY(-1px);
     }
