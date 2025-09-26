@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { BehaviorSubject, Observable, throwError } from 'rxjs';
 import { map, catchError, tap } from 'rxjs/operators';
@@ -32,10 +32,10 @@ export class AuthService {
 
   public authState$ = this.authStateSubject.asObservable();
 
-  constructor(
-    private http: HttpClient,
-    private cookieService: CookieService
-  ) {
+  private http = inject(HttpClient);
+  private cookieService = inject(CookieService);
+
+  constructor() {
     this.initializeAuthState();
   }
 
