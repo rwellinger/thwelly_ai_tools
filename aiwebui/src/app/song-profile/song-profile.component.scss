@@ -1,6 +1,75 @@
 @import '../../scss/variables';
 @import '../../scss/mixins';
 
+/* ===== SONG PROFILE CONTAINER ===== */
+.song-profile-container {
+  // Default styles for standalone mode
+
+  &.embedded {
+    // Embedded mode overrides
+    .account-content {
+      margin: 0;
+      background: transparent;
+    }
+
+    .account-info-section {
+      border: none;
+      padding: 0;
+      box-shadow: none;
+      background: transparent;
+    }
+
+    .account-card {
+      margin: 0;
+    }
+
+    .embedded-actions {
+      display: flex;
+      justify-content: flex-end;
+      margin-top: 1rem;
+      padding-top: 1rem;
+      border-top: 1px solid #e9ecef;
+
+      .refresh-button-small {
+        @include button-primary('sm');
+        padding: 0.5rem 1rem;
+        font-size: 0.875rem;
+
+        i {
+          margin-right: 0.5rem;
+        }
+      }
+    }
+  }
+}
+
+/* ===== LOADING STATE ===== */
+.loading-state {
+  text-align: center;
+  padding: 3rem 0;
+  color: #6c757d;
+
+  i {
+    font-size: 2rem;
+    margin-bottom: 1rem;
+    animation: spin 1s linear infinite;
+  }
+
+  p {
+    margin: 0;
+    font-size: 1.1rem;
+  }
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 /* ===== CONTROLS CONTAINER LAYOUT ===== */
 .controls-container {
     display: flex;
@@ -58,6 +127,100 @@
 
 .account-info {
     margin-bottom: $spacing-xl;
+
+    .avatar-section {
+        display: flex;
+        align-items: center;
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+        padding-bottom: 1.5rem;
+        border-bottom: 1px solid #e9ecef;
+
+        .avatar {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 2.5rem;
+            flex-shrink: 0;
+        }
+
+        .account-details {
+            flex-grow: 1;
+
+            h3 {
+                margin: 0 0 0.5rem 0;
+                font-size: 1.5rem;
+                color: #333;
+            }
+
+            .account-id {
+                margin: 0 0 1rem 0;
+                color: #666;
+                font-size: 1rem;
+                font-family: monospace;
+            }
+
+            .badges {
+                display: flex;
+                gap: 0.75rem;
+
+                .badge {
+                    display: flex;
+                    align-items: center;
+                    gap: 0.25rem;
+                    padding: 0.25rem 0.75rem;
+                    border-radius: 20px;
+                    font-size: 0.8rem;
+                    font-weight: 500;
+                    background: #e9ecef;
+                    color: #6c757d;
+                }
+            }
+        }
+    }
+
+    .account-details-info {
+        margin-bottom: 2rem;
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid #f8f9fa;
+
+            &:last-child {
+                border-bottom: none;
+            }
+
+            .label {
+                display: flex;
+                align-items: center;
+                gap: 0.5rem;
+                font-weight: 500;
+                color: #495057;
+
+                i {
+                    width: 16px;
+                    color: #6c757d;
+                }
+            }
+
+            .value {
+                color: #333;
+                font-weight: 400;
+
+                &.balance-amount {
+                    font-weight: 700;
+                }
+            }
+        }
+    }
 }
 
 .account-card {
@@ -89,19 +252,39 @@
 }
 
 .status-active {
-    color: $success-color;
+    background: #d4edda;
+    color: #155724;
+
+    i {
+        color: #28a745;
+    }
 }
 
 .status-inactive {
-    color: $danger-color;
+    background: #f8d7da;
+    color: #721c24;
+
+    i {
+        color: #dc3545;
+    }
 }
 
 .status-pending {
-    color: $warning-color;
+    background: #fff3cd;
+    color: #856404;
+
+    i {
+        color: #ffc107;
+    }
 }
 
 .status-unknown {
-    color: $text-muted;
+    background: #e9ecef;
+    color: #6c757d;
+
+    i {
+        color: #6c757d;
+    }
 }
 
 /* ===== VALUE STYLING ===== */
@@ -129,20 +312,6 @@
     font-size: $font-base;
 }
 
-/* ===== TABLE OVERRIDES ===== */
-.result-table {
-    @include list-table-styling();
-
-    td:first-child {
-        font-weight: $font-weight-bold;
-        background-color: $background-light;
-        width: 30%;
-    }
-
-    td:last-child {
-        width: 70%;
-    }
-}
 
 /* ===== RESPONSIVE ===== */
 @media (max-width: 768px) {
@@ -168,46 +337,34 @@
         padding: $spacing-15;
     }
 
-    .result-table {
-        display: block;
-        overflow-x: auto;
-        white-space: nowrap;
+    .account-info {
+        .avatar-section {
+            flex-direction: column;
+            text-align: center;
+            gap: 1rem;
 
-        thead, tbody, th, td, tr {
-            display: block;
+            .account-details {
+                .badges {
+                    justify-content: center;
+                }
+            }
         }
 
-        thead tr {
-            position: absolute;
-            top: -9999px;
-            left: -9999px;
-        }
+        .account-details-info {
+            .info-row {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.5rem;
 
-        tr {
-            border: 1px solid $border-light;
-            margin-bottom: 10px;
-            padding: 10px;
-            border-radius: $border-radius-sm;
-        }
+                .label {
+                    font-weight: 600;
+                }
 
-        td {
-            border: none !important;
-            position: relative;
-            padding-left: 50% !important;
-            white-space: normal;
-            text-align: left;
-            width: auto !important;
-        }
-
-        td:before {
-            content: attr(data-label) ": ";
-            position: absolute;
-            left: 6px;
-            width: 45%;
-            padding-right: 10px;
-            white-space: nowrap;
-            font-weight: $font-weight-bold;
-            color: $text-primary;
+                .value {
+                    padding-left: 1.5rem;
+                    font-weight: 500;
+                }
+            }
         }
     }
 

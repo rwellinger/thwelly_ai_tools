@@ -132,6 +132,15 @@
     border-radius: 50%;
 }
 
+.group-items a.logout-link {
+    color: #e74c3c;
+
+    &:hover {
+        color: #c0392b;
+        background-color: rgba(231, 76, 60, 0.1);
+    }
+}
+
 /* External Links Styling */
 .external-link {
     display: flex;

@@ -18,9 +18,9 @@ export const routes: Routes = [
         loadComponent: () => import('./song-view/song-view.component').then(m => m.SongViewComponent)
     },
     {
-        path: 'songprof',
+        path: 'profile',
         canActivate: [AuthGuard],
-        loadComponent: () => import('./song-profile/song-profile.component').then(m => m.SongProfileComponent)
+        loadComponent: () => import('./components/user-profile/user-profile.component').then(m => m.UserProfileComponent)
     },
     {
         path: 'imagegen',

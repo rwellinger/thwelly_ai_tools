@@ -272,4 +272,15 @@ export class AuthService {
       error: null
     });
   }
+
+  /**
+   * Update user data in auth state
+   */
+  public updateUser(user: User): void {
+    const currentState = this.authStateSubject.value;
+    if (currentState.isAuthenticated && currentState.token) {
+      this.storeAuthData(currentState.token, user);
+      this.updateAuthState({ user });
+    }
+  }
 }

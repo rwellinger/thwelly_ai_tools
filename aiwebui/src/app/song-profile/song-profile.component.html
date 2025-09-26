@@ -1,78 +1,90 @@
-<app-header></app-header>
+<div class="song-profile-container" [class.embedded]="isEmbedded">
+  <div class="controls-container" *ngIf="!isEmbedded">
+      <!-- Account Actions -->
+      <div class="controls-section">
+          <h3>Profile Controls</h3>
+          <div class="controls-buttons">
+              <button type="button" (click)="loadBillingInfo()" [disabled]="isLoading" class="refresh-button">
+                  <i class="fas fa-refresh"></i> Refresh Account Info
+              </button>
+          </div>
+      </div>
+  </div>
 
-<div class="controls-container">
-    <!-- Account Actions -->
-    <div class="controls-section">
-        <h3>Profile Controls</h3>
-        <div class="controls-buttons">
-            <button type="button" (click)="loadBillingInfo()" [disabled]="isLoading" class="refresh-button">
-                <i class="fas fa-refresh"></i> Refresh Account Info
-            </button>
-        </div>
-    </div>
+  <div class="account-content">
+      <!-- Loading State -->
+      <div *ngIf="isLoading" class="loading-state">
+          <i class="fas fa-spinner fa-spin"></i>
+          <p>Account Information wird geladen...</p>
+      </div>
+
+      <!-- Account Information -->
+      <div class="account-info-section" *ngIf="!isLoading">
+          <div class="account-result-section">
+              <div *ngIf="billingInfo" class="account-info">
+                  <h2 *ngIf="!isEmbedded">Account Information</h2>
+
+                  <!-- Avatar Section -->
+                  <div class="avatar-section">
+                      <div class="avatar">
+                          <i class="fas fa-music"></i>
+                      </div>
+                      <div class="account-details">
+                          <h3>Mureka Account</h3>
+                          <p class="account-id">{{ billingInfo.account_info.account_id || 'N/A' }}</p>
+                      </div>
+                  </div>
+
+                  <!-- Account Information -->
+                  <div class="account-details-info">
+                      <div class="info-row">
+                          <span class="label">
+                              <i class="fas fa-wallet"></i>
+                              Current Balance:
+                          </span>
+                          <span class="value balance-amount">${{ formatCurrency(billingInfo.account_info.balance || 0) }}</span>
+                      </div>
+                      <div class="info-row">
+                          <span class="label">
+                              <i class="fas fa-credit-card"></i>
+                              Total Spending:
+                          </span>
+                          <span class="value spending-amount">${{ formatCurrency(billingInfo.account_info.total_spending || 0) }}</span>
+                      </div>
+                      <div class="info-row">
+                          <span class="label">
+                              <i class="fas fa-plus-circle"></i>
+                              Total Recharge:
+                          </span>
+                          <span class="value recharge-amount">${{ formatCurrency(billingInfo.account_info.total_recharge || 0) }}</span>
+                      </div>
+                      <div class="info-row">
+                          <span class="label">
+                              <i class="fas fa-layer-group"></i>
+                              Request Limit:
+                          </span>
+                          <span class="value account-value">{{ billingInfo.account_info.concurrent_request_limit || 'N/A' }} concurrent requests</span>
+                      </div>
+                  </div>
+
+                  <!-- Refresh Button for Embedded Mode -->
+                  <div class="embedded-actions" *ngIf="isEmbedded">
+                      <button type="button" (click)="loadBillingInfo()" [disabled]="isLoading" class="refresh-button-small">
+                          <i class="fas fa-refresh"></i> Refresh
+                      </button>
+                  </div>
+              </div>
+
+              <div *ngIf="!billingInfo" class="no-account">
+                  <div class="placeholder-content">
+                      <div class="placeholder-icon">
+                          <i class="fas fa-user-circle"></i>
+                      </div>
+                      <h3>No Account Information Available</h3>
+                      <p>Unable to load account information. Please try refreshing or check your connection.</p>
+                  </div>
+              </div>
+          </div>
+      </div>
+  </div>
 </div>
-
-<div class="account-content">
-    <!-- Account Information -->
-    <div class="account-info-section">
-        <div class="account-result-section">
-            <div *ngIf="!isLoading && billingInfo" class="account-info">
-                <h2>Account Information</h2>
-
-                <div class="account-card">
-                    <table class="result-table">
-                        <thead>
-                        <tr>
-                            <th>Property</th>
-                            <th>Value</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        <tr>
-                            <td data-label="Property"><strong>Account ID</strong></td>
-                            <td data-label="Account ID" class="account-value">{{ billingInfo.account_info.account_id || 'N/A' }}</td>
-                        </tr>
-                        <tr>
-                            <td data-label="Property"><strong>Current Balance</strong></td>
-                            <td data-label="Current Balance" class="balance-amount">${{ formatCurrency(billingInfo.account_info.balance || 0) }}</td>
-                        </tr>
-                        <tr>
-                            <td data-label="Property"><strong>Total Spending</strong></td>
-                            <td data-label="Total Spending" class="spending-amount">${{ formatCurrency(billingInfo.account_info.total_spending || 0) }}</td>
-                        </tr>
-                        <tr>
-                            <td data-label="Property"><strong>Total Recharge</strong></td>
-                            <td data-label="Total Recharge" class="recharge-amount">${{ formatCurrency(billingInfo.account_info.total_recharge || 0) }}</td>
-                        </tr>
-                        <tr>
-                            <td data-label="Property"><strong>Request Limit</strong></td>
-                            <td data-label="Request Limit" class="account-value">{{ billingInfo.account_info.concurrent_request_limit || 'N/A' }} concurrent requests</td>
-                        </tr>
-                        <tr>
-                            <td data-label="Property"><strong>Account Status</strong></td>
-                            <td data-label="Account Status">
-                                <span class="status-text" [ngClass]="getStatusClass(billingInfo.status)">
-                                    <i class="fas" [ngClass]="getStatusIcon(billingInfo.status)"></i>
-                                    {{ billingInfo.status || 'Unknown' }}
-                                </span>
-                            </td>
-                        </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-
-            <div *ngIf="!isLoading && !billingInfo" class="no-account">
-                <div class="placeholder-content">
-                    <div class="placeholder-icon">
-                        <i class="fas fa-user-circle"></i>
-                    </div>
-                    <h3>No Account Information Available</h3>
-                    <p>Unable to load account information. Please try refreshing or check your connection.</p>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<app-footer></app-footer>

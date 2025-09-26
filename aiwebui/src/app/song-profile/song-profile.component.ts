@@ -1,9 +1,7 @@
-import {Component, OnInit, inject} from '@angular/core';
+import {Component, OnInit, Input, inject} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {HttpClient} from '@angular/common/http';
 import {firstValueFrom} from 'rxjs';
-import {HeaderComponent} from '../shared/header/header.component';
-import {FooterComponent} from '../shared/footer/footer.component';
 import {ApiConfigService} from '../services/api-config.service';
 import {NotificationService} from '../services/notification.service';
 import {MatSnackBarModule} from '@angular/material/snack-bar';
@@ -11,11 +9,13 @@ import {MatSnackBarModule} from '@angular/material/snack-bar';
 @Component({
     selector: 'app-song-profile',
     standalone: true,
-    imports: [CommonModule, HeaderComponent, FooterComponent, MatSnackBarModule],
+    imports: [CommonModule, MatSnackBarModule],
     templateUrl: './song-profile.component.html',
     styleUrl: './song-profile.component.scss'
 })
 export class SongProfileComponent implements OnInit {
+    @Input() isEmbedded: boolean = false;
+
     isLoading = true;
     billingInfo: any = null;
 

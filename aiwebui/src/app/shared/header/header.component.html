@@ -32,7 +32,6 @@
                 <div class="group-items">
                     <a routerLink="/songgen" routerLinkActive="active">Create</a>
                     <a routerLink="/songview" routerLinkActive="active">Library</a>
-                    <a routerLink="/songprof" routerLinkActive="active">Profile</a>
                 </div>
             </div>
 
@@ -57,19 +56,18 @@
                     <a routerLink="/settings/prompt-templates" routerLinkActive="active">Prompt Template</a>
                 </div>
             </div>
-        </nav>
 
-        <!-- User Section -->
-        <div class="user-section" *ngIf="authState && authState.isAuthenticated">
-            <div class="user-info">
-                <i class="fas fa-user"></i>
-                <span class="user-name">{{ getFirstName() }}</span>
+            <div class="nav-group" *ngIf="authState && authState.isAuthenticated">
+                <span class="group-label">
+                    <i class="fas fa-user"></i>
+                    {{ getFirstName() }}
+                </span>
+                <div class="group-items">
+                    <a routerLink="/profile" routerLinkActive="active">Profile</a>
+                    <a href="javascript:void(0)" (click)="onLogout()" class="logout-link">Logout</a>
+                </div>
             </div>
-            <button class="logout-button" (click)="onLogout()" title="Logout">
-                <i class="fas fa-sign-out-alt"></i>
-                <span class="logout-text">Logout</span>
-            </button>
-        </div>
+        </nav>
 
         <!-- Login Button (when not authenticated) -->
         <div class="auth-section" *ngIf="authState && !authState.isAuthenticated">
