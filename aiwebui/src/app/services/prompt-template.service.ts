@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Observable, throwError, firstValueFrom } from 'rxjs';
-import { catchError, map } from 'rxjs/operators';
+import { catchError, map, tap } from 'rxjs/operators';
 import {
   PromptTemplate,
   PromptTemplateUpdate,
@@ -9,6 +9,7 @@ import {
   PromptCategoryResponse
 } from '../models/prompt-template.model';
 import { ApiConfigService } from './api-config.service';
+import { PromptConfigService } from './prompt-config.service';
 
 @Injectable({
   providedIn: 'root'
@@ -16,6 +17,7 @@ import { ApiConfigService } from './api-config.service';
 export class PromptTemplateService {
   private http = inject(HttpClient);
   private apiConfig = inject(ApiConfigService);
+  private promptConfig = inject(PromptConfigService);
 
   getAllTemplates(): Observable<PromptTemplate[]> {
     return this.http.get<PromptTemplatesResponse>(this.apiConfig.endpoints.prompt.list)
@@ -50,14 +52,35 @@ export class PromptTemplateService {
     return this.http.put<PromptTemplate>(
       this.apiConfig.endpoints.prompt.update(category, action),
       update
-    ).pipe(catchError(this.handleError));
+    ).pipe(
+      tap(() => {
+        // Auto-refresh PromptConfigService cache after successful template update
+        console.log(`Template ${category}/${action} updated, refreshing cache...`);
+        this.promptConfig.refreshCache().subscribe({
+          next: () => console.log('PromptConfigService cache refreshed successfully'),
+          error: (error) => console.error('Failed to refresh PromptConfigService cache:', error)
+        });
+      }),
+      catchError(this.handleError)
+    );
   }
 
   async updateTemplateAsync(category: string, action: string, update: PromptTemplateUpdate): Promise<PromptTemplate> {
-    return firstValueFrom(
+    const result = await firstValueFrom(
       this.http.put<PromptTemplate>(this.apiConfig.endpoints.prompt.update(category, action), update)
         .pipe(catchError(this.handleError))
     );
+
+    // Auto-refresh PromptConfigService cache after successful template update
+    console.log(`Template ${category}/${action} updated, refreshing cache...`);
+    try {
+      await firstValueFrom(this.promptConfig.refreshCache());
+      console.log('PromptConfigService cache refreshed successfully');
+    } catch (error) {
+      console.error('Failed to refresh PromptConfigService cache:', error);
+    }
+
+    return result;
   }
 
   private handleError(error: HttpErrorResponse): Observable<never> {
