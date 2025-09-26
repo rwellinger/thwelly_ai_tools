@@ -11,16 +11,17 @@ from datetime import datetime
 import jwt
 from datetime import datetime, timedelta
 import os
+from config.settings import JWT_SECRET_KEY, JWT_ALGORITHM, JWT_EXPIRATION_HOURS
 
 
 class UserService:
     """Service class for user management and authentication"""
 
     def __init__(self):
-        # JWT secret key - in production this should come from environment
-        self.jwt_secret = os.getenv("JWT_SECRET_KEY", "your-secret-key-change-in-production")
-        self.jwt_algorithm = "HS256"
-        self.jwt_expiration_hours = 24
+        # JWT configuration from settings
+        self.jwt_secret = JWT_SECRET_KEY
+        self.jwt_algorithm = JWT_ALGORITHM
+        self.jwt_expiration_hours = JWT_EXPIRATION_HOURS
 
     def hash_password(self, password: str) -> str:
         """Hash a password using bcrypt"""

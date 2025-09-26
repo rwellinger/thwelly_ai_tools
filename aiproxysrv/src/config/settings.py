@@ -70,6 +70,13 @@ OLLAMA_URL = os.getenv("OLLAMA_URL", "http://10.0.1.120:11434")
 OLLAMA_TIMEOUT = int(os.getenv("OLLAMA_TIMEOUT", "60"))
 
 # --------------------------------------------------
+# JWT Authentication Config
+# --------------------------------------------------
+JWT_SECRET_KEY = os.getenv("JWT_SECRET_KEY", "your-secret-key-change-in-production")
+JWT_ALGORITHM = "HS256"
+JWT_EXPIRATION_HOURS = 24
+
+# --------------------------------------------------
 # Database Config
 # --------------------------------------------------
 DATABASE_URL = os.getenv("DATABASE_URL",

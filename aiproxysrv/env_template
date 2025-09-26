@@ -1,8 +1,9 @@
 # ==================================================
-# CELERY CONFIGURATION
+# JWT AUTHENTICATION
 # ==================================================
-CELERY_BROKER_URL=redis://redis:6379
-CELERY_RESULT_BACKEND=redis://redis:6379
+# JWT Secret Key (IMPORTANT: Change in production! Use 32+ random characters)
+# Generate with: openssl rand -base64 32
+JWT_SECRET_KEY=
 
 # ==================================================
 # Image storage directory (defaults to "./images" in
@@ -15,6 +16,12 @@ IMAGE_BASE_URL=http://localhost:5050/api/v1/image
 # Control if physical files should be deleted when images are deleted (optional, defaults to true)
 # Only uncomment and set to false in special cases where you want to keep files but delete DB records
 # DELETE_PHYSICAL_FILES=false
+
+# ==================================================
+# CELERY CONFIGURATION
+# ==================================================
+CELERY_BROKER_URL=redis://redis:6379
+CELERY_RESULT_BACKEND=redis://redis:6379
 
 # ==================================================
 # MUREKA API CONFIGURATION
