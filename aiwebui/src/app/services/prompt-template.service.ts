@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
-import { Observable, throwError } from 'rxjs';
+import { Observable, throwError, firstValueFrom } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 import {
   PromptTemplate,
@@ -54,19 +54,10 @@ export class PromptTemplateService {
   }
 
   async updateTemplateAsync(category: string, action: string, update: PromptTemplateUpdate): Promise<PromptTemplate> {
-    const response = await fetch(this.apiConfig.endpoints.prompt.update(category, action), {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(update)
-    });
-
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-
-    return await response.json();
+    return firstValueFrom(
+      this.http.put<PromptTemplate>(this.apiConfig.endpoints.prompt.update(category, action), update)
+        .pipe(catchError(this.handleError))
+    );
   }
 
   private handleError(error: HttpErrorResponse): Observable<never> {

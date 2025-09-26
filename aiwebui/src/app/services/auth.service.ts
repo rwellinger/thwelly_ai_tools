@@ -81,7 +81,12 @@ export class AuthService {
    * Get current token
    */
   public getToken(): string | null {
-    return this.authStateSubject.value.token;
+    const token = this.authStateSubject.value.token;
+    console.log('🔍 AuthService - getToken() called, token available:', !!token);
+    if (token) {
+      console.log('🔍 AuthService - Token preview:', token.substring(0, 20) + '...');
+    }
+    return token;
   }
 
   /**
@@ -162,7 +167,7 @@ export class AuthService {
 
     return this.http.post<UserCreateResponse>(`${this.baseUrl}/api/v1/user/create`, userData)
       .pipe(
-        tap(response => {
+        tap(() => {
           this.updateAuthState({
             loading: false,
             error: null
@@ -257,22 +262,6 @@ export class AuthService {
   private clearAuthData(): void {
     this.cookieService.delete(this.tokenKey, '/');
     this.cookieService.delete(this.userKey, '/');
-  }
-
-  /**
-   * Get authorization headers
-   */
-  public getAuthHeaders(): HttpHeaders {
-    const token = this.getToken();
-    if (token) {
-      return new HttpHeaders({
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json'
-      });
-    }
-    return new HttpHeaders({
-      'Content-Type': 'application/json'
-    });
   }
 
   /**

@@ -1,6 +1,8 @@
 import {Component, OnInit, inject, HostListener} from '@angular/core';
 import {FormBuilder, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
 import {CommonModule} from '@angular/common';
+import {HttpClient} from '@angular/common/http';
+import {firstValueFrom} from 'rxjs';
 import {HeaderComponent} from '../shared/header/header.component';
 import {FooterComponent} from '../shared/footer/footer.component';
 import {ApiConfigService} from '../services/api-config.service';
@@ -31,6 +33,7 @@ export class ImageGeneratorComponent implements OnInit {
     generatedImageData: any = null;
 
     private fb = inject(FormBuilder);
+    private http = inject(HttpClient);
     private apiConfig = inject(ApiConfigService);
     private notificationService = inject(NotificationService);
     private imageService = inject(ImageService);
@@ -60,16 +63,12 @@ export class ImageGeneratorComponent implements OnInit {
 
             try {
                 const formValue = this.promptForm.value;
-                const response = await fetch(this.apiConfig.endpoints.image.generate, {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({
+                const data = await firstValueFrom(
+                    this.http.post<any>(this.apiConfig.endpoints.image.generate, {
                         prompt: formValue.prompt,
                         size: formValue.size
                     })
-                });
-
-                const data = await response.json();
+                );
 
                 if (data.url) {
                     this.generatedImageUrl = data.url;

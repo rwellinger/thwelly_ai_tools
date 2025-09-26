@@ -3,6 +3,7 @@ from flask import Blueprint, request, jsonify
 from sqlalchemy.orm import Session
 from db.database import get_db
 from api.controllers.prompt_controller import PromptController
+from api.auth_middleware import jwt_required
 from schemas.prompt_schemas import (
     PromptTemplateCreate,
     PromptTemplateUpdate
@@ -14,6 +15,7 @@ api_prompt_v1 = Blueprint("api_prompt_v1", __name__, url_prefix="/api/v1/prompts
 
 
 @api_prompt_v1.route("", methods=["GET"])
+@jwt_required
 def get_all_templates():
     """Get all prompt templates grouped by category and action"""
     db: Session = next(get_db())
@@ -25,6 +27,7 @@ def get_all_templates():
 
 
 @api_prompt_v1.route("/<category>", methods=["GET"])
+@jwt_required
 def get_category_templates(category: str):
     """Get all templates for a specific category"""
     db: Session = next(get_db())
@@ -36,6 +39,7 @@ def get_category_templates(category: str):
 
 
 @api_prompt_v1.route("/<category>/<action>", methods=["GET"])
+@jwt_required
 def get_specific_template(category: str, action: str):
     """Get a specific template by category and action"""
     db: Session = next(get_db())
@@ -47,6 +51,7 @@ def get_specific_template(category: str, action: str):
 
 
 @api_prompt_v1.route("/<category>/<action>", methods=["PUT"])
+@jwt_required
 def update_template(category: str, action: str):
     """Update an existing template"""
     try:
@@ -63,6 +68,7 @@ def update_template(category: str, action: str):
 
 
 @api_prompt_v1.route("", methods=["POST"])
+@jwt_required
 def create_template():
     """Create a new prompt template"""
     try:
@@ -79,6 +85,7 @@ def create_template():
 
 
 @api_prompt_v1.route("/<category>/<action>", methods=["DELETE"])
+@jwt_required
 def delete_template(category: str, action: str):
     """Soft delete a template (set active=False)"""
     db: Session = next(get_db())

@@ -4,6 +4,7 @@ Song Generation Routes mit MUREKA + Pydantic validation
 from flask import Blueprint, request, jsonify
 from flask_pydantic import validate
 from api.controllers.song_controller import SongController
+from api.auth_middleware import jwt_required
 from schemas.song_schemas import (
     SongGenerateRequest, SongGenerateResponse,
     StemGenerateRequest, StemGenerateResponse,
@@ -24,6 +25,7 @@ def celery_health():
 
 
 @api_song_v1.route("/mureka-account", methods=["GET"])
+@jwt_required
 def mureka_account():
     """Abfrage der MUREKA Account-Informationen"""
     response_data, status_code = song_controller.get_mureka_account()
@@ -31,6 +33,7 @@ def mureka_account():
 
 
 @api_song_v1.route("/generate", methods=["POST"])
+@jwt_required
 @validate()
 def song_generate(body: SongGenerateRequest):
     """Startet Song-Generierung"""
@@ -50,6 +53,7 @@ def song_generate(body: SongGenerateRequest):
 
 
 @api_song_v1.route("/stem/generate", methods=["POST"])
+@jwt_required
 @validate()
 def stems_generator(body: StemGenerateRequest):
     """Erstelle stems anhand einer MP3"""
@@ -65,6 +69,7 @@ def stems_generator(body: StemGenerateRequest):
 
 
 @api_song_v1.route("/query/<job_id>", methods=["GET"])
+@jwt_required
 def song_info(job_id):
     """Get Song structure direct from MUREKA again who was generated successfully"""
     response_data, status_code = song_controller.get_song_info(job_id)
@@ -73,6 +78,7 @@ def song_info(job_id):
 
 
 @api_song_v1.route("/force-complete/<job_id>", methods=["POST"])
+@jwt_required
 def force_complete_task(job_id):
     """Erzwingt Completion eines Tasks"""
     response_data, status_code = song_controller.force_complete_task(job_id)
@@ -81,6 +87,7 @@ def force_complete_task(job_id):
 
 
 @api_song_v1.route("/list", methods=["GET"])
+@jwt_required
 def list_songs():
     """Get list of songs with pagination, search and sorting"""
     # Parse query parameters
@@ -126,6 +133,7 @@ def list_songs():
 
 
 @api_song_v1.route("/id/<song_id>", methods=["GET"])
+@jwt_required
 def get_song(song_id):
     """Get single song by ID with all choices"""
     response_data, status_code = song_controller.get_song_by_id(song_id)
@@ -134,6 +142,7 @@ def get_song(song_id):
 
 
 @api_song_v1.route("/id/<song_id>", methods=["PUT"])
+@jwt_required
 def update_song(song_id):
     """Update song by ID"""
     payload = request.get_json(force=True)
@@ -147,6 +156,7 @@ def update_song(song_id):
 
 
 @api_song_v1.route("/id/<song_id>", methods=["DELETE"])
+@jwt_required
 def delete_song(song_id):
     """Delete song by ID including all choices"""
     response_data, status_code = song_controller.delete_song(song_id)
@@ -155,6 +165,7 @@ def delete_song(song_id):
 
 
 @api_song_v1.route("/bulk-delete", methods=["DELETE"])
+@jwt_required
 def bulk_delete_songs():
     """Delete multiple songs by IDs"""
     payload = request.get_json(force=True)
@@ -173,6 +184,7 @@ def bulk_delete_songs():
 
 
 @api_song_v1.route("/choice/<choice_id>/rating", methods=["PUT"])
+@jwt_required
 def update_choice_rating(choice_id):
     """Update rating for a specific song choice"""
     payload = request.get_json(force=True)
@@ -188,6 +200,7 @@ def update_choice_rating(choice_id):
 api_song_task_v1 = Blueprint("api_song_task_v1", __name__, url_prefix="/api/v1/song/task")
 
 @api_song_task_v1.route("/status/<task_id>", methods=["GET"])
+@jwt_required
 def song_status(task_id):
     """Überprüft Status einer Song-Generierung"""
     response_data, status_code = song_controller.get_song_status(task_id)
@@ -196,6 +209,7 @@ def song_status(task_id):
 
 
 @api_song_task_v1.route("/cancel/<task_id>", methods=["POST"])
+@jwt_required
 def cancel_task(task_id):
     """Cancelt einen Task"""
     response_data, status_code = song_controller.cancel_task(task_id)
@@ -204,6 +218,7 @@ def cancel_task(task_id):
 
 
 @api_song_task_v1.route("/delete/<task_id>", methods=["DELETE"])
+@jwt_required
 def delete_task_result(task_id):
     """Löscht Task-Ergebnis"""
     response_data, status_code = song_controller.delete_task_result(task_id)
@@ -212,6 +227,7 @@ def delete_task_result(task_id):
 
 
 @api_song_task_v1.route("/queue-status", methods=["GET"])
+@jwt_required
 def queue_status():
     """Gibt Queue-Status zurück"""
     response_data, status_code = song_controller.get_queue_status()

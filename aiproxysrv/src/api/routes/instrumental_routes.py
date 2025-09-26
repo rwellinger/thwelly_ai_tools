@@ -4,6 +4,7 @@ Instrumental Generation Routes mit MUREKA + Pydantic validation
 from flask import Blueprint, request, jsonify
 from flask_pydantic import validate
 from api.controllers.song_controller import SongController
+from api.auth_middleware import jwt_required
 from schemas.song_schemas import (
     InstrumentalGenerateRequest, InstrumentalGenerateResponse,
     SongHealthResponse
@@ -16,6 +17,7 @@ api_instrumental_v1 = Blueprint("api_instrumental_v1", __name__, url_prefix="/ap
 song_controller = SongController()
 
 @api_instrumental_v1.route("/generate", methods=["POST"])
+@jwt_required
 @validate()
 def instrumental_generate(body: InstrumentalGenerateRequest):
     """Startet Instrumental-Generierung"""
@@ -45,6 +47,7 @@ def celery_health():
 
 
 @api_instrumental_v1.route("/mureka-account", methods=["GET"])
+@jwt_required
 def mureka_account():
     """Abfrage der MUREKA Account-Informationen"""
     response_data, status_code = song_controller.get_mureka_account()
