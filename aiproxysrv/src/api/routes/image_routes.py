@@ -29,8 +29,7 @@ def generate(body: ImageGenerateRequest):
     try:
         response_data, status_code = image_controller.generate_image(
             prompt=body.prompt,
-            size=body.size,
-            host_url=request.host_url
+            size=body.size
         )
         return jsonify(response_data), status_code
     except Exception as e:

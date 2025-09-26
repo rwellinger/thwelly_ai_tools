@@ -4,7 +4,7 @@ import hashlib
 import time
 from pathlib import Path
 from typing import Dict, Any, List, Tuple, Optional
-from config.settings import OPENAI_MODEL, IMAGES_DIR, DELETE_PHYSICAL_FILES
+from config.settings import OPENAI_MODEL, IMAGES_DIR, DELETE_PHYSICAL_FILES, IMAGE_BASE_URL
 from db.image_service import ImageService
 from .file_management_service import FileManagementService
 
@@ -24,14 +24,13 @@ class ImageBusinessService:
         self.images_dir.mkdir(parents=True, exist_ok=True)
         self.file_service = FileManagementService()
 
-    def generate_image(self, prompt: str, size: str, host_url: str) -> Dict[str, Any]:
+    def generate_image(self, prompt: str, size: str) -> Dict[str, Any]:
         """
         Generate image with validation and business logic
 
         Args:
             prompt: Image generation prompt
             size: Image size specification
-            host_url: Host URL for building response URLs
 
         Returns:
             Dict containing image URL and metadata
@@ -53,7 +52,7 @@ class ImageBusinessService:
             filename, file_path = self._process_and_save_image(image_url, prompt)
 
             # Build local URL
-            local_url = f"{host_url}/api/v1/image/{filename}"
+            local_url = f"{IMAGE_BASE_URL}/{filename}"
 
             # Save metadata to database
             self._save_image_metadata(prompt, size, filename, file_path, local_url)

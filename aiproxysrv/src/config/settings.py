@@ -39,6 +39,11 @@ OPENAI_URL = os.getenv("OPENAI_URL")
 OPENAI_MODEL = os.getenv("OPENAI_MODEL")
 
 # --------------------------------------------------
+# Image URL Config
+# --------------------------------------------------
+IMAGE_BASE_URL = os.getenv("IMAGE_BASE_URL", "http://localhost:8000/api/v1/image")
+
+# --------------------------------------------------
 # Flask Server Config
 # --------------------------------------------------
 FLASK_SERVER_PORT = int(os.getenv("FLASK_SERVER_PORT", "5050"))

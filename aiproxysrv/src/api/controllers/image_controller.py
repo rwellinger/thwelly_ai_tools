@@ -12,14 +12,13 @@ class ImageController:
     def __init__(self):
         self.business_service = ImageBusinessService()
 
-    def generate_image(self, prompt: str, size: str, host_url: str) -> Tuple[Dict[str, Any], int]:
+    def generate_image(self, prompt: str, size: str) -> Tuple[Dict[str, Any], int]:
         """
         Generate image via business service
 
         Args:
             prompt: Image generation prompt
             size: Image size specification
-            host_url: Host URL for building response URLs
 
         Returns:
             Tuple of (response_data, status_code)
@@ -29,7 +28,7 @@ class ImageController:
             return {"error": "Missing prompt or size"}, 400
 
         try:
-            result = self.business_service.generate_image(prompt, size, host_url)
+            result = self.business_service.generate_image(prompt, size)
             return result, 200
 
         except ImageGenerationError as e:
