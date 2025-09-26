@@ -1,14 +1,9 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { ApiConfigService } from './api-config.service';
+import { timeout, catchError, firstValueFrom } from 'rxjs';
+import { throwError } from 'rxjs';
 
-interface FetchOptions {
-  timeout?: number;
-  method?: string;
-  headers?: Record<string, string>;
-  body?: string;
-  signal?: AbortSignal;
-}
 
 interface SongFormData extends Record<string, unknown> {
   lyrics?: string;
@@ -73,20 +68,24 @@ export class SongService {
   private http = inject(HttpClient);
   private apiConfig = inject(ApiConfigService);
 
-  async fetchWithTimeout(resource: string, options: FetchOptions = {}): Promise<Response> {
-    const { timeout = 30000 } = options;
-    const controller = new AbortController();
-    const id = setTimeout(() => controller.abort(), timeout);
-    
-    try {
-      const response = await fetch(resource, { ...options, signal: controller.signal });
-      clearTimeout(id);
-      return response;
-    } catch (e: unknown) {
-      clearTimeout(id);
-      if (e instanceof Error && e.name === 'AbortError') throw new Error('Request timed out');
-      throw e;
-    }
+  private async httpWithTimeout<T>(method: 'GET' | 'POST' | 'PUT', url: string, body?: any, timeoutMs: number = 30000): Promise<T> {
+    const request$ = method === 'GET'
+      ? this.http.get<T>(url)
+      : method === 'POST'
+        ? this.http.post<T>(url, body)
+        : this.http.put<T>(url, body);
+
+    return firstValueFrom(
+      request$.pipe(
+        timeout(timeoutMs),
+        catchError((error: any) => {
+          if (error.name === 'TimeoutError') {
+            return throwError(() => new Error('Request timed out'));
+          }
+          return throwError(() => error);
+        })
+      )
+    );
   }
 
   loadFormData(): SongFormData {
@@ -106,38 +105,23 @@ export class SongService {
     const body: any = { lyrics, model, prompt };
     if (title) body.title = title;
 
-    const response = await this.fetchWithTimeout(this.apiConfig.endpoints.song.generate, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(body),
-      timeout: 60000
-    });
-    return response.json();
+    return this.httpWithTimeout<SongGenerateResponse>('POST', this.apiConfig.endpoints.song.generate, body, 60000);
   }
 
   async generateInstrumental(title: string, prompt: string, model: string): Promise<SongGenerateResponse> {
-    const response = await this.fetchWithTimeout(this.apiConfig.endpoints.instrumental.generate, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ title, model, prompt }),
-      timeout: 60000
-    });
-    return response.json();
+    return this.httpWithTimeout<SongGenerateResponse>('POST', this.apiConfig.endpoints.instrumental.generate, { title, model, prompt }, 60000);
   }
 
   async checkSongStatus(taskId: string): Promise<SongStatusResponse> {
-    const response = await this.fetchWithTimeout(this.apiConfig.endpoints.song.status(taskId), { timeout: 60000 });
-    return response.json();
+    return this.httpWithTimeout<SongStatusResponse>('GET', this.apiConfig.endpoints.song.status(taskId), undefined, 60000);
   }
 
   async checkInstrumentalStatus(taskId: string): Promise<SongStatusResponse> {
-    const response = await this.fetchWithTimeout(this.apiConfig.endpoints.instrumental.status(taskId), { timeout: 60000 });
-    return response.json();
+    return this.httpWithTimeout<SongStatusResponse>('GET', this.apiConfig.endpoints.instrumental.status(taskId), undefined, 60000);
   }
 
   async getTasks(): Promise<TasksResponse> {
-    const response = await this.fetchWithTimeout(this.apiConfig.endpoints.song.tasks, { timeout: 30000 });
-    return response.json();
+    return this.httpWithTimeout<TasksResponse>('GET', this.apiConfig.endpoints.song.tasks, undefined, 30000);
   }
 
   async getSongs(limit: number = 20, offset: number = 0, status?: string, search: string = '',
@@ -159,31 +143,14 @@ export class SongService {
       url.searchParams.set('workflow', workflow);
     }
 
-    const response = await this.fetchWithTimeout(
-      url.toString(),
-      { timeout: 30000 }
-    );
-    return response.json();
+    return this.httpWithTimeout<SongsResponse>('GET', url.toString(), undefined, 30000);
   }
 
   async getSongById(songId: string): Promise<SongDetailResponse> {
-    const response = await this.fetchWithTimeout(
-      this.apiConfig.endpoints.song.detail(songId),
-      { timeout: 30000 }
-    );
-    return response.json();
+    return this.httpWithTimeout<SongDetailResponse>('GET', this.apiConfig.endpoints.song.detail(songId), undefined, 30000);
   }
 
   async updateChoiceRating(choiceId: string, rating: number | null): Promise<any> {
-    const response = await this.fetchWithTimeout(
-      this.apiConfig.endpoints.song.updateChoiceRating(choiceId),
-      {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ rating }),
-        timeout: 30000
-      }
-    );
-    return response.json();
+    return this.httpWithTimeout<any>('PUT', this.apiConfig.endpoints.song.updateChoiceRating(choiceId), { rating }, 30000);
   }
 }

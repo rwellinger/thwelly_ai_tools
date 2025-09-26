@@ -1,7 +1,8 @@
 import {Component, OnInit, ViewEncapsulation, ViewChild, ElementRef, OnDestroy, inject} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {FormsModule} from '@angular/forms';
-import {Subject, debounceTime, distinctUntilChanged, takeUntil} from 'rxjs';
+import {Subject, debounceTime, distinctUntilChanged, takeUntil, firstValueFrom} from 'rxjs';
+import {HttpClient} from '@angular/common/http';
 import {SongService} from '../services/song.service';
 import {HeaderComponent} from '../shared/header/header.component';
 import {FooterComponent} from '../shared/footer/footer.component';
@@ -95,6 +96,7 @@ export class SongViewComponent implements OnInit, OnDestroy {
   private songService = inject(SongService);
   private apiConfig = inject(ApiConfigService);
   private notificationService = inject(NotificationService);
+  private http = inject(HttpClient);
 
   constructor() {
     // Setup search debouncing
@@ -280,21 +282,11 @@ export class SongViewComponent implements OnInit, OnDestroy {
 
     this.isLoading = true;
     try {
-      const response = await fetch(this.apiConfig.endpoints.song.update(this.selectedSong.id), {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
+      const updatedSong = await firstValueFrom(
+        this.http.put<any>(this.apiConfig.endpoints.song.update(this.selectedSong.id), {
           title: this.editTitleValue.trim()
         })
-      });
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      const updatedSong = await response.json();
+      );
 
       // Update selected song with new data (ensure all fields are preserved)
       this.selectedSong = {
@@ -447,21 +439,13 @@ export class SongViewComponent implements OnInit, OnDestroy {
 
     this.isLoading = true;
     try {
-      const response = await fetch(this.apiConfig.endpoints.song.bulkDelete, {
-        method: 'DELETE',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          ids: Array.from(this.selectedSongIds)
+      const result = await firstValueFrom(
+        this.http.delete<any>(this.apiConfig.endpoints.song.bulkDelete, {
+          body: {
+            ids: Array.from(this.selectedSongIds)
+          }
         })
-      });
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      const result = await response.json();
+      );
 
       // Show detailed result notification
       if (result.summary) {
@@ -722,21 +706,11 @@ export class SongViewComponent implements OnInit, OnDestroy {
       // Convert selectedTags set to comma-separated string
       const tagsString = Array.from(this.selectedTags).join(', ');
 
-      const response = await fetch(this.apiConfig.endpoints.song.update(this.selectedSong.id), {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
+      const updatedSong = await firstValueFrom(
+        this.http.put<any>(this.apiConfig.endpoints.song.update(this.selectedSong.id), {
           tags: tagsString
         })
-      });
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      const updatedSong = await response.json();
+      );
 
       // Update selected song with new data
       this.selectedSong = {
@@ -789,21 +763,11 @@ export class SongViewComponent implements OnInit, OnDestroy {
 
     this.isLoading = true;
     try {
-      const response = await fetch(this.apiConfig.endpoints.song.update(this.selectedSong.id), {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
+      const updatedSong = await firstValueFrom(
+        this.http.put<any>(this.apiConfig.endpoints.song.update(this.selectedSong.id), {
           workflow: newWorkflow
         })
-      });
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      const updatedSong = await response.json();
+      );
 
       // Update selected song with new data
       this.selectedSong = {

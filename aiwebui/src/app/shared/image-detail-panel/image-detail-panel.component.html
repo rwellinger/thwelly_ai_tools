@@ -60,7 +60,7 @@
             <div class="image-with-actions">
                 <div class="image-display">
                     <div class="responsive-image-container" [ngClass]="getImageSizeClass()">
-                        <img [src]="image.url"
+                        <img [src]="imageBlobUrl"
                              [alt]="image.prompt || 'Generated Picture'"
                              (error)="onImageError($event)"
                              loading="lazy"

@@ -1,4 +1,5 @@
 import { Injectable, inject } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
 import { ApiConfigService } from './api-config.service';
 import { PromptConfigService } from './prompt-config.service';
 import { firstValueFrom } from 'rxjs';
@@ -21,6 +22,7 @@ export interface ChatResponse {
   providedIn: 'root'
 })
 export class ChatService {
+  private http = inject(HttpClient);
   private apiConfig = inject(ApiConfigService);
   private promptConfig = inject(PromptConfigService);
 
@@ -30,21 +32,13 @@ export class ChatService {
       throw new Error('Image enhance template not found');
     }
 
-    const response = await fetch(this.apiConfig.endpoints.chat.generateLlama3Simple, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
+    const data: ChatResponse = await firstValueFrom(
+      this.http.post<ChatResponse>(this.apiConfig.endpoints.chat.generateLlama3Simple, {
         pre_condition: template.pre_condition,
         prompt: prompt,
         post_condition: template.post_condition
       })
-    });
-
-    if (!response.ok) {
-      throw new Error(`Chat API error: ${response.status}`);
-    }
-
-    const data: ChatResponse = await response.json();
+    );
     return data.response;
   }
 
@@ -54,38 +48,22 @@ export class ChatService {
       throw new Error('Music enhance template not found');
     }
 
-    const response = await fetch(this.apiConfig.endpoints.chat.generateLlama3Simple, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
+    const data: ChatResponse = await firstValueFrom(
+      this.http.post<ChatResponse>(this.apiConfig.endpoints.chat.generateLlama3Simple, {
         pre_condition: template.pre_condition,
         prompt: prompt,
         post_condition: template.post_condition
       })
-    });
-
-    if (!response.ok) {
-      throw new Error(`Chat API error: ${response.status}`);
-    }
-
-    const data: ChatResponse = await response.json();
+    );
     return data.response;
   }
 
   async generateLyrics(inputText: string): Promise<string> {
-    const response = await fetch(this.apiConfig.endpoints.chat.generateLyrics, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
+    const data: ChatResponse = await firstValueFrom(
+      this.http.post<ChatResponse>(this.apiConfig.endpoints.chat.generateLyrics, {
         input_text: inputText
       })
-    });
-
-    if (!response.ok) {
-      throw new Error(`Chat API error: ${response.status}`);
-    }
-
-    const data: ChatResponse = await response.json();
+    );
     return data.response;
   }
 
@@ -95,21 +73,13 @@ export class ChatService {
       throw new Error('Lyrics translate template not found');
     }
 
-    const response = await fetch(this.apiConfig.endpoints.chat.generateGptOssSimple, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
+    const data: ChatResponse = await firstValueFrom(
+      this.http.post<ChatResponse>(this.apiConfig.endpoints.chat.generateGptOssSimple, {
         pre_condition: template.pre_condition,
         prompt: prompt,
         post_condition: template.post_condition
       })
-    });
-
-    if (!response.ok) {
-      throw new Error(`Chat API error: ${response.status}`);
-    }
-
-    const data: ChatResponse = await response.json();
+    );
     return data.response;
   }
 
@@ -119,21 +89,13 @@ export class ChatService {
       throw new Error('Music translate template not found');
     }
 
-    const response = await fetch(this.apiConfig.endpoints.chat.generateGptOssSimple, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
+    const data: ChatResponse = await firstValueFrom(
+      this.http.post<ChatResponse>(this.apiConfig.endpoints.chat.generateGptOssSimple, {
         pre_condition: template.pre_condition,
         prompt: prompt,
         post_condition: template.post_condition
       })
-    });
-
-    if (!response.ok) {
-      throw new Error(`Chat API error: ${response.status}`);
-    }
-
-    const data: ChatResponse = await response.json();
+    );
     return data.response;
   }
 
@@ -143,21 +105,13 @@ export class ChatService {
       throw new Error('Image translate template not found');
     }
 
-    const response = await fetch(this.apiConfig.endpoints.chat.generateGptOssSimple, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
+    const data: ChatResponse = await firstValueFrom(
+      this.http.post<ChatResponse>(this.apiConfig.endpoints.chat.generateGptOssSimple, {
         pre_condition: template.pre_condition,
         prompt: prompt,
         post_condition: template.post_condition
       })
-    });
-
-    if (!response.ok) {
-      throw new Error(`Chat API error: ${response.status}`);
-    }
-
-    const data: ChatResponse = await response.json();
+    );
     return data.response;
   }
 
@@ -167,21 +121,13 @@ export class ChatService {
       throw new Error('Title generate template not found');
     }
 
-    const response = await fetch(this.apiConfig.endpoints.chat.generateLlama3Simple, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
+    const data: ChatResponse = await firstValueFrom(
+      this.http.post<ChatResponse>(this.apiConfig.endpoints.chat.generateLlama3Simple, {
         pre_condition: template.pre_condition,
         prompt: inputText,
         post_condition: template.post_condition
       })
-    });
-
-    if (!response.ok) {
-      throw new Error(`Chat API error: ${response.status}`);
-    }
-
-    const data: ChatResponse = await response.json();
+    );
     return data.response;
   }
 }

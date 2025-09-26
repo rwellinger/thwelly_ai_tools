@@ -10,6 +10,8 @@ import {
 } from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {FormsModule} from '@angular/forms';
+import {HttpClient} from '@angular/common/http';
+import {ImageBlobService} from '../services/image-blob.service';
 import {HeaderComponent} from '../shared/header/header.component';
 import {FooterComponent} from '../shared/footer/footer.component';
 import {ApiConfigService} from '../services/api-config.service';
@@ -17,7 +19,7 @@ import {NotificationService} from '../services/notification.service';
 import {MatSnackBarModule} from '@angular/material/snack-bar';
 import {DisplayNamePipe} from '../pipes/display-name.pipe';
 import {ImageDetailPanelComponent} from '../shared/image-detail-panel/image-detail-panel.component';
-import {Subject, debounceTime, distinctUntilChanged, takeUntil} from 'rxjs';
+import {Subject, debounceTime, distinctUntilChanged, takeUntil, firstValueFrom} from 'rxjs';
 
 interface ImageData {
     id: string;
@@ -51,6 +53,7 @@ interface PaginationInfo {
 export class ImageViewComponent implements OnInit, AfterViewInit, OnDestroy {
     images: ImageData[] = [];
     selectedImage: ImageData | null = null;
+    selectedImageBlobUrl: string = '';
     isLoading = false;
     loadingMessage = '';
     currentPage = 0;
@@ -95,6 +98,8 @@ export class ImageViewComponent implements OnInit, AfterViewInit, OnDestroy {
     @ViewChild('titleInput') titleInput!: ElementRef;
     @ViewChild('searchInput') searchInput!: ElementRef;
 
+    private http = inject(HttpClient);
+    private imageBlobService = inject(ImageBlobService);
     private apiConfig = inject(ApiConfigService);
     private notificationService = inject(NotificationService);
 
@@ -181,12 +186,9 @@ export class ImageViewComponent implements OnInit, AfterViewInit, OnDestroy {
 
             const url = `${this.apiConfig.endpoints.image.list(this.pageSize, offset).split('?')[0]}?${params.toString()}`;
 
-            const response = await fetch(url);
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-
-            const data = await response.json();
+            const data = await firstValueFrom(
+                this.http.get<any>(url)
+            );
 
             if (data.images && Array.isArray(data.images)) {
                 this.images = data.images;
@@ -214,16 +216,28 @@ export class ImageViewComponent implements OnInit, AfterViewInit, OnDestroy {
 
         try {
             const url = this.apiConfig.endpoints.image.detail(image.id);
-            const response = await fetch(url);
-
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-            this.selectedImage = await response.json();
+            this.selectedImage = await firstValueFrom(
+                this.http.get<any>(url)
+            );
         } catch (error: any) {
             this.selectedImage = image;
         } finally {
             this.isLoading = false;
+        }
+
+        // Load blob URL for secure image display
+        if (this.selectedImage?.url) {
+            this.imageBlobService.getImageBlobUrl(this.selectedImage.url).subscribe({
+                next: (blobUrl) => {
+                    this.selectedImageBlobUrl = blobUrl;
+                },
+                error: (error) => {
+                    console.error('Failed to load image blob:', error);
+                    this.selectedImageBlobUrl = '';
+                }
+            });
+        } else {
+            this.selectedImageBlobUrl = '';
         }
     }
 
@@ -409,21 +423,13 @@ export class ImageViewComponent implements OnInit, AfterViewInit, OnDestroy {
 
         this.isLoading = true;
         try {
-            const response = await fetch(this.apiConfig.endpoints.image.bulkDelete, {
-                method: 'DELETE',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    ids: Array.from(this.selectedImageIds)
+            const result = await firstValueFrom(
+                this.http.delete<any>(this.apiConfig.endpoints.image.bulkDelete, {
+                    body: {
+                        ids: Array.from(this.selectedImageIds)
+                    }
                 })
-            });
-
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-
-            const result = await response.json();
+            );
 
             // Show detailed result notification
             if (result.summary) {
@@ -491,21 +497,11 @@ export class ImageViewComponent implements OnInit, AfterViewInit, OnDestroy {
 
         this.isLoading = true;
         try {
-            const response = await fetch(this.apiConfig.endpoints.image.update(this.selectedImage.id), {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
+            const updatedImage = await firstValueFrom(
+                this.http.put<any>(this.apiConfig.endpoints.image.update(this.selectedImage.id), {
                     title: this.editTitleValue.trim()
                 })
-            });
-
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-
-            const updatedImage = await response.json();
+            );
 
             // Update selected image with new data (ensure all fields are preserved)
             this.selectedImage = {
@@ -542,21 +538,11 @@ export class ImageViewComponent implements OnInit, AfterViewInit, OnDestroy {
 
         this.isLoading = true;
         try {
-            const response = await fetch(this.apiConfig.endpoints.image.update(this.selectedImage.id), {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
+            const updatedImage = await firstValueFrom(
+                this.http.put<any>(this.apiConfig.endpoints.image.update(this.selectedImage.id), {
                     title: newTitle.trim()
                 })
-            });
-
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-
-            const updatedImage = await response.json();
+            );
 
             // Update selected image with new data
             this.selectedImage = {

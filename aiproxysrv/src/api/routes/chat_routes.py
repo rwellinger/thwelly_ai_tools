@@ -8,6 +8,7 @@ from flask import Blueprint, request, jsonify
 from flask_pydantic import validate
 from sqlalchemy.orm import Session
 from api.controllers.chat_controller import ChatController
+from api.auth_middleware import jwt_required
 from api.controllers.prompt_controller import PromptController
 from db.database import get_db
 from utils.prompt_processor import PromptProcessor
@@ -20,6 +21,7 @@ api_chat_v1 = Blueprint("api_chat_v1", __name__, url_prefix="/api/v1/ollama/chat
 chat_controller = ChatController()
 
 @api_chat_v1.route('/generate', methods=['POST'])
+@jwt_required
 @validate()
 def generate(body: ChatRequest):
     """Generate chat response with Ollama"""

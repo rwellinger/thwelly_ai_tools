@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, of, map } from 'rxjs';
 import { environment } from '../../environments/environment';
@@ -37,7 +37,7 @@ export class PromptConfigService {
   private lastCacheTime: number = 0;
   private readonly cacheTimeout = 5 * 60 * 1000; // 5 minutes
 
-  constructor(private http: HttpClient) {}
+  private http = inject(HttpClient);
 
 
   private isCacheValid(): boolean {

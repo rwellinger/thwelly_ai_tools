@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { BehaviorSubject, Observable, throwError } from 'rxjs';
 import { map, catchError, tap } from 'rxjs/operators';
@@ -32,10 +32,10 @@ export class AuthService {
 
   public authState$ = this.authStateSubject.asObservable();
 
-  constructor(
-    private http: HttpClient,
-    private cookieService: CookieService
-  ) {
+  private http = inject(HttpClient);
+  private cookieService = inject(CookieService);
+
+  constructor() {
     this.initializeAuthState();
   }
 
@@ -162,7 +162,7 @@ export class AuthService {
 
     return this.http.post<UserCreateResponse>(`${this.baseUrl}/api/v1/user/create`, userData)
       .pipe(
-        tap(response => {
+        tap(() => {
           this.updateAuthState({
             loading: false,
             error: null
@@ -257,22 +257,6 @@ export class AuthService {
   private clearAuthData(): void {
     this.cookieService.delete(this.tokenKey, '/');
     this.cookieService.delete(this.userKey, '/');
-  }
-
-  /**
-   * Get authorization headers
-   */
-  public getAuthHeaders(): HttpHeaders {
-    const token = this.getToken();
-    if (token) {
-      return new HttpHeaders({
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json'
-      });
-    }
-    return new HttpHeaders({
-      'Content-Type': 'application/json'
-    });
   }
 
   /**

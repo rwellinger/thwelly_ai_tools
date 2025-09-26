@@ -1,5 +1,7 @@
 import {Component, OnInit, inject} from '@angular/core';
 import {CommonModule} from '@angular/common';
+import {HttpClient} from '@angular/common/http';
+import {firstValueFrom} from 'rxjs';
 import {HeaderComponent} from '../shared/header/header.component';
 import {FooterComponent} from '../shared/footer/footer.component';
 import {ApiConfigService} from '../services/api-config.service';
@@ -19,6 +21,7 @@ export class SongProfileComponent implements OnInit {
 
     private apiConfig = inject(ApiConfigService);
     private notificationService = inject(NotificationService);
+    private http = inject(HttpClient);
 
     ngOnInit() {
         this.loadBillingInfo();
@@ -27,12 +30,9 @@ export class SongProfileComponent implements OnInit {
     async loadBillingInfo() {
         this.isLoading = true;
         try {
-            const response = await fetch(this.apiConfig.endpoints.billing.info);
-            if (response.ok) {
-                this.billingInfo = await response.json();
-            } else {
-                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-            }
+            this.billingInfo = await firstValueFrom(
+                this.http.get<any>(this.apiConfig.endpoints.billing.info)
+            );
         } catch (error) {
             console.error('Error loading billing info:', error);
             this.notificationService.error('Error loading billing info');

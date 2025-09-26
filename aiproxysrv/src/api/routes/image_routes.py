@@ -7,6 +7,7 @@ from flask import Blueprint, request, jsonify, send_from_directory
 from flask_pydantic import validate
 from config.settings import IMAGES_DIR
 from api.controllers.image_controller import ImageController
+from api.auth_middleware import jwt_required
 from schemas.image_schemas import (
     ImageGenerateRequest, ImageGenerateResponse,
     ImageListRequest, ImageListResponse,
@@ -21,6 +22,7 @@ api_image_v1 = Blueprint("api_image_v1", __name__, url_prefix="/api/v1/image")
 image_controller = ImageController()
 
 @api_image_v1.route('/generate', methods=['POST'])
+@jwt_required
 @validate()
 def generate(body: ImageGenerateRequest):
     """Generate image with DALL-E"""
@@ -37,6 +39,7 @@ def generate(body: ImageGenerateRequest):
 
 
 @api_image_v1.route('/list', methods=['GET'])
+@jwt_required
 @validate()
 def list_images(query: ImageListRequest):
     """Get list of generated images with pagination, search and sorting"""
@@ -56,6 +59,7 @@ def list_images(query: ImageListRequest):
 
 
 @api_image_v1.route('/<path:filename>')
+@jwt_required
 def serve_image(filename):
     """Serve stored images"""
     try:
@@ -68,6 +72,7 @@ def serve_image(filename):
 
 
 @api_image_v1.route('/id/<string:image_id>', methods=['GET'])
+@jwt_required
 def get_image(image_id):
     """Get single image by ID"""
     response_data, status_code = image_controller.get_image_by_id(image_id)
@@ -76,6 +81,7 @@ def get_image(image_id):
 
 
 @api_image_v1.route('/id/<string:image_id>', methods=['DELETE'])
+@jwt_required
 def delete_image(image_id):
     """Delete image by ID"""
     response_data, status_code = image_controller.delete_image(image_id)
@@ -84,6 +90,7 @@ def delete_image(image_id):
 
 
 @api_image_v1.route('/bulk-delete', methods=['DELETE'])
+@jwt_required
 def bulk_delete_images():
     """Delete multiple images by IDs"""
     raw_json = request.get_json(silent=True)
@@ -102,6 +109,7 @@ def bulk_delete_images():
 
 
 @api_image_v1.route('/id/<string:image_id>', methods=['PUT'])
+@jwt_required
 @validate()
 def update_image_metadata(image_id: str, body: ImageUpdateRequest):
     """Update image metadata (title and/or tags)"""
