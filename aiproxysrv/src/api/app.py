@@ -13,6 +13,7 @@ from .routes.instrumental_routes import api_instrumental_v1, api_instrumental_ta
 from .routes.redis_routes import api_redis_v1
 from .routes.chat_routes import api_chat_v1
 from .routes.prompt_routes import api_prompt_v1
+from .routes.user_routes import api_user_v1
 
 
 def create_app():
@@ -103,6 +104,12 @@ def create_app():
                 ErrorResponse, HealthResponse, BulkDeleteRequest, BulkDeleteResponse,
                 RedisTaskResponse, RedisTaskListResponse, RedisKeyListResponse
             )
+            from schemas.user_schemas import (
+                UserCreateRequest, UserCreateResponse, LoginRequest, LoginResponse,
+                UserUpdateRequest, UserUpdateResponse, PasswordChangeRequest, PasswordChangeResponse,
+                PasswordResetRequest, PasswordResetResponse, UserResponse, UserListResponse,
+                LogoutResponse, TokenValidationResponse
+            )
 
             # Register schemas with APISpec (only if not already registered)
             schemas_to_register = [
@@ -157,6 +164,21 @@ def create_app():
                 ("RedisTaskResponse", RedisTaskResponse),
                 ("RedisTaskListResponse", RedisTaskListResponse),
                 ("RedisKeyListResponse", RedisKeyListResponse),
+                # User schemas
+                ("UserCreateRequest", UserCreateRequest),
+                ("UserCreateResponse", UserCreateResponse),
+                ("LoginRequest", LoginRequest),
+                ("LoginResponse", LoginResponse),
+                ("UserUpdateRequest", UserUpdateRequest),
+                ("UserUpdateResponse", UserUpdateResponse),
+                ("PasswordChangeRequest", PasswordChangeRequest),
+                ("PasswordChangeResponse", PasswordChangeResponse),
+                ("PasswordResetRequest", PasswordResetRequest),
+                ("PasswordResetResponse", PasswordResetResponse),
+                ("UserResponse", UserResponse),
+                ("UserListResponse", UserListResponse),
+                ("LogoutResponse", LogoutResponse),
+                ("TokenValidationResponse", TokenValidationResponse),
             ]
 
             # Only register schemas that aren't already registered
@@ -182,6 +204,7 @@ def create_app():
                     'api_prompt_v1': 'Prompt Templates',
                     'api_redis_v1': 'Redis/Celery',
                     'api_chat_v1': 'Chat',
+                    'api_user_v1': 'User Management',
                     'api_v1': 'System'
                 }
 
@@ -189,7 +212,7 @@ def create_app():
 
                 for rule in app.url_map.iter_rules():
                     # Only process API routes
-                    if not rule.endpoint.startswith(('api_image_v1', 'api_song_v1', 'api_instrumental_v1', 'api_instrumental_task_v1', 'api_prompt_v1', 'api_redis_v1', 'api_chat_v1', 'api_v1')):
+                    if not rule.endpoint.startswith(('api_image_v1', 'api_song_v1', 'api_instrumental_v1', 'api_instrumental_task_v1', 'api_prompt_v1', 'api_redis_v1', 'api_chat_v1', 'api_user_v1', 'api_v1')):
                         continue
 
                     # Skip if already added
@@ -411,5 +434,6 @@ def create_app():
     app.register_blueprint(api_redis_v1)
     app.register_blueprint(api_chat_v1)
     app.register_blueprint(api_prompt_v1)
+    app.register_blueprint(api_user_v1)
 
     return app
