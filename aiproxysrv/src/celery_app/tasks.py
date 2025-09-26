@@ -115,9 +115,27 @@ def generate_song_task(self, payload: dict) -> dict:
         release_mureka_slot(task_id)
 
         if e.response.status_code == 429:
-            retry_after = int(e.response.headers.get('Retry-After', 60))
-            print(f"Task {task_id}: Rate limited, retrying in {retry_after}s", file=sys.stderr)
-            raise self.retry(exc=e, countdown=retry_after)
+            # Analyze 429 error type for retry decision
+            try:
+                error_body = e.response.json()
+                error_message = error_body.get("message") or error_body.get("error") or e.response.text
+            except ValueError:
+                error_message = e.response.text or e.response.reason
+
+            from mureka.handlers import analyze_429_error_type
+            error_type = analyze_429_error_type(error_message)
+
+            if error_type == 'quota':
+                # Quota exceeded - don't retry, update song with error
+                error_msg = f"Quota exceeded: {error_message}"
+                song_service.update_song_error(task_id, error_msg)
+                print(f"Task {task_id}: Quota exceeded, not retrying", file=sys.stderr)
+                return handle_http_error(self, e)
+            else:
+                # Rate limit - retry with backoff
+                retry_after = int(e.response.headers.get('Retry-After', 60))
+                print(f"Task {task_id}: Rate limited, retrying in {retry_after}s", file=sys.stderr)
+                raise self.retry(exc=e, countdown=retry_after)
         else:
             # Update song error in database for non-retry HTTP errors
             error_msg = f"HTTP error: {e.response.status_code} - {e.response.text if e.response else 'No response'}"
@@ -247,9 +265,27 @@ def generate_instrumental_task(self, payload: dict) -> dict:
         release_mureka_slot(task_id)
 
         if e.response.status_code == 429:
-            retry_after = int(e.response.headers.get('Retry-After', 60))
-            print(f"Task {task_id}: Instrumental rate limited, retrying in {retry_after}s", file=sys.stderr)
-            raise self.retry(exc=e, countdown=retry_after)
+            # Analyze 429 error type for retry decision
+            try:
+                error_body = e.response.json()
+                error_message = error_body.get("message") or error_body.get("error") or e.response.text
+            except ValueError:
+                error_message = e.response.text or e.response.reason
+
+            from mureka.handlers import analyze_429_error_type
+            error_type = analyze_429_error_type(error_message)
+
+            if error_type == 'quota':
+                # Quota exceeded - don't retry, update song with error
+                error_msg = f"Instrumental quota exceeded: {error_message}"
+                song_service.update_song_error(task_id, error_msg)
+                print(f"Task {task_id}: Instrumental quota exceeded, not retrying", file=sys.stderr)
+                return handle_http_error(self, e)
+            else:
+                # Rate limit - retry with backoff
+                retry_after = int(e.response.headers.get('Retry-After', 60))
+                print(f"Task {task_id}: Instrumental rate limited, retrying in {retry_after}s", file=sys.stderr)
+                raise self.retry(exc=e, countdown=retry_after)
         else:
             # Update song error in database for non-retry HTTP errors
             error_msg = f"Instrumental HTTP error: {e.response.status_code} - {e.response.text if e.response else 'No response'}"

@@ -155,8 +155,31 @@ def wait_for_mureka_completion(task, job_id: str) -> Dict[str, Any]:
                 time.sleep(poll_interval)
 
         except HTTPError as e:
-            if e.response.status_code in [429, 502, 503, 504]:
-                # Temporäre Fehler - weiter versuchen
+            if e.response.status_code == 429:
+                # Handle 429 errors with message analysis
+                try:
+                    error_body = e.response.json()
+                    error_message = error_body.get("message") or error_body.get("error") or e.response.text
+                except ValueError:
+                    error_message = e.response.text or e.response.reason
+
+                from mureka.handlers import analyze_429_error_type
+                error_type = analyze_429_error_type(error_message)
+
+                if error_type == 'quota':
+                    # Quota exceeded - stop polling immediately
+                    print(f"MUREKA quota exceeded: {error_message}", file=sys.stderr)
+                    raise Exception(f"Quota exceeded: {error_message}")
+                else:
+                    # Rate limit - retry with backoff
+                    elapsed_time = time.time() - start_time
+                    current_poll_interval = get_adaptive_poll_interval(elapsed_time)
+                    wait_time = current_poll_interval * 2
+                    print(f"MUREKA rate limit hit, retrying in {wait_time}s: {error_message}", file=sys.stderr)
+                    time.sleep(wait_time)
+                    continue
+            elif e.response.status_code in [502, 503, 504]:
+                # Other temporary errors - retry
                 elapsed_time = time.time() - start_time
                 current_poll_interval = get_adaptive_poll_interval(elapsed_time)
                 wait_time = current_poll_interval * 2
@@ -294,8 +317,31 @@ def wait_for_mureka_instrumental_completion(task, job_id: str) -> Dict[str, Any]
                 time.sleep(poll_interval)
 
         except HTTPError as e:
-            if e.response.status_code in [429, 502, 503, 504]:
-                # Temporäre Fehler - weiter versuchen
+            if e.response.status_code == 429:
+                # Handle 429 errors with message analysis
+                try:
+                    error_body = e.response.json()
+                    error_message = error_body.get("message") or error_body.get("error") or e.response.text
+                except ValueError:
+                    error_message = e.response.text or e.response.reason
+
+                from mureka.handlers import analyze_429_error_type
+                error_type = analyze_429_error_type(error_message)
+
+                if error_type == 'quota':
+                    # Quota exceeded - stop polling immediately
+                    print(f"MUREKA instrumental quota exceeded: {error_message}", file=sys.stderr)
+                    raise Exception(f"Quota exceeded: {error_message}")
+                else:
+                    # Rate limit - retry with backoff
+                    elapsed_time = time.time() - start_time
+                    current_poll_interval = get_adaptive_poll_interval(elapsed_time)
+                    wait_time = current_poll_interval * 2
+                    print(f"MUREKA instrumental rate limit hit, retrying in {wait_time}s: {error_message}", file=sys.stderr)
+                    time.sleep(wait_time)
+                    continue
+            elif e.response.status_code in [502, 503, 504]:
+                # Other temporary errors - retry
                 elapsed_time = time.time() - start_time
                 current_poll_interval = get_adaptive_poll_interval(elapsed_time)
                 wait_time = current_poll_interval * 2

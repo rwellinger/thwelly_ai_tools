@@ -20,6 +20,10 @@ class MurekaController:
 
         result = self.service.generate_song(lyrics, model, prompt)
 
+        # Check for 429 error test cases
+        if 'error' in result and ('rate limit' in result.get('message', '').lower() or 'quota' in result.get('message', '').lower()):
+            return jsonify(result), 429
+
         return jsonify(result)
 
     def generate_stem(self):
@@ -40,6 +44,10 @@ class MurekaController:
             return jsonify({'error': 'Missing or invalid authorization'}), 401
 
         result = self.service.query_song_status(job_id)
+
+        # Check for 429 error test cases
+        if 'error' in result and ('rate limit' in result.get('message', '').lower() or 'quota' in result.get('message', '').lower()):
+            return jsonify(result), 429
 
         return jsonify(result)
 
@@ -64,6 +72,10 @@ class MurekaController:
 
         result = self.service.generate_instrumental(model, prompt)
 
+        # Check for 429 error test cases
+        if 'error' in result and ('rate limit' in result.get('message', '').lower() or 'quota' in result.get('message', '').lower()):
+            return jsonify(result), 429
+
         return jsonify(result)
 
     def query_instrumental_status(self, job_id):
@@ -72,5 +84,9 @@ class MurekaController:
             return jsonify({'error': 'Missing or invalid authorization'}), 401
 
         result = self.service.query_instrumental_status(job_id)
+
+        # Check for 429 error test cases
+        if 'error' in result and ('rate limit' in result.get('message', '').lower() or 'quota' in result.get('message', '').lower()):
+            return jsonify(result), 429
 
         return jsonify(result)
