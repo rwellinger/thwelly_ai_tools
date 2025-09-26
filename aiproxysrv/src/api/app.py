@@ -6,6 +6,7 @@ import traceback
 import yaml
 from flask import Flask, jsonify, Blueprint, render_template_string, Response
 from flask_cors import CORS
+from werkzeug.middleware.proxy_fix import ProxyFix
 from apispec import APISpec
 from .routes.image_routes import api_image_v1
 from .routes.song_routes import api_song_v1, api_song_task_v1
@@ -19,6 +20,9 @@ from .routes.user_routes import api_user_v1
 def create_app():
     """Flask App Factory with OpenAPI/Swagger Integration"""
     app = Flask(__name__)
+
+    # Add ProxyFix middleware to handle reverse proxy headers
+    app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1, x_port=1, x_prefix=1)
 
     # Monkey patch json.dumps to handle ValueError serialization globally
     import json
