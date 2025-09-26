@@ -1,6 +1,8 @@
 import {Component, Input, Output, EventEmitter, ViewChild, ElementRef, OnInit, OnChanges, SimpleChanges, inject} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {FormsModule} from '@angular/forms';
+import {HttpClient} from '@angular/common/http';
+import {firstValueFrom} from 'rxjs';
 import {SongService} from '../../services/song.service';
 import {NotificationService} from '../../services/notification.service';
 import {ApiConfigService} from '../../services/api-config.service';
@@ -49,6 +51,7 @@ export class SongDetailPanelComponent implements OnInit, OnChanges {
     private songService = inject(SongService);
     private notificationService = inject(NotificationService);
     private apiConfigService = inject(ApiConfigService);
+    private http = inject(HttpClient);
 
     // Component state
     editingTitle = false;
@@ -87,19 +90,11 @@ export class SongDetailPanelComponent implements OnInit, OnChanges {
         if (!this.song || !this.songId) return;
 
         try {
-            const response = await fetch(this.apiConfigService.endpoints.song.update(this.songId), {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
+            await firstValueFrom(
+                this.http.put<any>(this.apiConfigService.endpoints.song.update(this.songId), {
                     title: this.editTitleValue.trim()
                 })
-            });
-
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
+            );
 
             this.editingTitle = false;
             this.titleChanged.emit(this.editTitleValue);
@@ -130,19 +125,11 @@ export class SongDetailPanelComponent implements OnInit, OnChanges {
         try {
             const tagsString = this.selectedTags.join(', ');
 
-            const response = await fetch(this.apiConfigService.endpoints.song.update(this.songId), {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
+            await firstValueFrom(
+                this.http.put<any>(this.apiConfigService.endpoints.song.update(this.songId), {
                     tags: tagsString
                 })
-            });
-
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
+            );
 
             this.editingTags = false;
             this.tagsChanged.emit(this.selectedTags);
@@ -189,19 +176,11 @@ export class SongDetailPanelComponent implements OnInit, OnChanges {
         if (!this.song || !this.songId) return;
 
         try {
-            const response = await fetch(this.apiConfigService.endpoints.song.update(this.songId), {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
+            await firstValueFrom(
+                this.http.put<any>(this.apiConfigService.endpoints.song.update(this.songId), {
                     workflow: this.selectedWorkflow
                 })
-            });
-
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
+            );
 
             this.editingWorkflow = false;
             this.workflowChanged.emit(this.selectedWorkflow);
@@ -238,22 +217,16 @@ export class SongDetailPanelComponent implements OnInit, OnChanges {
         this.stemGenerationInProgress.add(choiceId);
 
         try {
-            const response = await Promise.race([
-                fetch(this.apiConfigService.endpoints.song.stems, {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({choice_id: choiceId})
-                }),
+            const data = await Promise.race([
+                firstValueFrom(
+                    this.http.post<any>(this.apiConfigService.endpoints.song.stems, {
+                        choice_id: choiceId
+                    })
+                ),
                 this.delay(120000).then(() => {
                     throw new Error('Timeout after 2 minutes');
                 })
             ]);
-
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-
-            const data = await response.json();
 
             if (data.status === 'SUCCESS' && data.result && data.result.zip_url) {
                 await this.reloadSong();
@@ -386,7 +359,6 @@ export class SongDetailPanelComponent implements OnInit, OnChanges {
             } else {
                 this.song = response;
             }
-            console.log('Song loaded in detail panel:', this.song);
         } catch (error: any) {
             this.loadingError = `Failed to load song: ${error.message}`;
             this.notificationService.error(`Error loading song details: ${error.message}`);

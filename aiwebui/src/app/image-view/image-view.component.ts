@@ -11,6 +11,7 @@ import {
 import {CommonModule} from '@angular/common';
 import {FormsModule} from '@angular/forms';
 import {HttpClient} from '@angular/common/http';
+import {ImageBlobService} from '../services/image-blob.service';
 import {HeaderComponent} from '../shared/header/header.component';
 import {FooterComponent} from '../shared/footer/footer.component';
 import {ApiConfigService} from '../services/api-config.service';
@@ -52,6 +53,7 @@ interface PaginationInfo {
 export class ImageViewComponent implements OnInit, AfterViewInit, OnDestroy {
     images: ImageData[] = [];
     selectedImage: ImageData | null = null;
+    selectedImageBlobUrl: string = '';
     isLoading = false;
     loadingMessage = '';
     currentPage = 0;
@@ -97,6 +99,7 @@ export class ImageViewComponent implements OnInit, AfterViewInit, OnDestroy {
     @ViewChild('searchInput') searchInput!: ElementRef;
 
     private http = inject(HttpClient);
+    private imageBlobService = inject(ImageBlobService);
     private apiConfig = inject(ApiConfigService);
     private notificationService = inject(NotificationService);
 
@@ -220,6 +223,21 @@ export class ImageViewComponent implements OnInit, AfterViewInit, OnDestroy {
             this.selectedImage = image;
         } finally {
             this.isLoading = false;
+        }
+
+        // Load blob URL for secure image display
+        if (this.selectedImage?.url) {
+            this.imageBlobService.getImageBlobUrl(this.selectedImage.url).subscribe({
+                next: (blobUrl) => {
+                    this.selectedImageBlobUrl = blobUrl;
+                },
+                error: (error) => {
+                    console.error('Failed to load image blob:', error);
+                    this.selectedImageBlobUrl = '';
+                }
+            });
+        } else {
+            this.selectedImageBlobUrl = '';
         }
     }
 

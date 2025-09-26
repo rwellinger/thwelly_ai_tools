@@ -3,6 +3,7 @@ import {FormBuilder, FormGroup, ReactiveFormsModule, Validators} from '@angular/
 import {CommonModule} from '@angular/common';
 import {HttpClient} from '@angular/common/http';
 import {firstValueFrom} from 'rxjs';
+import {ImageBlobService} from '../services/image-blob.service';
 import {HeaderComponent} from '../shared/header/header.component';
 import {FooterComponent} from '../shared/footer/footer.component';
 import {ApiConfigService} from '../services/api-config.service';
@@ -29,6 +30,7 @@ export class ImageGeneratorComponent implements OnInit {
     showPromptDropdown = false;
     result = '';
     generatedImageUrl = '';
+    generatedImageBlobUrl = '';
     showImageModal = false;
     generatedImageData: any = null;
 
@@ -39,6 +41,7 @@ export class ImageGeneratorComponent implements OnInit {
     private imageService = inject(ImageService);
     private chatService = inject(ChatService);
     private progressService = inject(ProgressService);
+    private imageBlobService = inject(ImageBlobService);
 
     ngOnInit() {
         this.promptForm = this.fb.group({
@@ -72,6 +75,18 @@ export class ImageGeneratorComponent implements OnInit {
 
                 if (data.url) {
                     this.generatedImageUrl = data.url;
+
+                    // Load blob URL for secure display
+                    this.imageBlobService.getImageBlobUrl(data.url).subscribe({
+                        next: (blobUrl) => {
+                            this.generatedImageBlobUrl = blobUrl;
+                        },
+                        error: (error) => {
+                            console.error('Failed to load image blob:', error);
+                            this.generatedImageBlobUrl = '';
+                        }
+                    });
+
                     // Create data object for shared component
                     this.generatedImageData = {
                         url: data.url,
@@ -205,6 +220,7 @@ export class ImageGeneratorComponent implements OnInit {
         this.promptForm.reset({size: '1024x1024'});
         this.imageService.clearFormData();
         this.generatedImageUrl = '';
+        this.generatedImageBlobUrl = '';
         this.generatedImageData = null;
     }
 

@@ -6,35 +6,21 @@ import { AuthService } from '../services/auth.service';
 import { Router } from '@angular/router';
 
 let isRefreshing = false;
-let refreshTokenSubject: BehaviorSubject<any> = new BehaviorSubject<any>(null);
+const refreshTokenSubject: BehaviorSubject<any> = new BehaviorSubject<any>(null);
 
 export const authInterceptor: HttpInterceptorFn = (req, next) => {
   const authService = inject(AuthService);
   const router = inject(Router);
 
-  console.log('🔍 Auth Interceptor - Request URL:', req.url);
-  console.log('🔍 Auth Interceptor - Request method:', req.method);
-
   // Skip authentication for auth-related endpoints
-  const isAuthEndpointResult = isAuthEndpoint(req.url);
-  console.log('🔍 Auth Interceptor - Is auth endpoint:', isAuthEndpointResult);
-
-  if (isAuthEndpointResult) {
-    console.log('⏭️  Skipping auth for endpoint:', req.url);
+  if (isAuthEndpoint(req.url)) {
     return next(req);
   }
 
   // Add authentication token to request
   const authToken = authService.getToken();
-  console.log('🔍 Auth Interceptor - Token available:', !!authToken);
-  console.log('🔍 Auth Interceptor - Token preview:', authToken ? authToken.substring(0, 20) + '...' : 'None');
-
   if (authToken) {
-    console.log('🔐 Adding Authorization header to request');
     req = addTokenToRequest(req, authToken);
-    console.log('🔍 Auth Interceptor - Request headers after token:', req.headers.keys());
-  } else {
-    console.log('❌ No token available, proceeding without Authorization header');
   }
 
   return next(req).pipe(

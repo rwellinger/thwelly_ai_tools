@@ -81,12 +81,7 @@ export class AuthService {
    * Get current token
    */
   public getToken(): string | null {
-    const token = this.authStateSubject.value.token;
-    console.log('🔍 AuthService - getToken() called, token available:', !!token);
-    if (token) {
-      console.log('🔍 AuthService - Token preview:', token.substring(0, 20) + '...');
-    }
-    return token;
+    return this.authStateSubject.value.token;
   }
 
   /**
