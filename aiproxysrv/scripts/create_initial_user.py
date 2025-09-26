@@ -25,28 +25,41 @@ def hash_password(password: str) -> str:
 
 
 def create_initial_user():
-    """Create the initial user: Robert Wellinger"""
+    """Create the initial user - credentials should be provided via environment variables"""
+
+    import os
+
+    # Get credentials from environment or prompt
+    email = os.getenv('INITIAL_USER_EMAIL')
+    password = os.getenv('INITIAL_USER_PASSWORD')
+    first_name = os.getenv('INITIAL_USER_FIRST_NAME', 'Admin')
+    last_name = os.getenv('INITIAL_USER_LAST_NAME', 'User')
+
+    if not email or not password:
+        print("Error: INITIAL_USER_EMAIL and INITIAL_USER_PASSWORD environment variables must be set")
+        print("Example: INITIAL_USER_EMAIL=admin@example.com INITIAL_USER_PASSWORD=your_secure_password python create_initial_user.py")
+        return
 
     # Create database session
     db = SessionLocal()
 
     try:
         # Check if user already exists
-        existing_user = db.query(User).filter(User.email == "rob.wellinger@gmail.com").first()
+        existing_user = db.query(User).filter(User.email == email).first()
         if existing_user:
-            print(f"User with email rob.wellinger@gmail.com already exists (ID: {existing_user.id})")
+            print(f"User with email {email} already exists (ID: {existing_user.id})")
             return
 
-        # Hash the initial password
-        password_hash = hash_password("secret")
+        # Hash the password
+        password_hash = hash_password(password)
 
         # Create the user
         user = User(
             id=uuid.uuid4(),
-            email="rob.wellinger@gmail.com",
+            email=email,
             password_hash=password_hash,
-            first_name="Robert",
-            last_name="Wellinger",
+            first_name=first_name,
+            last_name=last_name,
             is_active=True,
             is_verified=True,
             created_at=datetime.utcnow()

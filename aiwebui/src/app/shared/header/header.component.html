@@ -58,5 +58,25 @@
                 </div>
             </div>
         </nav>
+
+        <!-- User Section -->
+        <div class="user-section" *ngIf="authState && authState.isAuthenticated">
+            <div class="user-info">
+                <i class="fas fa-user"></i>
+                <span class="user-name">{{ getFirstName() }}</span>
+            </div>
+            <button class="logout-button" (click)="onLogout()" title="Logout">
+                <i class="fas fa-sign-out-alt"></i>
+                <span class="logout-text">Logout</span>
+            </button>
+        </div>
+
+        <!-- Login Button (when not authenticated) -->
+        <div class="auth-section" *ngIf="authState && !authState.isAuthenticated">
+            <a routerLink="/login" class="login-button">
+                <i class="fas fa-sign-in-alt"></i>
+                Login
+            </a>
+        </div>
     </div>
 </header>
