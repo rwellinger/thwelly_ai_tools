@@ -17,6 +17,8 @@ import {FooterComponent} from '../shared/footer/footer.component';
 import {ApiConfigService} from '../services/api-config.service';
 import {NotificationService} from '../services/notification.service';
 import {MatSnackBarModule} from '@angular/material/snack-bar';
+import {MatCardModule} from '@angular/material/card';
+import {MatButtonModule} from '@angular/material/button';
 import {DisplayNamePipe} from '../pipes/display-name.pipe';
 import {ImageDetailPanelComponent} from '../shared/image-detail-panel/image-detail-panel.component';
 import {Subject, debounceTime, distinctUntilChanged, takeUntil, firstValueFrom} from 'rxjs';
@@ -45,7 +47,7 @@ interface PaginationInfo {
 @Component({
     selector: 'app-image-view',
     standalone: true,
-    imports: [CommonModule, FormsModule, HeaderComponent, FooterComponent, MatSnackBarModule, DisplayNamePipe, ImageDetailPanelComponent],
+    imports: [CommonModule, FormsModule, HeaderComponent, FooterComponent, MatSnackBarModule, MatCardModule, MatButtonModule, DisplayNamePipe, ImageDetailPanelComponent],
     templateUrl: './image-view.component.html',
     styleUrl: './image-view.component.scss',
     encapsulation: ViewEncapsulation.None
@@ -57,10 +59,9 @@ export class ImageViewComponent implements OnInit, AfterViewInit, OnDestroy {
     isLoading = false;
     loadingMessage = '';
     currentPage = 0;
-    pageSize = 15;
     pagination: PaginationInfo = {
         has_more: false,
-        limit: this.pageSize,
+        limit: 15,
         offset: 0,
         total: 0
     };
@@ -170,11 +171,11 @@ export class ImageViewComponent implements OnInit, AfterViewInit, OnDestroy {
         this.loadingMessage = 'Loading images...';
 
         try {
-            const offset = page * this.pageSize;
+            const offset = page * this.pagination.limit;
 
             // Build URL with search and sort parameters
             const params = new URLSearchParams({
-                limit: this.pageSize.toString(),
+                limit: this.pagination.limit.toString(),
                 offset: offset.toString(),
                 sort_by: this.sortBy,
                 sort_direction: this.sortDirection
@@ -184,7 +185,7 @@ export class ImageViewComponent implements OnInit, AfterViewInit, OnDestroy {
                 params.append('search', this.searchTerm.trim());
             }
 
-            const url = `${this.apiConfig.endpoints.image.list(this.pageSize, offset).split('?')[0]}?${params.toString()}`;
+            const url = `${this.apiConfig.endpoints.image.list(this.pagination.limit, offset).split('?')[0]}?${params.toString()}`;
 
             const data = await firstValueFrom(
                 this.http.get<any>(url)

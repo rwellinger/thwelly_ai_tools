@@ -1,7 +1,108 @@
 @import '../../scss/variables';
 @import '../../scss/mixins';
 
-/* ===== IMAGE VIEW SPECIFIC STYLES ===== */
+/* ===== IMAGE VIEW CARD LAYOUT ===== */
+
+.image-view-container {
+  min-height: calc(100vh - 300px);
+
+  .controls-container {
+    margin-bottom: 2rem;
+
+    .controls-card {
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+      border-radius: 12px;
+
+      mat-card-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 1.5rem;
+
+        mat-card-title {
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
+          margin: 0;
+          font-size: 1.25rem;
+          font-weight: 500;
+        }
+
+        mat-card-subtitle {
+          color: rgba(255, 255, 255, 0.8);
+          margin: 0.5rem 0 0 0;
+          font-size: 0.9rem;
+        }
+      }
+
+      mat-card-content {
+        padding: 1.5rem;
+      }
+    }
+  }
+
+  .image-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 3rem;
+    margin: 0 auto;
+
+    .image-gallery-card,
+    .image-details-card {
+      height: fit-content;
+      min-height: 500px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+      border-radius: 12px;
+      overflow: hidden;
+
+      mat-card-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 0.75rem 1.5rem;
+
+        mat-card-title {
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
+          margin: 0;
+          font-size: 1.25rem;
+          font-weight: 500;
+        }
+
+        mat-card-subtitle {
+          color: rgba(255, 255, 255, 0.8);
+          margin: 0.5rem 0 0 0;
+          font-size: 0.9rem;
+        }
+      }
+
+      mat-card-content {
+        padding: 0;
+        height: calc(100% - 120px);
+        overflow: hidden;
+      }
+    }
+
+    .image-details-card {
+      mat-card-content {
+        app-image-detail-panel {
+          display: block;
+          height: 100%;
+        }
+      }
+
+      mat-card-actions {
+        padding: 1rem 1.5rem 1.5rem 1.5rem;
+        background: #f8f9fa;
+
+        .detail-actions {
+          display: flex;
+          gap: 0.5rem;
+          align-items: center;
+        }
+      }
+    }
+  }
+}
 
 /* Pagination info badge */
 .pagination-info-badge {
@@ -9,34 +110,17 @@
     font-size: $font-xs;
 }
 
-/* Controls container - side by side layout */
-.controls-container {
-    display: flex;
-    gap: $spacing-20;
-    margin-bottom: $spacing-20;
-    flex-wrap: wrap;
-}
-
+/* Controls styling for cards */
 .controls-section {
-    @include card-container($border-light, $background-white, $spacing-15);
-    min-width: 280px;
-    flex: 1;
-}
-
-.controls-section h3 {
-    @include section-header($background-light, $font-lg);
-    margin: 0 0 $spacing-12 0;
-    padding-bottom: $spacing-sm;
+    margin-bottom: 1rem;
 }
 
 .selection-section {
-    border-color: $warning-color;
-    background: linear-gradient(135deg, #fff9c4, $background-white);
-}
-
-.selection-section h3 {
-    color: #856404;
-    border-bottom-color: $warning-color;
+    padding: 1rem;
+    background: linear-gradient(135deg, #fff9c4, rgba(255, 249, 196, 0.3));
+    border-radius: 8px;
+    border: 1px solid $warning-color;
+    margin-top: 1rem;
 }
 
 .controls-buttons {
@@ -197,8 +281,17 @@
 }
 
 
+/* ===== IMAGE LIST PANEL (Inside Card) ===== */
 .image-list-panel {
     @include list-container-layout();
+    height: calc(100vh - 360px);
+    max-height: none;
+    overflow: hidden;
+    padding: 0.75rem 1rem;
+
+    .list-header {
+        margin-bottom: 1rem;
+    }
 }
 
 .image-details-panel {
@@ -269,7 +362,6 @@ td.size-col {
 
 /* ===== IMAGE DETAILS ===== */
 .image-details-section {
-    padding: $spacing-15;
     flex: 1;
     overflow-y: auto;
     min-height: 0;
@@ -279,11 +371,8 @@ td.size-col {
 
 .image-details-section h2 {
     color: $text-primary;
-    margin: 0 0 $spacing-20 0;
     font-size: $font-xl;
     font-weight: $font-weight-semibold;
-    border-bottom: 2px solid $primary-color;
-    padding-bottom: $spacing-10;
 }
 
 .image-info-compact {
@@ -641,22 +730,36 @@ td.size-col {
     box-shadow: 0 6px 20px rgba(0,0,0,0.15);
 }
 
-/* ===== RESPONSIVE ===== */
+/* ===== RESPONSIVE FOR CARD LAYOUT ===== */
+@media (max-width: 1200px) {
+  .image-view-container {
+    .image-grid {
+      grid-template-columns: 1fr;
+      gap: 1.5rem;
+
+      .image-gallery-section {
+        order: 1;
+      }
+
+      .image-details-section {
+        order: 2;
+      }
+    }
+  }
+}
+
 @media (max-width: 1024px) {
-    .master-detail-container {
-        flex-direction: column;
-        max-height: none;
-        height: auto;
-    }
+    .image-view-container {
+        padding: 1rem;
 
-    .image-list-panel {
-        flex: none;
-        height: 40vh;
-    }
+        .image-grid {
+            gap: 1rem;
 
-    app-image-detail-panel {
-        flex: none;
-        height: 50vh;
+            .image-gallery-card,
+            .image-details-card {
+                min-height: 350px;
+            }
+        }
     }
 
     .image-with-actions {
@@ -683,16 +786,31 @@ td.size-col {
 }
 
 @media (max-width: 768px) {
-    .master-detail-container {
-        gap: 10px;
-    }
+    .image-view-container {
+        padding: 1rem;
 
-    .image-list-panel {
-        height: 35vh;
-    }
+        .controls-container {
+            margin-bottom: 1rem;
+        }
 
-    app-image-detail-panel {
-        height: 45vh;
+        .image-grid {
+            gap: 1rem;
+
+            .image-gallery-card,
+            .image-details-card {
+                min-height: 300px;
+
+                mat-card-content {
+                    padding: 0.75rem;
+                }
+            }
+        }
+
+        .image-list-panel {
+            height: calc(100vh - 420px);
+            max-height: none;
+            padding: 0.75rem 1rem;
+        }
     }
 
     .pagination-controls {

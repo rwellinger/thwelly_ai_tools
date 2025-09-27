@@ -1,20 +1,83 @@
 @import '../../scss/variables';
 @import '../../scss/mixins';
 
-/* ===== MASTER DETAIL LAYOUT ===== */
-.master-detail-container {
-    @include generator-layout();
-}
+/* ===== IMAGE GENERATOR CARD LAYOUT ===== */
 
-/* Style the app-image-detail-panel component itself */
-app-image-detail-panel {
-    flex: 1;
-    display: flex;
-    min-width: 0;
-}
+.image-generator-container {
+    min-height: calc(100vh - 300px);
 
-.image-result-panel {
-    @extend .result-panel;
+    .generator-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 3rem;
+        margin: 0 auto;
+
+        .image-creation-card,
+        .generated-image-card {
+            height: fit-content;
+            min-height: 500px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            border-radius: 12px;
+            overflow: hidden;
+
+            mat-card-header {
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                color: white;
+                padding: 0.75rem 1.5rem;
+
+                mat-card-title {
+                    display: flex;
+                    align-items: center;
+                    gap: 0.5rem;
+                    margin: 0;
+                    font-size: 1.25rem;
+                    font-weight: 500;
+                }
+
+                mat-card-subtitle {
+                    color: rgba(255, 255, 255, 0.8);
+                    margin: 0.5rem 0 0 0;
+                    font-size: 0.9rem;
+                }
+            }
+
+            mat-card-content {
+                padding: 1rem;
+                min-height: 400px;
+            }
+
+            mat-card-actions {
+                padding: 1rem 1.5rem 1.5rem 1.5rem;
+                background: #f8f9fa;
+
+                .cost-info {
+                    margin: 0;
+                    color: #6c757d;
+                    font-size: 0.9rem;
+                    display: flex;
+                    align-items: center;
+                    gap: 0.5rem;
+
+                    i {
+                        color: #007bff;
+                    }
+                }
+            }
+        }
+
+        .generated-image-card {
+            mat-card-content {
+                padding: 0;
+                height: calc(100% - 120px);
+                overflow: hidden;
+
+                app-image-detail-panel {
+                    display: block;
+                    height: 100%;
+                }
+            }
+        }
+    }
 }
 
 /* ===== FORM STYLING ===== */
@@ -50,7 +113,7 @@ app-image-detail-panel {
 }
 
 .size-select {
-    width: 100%;
+    width: 40%;
     padding: $spacing-10 $spacing-12;
     border: 1px solid $border-light;
     border-radius: $border-radius-lg;
@@ -259,7 +322,7 @@ app-image-detail-panel {
     width: auto;
     height: auto;
     border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     transition: transform 0.2s;
 }
 
@@ -302,35 +365,59 @@ app-image-detail-panel {
     border-radius: 8px;
 }
 
-/* ===== RESPONSIVE ===== */
+/* ===== RESPONSIVE FOR CARD LAYOUT ===== */
+@media (max-width: 1200px) {
+    .image-generator-container {
+        .generator-grid {
+            grid-template-columns: 1fr;
+            gap: 1.5rem;
+
+            .image-creation-section {
+                order: 1;
+            }
+
+            .generated-image-section {
+                order: 2;
+            }
+        }
+    }
+}
+
 @media (max-width: 1024px) {
-    .master-detail-container {
-        flex-direction: column;
-        height: auto;
-    }
+    .image-generator-container {
+        padding: 1rem;
 
-    .controls-panel {
-        flex: none;
-        height: auto;
-    }
+        .generator-grid {
+            gap: 1rem;
 
-    .image-result-panel {
-        flex: none;
-        height: 500px;
+            .image-creation-card,
+            .generated-image-card {
+                min-height: 400px;
+            }
+        }
     }
 }
 
 @media (max-width: 768px) {
-    .master-detail-container {
-        gap: 10px;
+    .image-generator-container {
+        padding: 1rem;
+
+        .generator-grid {
+            gap: 1rem;
+
+            .image-creation-card,
+            .generated-image-card {
+                min-height: 350px;
+
+                mat-card-content {
+                    padding: 0.75rem;
+                }
+            }
+        }
     }
 
     .controls-content {
-        padding: 15px;
-    }
-
-    .image-result-section {
-        padding: 15px;
+        padding: 1rem;
     }
 
     .image-actions {

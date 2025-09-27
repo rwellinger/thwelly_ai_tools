@@ -1,7 +1,74 @@
 @import '../../scss/variables';
 @import '../../scss/mixins';
 
-/* ===== SONG VIEW SPECIFIC STYLES ===== */
+/* ===== SONG VIEW CARD LAYOUT ===== */
+
+.song-view-container {
+  min-height: calc(100vh - 200px);
+
+  .song-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 3rem;
+    margin: 0 auto;
+
+    .song-library-card,
+    .song-details-card {
+      height: fit-content;
+      min-height: 500px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+      border-radius: 12px;
+      overflow: hidden;
+
+      mat-card-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 0.75rem 1.5rem;
+
+        mat-card-title {
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
+          margin: 0;
+          font-size: 1.25rem;
+          font-weight: 500;
+        }
+
+        mat-card-subtitle {
+          color: rgba(255, 255, 255, 0.8);
+          margin: 0.5rem 0 0 0;
+          font-size: 0.9rem;
+        }
+      }
+
+      mat-card-content {
+        padding: 0;
+        height: calc(100% - 120px);
+        overflow: hidden;
+      }
+    }
+
+    .song-details-card {
+      mat-card-content {
+        app-song-detail-panel {
+          display: block;
+          height: 100%;
+        }
+      }
+
+      mat-card-actions {
+        padding: 1rem 1.5rem 1.5rem 1.5rem;
+        background: #f8f9fa;
+
+        .detail-actions {
+          display: flex;
+          gap: 0.5rem;
+          align-items: center;
+        }
+      }
+    }
+  }
+}
 
 /* Pagination info badge */
 .pagination-info-badge {
@@ -62,34 +129,17 @@
     padding-top: 0 !important;
 }
 
-/* Controls container - side by side layout */
-.controls-container {
-    display: flex;
-    gap: $spacing-20;
-    margin-bottom: $spacing-20;
-    flex-wrap: wrap;
-}
-
+/* Controls styling for cards */
 .controls-section {
-    @include card-container($border-light, $background-white, $spacing-15);
-    min-width: 280px;
-    flex: 1;
-}
-
-.controls-section h3 {
-    @include section-header($background-light, $font-lg);
-    margin: 0 0 $spacing-12 0;
-    padding-bottom: $spacing-sm;
+    margin-bottom: 1rem;
 }
 
 .selection-section {
-    border-color: $warning-color;
-    background: linear-gradient(135deg, #fff9c4, $background-white);
-}
-
-.selection-section h3 {
-    color: #856404;
-    border-bottom-color: $warning-color;
+    padding: 1rem;
+    background: linear-gradient(135deg, #fff9c4, rgba(255, 249, 196, 0.3));
+    border-radius: 8px;
+    border: 1px solid $warning-color;
+    margin-top: 1rem;
 }
 
 .controls-buttons {
@@ -206,27 +256,17 @@
     }
 }
 
-/* ===== MASTER DETAIL LAYOUT ===== */
-.master-detail-container {
-    @include master-detail-layout($spacing-20, 40%, calc(100vh - 320px));
-    min-height: 500px;
-    max-height: 70vh;
-    overflow: hidden;
-}
-
-/* Responsive height adjustments - removed fixed heights */
-
+/* ===== SONG LIST PANEL (Inside Card) ===== */
 .song-list-panel {
     @include list-container-layout();
-}
+    height: calc(100vh - 360px);
+    max-height: none;
+    overflow: hidden;
+    padding: 0.75rem 1rem;
 
-/* Height adjustments now handled by fixed max-height on container */
-
-/* Style the app-song-detail-panel component itself */
-app-song-detail-panel {
-    flex: 1;
-    display: flex;
-    min-width: 0;
+    .list-header {
+        margin-bottom: 1rem;
+    }
 }
 
 
@@ -883,35 +923,64 @@ tr.on-work {
 }
 
 /* ===== RESPONSIVE ===== */
+@media (max-width: 1200px) {
+  .song-view-container {
+    .song-grid {
+      grid-template-columns: 1fr;
+      gap: 1.5rem;
+
+      .song-library-section {
+        order: 1;
+      }
+
+      .song-details-section {
+        order: 2;
+      }
+    }
+  }
+}
+
 @media (max-width: 1024px) {
-    .master-detail-container {
-        flex-direction: column;
-        max-height: none;
-        height: auto;
-    }
+    .song-view-container {
+        padding: 1rem;
 
-    .song-list-panel {
-        flex: none;
-        height: 40vh;
-    }
+        .song-grid {
+            gap: 1rem;
 
-    app-song-detail-panel {
-        flex: none;
-        height: 50vh;
+            .song-library-card,
+            .song-details-card {
+                min-height: 350px;
+            }
+        }
     }
 }
 
 @media (max-width: 768px) {
-    .master-detail-container {
-        gap: $spacing-10;
-    }
+    .song-view-container {
+        padding: 1rem;
 
-    .song-list-panel {
-        height: 35vh;
-    }
+        .controls-container {
+            margin-bottom: 1rem;
+        }
 
-    app-song-detail-panel {
-        height: 45vh;
+        .song-grid {
+            gap: 1rem;
+
+            .song-library-card,
+            .song-details-card {
+                min-height: 300px;
+
+                mat-card-content {
+                    padding: 0.75rem;
+                }
+            }
+        }
+
+        .song-list-panel {
+            height: calc(100vh - 420px);
+            max-height: none;
+            padding: 0.75rem 1rem;
+        }
     }
 
     .pagination-controls {

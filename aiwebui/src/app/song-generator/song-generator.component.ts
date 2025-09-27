@@ -8,6 +8,7 @@ import {ApiConfigService} from '../services/api-config.service';
 import {NotificationService} from '../services/notification.service';
 import {ChatService} from '../services/chat.service';
 import {MatSnackBarModule} from '@angular/material/snack-bar';
+import {MatCardModule} from '@angular/material/card';
 import {PopupAudioPlayerComponent} from '../shared/popup-audio-player/popup-audio-player.component';
 import {SongDetailPanelComponent} from '../shared/song-detail-panel/song-detail-panel.component';
 import {ProgressOverlayComponent} from '../shared/progress-overlay/progress-overlay.component';
@@ -16,7 +17,7 @@ import {ProgressService} from '../services/progress.service';
 @Component({
     selector: 'app-song-generator',
     standalone: true,
-    imports: [CommonModule, ReactiveFormsModule, HeaderComponent, FooterComponent, MatSnackBarModule, PopupAudioPlayerComponent, SongDetailPanelComponent, ProgressOverlayComponent],
+    imports: [CommonModule, ReactiveFormsModule, HeaderComponent, FooterComponent, MatSnackBarModule, MatCardModule, PopupAudioPlayerComponent, SongDetailPanelComponent, ProgressOverlayComponent],
     templateUrl: './song-generator.component.html',
     styleUrl: './song-generator.component.scss',
     encapsulation: ViewEncapsulation.None

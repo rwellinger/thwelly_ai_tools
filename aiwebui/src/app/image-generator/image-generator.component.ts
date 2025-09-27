@@ -11,6 +11,7 @@ import {NotificationService} from '../services/notification.service';
 import {ImageService} from '../services/image.service';
 import {ChatService} from '../services/chat.service';
 import {MatSnackBarModule} from '@angular/material/snack-bar';
+import {MatCardModule} from '@angular/material/card';
 import {ImageDetailPanelComponent} from '../shared/image-detail-panel/image-detail-panel.component';
 import {ProgressOverlayComponent} from '../shared/progress-overlay/progress-overlay.component';
 import {ProgressService} from '../services/progress.service';
@@ -18,7 +19,7 @@ import {ProgressService} from '../services/progress.service';
 @Component({
     selector: 'app-image-generator',
     standalone: true,
-    imports: [CommonModule, ReactiveFormsModule, HeaderComponent, FooterComponent, MatSnackBarModule, ImageDetailPanelComponent, ProgressOverlayComponent],
+    imports: [CommonModule, ReactiveFormsModule, HeaderComponent, FooterComponent, MatSnackBarModule, MatCardModule, ImageDetailPanelComponent, ProgressOverlayComponent],
     templateUrl: './image-generator.component.html',
     styleUrl: './image-generator.component.scss'
 })
@@ -95,7 +96,6 @@ export class ImageGeneratorComponent implements OnInit {
                         model_used: 'DALL-E 3',
                         created_at: new Date().toISOString()
                     };
-                    this.notificationService.success('Image generated successfully!');
                 } else {
                     this.notificationService.error('Error generating image.');
                 }
