@@ -28,7 +28,7 @@
       justify-content: flex-end;
       margin-top: 1rem;
       padding-top: 1rem;
-      border-top: 1px solid #e9ecef;
+      border-top: 1px solid $border-light;
 
       .refresh-button-small {
         @include button-primary('sm');
@@ -47,7 +47,7 @@
 .loading-state {
   text-align: center;
   padding: 3rem 0;
-  color: #6c757d;
+  color: $text-muted;
 
   i {
     font-size: 2rem;
@@ -134,7 +134,7 @@
         gap: 1.5rem;
         margin-bottom: 2rem;
         padding-bottom: 1.5rem;
-        border-bottom: 1px solid #e9ecef;
+        border-bottom: 1px solid $border-light;
 
         .avatar {
             width: 80px;
@@ -155,12 +155,12 @@
             h3 {
                 margin: 0 0 0.5rem 0;
                 font-size: 1.5rem;
-                color: #333;
+                color: $text-primary;
             }
 
             .account-id {
                 margin: 0 0 1rem 0;
-                color: #666;
+                color: $text-secondary;
                 font-size: 1rem;
                 font-family: monospace;
             }
@@ -177,8 +177,8 @@
                     border-radius: 20px;
                     font-size: 0.8rem;
                     font-weight: 500;
-                    background: #e9ecef;
-                    color: #6c757d;
+                    background: $background-light;
+                    color: $text-muted;
                 }
             }
         }
@@ -192,7 +192,7 @@
             justify-content: space-between;
             align-items: center;
             padding: 0.75rem 0;
-            border-bottom: 1px solid #f8f9fa;
+            border-bottom: 1px solid $border-light;
 
             &:last-child {
                 border-bottom: none;
@@ -203,16 +203,16 @@
                 align-items: center;
                 gap: 0.5rem;
                 font-weight: 500;
-                color: #495057;
+                color: $text-primary;
 
                 i {
                     width: 16px;
-                    color: #6c757d;
+                    color: $text-muted;
                 }
             }
 
             .value {
-                color: #333;
+                color: $text-primary;
                 font-weight: 400;
 
                 &.balance-amount {
@@ -252,38 +252,38 @@
 }
 
 .status-active {
-    background: #d4edda;
-    color: #155724;
+    background: lighten($success-color, 45%);
+    color: darken($success-color, 30%);
 
     i {
-        color: #28a745;
+        color: $success-color;
     }
 }
 
 .status-inactive {
-    background: #f8d7da;
-    color: #721c24;
+    background: lighten($danger-color, 45%);
+    color: darken($danger-color, 25%);
 
     i {
-        color: #dc3545;
+        color: $danger-color;
     }
 }
 
 .status-pending {
-    background: #fff3cd;
-    color: #856404;
+    background: lighten($warning-color, 45%);
+    color: darken($warning-color, 25%);
 
     i {
-        color: #ffc107;
+        color: $warning-color;
     }
 }
 
 .status-unknown {
-    background: #e9ecef;
-    color: #6c757d;
+    background: $background-light;
+    color: $text-muted;
 
     i {
-        color: #6c757d;
+        color: $text-muted;
     }
 }
 

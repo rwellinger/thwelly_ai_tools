@@ -1,3 +1,6 @@
+@import '../../../scss/variables';
+@import '../../../scss/mixins';
+
 .user-profile-container {
   min-height: calc(100vh - 300px);
 
@@ -21,7 +24,7 @@
       mat-card-header {
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         color: white;
-        padding: 1.5rem;
+        padding: 0.75rem 1.5rem;
 
         mat-card-title {
           display: flex;
@@ -49,7 +52,7 @@
 
       mat-card-actions {
         padding: 1rem 1.5rem 1.5rem 1.5rem;
-        background: #f8f9fa;
+        background: $background-light;
 
         .action-buttons {
           display: flex;
@@ -80,7 +83,7 @@
           gap: 1.5rem;
           margin-bottom: 2rem;
           padding-bottom: 1.5rem;
-          border-bottom: 1px solid #e9ecef;
+          border-bottom: 1px solid $border-light;
 
           .avatar {
             width: 80px;
@@ -101,12 +104,12 @@
             h3 {
               margin: 0 0 0.5rem 0;
               font-size: 1.5rem;
-              color: #333;
+              color: $text-primary;
             }
 
             .email {
               margin: 0 0 1rem 0;
-              color: #666;
+              color: $text-secondary;
               font-size: 1rem;
             }
 
@@ -122,24 +125,24 @@
                 border-radius: 20px;
                 font-size: 0.8rem;
                 font-weight: 500;
-                background: #e9ecef;
-                color: #6c757d;
+                background: $background-light;
+                color: $text-muted;
 
                 &.active {
-                  background: #d4edda;
-                  color: #155724;
+                  background: lighten($success-color, 45%);
+                  color: darken($success-color, 30%);
 
                   i {
-                    color: #28a745;
+                    color: $success-color;
                   }
                 }
 
                 &.verified {
-                  background: #cce5ff;
-                  color: #004085;
+                  background: lighten($primary-color, 40%);
+                  color: darken($primary-color, 35%);
 
                   i {
-                    color: #007bff;
+                    color: $primary-color;
                   }
                 }
               }
@@ -155,7 +158,7 @@
             justify-content: space-between;
             align-items: center;
             padding: 0.75rem 0;
-            border-bottom: 1px solid #f8f9fa;
+            border-bottom: 1px solid $border-light;
 
             &:last-child {
               border-bottom: none;
@@ -166,16 +169,16 @@
               align-items: center;
               gap: 0.5rem;
               font-weight: 500;
-              color: #495057;
+              color: $text-primary;
 
               i {
                 width: 16px;
-                color: #6c757d;
+                color: $text-muted;
               }
             }
 
             .value {
-              color: #333;
+              color: $text-primary;
               font-weight: 400;
             }
           }
@@ -202,54 +205,54 @@
               pointer-events: none;
 
               .mat-mdc-form-field {
-                background-color: #f8f9fa;
+                background-color: $background-light;
                 border-radius: 4px;
               }
 
               .mat-mdc-text-field-wrapper {
-                background-color: #f8f9fa;
+                background-color: $background-light;
               }
 
               .mdc-notched-outline {
                 .mdc-notched-outline__leading,
                 .mdc-notched-outline__notch,
                 .mdc-notched-outline__trailing {
-                  border-color: #e9ecef !important;
+                  border-color: $border-light !important;
                 }
               }
             }
           }
 
           .readonly-input {
-            background-color: #f8f9fa;
+            background-color: $background-light;
             cursor: default;
-            color: #495057;
+            color: $text-primary;
 
             &:focus {
-              background-color: #f8f9fa;
+              background-color: $background-light;
               cursor: default;
             }
           }
 
           .readonly-icon {
-            color: #6c757d;
+            color: $text-muted;
             font-size: 1rem;
             opacity: 0.6;
           }
 
           .readonly-field {
             .mat-mdc-form-field {
-              background-color: #f8f9fa;
+              background-color: $background-light;
               border-radius: 4px;
               transition: all 0.3s ease;
             }
 
             .mat-mdc-text-field-wrapper {
-              background-color: #f8f9fa;
+              background-color: $background-light;
             }
 
             &:hover .mat-mdc-form-field {
-              background-color: #f1f3f4;
+              background-color: darken($background-light, 3%);
             }
           }
 
@@ -282,7 +285,7 @@
       .loading-state {
         text-align: center;
         padding: 3rem 0;
-        color: #6c757d;
+        color: $text-muted;
 
         i {
           font-size: 2rem;

@@ -1,8 +1,9 @@
 @import '../../../scss/variables';
+@import '../../../scss/mixins';
 
 .modern-header {
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    border-bottom: 1px solid #e9ecef;
+    border-bottom: 1px solid $border-light;
     box-shadow: 0 2px 4px rgba(0,0,0,0.06);
     margin-bottom: 20px;
     position: sticky;
@@ -32,7 +33,7 @@
     flex-shrink: 0;
     font-weight: $font-weight-bold;
     font-size: $font-3xl;
-    color: #ffffff;
+    color: white;
 }
 
 /* Brand Text */
@@ -43,13 +44,13 @@
 .brand-text {
     font-weight: $font-weight-bold;
     font-size: $font-3xl;
-    color: #ffffff;
+    color: white;
     letter-spacing: -0.5px;
 }
 
 .version-text {
     font-size: $font-xs;
-    color: #bdc3c7;
+    color: rgba(white, 0.7);
     font-weight: $font-weight-normal;
     margin-left: 8px;
     opacity: 0.7;
@@ -76,7 +77,7 @@
 .group-label {
     display: flex;
     align-items: center;
-    color: #ecf0f1;
+    color: white;
     font-weight: $font-weight-medium;
     font-size: $nav-font-size;
     margin-bottom: 8px;
@@ -86,7 +87,7 @@
 
 .group-label i {
     margin-right: 6px;
-    color: #bdc3c7;
+    color: rgba(white, 0.7);
 }
 
 .group-items {
@@ -98,7 +99,7 @@
     display: flex;
     align-items: center;
     padding: 6px 12px;
-    color: #bdc3c7;
+    color: rgba(white, 0.7);
     text-decoration: none;
     font-size: $nav-font-size;
     font-weight: $font-weight-medium;
@@ -108,15 +109,15 @@
 }
 
 .group-items a:hover {
-    color: #e8d5ff;
-    background-color: rgba(232, 213, 255, 0.15);
+    color: lighten($primary-color, 35%);
+    background-color: rgba(lighten($primary-color, 35%), 0.15);
     text-decoration: none;
     transform: translateY(-1px);
 }
 
 .group-items a.active {
-    color: #e8d5ff;
-    background-color: rgba(232, 213, 255, 0.15);
+    color: lighten($primary-color, 35%);
+    background-color: rgba(lighten($primary-color, 35%), 0.15);
     font-weight: $font-weight-semibold;
 }
 
@@ -128,16 +129,16 @@
     transform: translateX(-50%);
     width: 4px;
     height: 4px;
-    background-color: #e8d5ff;
+    background-color: lighten($primary-color, 35%);
     border-radius: 50%;
 }
 
 .group-items a.logout-link {
-    color: #e74c3c;
+    color: $danger-color;
 
     &:hover {
-        color: #c0392b;
-        background-color: rgba(231, 76, 60, 0.1);
+        color: darken($danger-color, 10%);
+        background-color: rgba($danger-color, 0.1);
     }
 }
 
@@ -146,7 +147,7 @@
     display: flex;
     align-items: center;
     padding: 6px 12px;
-    color: #bdc3c7;
+    color: rgba(white, 0.7);
     text-decoration: none;
     font-size: $nav-font-size;
     font-weight: $font-weight-medium;
@@ -156,8 +157,8 @@
 }
 
 .external-link:hover {
-    color: #2ecc71;
-    background-color: rgba(46, 204, 113, 0.1);
+    color: $success-color;
+    background-color: rgba($success-color, 0.1);
     text-decoration: none;
     transform: translateY(-1px);
 }
@@ -192,12 +193,12 @@
     display: flex;
     align-items: center;
     gap: 8px;
-    color: #ecf0f1;
+    color: white;
     font-size: $nav-font-size;
     font-weight: $font-weight-medium;
 
     i {
-        color: #e8d5ff;
+        color: lighten($primary-color, 35%);
         font-size: 16px;
     }
 
@@ -211,9 +212,9 @@
     display: flex;
     align-items: center;
     gap: 4px;
-    background: rgba(231, 76, 60, 0.1);
-    border: 1px solid rgba(231, 76, 60, 0.3);
-    color: #e74c3c;
+    background: rgba($danger-color, 0.1);
+    border: 1px solid rgba($danger-color, 0.3);
+    color: $danger-color;
     padding: 4px 8px;
     border-radius: 4px;
     cursor: pointer;
@@ -222,8 +223,8 @@
     min-width: fit-content;
 
     &:hover {
-        background: rgba(231, 76, 60, 0.2);
-        border-color: rgba(231, 76, 60, 0.5);
+        background: rgba($danger-color, 0.2);
+        border-color: rgba($danger-color, 0.5);
         transform: translateY(-1px);
     }
 
@@ -241,9 +242,9 @@
     display: flex;
     align-items: center;
     gap: 6px;
-    background: rgba(232, 213, 255, 0.15);
-    border: 1px solid rgba(232, 213, 255, 0.3);
-    color: #e8d5ff;
+    background: rgba(lighten($primary-color, 35%), 0.15);
+    border: 1px solid rgba(lighten($primary-color, 35%), 0.3);
+    color: lighten($primary-color, 35%);
     padding: 8px 12px;
     border-radius: 6px;
     text-decoration: none;
@@ -252,9 +253,9 @@
     transition: all 0.2s ease;
 
     &:hover {
-        background: rgba(232, 213, 255, 0.25);
-        border-color: rgba(232, 213, 255, 0.5);
-        color: #e8d5ff;
+        background: rgba(lighten($primary-color, 35%), 0.25);
+        border-color: rgba(lighten($primary-color, 35%), 0.5);
+        color: lighten($primary-color, 35%);
         text-decoration: none;
         transform: translateY(-1px);
     }
