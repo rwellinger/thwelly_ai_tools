@@ -9,14 +9,13 @@ import {NotificationService} from '../../services/ui/notification.service';
 import {ChatService} from '../../services/config/chat.service';
 import {MatSnackBarModule} from '@angular/material/snack-bar';
 import {MatCardModule} from '@angular/material/card';
-import {PopupAudioPlayerComponent} from '../../components/popup-audio-player/popup-audio-player.component';
 import {SongDetailPanelComponent} from '../../components/song-detail-panel/song-detail-panel.component';
 import {ProgressService} from '../../services/ui/progress.service';
 
 @Component({
     selector: 'app-song-generator',
     standalone: true,
-    imports: [CommonModule, ReactiveFormsModule, HeaderComponent, FooterComponent, MatSnackBarModule, MatCardModule, PopupAudioPlayerComponent, SongDetailPanelComponent],
+    imports: [CommonModule, ReactiveFormsModule, HeaderComponent, FooterComponent, MatSnackBarModule, MatCardModule, SongDetailPanelComponent],
     templateUrl: './song-generator.component.html',
     styleUrl: './song-generator.component.scss',
     encapsulation: ViewEncapsulation.None
@@ -35,9 +34,6 @@ export class SongGeneratorComponent implements OnInit {
     loadingMessage = '';
     result = '';
     currentlyPlaying: string | null = null;
-    audioUrl: string | null = null;
-    showPopupPlayer = false;
-    currentSongTitle = '';
     currentSongId: string | null = null;
 
     @ViewChild(SongDetailPanelComponent) songDetailPanel!: SongDetailPanelComponent;
@@ -217,39 +213,18 @@ export class SongGeneratorComponent implements OnInit {
 
 
 
-    playAudio(mp3Url: string, songId: string, choiceNumber?: number) {
-        if (this.currentlyPlaying === songId) {
-            this.stopAudio();
-        } else {
-            this.audioUrl = mp3Url;
-            this.currentlyPlaying = songId;
-            this.currentSongTitle = `Generated Song (Choice ${choiceNumber || 'Unknown'})`;
-            this.showPopupPlayer = true;
-        }
+    // Event handlers for song detail panel
+    onPlayAudio(event: {url: string, id: string, choiceNumber: number}) {
+        // Update currently playing tracking for UI state only
+        this.currentlyPlaying = event.id;
     }
 
-    stopAudio() {
-        this.audioUrl = null;
-        this.currentlyPlaying = null;
-        this.showPopupPlayer = false;
-        this.currentSongTitle = '';
+    onDownloadStems(url: string) {
+        this.downloadStems(url);
     }
 
-    onAudioLoadError(error: {code: number, message: string}) {
-        console.log('Audio load error handled:', error);
-        this.notificationService.error(`Audio Error: ${error.message}`);
-        this.stopAudio(); // Close the player when error occurs
-    }
-
-    onPopupPlayerClose() {
-        this.stopAudio();
-    }
-
-    onPopupPlayerEnded() {
-        this.stopAudio();
-    }
-
-    onCanPlayThrough() {
+    onCopyLyrics() {
+        // No-op: Panel handles this internally
     }
 
     private delay(ms: number): Promise<void> {
@@ -339,18 +314,6 @@ export class SongGeneratorComponent implements OnInit {
         this.downloadFlac(url);
     }
 
-    onPlayAudio(event: {url: string, id: string, choiceNumber: number}) {
-        this.playAudio(event.url, event.id, event.choiceNumber);
-    }
-
-
-    onDownloadStems(url: string) {
-        this.downloadStems(url);
-    }
-
-    onCopyLyrics() {
-        // No-op: Shared component handles this
-    }
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     onUpdateRating(_event: { choiceId: string, rating: number | null }) {

@@ -35,22 +35,13 @@ export class SongDetailPanelComponent implements OnInit, OnChanges {
     // Stem generation tracking
     public stemGenerationInProgress = new Set<string>();
 
-    // Audio player state
-    audioUrl: string | null = null;
-    currentlyPlaying: string | null = null;
-    currentSongTitle: string = '';
-    isPlaying = false;
-    currentTime = 0;
-    duration = 0;
-    volume = 1;
-
-    @ViewChild('audioPlayer') audioPlayer!: ElementRef<HTMLAudioElement>;
 
     @Output() titleChanged = new EventEmitter<string>();
     @Output() tagsChanged = new EventEmitter<string[]>();
     @Output() workflowChanged = new EventEmitter<string>();
     @Output() downloadFlac = new EventEmitter<string>();
     @Output() playAudio = new EventEmitter<{ url: string, id: string, choiceNumber: number }>();
+    @Input() currentlyPlaying: string | null = null;
     @Output() downloadStems = new EventEmitter<string>();
     @Output() copyLyrics = new EventEmitter<void>();
     @Output() updateRating = new EventEmitter<{ choiceId: string, rating: number | null }>();
@@ -215,95 +206,9 @@ export class SongDetailPanelComponent implements OnInit, OnChanges {
         return option?.label || this.song.workflow;
     }
 
-    // Audio methods
+    // Audio methods - now emits events to parent
     onPlayAudio(url: string, id: string, choiceNumber: number) {
-        if (this.currentlyPlaying === id) {
-            this.stopAudio();
-        } else {
-            this.playAudioInternal(url, id, choiceNumber);
-        }
-    }
-
-    private playAudioInternal(mp3Url: string, choiceId: string, choiceNumber?: number) {
-        this.audioUrl = mp3Url;
-        this.currentlyPlaying = choiceId;
-        this.currentSongTitle = this.getDisplayTitle(this.song) + ` (Choice ${choiceNumber || 'Unknown'})`;
-
-        // Wait for audio element to be ready
-        setTimeout(() => {
-            if (this.audioPlayer?.nativeElement) {
-                this.audioPlayer.nativeElement.load();
-                this.audioPlayer.nativeElement.play();
-            }
-        });
-    }
-
-    playPauseAudio() {
-        if (!this.audioPlayer?.nativeElement) return;
-
-        if (this.isPlaying) {
-            this.audioPlayer.nativeElement.pause();
-        } else {
-            this.audioPlayer.nativeElement.play();
-        }
-    }
-
-    stopAudio() {
-        if (this.audioPlayer?.nativeElement) {
-            this.audioPlayer.nativeElement.pause();
-            this.audioPlayer.nativeElement.currentTime = 0;
-        }
-        this.currentlyPlaying = null;
-        this.audioUrl = null;
-        this.isPlaying = false;
-        this.currentTime = 0;
-    }
-
-    onTimeUpdate() {
-        if (this.audioPlayer?.nativeElement) {
-            this.currentTime = this.audioPlayer.nativeElement.currentTime;
-            this.duration = this.audioPlayer.nativeElement.duration || 0;
-        }
-    }
-
-    onLoadedMetadata() {
-        if (this.audioPlayer?.nativeElement) {
-            this.duration = this.audioPlayer.nativeElement.duration;
-        }
-    }
-
-    onPlay() {
-        this.isPlaying = true;
-    }
-
-    onPause() {
-        this.isPlaying = false;
-    }
-
-    seekTo(event: Event) {
-        const target = event.target as HTMLInputElement;
-        const seekTime = parseFloat(target.value);
-
-        if (this.audioPlayer?.nativeElement) {
-            this.audioPlayer.nativeElement.currentTime = seekTime;
-        }
-    }
-
-    setVolume(event: Event) {
-        const target = event.target as HTMLInputElement;
-        this.volume = parseFloat(target.value);
-
-        if (this.audioPlayer?.nativeElement) {
-            this.audioPlayer.nativeElement.volume = this.volume;
-        }
-    }
-
-    formatTime(seconds: number): string {
-        if (isNaN(seconds)) return '0:00';
-
-        const minutes = Math.floor(seconds / 60);
-        const remainingSeconds = Math.floor(seconds % 60);
-        return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
+        this.playAudio.emit({ url, id, choiceNumber });
     }
 
     onDownloadFlac(url: string) {

@@ -257,15 +257,4 @@
   </div>
 </div>
 
-<!-- Popup Audio Player -->
-<app-popup-audio-player
-  [visible]="showPopupPlayer"
-  [audioUrl]="audioUrl"
-  [songTitle]="currentSongTitle"
-  (closePlayer)="onPopupPlayerClose()"
-  (audioEnded)="onPopupPlayerEnded()"
-  (audioLoadError)="onAudioLoadError($event)">
-</app-popup-audio-player>
-
-
 <app-footer></app-footer>

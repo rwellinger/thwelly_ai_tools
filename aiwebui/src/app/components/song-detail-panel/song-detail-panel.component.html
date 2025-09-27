@@ -59,10 +59,9 @@
                         <i class="fas fa-hashtag meta-icon"></i>
                         <span class="meta-value">{{ song.job_id }}</span>
                     </div>
-                    <div class="meta-item" *ngIf="shouldShowMetaInfo('status') && song.status">
+                    <div class="meta-item" *ngIf="shouldShowMetaInfo('status') && song.status && song.status.toLowerCase() !== 'success'">
                         <i class="fas meta-icon"
-                           [class]="song.status.toLowerCase() === 'success' ? 'fa-check-circle status-icon-completed' :
-                                   song.status.toLowerCase() === 'failure' || song.status.toLowerCase() === 'failed' ? 'fa-times-circle status-icon-failed' :
+                           [class]="song.status.toLowerCase() === 'failure' || song.status.toLowerCase() === 'failed' ? 'fa-times-circle status-icon-failed' :
                                    'fa-clock status-icon-' + song.status.toLowerCase()"></i>
                         <span class="meta-value" [class]="'status-' + song.status.toLowerCase()">{{ song.status }}</span>
                     </div>
@@ -88,9 +87,11 @@
             </div>
 
             <!-- Tags & Workflow Container -->
-            <div class="tags-workflow-container">
+            <div class="tags-workflow-container"
+                 [class.tags-editing]="editingTags"
+                 [class.workflow-editing]="editingWorkflow">
                 <!-- Tags Section -->
-                <div class="song-tags-section" *ngIf="showEditTags">
+                <div class="song-tags-section" *ngIf="showEditTags && !editingWorkflow">
                     <div class="tags-row" *ngIf="!editingTags">
                         <h3 class="tags-title">Tags:</h3>
                         <span class="tags-display">{{ getSelectedTagsDisplay() }}</span>
@@ -144,7 +145,7 @@
                 </div>
 
                 <!-- Workflow Section -->
-                <div class="song-workflow-section" *ngIf="showEditWorkflow">
+                <div class="song-workflow-section" *ngIf="showEditWorkflow && !editingTags">
                     <div class="workflow-row" *ngIf="!editingWorkflow">
                         <h3 class="workflow-title">Workflow:</h3>
                         <span class="workflow-display">{{ getWorkflowDisplay() }}</span>
@@ -208,7 +209,7 @@
                                     (click)="onPlayAudio(choice.mp3_url, choice.id, i + 1)"
                                     [class.active]="currentlyPlayingId === choice.id">
                                 <i class="fas fa-music"></i>
-                                {{ currentlyPlayingId === choice.id ? 'Hide Player' : 'Play' }}
+                                {{ currentlyPlayingId === choice.id ? 'Playing' : 'Play' }}
                             </button>
                             <span *ngIf="!choice.mp3_url" class="not-available">N/A</span>
                         </td>
@@ -277,63 +278,6 @@
         </div>
     </div>
 
-    <!-- Fixed Player Bar -->
-    <div class="song-player-bar" *ngIf="audioUrl">
-        <!-- Hidden Audio Element -->
-        <audio #audioPlayer
-               [src]="audioUrl"
-               (timeupdate)="onTimeUpdate()"
-               (loadedmetadata)="onLoadedMetadata()"
-               (play)="onPlay()"
-               (pause)="onPause()"
-               (ended)="stopAudio()">
-        </audio>
-
-        <div class="player-content">
-            <!-- Song Info -->
-            <div class="song-info">
-                <i class="fas fa-music song-icon"></i>
-                <div class="song-text">
-                    <div class="song-title-player">{{ currentSongTitle }}</div>
-                </div>
-            </div>
-
-            <!-- Player Controls -->
-            <div class="player-controls">
-                <button type="button" class="control-btn" (click)="stopAudio()" title="Stop">
-                    <i class="fas fa-stop"></i>
-                </button>
-                <button type="button" class="control-btn play-btn" (click)="playPauseAudio()" title="Play/Pause">
-                    <i class="fas" [class.fa-play]="!isPlaying" [class.fa-pause]="isPlaying"></i>
-                </button>
-            </div>
-
-            <!-- Progress Section -->
-            <div class="progress-section">
-                <span class="time-display">{{ formatTime(currentTime) }}</span>
-                <input type="range"
-                       class="progress-slider"
-                       [min]="0"
-                       [max]="duration || 0"
-                       [value]="currentTime"
-                       (input)="seekTo($event)"
-                       [disabled]="!duration">
-                <span class="time-display">{{ formatTime(duration) }}</span>
-            </div>
-
-            <!-- Volume Control -->
-            <div class="volume-section">
-                <i class="fas fa-volume-up volume-icon"></i>
-                <input type="range"
-                       class="volume-slider"
-                       min="0"
-                       max="1"
-                       step="0.1"
-                       [value]="volume"
-                       (input)="setVolume($event)">
-            </div>
-        </div>
-    </div>
 </div>
 
 

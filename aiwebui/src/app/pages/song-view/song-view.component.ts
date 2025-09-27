@@ -11,13 +11,12 @@ import {NotificationService} from '../../services/ui/notification.service';
 import {MatSnackBarModule} from '@angular/material/snack-bar';
 import {MatCardModule} from '@angular/material/card';
 import {MatButtonModule} from '@angular/material/button';
-import {PopupAudioPlayerComponent} from '../../components/popup-audio-player/popup-audio-player.component';
 import {SongDetailPanelComponent} from '../../components/song-detail-panel/song-detail-panel.component';
 
 @Component({
   selector: 'app-song-view',
   standalone: true,
-  imports: [CommonModule, FormsModule, HeaderComponent, FooterComponent, MatSnackBarModule, MatCardModule, MatButtonModule, PopupAudioPlayerComponent, SongDetailPanelComponent],
+  imports: [CommonModule, FormsModule, HeaderComponent, FooterComponent, MatSnackBarModule, MatCardModule, MatButtonModule, SongDetailPanelComponent],
   templateUrl: './song-view.component.html',
   styleUrl: './song-view.component.scss',
   encapsulation: ViewEncapsulation.None
@@ -53,9 +52,16 @@ export class SongViewComponent implements OnInit, OnDestroy {
 
   // Audio and features
   currentlyPlaying: string | null = null;
+
+  // Audio player state
   audioUrl: string | null = null;
-  showPopupPlayer = false;
-  currentSongTitle = '';
+  currentSongTitle: string = '';
+  isPlaying = false;
+  currentTime = 0;
+  duration = 0;
+  volume = 1;
+
+  @ViewChild('audioPlayer') audioPlayer!: ElementRef<HTMLAudioElement>;
 
   // Modal state
   showModal = false;
@@ -167,7 +173,7 @@ export class SongViewComponent implements OnInit, OnDestroy {
         // Clear selection if no songs found
         this.selectedSong = null;
         this.selectedSongId = null;
-        this.stopAudio();
+        // Player is now self-contained in detail panel
       }
     } catch (error: any) {
       this.notificationService.error(`Error loading songs: ${error.message}`);
@@ -180,7 +186,7 @@ export class SongViewComponent implements OnInit, OnDestroy {
     // Clear previous selection and stop audio
     this.selectedSong = null;
     this.selectedSongId = song.id;
-    this.stopAudio();
+    // Player is now self-contained in detail panel
 
     // Store basic song info for backwards compatibility with existing template code
     this.selectedSong = song;
@@ -470,7 +476,7 @@ export class SongViewComponent implements OnInit, OnDestroy {
       // Clear selected song if it was deleted
       if (this.selectedSong && this.selectedSongIds.has(this.selectedSong.id)) {
         this.selectedSong = null;
-        this.stopAudio();
+        // Player is now self-contained in detail panel
       }
 
       // Reload current page
@@ -606,40 +612,111 @@ export class SongViewComponent implements OnInit, OnDestroy {
     }
   }
 
-  // Audio player methods
-  playAudio(mp3Url: string, choiceId: string, choiceNumber?: number) {
-    if (this.currentlyPlaying === choiceId) {
+  // Event handlers for song detail panel - now handles audio in parent
+  onPlayAudio(event: {url: string, id: string, choiceNumber: number}) {
+    this.onPlayAudioInternal(event.url, event.id);
+  }
+
+  // Audio methods
+  onPlayAudioInternal(url: string, id: string) {
+    if (this.currentlyPlaying === id) {
       this.stopAudio();
     } else {
-      this.audioUrl = mp3Url;
-      this.currentlyPlaying = choiceId;
-      this.currentSongTitle = this.getSongTitle(this.selectedSong) + ` (Choice ${choiceNumber || 'Unknown'})`;
-      this.showPopupPlayer = true;
+      this.playAudioInternal(url, id);
+    }
+  }
+
+  private playAudioInternal(mp3Url: string, choiceId: string) {
+    this.audioUrl = mp3Url;
+    this.currentlyPlaying = choiceId;
+
+    // Get song title and limit to 40 characters
+    const songTitle = this.selectedSong?.title || 'Unknown Song';
+    this.currentSongTitle = songTitle.length > 40 ? songTitle.substring(0, 37) + '...' : songTitle;
+
+    // Wait for audio element to be ready
+    setTimeout(() => {
+      if (this.audioPlayer?.nativeElement) {
+        this.audioPlayer.nativeElement.load();
+        this.audioPlayer.nativeElement.play();
+      }
+    });
+  }
+
+  playPauseAudio() {
+    if (!this.audioPlayer?.nativeElement) return;
+
+    if (this.isPlaying) {
+      this.audioPlayer.nativeElement.pause();
+    } else {
+      this.audioPlayer.nativeElement.play();
     }
   }
 
   stopAudio() {
-    this.audioUrl = null;
+    if (this.audioPlayer?.nativeElement) {
+      this.audioPlayer.nativeElement.pause();
+      this.audioPlayer.nativeElement.currentTime = 0;
+    }
     this.currentlyPlaying = null;
-    this.showPopupPlayer = false;
-    this.currentSongTitle = '';
+    this.audioUrl = null;
+    this.isPlaying = false;
+    this.currentTime = 0;
   }
 
-  onAudioLoadError(error: {code: number, message: string}) {
-    console.log('Audio load error handled in song-view:', error);
-    this.notificationService.error(`Audio Error: ${error.message}`);
-    this.stopAudio(); // Close the player when error occurs
+  onTimeUpdate() {
+    if (this.audioPlayer?.nativeElement) {
+      this.currentTime = this.audioPlayer.nativeElement.currentTime;
+      this.duration = this.audioPlayer.nativeElement.duration || 0;
+    }
   }
 
-  onPopupPlayerClose() {
-    this.stopAudio();
+  onLoadedMetadata() {
+    if (this.audioPlayer?.nativeElement) {
+      this.duration = this.audioPlayer.nativeElement.duration;
+    }
   }
 
-  onPopupPlayerEnded() {
-    this.stopAudio();
+  onPlay() {
+    this.isPlaying = true;
   }
 
-  onCanPlayThrough() {
+  onPause() {
+    this.isPlaying = false;
+  }
+
+  seekTo(event: Event) {
+    const target = event.target as HTMLInputElement;
+    const seekTime = parseFloat(target.value);
+
+    if (this.audioPlayer?.nativeElement) {
+      this.audioPlayer.nativeElement.currentTime = seekTime;
+    }
+  }
+
+  setVolume(event: Event) {
+    const target = event.target as HTMLInputElement;
+    this.volume = parseFloat(target.value);
+
+    if (this.audioPlayer?.nativeElement) {
+      this.audioPlayer.nativeElement.volume = this.volume;
+    }
+  }
+
+  formatTime(seconds: number): string {
+    if (isNaN(seconds)) return '0:00';
+
+    const minutes = Math.floor(seconds / 60);
+    const remainingSeconds = Math.floor(seconds % 60);
+    return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
+  }
+
+  onDownloadStems(url: string) {
+    this.downloadStems(url);
+  }
+
+  onCopyLyrics() {
+    this.copyLyricsToClipboard();
   }
 
   downloadFlac(flacUrl: string) {
@@ -798,18 +875,6 @@ export class SongViewComponent implements OnInit, OnDestroy {
     this.downloadFlac(url);
   }
 
-  onPlayAudio(event: {url: string, id: string, choiceNumber: number}) {
-    this.playAudio(event.url, event.id, event.choiceNumber);
-  }
-
-
-  onDownloadStems(url: string) {
-    this.downloadStems(url);
-  }
-
-  onCopyLyrics() {
-    this.copyLyricsToClipboard();
-  }
 
   async onUpdateRating(event: { choiceId: string, rating: number | null }) {
     try {
