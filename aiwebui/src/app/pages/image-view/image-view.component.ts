@@ -12,15 +12,15 @@ import {CommonModule} from '@angular/common';
 import {FormsModule} from '@angular/forms';
 import {HttpClient} from '@angular/common/http';
 import {ImageBlobService} from '../../services/image-blob.service';
-import {HeaderComponent} from '../../shared/header/header.component';
-import {FooterComponent} from '../../shared/footer/footer.component';
+import {HeaderComponent} from '../../components/header/header.component';
+import {FooterComponent} from '../../components/footer/footer.component';
 import {ApiConfigService} from '../../services/api-config.service';
 import {NotificationService} from '../../services/notification.service';
 import {MatSnackBarModule} from '@angular/material/snack-bar';
 import {MatCardModule} from '@angular/material/card';
 import {MatButtonModule} from '@angular/material/button';
 import {DisplayNamePipe} from '../../pipes/display-name.pipe';
-import {ImageDetailPanelComponent} from '../../shared/image-detail-panel/image-detail-panel.component';
+import {ImageDetailPanelComponent} from '../../components/image-detail-panel/image-detail-panel.component';
 import {Subject, debounceTime, distinctUntilChanged, takeUntil, firstValueFrom} from 'rxjs';
 
 interface ImageData {
