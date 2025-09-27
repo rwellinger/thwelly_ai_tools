@@ -614,3 +614,213 @@ form .segment-control {
         min-width: 160px;
     }
 }
+
+/* ===== PLAYER BAR IN ACTIONS ===== */
+.detail-actions {
+    width: 100%;
+
+    .player-bar {
+        width: 100%;
+        background: $background-light;
+        border-radius: $border-radius-sm;
+        padding: $spacing-12;
+        min-height: 60px;
+        display: flex;
+        align-items: center;
+
+        .player-content {
+            display: flex;
+            align-items: center;
+            gap: $spacing-15;
+            width: 100%;
+        }
+
+        .song-info {
+            display: flex;
+            align-items: center;
+            gap: $spacing-10;
+            min-width: 0;
+            flex: 1;
+
+            .song-icon {
+                color: $primary-color;
+                font-size: $font-lg;
+                flex-shrink: 0;
+            }
+
+            .song-text {
+                min-width: 0;
+                flex: 1;
+
+                .song-title-player {
+                    font-size: $font-sm;
+                    font-weight: $font-weight-medium;
+                    color: $text-primary;
+                    white-space: nowrap;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                }
+            }
+        }
+
+        .player-controls {
+            display: flex;
+            align-items: center;
+            gap: $spacing-sm;
+            flex-shrink: 0;
+
+            .control-btn {
+                @include button-style($background-white, $text-primary);
+                width: 36px;
+                height: 36px;
+                padding: 0;
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                border: 1px solid $border-standard;
+
+                &.play-btn {
+                    background-color: $primary-color;
+                    color: white;
+                    border-color: $primary-color;
+
+                    &:hover:not(:disabled) {
+                        background-color: darken($primary-color, 10%);
+                    }
+                }
+
+                i {
+                    font-size: $font-sm;
+                }
+            }
+        }
+
+        .progress-section {
+            display: flex;
+            align-items: center;
+            gap: $spacing-sm;
+            flex: 1;
+            min-width: 0;
+
+            .time-display {
+                font-size: $font-xs;
+                color: $text-muted;
+                font-family: monospace;
+                min-width: 40px;
+                text-align: center;
+            }
+
+            .progress-slider {
+                flex: 1;
+                height: 4px;
+                background: $border-light;
+                border-radius: 2px;
+                outline: none;
+                cursor: pointer;
+
+                &::-webkit-slider-thumb {
+                    appearance: none;
+                    width: 12px;
+                    height: 12px;
+                    border-radius: 50%;
+                    background: $primary-color;
+                    cursor: pointer;
+                }
+
+                &::-moz-range-thumb {
+                    width: 12px;
+                    height: 12px;
+                    border-radius: 50%;
+                    background: $primary-color;
+                    cursor: pointer;
+                    border: none;
+                }
+            }
+        }
+
+        .volume-controls {
+            display: flex;
+            align-items: center;
+            gap: $spacing-sm;
+            flex-shrink: 0;
+
+            .volume-btn {
+                @include button-style($background-white, $text-primary);
+                width: 32px;
+                height: 32px;
+                padding: 0;
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                border: 1px solid $border-standard;
+
+                i {
+                    font-size: $font-xs;
+                }
+            }
+
+            .volume-slider {
+                width: 60px;
+                height: 3px;
+                background: $border-light;
+                border-radius: 2px;
+                outline: none;
+                cursor: pointer;
+
+                &::-webkit-slider-thumb {
+                    appearance: none;
+                    width: 10px;
+                    height: 10px;
+                    border-radius: 50%;
+                    background: $primary-color;
+                    cursor: pointer;
+                }
+
+                &::-moz-range-thumb {
+                    width: 10px;
+                    height: 10px;
+                    border-radius: 50%;
+                    background: $primary-color;
+                    cursor: pointer;
+                    border: none;
+                }
+            }
+        }
+
+        .no-audio-message {
+            display: flex;
+            align-items: center;
+            gap: $spacing-10;
+            color: $text-muted;
+            font-style: italic;
+            width: 100%;
+            justify-content: center;
+
+            i {
+                font-size: $font-lg;
+            }
+        }
+    }
+}
+
+/* ===== PLAYER BAR RESPONSIVE ===== */
+@media (max-width: 768px) {
+    .detail-actions .player-bar {
+        padding: $spacing-10;
+
+        .player-content {
+            gap: $spacing-10;
+        }
+
+        .progress-section .time-display {
+            min-width: 35px;
+            font-size: 10px;
+        }
+
+        .volume-controls {
+            display: none;
+        }
+    }
+}

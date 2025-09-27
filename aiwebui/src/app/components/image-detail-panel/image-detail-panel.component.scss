@@ -35,6 +35,7 @@
     color: $text-primary;
     font-size: $font-sm;
     font-weight: $font-weight-medium;
+    min-width: fit-content;
 }
 
 .image-prompt {
@@ -126,7 +127,6 @@
     background-color: $background-light;
     padding: $spacing-sm;
     border-radius: $border-radius-lg;
-    border-left: 4px solid $primary-color;
     margin-bottom: $spacing-10;
 }
 

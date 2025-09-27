@@ -255,21 +255,24 @@
                 </table>
             </div>
 
-            <!-- Lyrics Section -->
-            <div class="song-lyrics" *ngIf="song.lyrics">
-                <div class="lyrics-header">
-                    <h3>Lyrics:</h3>
-                    <button type="button" class="copy-button" (click)="openLyricsDialog()">
-                        <i class="fas fa-expand-alt"></i> Show Lyrics
-                    </button>
+            <!-- Lyrics & Style Container -->
+            <div class="lyrics-style-container" *ngIf="song.lyrics || song.prompt">
+                <!-- Lyrics Section -->
+                <div class="song-lyrics" *ngIf="song.lyrics">
+                    <div class="lyrics-header">
+                        <h3>Lyrics:</h3>
+                        <button type="button" class="copy-button" (click)="openLyricsDialog()">
+                            <i class="fas fa-expand-alt"></i> Show Lyrics
+                        </button>
+                    </div>
+                    <pre class="lyrics-content">{{ song.lyrics }}</pre>
                 </div>
-                <pre class="lyrics-content">{{ song.lyrics }}</pre>
-            </div>
 
-            <!-- Style Prompt -->
-            <div class="song-prompt" *ngIf="song.prompt">
-                <h3>Style Prompt:</h3>
-                <p class="prompt-content">{{ song.prompt }}</p>
+                <!-- Style Prompt -->
+                <div class="song-prompt" *ngIf="song.prompt">
+                    <h3>Style Prompt:</h3>
+                    <p class="prompt-content">{{ song.prompt }}</p>
+                </div>
             </div>
         </div>
 

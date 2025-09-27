@@ -57,6 +57,7 @@
     font-size: $font-sm;
     font-weight: $font-weight-medium;
     word-break: break-word;
+    min-width: fit-content;
 }
 
 /* Status styling */
@@ -80,7 +81,6 @@
     background-color: $background-light;
     padding: $spacing-sm;
     border-radius: $border-radius-lg;
-    border-left: 4px solid $primary-color;
     margin-bottom: $spacing-10;
 }
 
@@ -126,6 +126,7 @@
     display: flex;
     gap: $spacing-12;
     align-items: flex-start;
+    margin-bottom: $spacing-20;
 }
 
 /* ===== TAGS SECTION ===== */
@@ -133,7 +134,6 @@
     background-color: $background-light;
     padding: $spacing-12;
     border-radius: $border-radius-lg;
-    border-left: 4px solid $success-color;
     flex: 0 0 60%;
 }
 
@@ -142,7 +142,6 @@
     background-color: $background-light;
     padding: $spacing-12;
     border-radius: $border-radius-lg;
-    border-left: 4px solid $primary-color;
     flex: 0 0 40%;
 }
 
@@ -362,7 +361,7 @@
     background-color: #f8f9fa;
     padding: 15px;
     border-radius: 6px;
-    border-left: 4px solid #17a2b8;
+    margin-bottom: $spacing-20;
 }
 
 .song-choices h3 {
@@ -454,12 +453,22 @@
     font-size: $font-sm;
 }
 
+/* ===== LYRICS & STYLE CONTAINER ===== */
+.lyrics-style-container {
+    display: flex;
+    flex-direction: column;
+
+    /* Add gap only when both elements exist */
+    .song-lyrics:not(:last-child) {
+        margin-bottom: $spacing-12;
+    }
+}
+
 /* ===== LYRICS SECTION ===== */
 .song-lyrics {
     background-color: $background-light;
     padding: $spacing-12;
     border-radius: $border-radius-lg;
-    border-left: 4px solid $warning-color;
 }
 
 .lyrics-header {
@@ -508,10 +517,9 @@
 
 /* ===== SONG PROMPT ===== */
 .song-prompt {
-    background-color: #f8f9fa;
-    padding: 12px;
-    border-radius: 6px;
-    border-left: 4px solid #b8860b;
+    background-color: $background-light;
+    padding: $spacing-12;
+    border-radius: $border-radius-lg;
 }
 
 .song-prompt h3 {

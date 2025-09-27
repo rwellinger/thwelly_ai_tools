@@ -1,4 +1,4 @@
-import {Component, OnInit, ViewEncapsulation, inject, HostListener, ViewChild} from '@angular/core';
+import {Component, OnInit, ViewEncapsulation, inject, HostListener, ViewChild, ElementRef} from '@angular/core';
 import {FormBuilder, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
 import {CommonModule} from '@angular/common';
 import {SongService} from '../../services/business/song.service';
@@ -36,7 +36,18 @@ export class SongGeneratorComponent implements OnInit {
     currentlyPlaying: string | null = null;
     currentSongId: string | null = null;
 
+    // Audio player state
+    audioUrl: string | null = null;
+    currentSongTitle: string = '';
+    isPlaying = false;
+    currentTime = 0;
+    duration = 0;
+    volume = 1;
+    isMuted = false;
+    isLoaded = false;
+
     @ViewChild(SongDetailPanelComponent) songDetailPanel!: SongDetailPanelComponent;
+    @ViewChild('audioPlayer') audioPlayer!: ElementRef<HTMLAudioElement>;
 
     private fb = inject(FormBuilder);
     private songService = inject(SongService);
@@ -215,8 +226,107 @@ export class SongGeneratorComponent implements OnInit {
 
     // Event handlers for song detail panel
     onPlayAudio(event: {url: string, id: string, choiceNumber: number}) {
-        // Update currently playing tracking for UI state only
-        this.currentlyPlaying = event.id;
+        this.onPlayAudioInternal(event.url, event.id);
+    }
+
+    // Audio methods
+    onPlayAudioInternal(url: string, id: string) {
+        if (this.currentlyPlaying === id) {
+            this.stopAudio();
+        } else {
+            this.playAudioInternal(url, id);
+        }
+    }
+
+    private playAudioInternal(mp3Url: string, choiceId: string) {
+        this.audioUrl = mp3Url;
+        this.currentlyPlaying = choiceId;
+        // Get song title from current song via song detail panel
+        const currentSong = this.songDetailPanel?.song;
+        const songTitle = currentSong?.title || 'Generated Song';
+        this.currentSongTitle = songTitle.length > 40 ? songTitle.substring(0, 37) + '...' : songTitle;
+
+        // Wait for audio element to be ready
+        setTimeout(() => {
+            if (this.audioPlayer?.nativeElement) {
+                this.audioPlayer.nativeElement.volume = this.volume;
+                this.audioPlayer.nativeElement.play();
+            }
+        }, 100);
+    }
+
+    playPauseAudio() {
+        if (!this.audioPlayer?.nativeElement) return;
+
+        if (this.isPlaying) {
+            this.audioPlayer.nativeElement.pause();
+        } else {
+            this.audioPlayer.nativeElement.play();
+        }
+    }
+
+    stopAudio() {
+        if (this.audioPlayer?.nativeElement) {
+            this.audioPlayer.nativeElement.pause();
+            this.audioPlayer.nativeElement.currentTime = 0;
+        }
+        this.currentlyPlaying = null;
+        this.audioUrl = null;
+        this.isPlaying = false;
+        this.currentTime = 0;
+        this.isLoaded = false;
+    }
+
+    onTimeUpdate() {
+        if (this.audioPlayer?.nativeElement) {
+            this.currentTime = this.audioPlayer.nativeElement.currentTime;
+            this.duration = this.audioPlayer.nativeElement.duration || 0;
+        }
+    }
+
+    onLoadedMetadata() {
+        if (this.audioPlayer?.nativeElement) {
+            this.duration = this.audioPlayer.nativeElement.duration;
+            this.isLoaded = true;
+        }
+    }
+
+    onPlay() {
+        this.isPlaying = true;
+    }
+
+    onPause() {
+        this.isPlaying = false;
+    }
+
+    onSeek(event: Event) {
+        const target = event.target as HTMLInputElement;
+        const seekTime = parseFloat(target.value);
+        if (this.audioPlayer?.nativeElement) {
+            this.audioPlayer.nativeElement.currentTime = seekTime;
+        }
+    }
+
+    toggleMute() {
+        if (!this.audioPlayer?.nativeElement) return;
+
+        this.isMuted = !this.isMuted;
+        this.audioPlayer.nativeElement.muted = this.isMuted;
+    }
+
+    onVolumeChange(event: Event) {
+        const target = event.target as HTMLInputElement;
+        this.volume = parseFloat(target.value);
+        if (this.audioPlayer?.nativeElement) {
+            this.audioPlayer.nativeElement.volume = this.volume;
+        }
+    }
+
+    formatTime(seconds: number): string {
+        if (isNaN(seconds)) return '0:00';
+        const minutes = Math.floor(seconds / 60);
+        const remainingSeconds = Math.floor(seconds % 60);
+        return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
     }
 
     onDownloadStems(url: string) {
