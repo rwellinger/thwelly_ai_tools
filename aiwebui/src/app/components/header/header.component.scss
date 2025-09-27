@@ -1,0 +1,334 @@
+@import '../../../scss/variables';
+@import '../../../scss/mixins';
+
+.modern-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-bottom: 1px solid $border-light;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.06);
+    margin-bottom: 20px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+.header-container {
+    display: flex;
+    align-items: center;
+    gap: 30px;
+    width: 100%;
+    padding: 12px 20px;
+    justify-content: space-between;
+}
+
+/* Logo and Brand Container */
+.logo-brand-container {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-shrink: 0;
+}
+
+/* Logo (far left) */
+.logo {
+    flex-shrink: 0;
+    font-weight: $font-weight-bold;
+    font-size: $font-3xl;
+    color: white;
+}
+
+/* Brand Text */
+.brand {
+    flex-shrink: 0;
+}
+
+.brand-text {
+    font-weight: $font-weight-bold;
+    font-size: $font-3xl;
+    color: white;
+    letter-spacing: -0.5px;
+}
+
+.version-text {
+    font-size: $font-xs;
+    color: rgba(white, 0.7);
+    font-weight: $font-weight-normal;
+    margin-left: 8px;
+    opacity: 0.7;
+    vertical-align: top;
+    line-height: 1;
+}
+
+/* Navigation Groups */
+.nav-groups {
+    display: flex;
+    gap: 40px;
+    align-items: center;
+    margin-left: auto;
+    margin-right: 30px;
+}
+
+.nav-group {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.group-label {
+    display: flex;
+    align-items: center;
+    color: white;
+    font-weight: $font-weight-medium;
+    font-size: $nav-font-size;
+    margin-bottom: 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.group-label i {
+    margin-right: 6px;
+    color: rgba(white, 0.7);
+}
+
+.group-items {
+    display: flex;
+    gap: 12px;
+}
+
+.group-items a {
+    display: flex;
+    align-items: center;
+    padding: 6px 12px;
+    color: rgba(white, 0.7);
+    text-decoration: none;
+    font-size: $nav-font-size;
+    font-weight: $font-weight-medium;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+    position: relative;
+}
+
+.group-items a:hover {
+    color: lighten($primary-color, 35%);
+    background-color: rgba(lighten($primary-color, 35%), 0.15);
+    text-decoration: none;
+    transform: translateY(-1px);
+}
+
+.group-items a.active {
+    color: lighten($primary-color, 35%);
+    background-color: rgba(lighten($primary-color, 35%), 0.15);
+    font-weight: $font-weight-semibold;
+}
+
+.group-items a.active::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 4px;
+    height: 4px;
+    background-color: lighten($primary-color, 35%);
+    border-radius: 50%;
+}
+
+.group-items a.logout-link {
+    color: $danger-color;
+
+    &:hover {
+        color: darken($danger-color, 10%);
+        background-color: rgba($danger-color, 0.1);
+    }
+}
+
+/* External Links Styling */
+.external-link {
+    display: flex;
+    align-items: center;
+    padding: 6px 12px;
+    color: rgba(white, 0.7);
+    text-decoration: none;
+    font-size: $nav-font-size;
+    font-weight: $font-weight-medium;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+    position: relative;
+}
+
+.external-link:hover {
+    color: $success-color;
+    background-color: rgba($success-color, 0.1);
+    text-decoration: none;
+    transform: translateY(-1px);
+}
+
+.external-link::before {
+    content: '↗';
+    font-size: $font-xs;
+    margin-right: 4px;
+    opacity: 0.6;
+}
+
+/* User Section */
+.user-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+    margin-left: auto;
+    padding: 8px;
+}
+
+.auth-section {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-shrink: 0;
+    margin-left: auto;
+}
+
+.user-info {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: white;
+    font-size: $nav-font-size;
+    font-weight: $font-weight-medium;
+
+    i {
+        color: lighten($primary-color, 35%);
+        font-size: 16px;
+    }
+
+    .user-name {
+        font-size: $nav-font-size;
+        white-space: nowrap;
+    }
+}
+
+.logout-button {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    background: rgba($danger-color, 0.1);
+    border: 1px solid rgba($danger-color, 0.3);
+    color: $danger-color;
+    padding: 4px 8px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 12px;
+    min-width: fit-content;
+
+    &:hover {
+        background: rgba($danger-color, 0.2);
+        border-color: rgba($danger-color, 0.5);
+        transform: translateY(-1px);
+    }
+
+    i {
+        font-size: 12px;
+    }
+
+    .logout-text {
+        font-size: 11px;
+        font-weight: $font-weight-medium;
+    }
+}
+
+.login-button {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(lighten($primary-color, 35%), 0.15);
+    border: 1px solid rgba(lighten($primary-color, 35%), 0.3);
+    color: lighten($primary-color, 35%);
+    padding: 8px 12px;
+    border-radius: 6px;
+    text-decoration: none;
+    font-size: $nav-font-size;
+    font-weight: $font-weight-medium;
+    transition: all 0.2s ease;
+
+    &:hover {
+        background: rgba(lighten($primary-color, 35%), 0.25);
+        border-color: rgba(lighten($primary-color, 35%), 0.5);
+        color: lighten($primary-color, 35%);
+        text-decoration: none;
+        transform: translateY(-1px);
+    }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .header-container {
+        flex-direction: column;
+        gap: 15px;
+        padding: 15px;
+    }
+
+    .nav-groups {
+        flex-direction: column;
+        gap: 20px;
+        width: 100%;
+    }
+
+    .nav-group {
+        width: 100%;
+    }
+
+    .group-items {
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+
+    .brand-link {
+        font-size: $font-xl;
+    }
+
+    .user-section {
+        margin-left: 0;
+        align-items: center;
+        padding: 4px;
+        gap: 6px;
+
+        .user-info {
+            font-size: $font-sm;
+        }
+
+        .logout-button {
+            padding: 3px 6px;
+
+            .logout-text {
+                font-size: 10px;
+            }
+        }
+    }
+
+    .auth-section {
+        margin-left: 0;
+        justify-content: center;
+    }
+}
+
+@media (max-width: 480px) {
+    .nav-groups {
+        gap: 15px;
+    }
+
+    .group-items {
+        gap: 8px;
+    }
+
+    .group-items a {
+        padding: 5px 8px;
+        font-size: $font-xs;
+    }
+
+    .group-label {
+        font-size: $font-xs;
+        margin-bottom: 6px;
+    }
+}

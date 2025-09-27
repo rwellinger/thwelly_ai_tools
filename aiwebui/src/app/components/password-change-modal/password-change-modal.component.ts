@@ -6,8 +6,8 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatIconModule } from '@angular/material/icon';
-import { UserService } from '../../services/user.service';
-import { NotificationService } from '../../services/notification.service';
+import { UserService } from '../../services/business/user.service';
+import { NotificationService } from '../../services/ui/notification.service';
 
 @Component({
   selector: 'app-password-change-modal',

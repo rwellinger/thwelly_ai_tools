@@ -1,16 +1,16 @@
+@import '../../../scss/variables';
+@import '../../../scss/mixins';
+
 .login-container {
   min-height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 1rem;
+  padding: $spacing-md;
 }
 
 .login-card {
-  background: #f8f9fa;
-  border-radius: 12px;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-  padding: 2rem;
+  @include card-container($border-light, $background-light, 2rem);
   width: 100%;
   max-width: 400px;
   animation: slideUp 0.3s ease-out;
@@ -32,15 +32,15 @@
   margin-bottom: 2rem;
 
   h1 {
-    color: #333;
+    @include heading(1);
+    color: $text-primary;
     font-size: 1.8rem;
-    font-weight: 600;
-    margin-bottom: 0.5rem;
+    margin-bottom: $spacing-sm;
   }
 
   p {
-    color: #666;
-    font-size: 0.95rem;
+    @include body-text('base');
+    color: $text-secondary;
     margin: 0;
   }
 }
@@ -50,35 +50,30 @@
     margin-bottom: 1.5rem;
 
     label {
-      display: block;
-      color: #333;
-      font-weight: 500;
-      margin-bottom: 0.5rem;
-      font-size: 0.9rem;
+      @include label-text();
+      color: $text-primary;
     }
 
     input {
       width: 100%;
       padding: 0.75rem 1rem;
-      border: 1px solid #ddd;
-      border-radius: 6px;
-      font-size: 0.95rem;
-      transition: border-color 0.2s, box-shadow 0.2s;
+      border: 1px solid $border-standard;
+      border-radius: $border-radius-lg;
+      font-size: $font-base;
+      transition: $transition-standard;
       box-sizing: border-box;
 
       &:focus {
-        outline: none;
-        border-color: #3498db;
-        box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+        @include input-focus-state($primary-color);
       }
 
       &.invalid {
-        border-color: #e74c3c;
-        box-shadow: 0 0 0 3px rgba(231, 76, 60, 0.1);
+        @include input-focus-state($danger-color);
+        border-color: $danger-color;
       }
 
       &::placeholder {
-        color: #999;
+        color: $text-muted;
       }
     }
 
@@ -99,12 +94,12 @@
         background: none;
         border: none;
         cursor: pointer;
-        color: #666;
+        color: $text-secondary;
         font-size: 0.9rem;
         padding: 0.25rem;
 
         &:hover {
-          color: #333;
+          color: $text-primary;
         }
 
         .toggle-icon {
@@ -114,38 +109,31 @@
     }
 
     .error-message {
-      color: #e74c3c;
-      font-size: 0.8rem;
-      margin-top: 0.5rem;
+      color: $danger-color;
+      font-size: $font-xs;
+      margin-top: $spacing-sm;
       display: block;
     }
   }
 
   .global-error {
-    background: #ffeaea;
-    border: 1px solid #e74c3c;
-    border-radius: 4px;
+    background: lighten($danger-color, 45%);
+    border: 1px solid $danger-color;
+    border-radius: $border-radius-sm;
     padding: 0.75rem;
-    margin-bottom: 1rem;
-    color: #c0392b;
-    font-size: 0.9rem;
+    margin-bottom: $spacing-md;
+    color: darken($danger-color, 10%);
+    font-size: $font-sm;
   }
 
   .login-button {
+    @include button-primary('lg');
     width: 100%;
-    background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
-    color: white;
-    border: none;
-    padding: 0.875rem 1.5rem;
-    border-radius: 6px;
-    font-size: 0.95rem;
-    font-weight: 500;
-    cursor: pointer;
-    transition: opacity 0.2s, transform 0.2s;
+    background: linear-gradient(135deg, darken($primary-color, 20%) 0%, darken($primary-color, 15%) 100%);
 
     &:hover:not(:disabled) {
       transform: translateY(-1px);
-      box-shadow: 0 4px 12px rgba(52, 152, 219, 0.3);
+      box-shadow: 0 4px 12px rgba($primary-color, 0.3);
     }
 
     &:active:not(:disabled) {
@@ -174,40 +162,40 @@
   text-align: center;
   margin-top: 2rem;
   padding-top: 1.5rem;
-  border-top: 1px solid #eee;
+  border-top: 1px solid $border-light;
 
   p {
-    color: #666;
-    font-size: 0.8rem;
+    @include body-text('sm');
+    color: $text-secondary;
     margin: 0;
-    line-height: 1.2;
+    line-height: $line-height-tight;
   }
 
   .external-link {
-    color: #333;
+    color: $text-primary;
     text-decoration: none;
-    transition: all 0.2s ease;
+    transition: $transition-standard;
     position: relative;
 
     &:hover {
-      color: #2ecc71;
-      background-color: rgba(46, 204, 113, 0.1);
+      color: $success-color;
+      background-color: rgba($success-color, 0.1);
       text-decoration: none;
       transform: translateY(-1px);
       padding: 2px 4px;
-      border-radius: 3px;
+      border-radius: $border-radius-sm;
     }
   }
 }
 
 // Responsive design
-@media (max-width: 480px) {
+@include respond-to(small-mobile) {
   .login-container {
-    padding: 0.5rem;
+    padding: $spacing-sm;
   }
 
   .login-card {
-    padding: 1.5rem;
+    padding: $spacing-lg;
   }
 
   .login-header h1 {

@@ -1,0 +1,376 @@
+@import '../../../scss/variables';
+@import '../../../scss/mixins';
+
+/* ===== SONG PROFILE CONTAINER ===== */
+.song-profile-container {
+  // Default styles for standalone mode
+
+  &.embedded {
+    // Embedded mode overrides
+    .account-content {
+      margin: 0;
+      background: transparent;
+    }
+
+    .account-info-section {
+      border: none;
+      padding: 0;
+      box-shadow: none;
+      background: transparent;
+    }
+
+    .account-card {
+      margin: 0;
+    }
+
+    .embedded-actions {
+      display: flex;
+      justify-content: flex-end;
+      margin-top: 1rem;
+      padding-top: 1rem;
+      border-top: 1px solid $border-light;
+
+      .refresh-button-small {
+        @include button-primary('sm');
+        padding: 0.5rem 1rem;
+        font-size: 0.875rem;
+
+        i {
+          margin-right: 0.5rem;
+        }
+      }
+    }
+  }
+}
+
+/* ===== LOADING STATE ===== */
+.loading-state {
+  text-align: center;
+  padding: 3rem 0;
+  color: $text-muted;
+
+  i {
+    font-size: 2rem;
+    margin-bottom: 1rem;
+    animation: spin 1s linear infinite;
+  }
+
+  p {
+    margin: 0;
+    font-size: 1.1rem;
+  }
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ===== CONTROLS CONTAINER LAYOUT ===== */
+.controls-container {
+    display: flex;
+    gap: $spacing-20;
+    margin-bottom: $spacing-20;
+    flex-wrap: wrap;
+}
+
+.controls-section {
+    @include card-container($border-light, $background-white, $spacing-15);
+    min-width: 280px;
+    flex: 1;
+}
+
+.controls-section h3 {
+    @include section-header($background-light, $font-lg);
+    margin: 0 0 $spacing-12 0;
+    padding-bottom: $spacing-sm;
+}
+
+.controls-buttons {
+    display: flex;
+    gap: $spacing-sm;
+    flex-wrap: wrap;
+}
+
+.controls-buttons button {
+    @include button-primary('base');
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1) !important;
+    font-weight: $font-weight-medium !important;
+}
+
+.refresh-button i {
+    margin-right: 8px;
+}
+
+/* ===== ACCOUNT CONTENT LAYOUT ===== */
+.account-content {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-20;
+}
+
+.account-info-section {
+    @include card-container($border-light, $background-white, $spacing-20);
+}
+
+/* ===== ACCOUNT RESULT STYLING ===== */
+.account-result-section h2 {
+    @include heading(2);
+    border-bottom: 2px solid $primary-color;
+    padding-bottom: $spacing-10;
+    margin-bottom: $spacing-20;
+}
+
+.account-info {
+    margin-bottom: $spacing-xl;
+
+    .avatar-section {
+        display: flex;
+        align-items: center;
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+        padding-bottom: 1.5rem;
+        border-bottom: 1px solid $border-light;
+
+        .avatar {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 2.5rem;
+            flex-shrink: 0;
+        }
+
+        .account-details {
+            flex-grow: 1;
+
+            h3 {
+                margin: 0 0 0.5rem 0;
+                font-size: 1.5rem;
+                color: $text-primary;
+            }
+
+            .account-id {
+                margin: 0 0 1rem 0;
+                color: $text-secondary;
+                font-size: 1rem;
+                font-family: monospace;
+            }
+
+            .badges {
+                display: flex;
+                gap: 0.75rem;
+
+                .badge {
+                    display: flex;
+                    align-items: center;
+                    gap: 0.25rem;
+                    padding: 0.25rem 0.75rem;
+                    border-radius: 20px;
+                    font-size: 0.8rem;
+                    font-weight: 500;
+                    background: $background-light;
+                    color: $text-muted;
+                }
+            }
+        }
+    }
+
+    .account-details-info {
+        margin-bottom: 2rem;
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid $border-light;
+
+            &:last-child {
+                border-bottom: none;
+            }
+
+            .label {
+                display: flex;
+                align-items: center;
+                gap: 0.5rem;
+                font-weight: 500;
+                color: $text-primary;
+
+                i {
+                    width: 16px;
+                    color: $text-muted;
+                }
+            }
+
+            .value {
+                color: $text-primary;
+                font-weight: 400;
+
+                &.balance-amount {
+                    font-weight: 700;
+                }
+            }
+        }
+    }
+}
+
+.account-card {
+    @include card-container($border-light, $background-light, $spacing-15);
+    margin-bottom: $spacing-20;
+}
+
+.no-account {
+    text-align: center;
+    padding: $spacing-xl;
+}
+
+.placeholder-content {
+    color: $text-muted;
+}
+
+.placeholder-icon {
+    font-size: $font-4xl;
+    margin-bottom: $spacing-20;
+    opacity: 0.3;
+}
+
+/* ===== STATUS TEXT ===== */
+.status-text {
+    display: inline-flex;
+    align-items: center;
+    gap: $spacing-sm;
+    font-weight: $font-weight-medium;
+}
+
+.status-active {
+    background: lighten($success-color, 45%);
+    color: darken($success-color, 30%);
+
+    i {
+        color: $success-color;
+    }
+}
+
+.status-inactive {
+    background: lighten($danger-color, 45%);
+    color: darken($danger-color, 25%);
+
+    i {
+        color: $danger-color;
+    }
+}
+
+.status-pending {
+    background: lighten($warning-color, 45%);
+    color: darken($warning-color, 25%);
+
+    i {
+        color: $warning-color;
+    }
+}
+
+.status-unknown {
+    background: $background-light;
+    color: $text-muted;
+
+    i {
+        color: $text-muted;
+    }
+}
+
+/* ===== VALUE STYLING ===== */
+.account-value {
+    font-weight: $font-weight-medium;
+    color: $text-primary;
+    font-size: $font-base;
+}
+
+.balance-amount {
+    font-weight: $font-weight-bold;
+    color: $success-color;
+    font-size: $font-base;
+}
+
+.spending-amount {
+    font-weight: $font-weight-bold;
+    color: $danger-color;
+    font-size: $font-base;
+}
+
+.recharge-amount {
+    font-weight: $font-weight-bold;
+    color: $primary-color;
+    font-size: $font-base;
+}
+
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 768px) {
+    .controls-container {
+        flex-direction: column;
+        gap: $spacing-15;
+    }
+
+    .controls-section {
+        min-width: unset;
+    }
+
+    .controls-buttons {
+        flex-direction: column;
+        gap: $spacing-xs;
+    }
+
+    .controls-buttons button {
+        width: 100%;
+    }
+
+    .account-info-section {
+        padding: $spacing-15;
+    }
+
+    .account-info {
+        .avatar-section {
+            flex-direction: column;
+            text-align: center;
+            gap: 1rem;
+
+            .account-details {
+                .badges {
+                    justify-content: center;
+                }
+            }
+        }
+
+        .account-details-info {
+            .info-row {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.5rem;
+
+                .label {
+                    font-weight: 600;
+                }
+
+                .value {
+                    padding-left: 1.5rem;
+                    font-weight: 500;
+                }
+            }
+        }
+    }
+
+    .account-card {
+        margin: 0 -5px;
+    }
+}
+
+
