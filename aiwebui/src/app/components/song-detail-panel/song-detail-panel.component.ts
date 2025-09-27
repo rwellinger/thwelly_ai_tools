@@ -3,9 +3,9 @@ import {CommonModule} from '@angular/common';
 import {FormsModule} from '@angular/forms';
 import {HttpClient} from '@angular/common/http';
 import {firstValueFrom} from 'rxjs';
-import {SongService} from '../../services/song.service';
-import {NotificationService} from '../../services/notification.service';
-import {ApiConfigService} from '../../services/api-config.service';
+import {SongService} from '../../services/business/song.service';
+import {NotificationService} from '../../services/ui/notification.service';
+import {ApiConfigService} from '../../services/config/api-config.service';
 
 @Component({
     selector: 'app-song-detail-panel',

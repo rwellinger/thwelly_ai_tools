@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { ApiConfigService } from './api-config.service';
+import { ApiConfigService } from '../config/api-config.service';
 import { timeout, catchError, firstValueFrom } from 'rxjs';
 import { throwError } from 'rxjs';
 

@@ -2,8 +2,8 @@ import {Component, OnInit, Input, inject} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {HttpClient} from '@angular/common/http';
 import {firstValueFrom} from 'rxjs';
-import {ApiConfigService} from '../../services/api-config.service';
-import {NotificationService} from '../../services/notification.service';
+import {ApiConfigService} from '../../services/config/api-config.service';
+import {NotificationService} from '../../services/ui/notification.service';
 import {MatSnackBarModule} from '@angular/material/snack-bar';
 
 @Component({

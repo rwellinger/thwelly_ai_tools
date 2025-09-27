@@ -1,7 +1,7 @@
 import { Component, OnInit, OnDestroy, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Subscription } from 'rxjs';
-import { ProgressService, ProgressState } from '../../services/progress.service';
+import { ProgressService, ProgressState } from '../../services/ui/progress.service';
 
 @Component({
   selector: 'app-progress-overlay',

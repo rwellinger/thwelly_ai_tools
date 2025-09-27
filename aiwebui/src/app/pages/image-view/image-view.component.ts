@@ -11,11 +11,11 @@ import {
 import {CommonModule} from '@angular/common';
 import {FormsModule} from '@angular/forms';
 import {HttpClient} from '@angular/common/http';
-import {ImageBlobService} from '../../services/image-blob.service';
+import {ImageBlobService} from '../../services/ui/image-blob.service';
 import {HeaderComponent} from '../../components/header/header.component';
 import {FooterComponent} from '../../components/footer/footer.component';
-import {ApiConfigService} from '../../services/api-config.service';
-import {NotificationService} from '../../services/notification.service';
+import {ApiConfigService} from '../../services/config/api-config.service';
+import {NotificationService} from '../../services/ui/notification.service';
 import {MatSnackBarModule} from '@angular/material/snack-bar';
 import {MatCardModule} from '@angular/material/card';
 import {MatButtonModule} from '@angular/material/button';

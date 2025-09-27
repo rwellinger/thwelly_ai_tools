@@ -1,7 +1,7 @@
 import { Component, Input, Output, EventEmitter, ViewChild, ElementRef, OnChanges, SimpleChanges, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { ImageBlobService } from '../../services/image-blob.service';
+import { ImageBlobService } from '../../services/ui/image-blob.service';
 
 @Component({
   selector: 'app-image-detail-panel',

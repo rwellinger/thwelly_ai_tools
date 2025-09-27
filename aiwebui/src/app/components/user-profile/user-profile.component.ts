@@ -16,9 +16,9 @@ import { FooterComponent } from '../footer/footer.component';
 import { SongProfileComponent } from '../../pages/song-profile/song-profile.component';
 import { PasswordChangeModalComponent } from '../password-change-modal/password-change-modal.component';
 
-import { UserService } from '../../services/user.service';
-import { AuthService } from '../../services/auth.service';
-import { NotificationService } from '../../services/notification.service';
+import { UserService } from '../../services/business/user.service';
+import { AuthService } from '../../services/business/auth.service';
+import { NotificationService } from '../../services/ui/notification.service';
 import { User } from '../../models/user.model';
 
 @Component({

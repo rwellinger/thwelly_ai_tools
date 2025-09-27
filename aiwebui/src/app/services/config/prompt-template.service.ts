@@ -7,7 +7,7 @@ import {
   PromptTemplateUpdate,
   PromptTemplatesResponse,
   PromptCategoryResponse
-} from '../models/prompt-template.model';
+} from '../../models/prompt-template.model';
 import { ApiConfigService } from './api-config.service';
 import { PromptConfigService } from './prompt-config.service';
 

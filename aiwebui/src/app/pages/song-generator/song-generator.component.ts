@@ -1,18 +1,18 @@
 import {Component, OnInit, ViewEncapsulation, inject, HostListener, ViewChild} from '@angular/core';
 import {FormBuilder, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
 import {CommonModule} from '@angular/common';
-import {SongService} from '../../services/song.service';
+import {SongService} from '../../services/business/song.service';
 import {HeaderComponent} from '../../components/header/header.component';
 import {FooterComponent} from '../../components/footer/footer.component';
-import {ApiConfigService} from '../../services/api-config.service';
-import {NotificationService} from '../../services/notification.service';
-import {ChatService} from '../../services/chat.service';
+import {ApiConfigService} from '../../services/config/api-config.service';
+import {NotificationService} from '../../services/ui/notification.service';
+import {ChatService} from '../../services/config/chat.service';
 import {MatSnackBarModule} from '@angular/material/snack-bar';
 import {MatCardModule} from '@angular/material/card';
 import {PopupAudioPlayerComponent} from '../../components/popup-audio-player/popup-audio-player.component';
 import {SongDetailPanelComponent} from '../../components/song-detail-panel/song-detail-panel.component';
 import {ProgressOverlayComponent} from '../../components/progress-overlay/progress-overlay.component';
-import {ProgressService} from '../../services/progress.service';
+import {ProgressService} from '../../services/ui/progress.service';
 
 @Component({
     selector: 'app-song-generator',

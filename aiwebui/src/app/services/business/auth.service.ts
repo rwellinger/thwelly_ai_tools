@@ -3,7 +3,7 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { BehaviorSubject, Observable, throwError } from 'rxjs';
 import { map, catchError, tap } from 'rxjs/operators';
 import { CookieService } from 'ngx-cookie-service';
-import { environment } from '../../environments/environment';
+import { environment } from '../../../environments/environment';
 import {
   User,
   LoginRequest,
@@ -12,7 +12,7 @@ import {
   UserCreateRequest,
   UserCreateResponse,
   AuthState
-} from '../models/user.model';
+} from '../../models/user.model';
 
 @Injectable({
   providedIn: 'root'

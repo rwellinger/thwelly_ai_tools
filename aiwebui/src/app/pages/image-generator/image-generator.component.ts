@@ -3,18 +3,18 @@ import {FormBuilder, FormGroup, ReactiveFormsModule, Validators} from '@angular/
 import {CommonModule} from '@angular/common';
 import {HttpClient} from '@angular/common/http';
 import {firstValueFrom} from 'rxjs';
-import {ImageBlobService} from '../../services/image-blob.service';
+import {ImageBlobService} from '../../services/ui/image-blob.service';
 import {HeaderComponent} from '../../components/header/header.component';
 import {FooterComponent} from '../../components/footer/footer.component';
-import {ApiConfigService} from '../../services/api-config.service';
-import {NotificationService} from '../../services/notification.service';
-import {ImageService} from '../../services/image.service';
-import {ChatService} from '../../services/chat.service';
+import {ApiConfigService} from '../../services/config/api-config.service';
+import {NotificationService} from '../../services/ui/notification.service';
+import {ImageService} from '../../services/business/image.service';
+import {ChatService} from '../../services/config/chat.service';
 import {MatSnackBarModule} from '@angular/material/snack-bar';
 import {MatCardModule} from '@angular/material/card';
 import {ImageDetailPanelComponent} from '../../components/image-detail-panel/image-detail-panel.component';
 import {ProgressOverlayComponent} from '../../components/progress-overlay/progress-overlay.component';
-import {ProgressService} from '../../services/progress.service';
+import {ProgressService} from '../../services/ui/progress.service';
 
 @Component({
     selector: 'app-image-generator',
