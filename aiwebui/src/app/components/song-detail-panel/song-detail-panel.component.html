@@ -276,6 +276,64 @@
             <p>No song choices available for this song.</p>
         </div>
     </div>
+
+    <!-- Fixed Player Bar -->
+    <div class="song-player-bar" *ngIf="audioUrl">
+        <!-- Hidden Audio Element -->
+        <audio #audioPlayer
+               [src]="audioUrl"
+               (timeupdate)="onTimeUpdate()"
+               (loadedmetadata)="onLoadedMetadata()"
+               (play)="onPlay()"
+               (pause)="onPause()"
+               (ended)="stopAudio()">
+        </audio>
+
+        <div class="player-content">
+            <!-- Song Info -->
+            <div class="song-info">
+                <i class="fas fa-music song-icon"></i>
+                <div class="song-text">
+                    <div class="song-title-player">{{ currentSongTitle }}</div>
+                </div>
+            </div>
+
+            <!-- Player Controls -->
+            <div class="player-controls">
+                <button type="button" class="control-btn" (click)="stopAudio()" title="Stop">
+                    <i class="fas fa-stop"></i>
+                </button>
+                <button type="button" class="control-btn play-btn" (click)="playPauseAudio()" title="Play/Pause">
+                    <i class="fas" [class.fa-play]="!isPlaying" [class.fa-pause]="isPlaying"></i>
+                </button>
+            </div>
+
+            <!-- Progress Section -->
+            <div class="progress-section">
+                <span class="time-display">{{ formatTime(currentTime) }}</span>
+                <input type="range"
+                       class="progress-slider"
+                       [min]="0"
+                       [max]="duration || 0"
+                       [value]="currentTime"
+                       (input)="seekTo($event)"
+                       [disabled]="!duration">
+                <span class="time-display">{{ formatTime(duration) }}</span>
+            </div>
+
+            <!-- Volume Control -->
+            <div class="volume-section">
+                <i class="fas fa-volume-up volume-icon"></i>
+                <input type="range"
+                       class="volume-slider"
+                       min="0"
+                       max="1"
+                       step="0.1"
+                       [value]="volume"
+                       (input)="setVolume($event)">
+            </div>
+        </div>
+    </div>
 </div>
 
 

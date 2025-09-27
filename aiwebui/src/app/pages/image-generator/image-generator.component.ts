@@ -13,13 +13,12 @@ import {ChatService} from '../../services/config/chat.service';
 import {MatSnackBarModule} from '@angular/material/snack-bar';
 import {MatCardModule} from '@angular/material/card';
 import {ImageDetailPanelComponent} from '../../components/image-detail-panel/image-detail-panel.component';
-import {ProgressOverlayComponent} from '../../components/progress-overlay/progress-overlay.component';
 import {ProgressService} from '../../services/ui/progress.service';
 
 @Component({
     selector: 'app-image-generator',
     standalone: true,
-    imports: [CommonModule, ReactiveFormsModule, HeaderComponent, FooterComponent, MatSnackBarModule, MatCardModule, ImageDetailPanelComponent, ProgressOverlayComponent],
+    imports: [CommonModule, ReactiveFormsModule, HeaderComponent, FooterComponent, MatSnackBarModule, MatCardModule, ImageDetailPanelComponent],
     templateUrl: './image-generator.component.html',
     styleUrl: './image-generator.component.scss'
 })

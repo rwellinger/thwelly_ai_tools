@@ -11,13 +11,12 @@ import {MatSnackBarModule} from '@angular/material/snack-bar';
 import {MatCardModule} from '@angular/material/card';
 import {PopupAudioPlayerComponent} from '../../components/popup-audio-player/popup-audio-player.component';
 import {SongDetailPanelComponent} from '../../components/song-detail-panel/song-detail-panel.component';
-import {ProgressOverlayComponent} from '../../components/progress-overlay/progress-overlay.component';
 import {ProgressService} from '../../services/ui/progress.service';
 
 @Component({
     selector: 'app-song-generator',
     standalone: true,
-    imports: [CommonModule, ReactiveFormsModule, HeaderComponent, FooterComponent, MatSnackBarModule, MatCardModule, PopupAudioPlayerComponent, SongDetailPanelComponent, ProgressOverlayComponent],
+    imports: [CommonModule, ReactiveFormsModule, HeaderComponent, FooterComponent, MatSnackBarModule, MatCardModule, PopupAudioPlayerComponent, SongDetailPanelComponent],
     templateUrl: './song-generator.component.html',
     styleUrl: './song-generator.component.scss',
     encapsulation: ViewEncapsulation.None
