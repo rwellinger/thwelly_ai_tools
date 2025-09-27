@@ -11,10 +11,10 @@ import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 
-import { HeaderComponent } from '../header/header.component';
-import { FooterComponent } from '../footer/footer.component';
-import { SongProfileComponent } from '../../pages/song-profile/song-profile.component';
-import { PasswordChangeModalComponent } from '../password-change-modal/password-change-modal.component';
+import { HeaderComponent } from '../../components/header/header.component';
+import { FooterComponent } from '../../components/footer/footer.component';
+import { SongProfileComponent } from '../song-profile/song-profile.component';
+import { PasswordChangeModalComponent } from '../../components/password-change-modal/password-change-modal.component';
 
 import { UserService } from '../../services/business/user.service';
 import { AuthService } from '../../services/business/auth.service';

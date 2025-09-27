@@ -20,7 +20,7 @@ export const routes: Routes = [
     {
         path: 'profile',
         canActivate: [AuthGuard],
-        loadComponent: () => import('./components/user-profile/user-profile.component').then(m => m.UserProfileComponent)
+        loadComponent: () => import('./pages/user-profile/user-profile.component').then(m => m.UserProfileComponent)
     },
     {
         path: 'imagegen',
