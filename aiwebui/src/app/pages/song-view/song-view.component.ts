@@ -3,16 +3,16 @@ import {CommonModule} from '@angular/common';
 import {FormsModule} from '@angular/forms';
 import {Subject, debounceTime, distinctUntilChanged, takeUntil, firstValueFrom} from 'rxjs';
 import {HttpClient} from '@angular/common/http';
-import {SongService} from '../services/song.service';
-import {HeaderComponent} from '../shared/header/header.component';
-import {FooterComponent} from '../shared/footer/footer.component';
-import {ApiConfigService} from '../services/api-config.service';
-import {NotificationService} from '../services/notification.service';
+import {SongService} from '../../services/song.service';
+import {HeaderComponent} from '../../shared/header/header.component';
+import {FooterComponent} from '../../shared/footer/footer.component';
+import {ApiConfigService} from '../../services/api-config.service';
+import {NotificationService} from '../../services/notification.service';
 import {MatSnackBarModule} from '@angular/material/snack-bar';
 import {MatCardModule} from '@angular/material/card';
 import {MatButtonModule} from '@angular/material/button';
-import {PopupAudioPlayerComponent} from '../shared/popup-audio-player/popup-audio-player.component';
-import {SongDetailPanelComponent} from '../shared/song-detail-panel/song-detail-panel.component';
+import {PopupAudioPlayerComponent} from '../../shared/popup-audio-player/popup-audio-player.component';
+import {SongDetailPanelComponent} from '../../shared/song-detail-panel/song-detail-panel.component';
 
 @Component({
   selector: 'app-song-view',

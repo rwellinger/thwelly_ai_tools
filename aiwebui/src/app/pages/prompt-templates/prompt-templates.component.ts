@@ -5,6 +5,8 @@ import {Subject, debounceTime, distinctUntilChanged, takeUntil} from 'rxjs';
 import {PromptTemplate, PromptTemplateUpdate} from '../../models/prompt-template.model';
 import {PromptTemplateService} from '../../services/prompt-template.service';
 import {NotificationService} from '../../services/notification.service';
+import {HeaderComponent} from '../../shared/header/header.component';
+import {FooterComponent} from '../../shared/footer/footer.component';
 import {MatSnackBarModule} from '@angular/material/snack-bar';
 import {MatCardModule} from '@angular/material/card';
 import {MatButtonModule} from '@angular/material/button';
@@ -12,7 +14,7 @@ import {MatButtonModule} from '@angular/material/button';
 @Component({
     selector: 'app-prompt-templates',
     standalone: true,
-    imports: [CommonModule, FormsModule, MatSnackBarModule, MatCardModule, MatButtonModule],
+    imports: [CommonModule, FormsModule, HeaderComponent, FooterComponent, MatSnackBarModule, MatCardModule, MatButtonModule],
     templateUrl: './prompt-templates.component.html',
     styleUrl: './prompt-templates.component.scss'
 })

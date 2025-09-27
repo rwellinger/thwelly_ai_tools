@@ -13,7 +13,7 @@ import { takeUntil } from 'rxjs/operators';
 
 import { HeaderComponent } from '../../shared/header/header.component';
 import { FooterComponent } from '../../shared/footer/footer.component';
-import { SongProfileComponent } from '../../song-profile/song-profile.component';
+import { SongProfileComponent } from '../../pages/song-profile/song-profile.component';
 import { PasswordChangeModalComponent } from '../password-change-modal/password-change-modal.component';
 
 import { UserService } from '../../services/user.service';
