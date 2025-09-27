@@ -1,10 +1,22 @@
 <app-header></app-header>
 
-<div class="master-detail-container">
-    <!-- Left Side: Song Generation Form -->
-    <div class="controls-panel">
-        <div class="controls-content">
-            <h2>Create Song</h2>
+<div class="song-generator-container">
+  <!-- Main Content Grid -->
+  <div class="generator-grid">
+    <!-- Left Side: Song Creation Card -->
+    <div class="song-creation-section">
+      <mat-card class="song-creation-card">
+        <mat-card-header>
+          <mat-card-title>
+            <i class="fas fa-magic"></i>
+            Create Song
+          </mat-card-title>
+          <mat-card-subtitle>
+            Generate new songs with AI - choose lyrics or instrumental
+          </mat-card-subtitle>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="controls-content">
 
             <form [formGroup]="songForm" (ngSubmit)="onSubmit()">
 
@@ -187,38 +199,62 @@
                     </button>
                 </div>
 
-                <div *ngIf="isLoading && loadingMessage" class="loading-status">
-                    <small class="loading-text">
-                        <i class="fas fa-info-circle"></i>
-                        {{ loadingMessage }} - This may take several minutes
-                    </small>
-                </div>
+              <div *ngIf="isLoading && loadingMessage" class="loading-status">
+                <small class="loading-text">
+                  <i class="fas fa-info-circle"></i>
+                  {{ loadingMessage }} - This may take several minutes
+                </small>
+              </div>
             </form>
-        </div>
+          </div>
+        </mat-card-content>
+        <mat-card-actions align="end">
+          <p class="cost-info">
+            <i class="fas fa-info-circle"></i>
+            Song generation: ~$0.15 each
+          </p>
+        </mat-card-actions>
+      </mat-card>
     </div>
 
-    <!-- Right Side: Song Results -->
-    <app-song-detail-panel
-        #songDetailPanel
-        [songId]="currentSongId"
-        [showEditTitle]="true"
-        [showEditTags]="true"
-        [showEditWorkflow]="true"
-        [showRating]="true"
-        [isGenerating]="isLoading"
-        title="Generated Song"
-        [showMetaInfo]="['job_id', 'model', 'status', 'created', 'completed']"
-        placeholderText="Your generated song will appear here"
-        [currentlyPlayingId]="currentlyPlaying"
-        (titleChanged)="onTitleChanged($event)"
-        (tagsChanged)="onTagsChanged($event)"
-        (workflowChanged)="onWorkflowChanged($event)"
-        (downloadFlac)="onDownloadFlac($event)"
-        (playAudio)="onPlayAudio($event)"
-        (downloadStems)="onDownloadStems($event)"
-        (copyLyrics)="onCopyLyrics()"
-        (updateRating)="onUpdateRating($event)">
-    </app-song-detail-panel>
+    <!-- Right Side: Generated Song Card -->
+    <div class="generated-song-section">
+      <mat-card class="generated-song-card">
+        <mat-card-header>
+          <mat-card-title>
+            <i class="fas fa-music"></i>
+            Generated Song
+          </mat-card-title>
+          <mat-card-subtitle>
+            Listen to and manage your newly created song
+          </mat-card-subtitle>
+        </mat-card-header>
+        <mat-card-content>
+          <app-song-detail-panel
+              #songDetailPanel
+              [songId]="currentSongId"
+              [showEditTitle]="true"
+              [showEditTags]="true"
+              [showEditWorkflow]="true"
+              [showRating]="true"
+              [isGenerating]="isLoading"
+              title=""
+              [showMetaInfo]="['job_id', 'model', 'status', 'created', 'completed']"
+              placeholderText="Your generated song will appear here"
+              [currentlyPlayingId]="currentlyPlaying"
+              (titleChanged)="onTitleChanged($event)"
+              (tagsChanged)="onTagsChanged($event)"
+              (workflowChanged)="onWorkflowChanged($event)"
+              (downloadFlac)="onDownloadFlac($event)"
+              (playAudio)="onPlayAudio($event)"
+              (downloadStems)="onDownloadStems($event)"
+              (copyLyrics)="onCopyLyrics()"
+              (updateRating)="onUpdateRating($event)">
+          </app-song-detail-panel>
+        </mat-card-content>
+      </mat-card>
+    </div>
+  </div>
 </div>
 
 <!-- Popup Audio Player -->
@@ -232,4 +268,4 @@
 </app-popup-audio-player>
 
 
-<app-footer costInfo="Song generation: ~$0.15 each"></app-footer>
+<app-footer></app-footer>

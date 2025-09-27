@@ -9,13 +9,15 @@ import {FooterComponent} from '../shared/footer/footer.component';
 import {ApiConfigService} from '../services/api-config.service';
 import {NotificationService} from '../services/notification.service';
 import {MatSnackBarModule} from '@angular/material/snack-bar';
+import {MatCardModule} from '@angular/material/card';
+import {MatButtonModule} from '@angular/material/button';
 import {PopupAudioPlayerComponent} from '../shared/popup-audio-player/popup-audio-player.component';
 import {SongDetailPanelComponent} from '../shared/song-detail-panel/song-detail-panel.component';
 
 @Component({
   selector: 'app-song-view',
   standalone: true,
-  imports: [CommonModule, FormsModule, HeaderComponent, FooterComponent, MatSnackBarModule, PopupAudioPlayerComponent, SongDetailPanelComponent],
+  imports: [CommonModule, FormsModule, HeaderComponent, FooterComponent, MatSnackBarModule, MatCardModule, MatButtonModule, PopupAudioPlayerComponent, SongDetailPanelComponent],
   templateUrl: './song-view.component.html',
   styleUrl: './song-view.component.scss',
   encapsulation: ViewEncapsulation.None
@@ -785,10 +787,6 @@ export class SongViewComponent implements OnInit, OnDestroy {
         };
         this.loadSongs(0); // Refresh filtered list from server
       }
-
-      this.notificationService.success('Workflow updated successfully!');
-
-
     } catch (error: any) {
       this.notificationService.error(`Error updating workflow: ${error.message}`);
     } finally {

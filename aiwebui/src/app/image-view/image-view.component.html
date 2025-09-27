@@ -1,39 +1,22 @@
 <app-header></app-header>
 
-<div class="controls-container">
-    <!-- Main controls -->
-    <div class="controls-section">
-        <div class="controls-buttons">
-            <button type="button" (click)="loadImages(0)" [disabled]="isLoading">
-                <i class="fas fa-refresh"></i> Refresh
-            </button>
-            <button type="button" (click)="toggleSelectionMode()" [disabled]="isLoading"
-                    [class.active]="isSelectionMode">
-                <i class="fas fa-check-square"></i> {{ isSelectionMode ? 'Exit Select' : 'Select Mode' }}
-            </button>
-        </div>
-    </div>
-
-    <!-- Selection controls - only visible in selection mode -->
-    <div class="controls-section selection-section" *ngIf="isSelectionMode">
-        <div class="controls-buttons">
-            <button type="button" (click)="selectAllImages()" [disabled]="isLoading">
-                <i class="fas fa-check-double"></i> Select All
-            </button>
-            <button type="button" (click)="deselectAllImages()" [disabled]="isLoading || selectedImageIds.size === 0">
-                <i class="fas fa-square"></i> Deselect All
-            </button>
-            <button type="button" (click)="bulkDeleteImages()" [disabled]="isLoading || selectedImageIds.size === 0"
-                    class="delete-btn">
-                <i class="fas fa-trash"></i> Delete Selected ({{ selectedImageIds.size }})
-            </button>
-        </div>
-    </div>
-</div>
-
-<div class="master-detail-container">
-    <!-- Left Side: Picture List -->
-    <div class="image-list-panel">
+<div class="image-view-container">
+  <!-- Main Content Grid -->
+  <div class="image-grid">
+    <!-- Left Side: Image Gallery Card -->
+    <div class="image-gallery-section">
+      <mat-card class="image-gallery-card">
+        <mat-card-header>
+          <mat-card-title>
+            <i class="fas fa-images"></i>
+            Picture Gallery
+          </mat-card-title>
+          <mat-card-subtitle>
+            Browse and manage your generated pictures
+          </mat-card-subtitle>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="image-list-panel">
         <div class="list-header">
             <h2>Available Pictures</h2>
             <div class="pagination-info-badge" *ngIf="pagination.total > 0">
@@ -137,30 +120,79 @@
         </div>
 
         <div *ngIf="!images.length && !isLoading && !searchTerm.trim()" class="no-images-message">
-            <p>No images found in the database.</p>
+            <p>No pictures found in the database.</p>
         </div>
 
         <div *ngIf="!images.length && !isLoading && searchTerm.trim()" class="no-results-message">
-            <p>No images match your search criteria.</p>
+            <p>No pictures match your search criteria.</p>
             <small>Try adjusting your search term or clear the search to see all images.</small>
         </div>
 
-        <div *ngIf="isLoading" class="loading-message">
-            <i class="fas fa-spinner fa-spin"></i> Loading images...
-        </div>
+          <div *ngIf="isLoading" class="loading-message">
+            <i class="fas fa-spinner fa-spin"></i> Loading pictures...
+          </div>
+          </div>
+        </mat-card-content>
+        <mat-card-actions align="end">
+          <div class="gallery-actions">
+            <!-- Main controls -->
+            <button mat-button type="button" (click)="loadImages(0)" [disabled]="isLoading">
+              <i class="fas fa-refresh"></i> Refresh
+            </button>
+            <button mat-button type="button" (click)="toggleSelectionMode()" [disabled]="isLoading"
+                    [class.active]="isSelectionMode">
+              <i class="fas fa-check-square"></i> {{ isSelectionMode ? 'Exit Select' : 'Select Mode' }}
+            </button>
+
+            <!-- Selection controls - only visible in selection mode -->
+            <ng-container *ngIf="isSelectionMode">
+              <button mat-button type="button" (click)="selectAllImages()" [disabled]="isLoading">
+                <i class="fas fa-check-double"></i> Select All
+              </button>
+              <button mat-button type="button" (click)="deselectAllImages()" [disabled]="isLoading || selectedImageIds.size === 0">
+                <i class="fas fa-square"></i> Deselect All
+              </button>
+              <button mat-raised-button color="warn" type="button" (click)="bulkDeleteImages()" [disabled]="isLoading || selectedImageIds.size === 0">
+                <i class="fas fa-trash"></i> Delete ({{ selectedImageIds.size }})
+              </button>
+            </ng-container>
+          </div>
+        </mat-card-actions>
+      </mat-card>
     </div>
 
-    <!-- Right Side: Picture Details -->
-    <app-image-detail-panel
-        [image]="selectedImage"
-        [showEditTitle]="true"
-        title="Picture Details"
-        [showMetaInfo]="['model', 'size', 'created']"
-        placeholderText="Select an image from the list to view details"
-        (titleChanged)="onTitleChanged($event)"
-        (downloadClicked)="onDownloadImage($event)"
-        (previewClicked)="onPreviewImage()">
-    </app-image-detail-panel>
+    <!-- Right Side: Image Details Card -->
+    <div class="image-details-section">
+      <mat-card class="image-details-card">
+        <mat-card-header>
+          <mat-card-title>
+            <i class="fas fa-info-circle"></i>
+            Picture Details
+          </mat-card-title>
+          <mat-card-subtitle>
+            View and edit detailed information about selected picture
+          </mat-card-subtitle>
+        </mat-card-header>
+        <mat-card-content>
+          <app-image-detail-panel
+              [image]="selectedImage"
+              [showEditTitle]="true"
+              title=""
+              [showMetaInfo]="['model', 'size', 'created']"
+              placeholderText="Select an image from the list to view details"
+              (titleChanged)="onTitleChanged($event)"
+              (downloadClicked)="onDownloadImage($event)"
+              (previewClicked)="onPreviewImage()">
+          </app-image-detail-panel>
+        </mat-card-content>
+        <mat-card-actions align="end">
+          <div class="detail-actions">
+            <!-- Placeholder for consistency -->
+          </div>
+        </mat-card-actions>
+      </mat-card>
+    </div>
+  </div>
 </div>
 
 <!-- Picture Modal -->

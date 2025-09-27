@@ -189,7 +189,6 @@ export class UserProfileComponent implements OnInit, OnDestroy {
             this.currentUser = updatedUser;
             this.isEditing = false;
             this.isLoading = false;
-            this.notificationService.success('Profile updated successfully');
           },
           error: (error) => {
             console.error('Error updating profile:', error);

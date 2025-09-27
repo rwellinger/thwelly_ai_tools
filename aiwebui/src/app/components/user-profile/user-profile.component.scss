@@ -1,44 +1,20 @@
 .user-profile-container {
-  min-height: calc(100vh - 220px);
-  padding: 1.5rem;
+  min-height: calc(100vh - 300px);
 
   .page-header {
     text-align: center;
     margin-bottom: 1.5rem;
-
-    h1 {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 0.75rem;
-      margin: 0 0 0.5rem 0;
-      font-size: 2.5rem;
-      font-weight: 300;
-      color: #333;
-
-      i {
-        color: #007bff;
-        font-size: 2rem;
-      }
-    }
-
-    .subtitle {
-      color: #666;
-      font-size: 1.1rem;
-      margin: 0;
-    }
   }
 
   .profile-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 3rem;
-    max-width: 1600px;
     margin: 0 auto;
 
     .profile-card {
       height: fit-content;
-      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
       border-radius: 12px;
       overflow: hidden;
 

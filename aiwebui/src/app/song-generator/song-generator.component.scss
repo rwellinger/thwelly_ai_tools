@@ -1,22 +1,83 @@
 @import '../../scss/variables';
 @import '../../scss/mixins';
 
-/* ===== MASTER DETAIL LAYOUT ===== */
-.master-detail-container {
-    @include generator-layout();
-    min-height: 500px;
-    padding-bottom: 0;
-}
+/* ===== SONG GENERATOR CARD LAYOUT ===== */
 
-/* Style the app-song-detail-panel component itself */
-app-song-detail-panel {
-    flex: 1;
-    display: flex;
-    min-width: 0;
-}
+.song-generator-container {
+  min-height: calc(100vh - 300px);
 
-.song-result-panel {
-    @extend .result-panel;
+  .generator-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 3rem;
+    margin: 0 auto;
+
+    .song-creation-card,
+    .generated-song-card {
+      height: fit-content;
+      min-height: 500px;
+      box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+      border-radius: 12px;
+      overflow: hidden;
+
+      mat-card-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 0.75rem 1.5rem;
+
+        mat-card-title {
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
+          margin: 0;
+          font-size: 1.25rem;
+          font-weight: 500;
+        }
+
+        mat-card-subtitle {
+          color: rgba(255, 255, 255, 0.8);
+          margin: 0.5rem 0 0 0;
+          font-size: 0.9rem;
+        }
+      }
+
+      mat-card-content {
+        padding: 1rem;
+        min-height: 400px;
+      }
+
+      mat-card-actions {
+        padding: 1rem 1.5rem 1.5rem 1.5rem;
+        background: #f8f9fa;
+
+        .cost-info {
+          margin: 0;
+          color: #6c757d;
+          font-size: 0.9rem;
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
+
+          i {
+            color: #007bff;
+          }
+        }
+      }
+    }
+
+    .generated-song-card {
+      mat-card-content {
+        padding: 0;
+        height: calc(100% - 120px);
+        overflow: hidden;
+
+        app-song-detail-panel {
+          display: block;
+          height: 100%;
+        }
+      }
+    }
+  }
 }
 
 /* ===== FORM STYLING ===== */
@@ -202,7 +263,7 @@ form .segment-control {
 }
 
 .model-select {
-    width: 100%;
+    width: 40%;
     padding: $spacing-10 $spacing-12;
     border: 1px solid $border-light;
     border-radius: $border-radius-lg;
@@ -475,34 +536,59 @@ form .segment-control {
 @include processing-popup();
 
 /* ===== RESPONSIVE ===== */
+/* ===== RESPONSIVE FOR CARD LAYOUT ===== */
+@media (max-width: 1200px) {
+  .song-generator-container {
+    .generator-grid {
+      grid-template-columns: 1fr;
+      gap: 1.5rem;
+
+      .song-creation-section {
+        order: 1;
+      }
+
+      .generated-song-section {
+        order: 2;
+      }
+    }
+  }
+}
+
 @media (max-width: 1024px) {
-    .master-detail-container {
-        flex-direction: column;
-        height: auto;
-    }
+    .song-generator-container {
+        padding: 1rem;
 
-    .controls-panel {
-        flex: none;
-        height: auto;
-    }
+        .generator-grid {
+            gap: 1rem;
 
-    .song-result-panel {
-        flex: none;
-        height: 500px;
+            .song-creation-card,
+            .generated-song-card {
+                min-height: 400px;
+            }
+        }
     }
 }
 
 @media (max-width: 768px) {
-    .master-detail-container {
-        gap: 10px;
+    .song-generator-container {
+        padding: 1rem;
+
+        .generator-grid {
+            gap: 1rem;
+
+            .song-creation-card,
+            .generated-song-card {
+                min-height: 350px;
+
+                mat-card-content {
+                    padding: 0.75rem;
+                }
+            }
+        }
     }
 
     .controls-content {
-        padding: 15px;
-    }
-
-    .song-result-section {
-        padding: 15px;
+        padding: 1rem;
     }
 
     .song-actions {
