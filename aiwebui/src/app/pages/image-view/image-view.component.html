@@ -175,19 +175,23 @@
         </mat-card-header>
         <mat-card-content>
           <app-image-detail-panel
-              [image]="selectedImage"
+              [imageId]="selectedImage?.id || null"
               [showEditTitle]="true"
+              [showActionButtons]="false"
               title=""
               [showMetaInfo]="['model', 'size', 'created']"
               placeholderText="Select an image from the list to view details"
-              (titleChanged)="onTitleChanged($event)"
-              (downloadClicked)="onDownloadImage($event)"
-              (previewClicked)="onPreviewImage()">
+              (titleChanged)="onTitleChanged()">
           </app-image-detail-panel>
         </mat-card-content>
         <mat-card-actions align="end">
-          <div class="detail-actions">
-            <!-- Placeholder for consistency -->
+          <div class="detail-actions" *ngIf="selectedImage">
+            <button mat-button type="button" (click)="onDownloadImage()">
+              <i class="fas fa-download"></i> Download Original
+            </button>
+            <button mat-button type="button" (click)="onPreviewImage()">
+              <i class="fas fa-expand"></i> Full Size
+            </button>
           </div>
         </mat-card-actions>
       </mat-card>

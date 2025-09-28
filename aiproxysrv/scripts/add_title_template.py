@@ -22,7 +22,7 @@ TITLE_TEMPLATE = {
     "description": "Generates song titles from various inputs (title, lyrics, style, or default)",
     "version": "1.0",
     "model": "llama3.2:3b",
-    "temperature": 1.4,
+    "temperature": 1.5,
     "max_tokens": 10
 }
 

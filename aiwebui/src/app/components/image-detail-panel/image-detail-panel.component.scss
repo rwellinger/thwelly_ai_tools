@@ -120,6 +120,7 @@
     min-height: 0;
     min-width: 0;
     overflow: hidden;
+    padding: 0 $spacing-20; // Add left and right padding
 }
 
 /* ===== TITLE EDITING ===== */
@@ -171,6 +172,9 @@
     @include inline-edit-controls();
 }
 
+
+/* ===== ACTION BUTTONS (Deprecated - moved to card actions) ===== */
+// Action buttons are now handled by parent components in mat-card-actions
 
 /* ===== RESPONSIVE IMAGE ===== */
 .responsive-image-container {

@@ -9,6 +9,7 @@ class ImageGenerateRequest(BaseModel):
     """Schema for image generation requests"""
     prompt: str = Field(..., min_length=1, max_length=500, description="Image generation prompt")
     size: Optional[str] = Field("1024x1024", description="Image size")
+    title: Optional[str] = Field(None, max_length=255, description="Image title")
 
     @validator('size')
     def validate_size(cls, v):
@@ -20,7 +21,8 @@ class ImageGenerateRequest(BaseModel):
         json_schema_extra = {
             "example": {
                 "prompt": "A beautiful sunset over the ocean with sailing boats",
-                "size": "1024x1024"
+                "size": "1024x1024",
+                "title": "Ocean Sunset"
             }
         }
 

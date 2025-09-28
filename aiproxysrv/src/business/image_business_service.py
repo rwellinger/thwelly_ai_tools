@@ -3,9 +3,12 @@ import logging
 import hashlib
 import time
 from pathlib import Path
-from typing import Dict, Any, List, Tuple, Optional
+from typing import Dict, Any, List, Tuple, Optional, TYPE_CHECKING
 from config.settings import OPENAI_MODEL, IMAGES_DIR, DELETE_PHYSICAL_FILES, IMAGE_BASE_URL
 from db.image_service import ImageService
+
+if TYPE_CHECKING:
+    from db.models import GeneratedImage
 from .file_management_service import FileManagementService
 
 logger = logging.getLogger(__name__)
@@ -24,13 +27,14 @@ class ImageBusinessService:
         self.images_dir.mkdir(parents=True, exist_ok=True)
         self.file_service = FileManagementService()
 
-    def generate_image(self, prompt: str, size: str) -> Dict[str, Any]:
+    def generate_image(self, prompt: str, size: str, title: Optional[str] = None) -> Dict[str, Any]:
         """
         Generate image with validation and business logic
 
         Args:
             prompt: Image generation prompt
             size: Image size specification
+            title: Optional image title
 
         Returns:
             Dict containing image URL and metadata
@@ -54,14 +58,23 @@ class ImageBusinessService:
             # Build local URL
             local_url = f"{IMAGE_BASE_URL}/{filename}"
 
-            # Save metadata to database
-            self._save_image_metadata(prompt, size, filename, file_path, local_url)
+            # Save metadata to database and get the generated image record
+            generated_image = self._save_image_metadata(prompt, size, filename, file_path, local_url, title)
 
             logger.info(f"Image generated successfully: {filename}")
-            return {
+            response = {
                 "url": local_url,
                 "saved_path": str(file_path)
             }
+
+            # Include image ID if database save was successful
+            if generated_image:
+                response["id"] = str(generated_image.id)
+                logger.info(f"Image saved to database with ID: {generated_image.id}")
+            else:
+                logger.warning("Image generated but failed to save metadata to database")
+
+            return response
 
         except Exception as e:
             logger.error(f"Image generation failed: {type(e).__name__}: {e}")
@@ -282,16 +295,17 @@ class ImageBusinessService:
         return filename, file_path
 
     def _save_image_metadata(self, prompt: str, size: str, filename: str,
-                           file_path: Path, local_url: str) -> None:
+                           file_path: Path, local_url: str, title: Optional[str] = None) -> Optional['GeneratedImage']:
         """Save image metadata to database"""
-        ImageService.save_generated_image(
+        return ImageService.save_generated_image(
             prompt=prompt,
             size=size,
             filename=filename,
             file_path=str(file_path),
             local_url=local_url,
             model_used=OPENAI_MODEL,
-            prompt_hash=self._generate_prompt_hash(prompt)
+            prompt_hash=self._generate_prompt_hash(prompt),
+            title=title
         )
 
     def _transform_image_to_api_format(self, image, include_file_path: bool = False) -> Dict[str, Any]:

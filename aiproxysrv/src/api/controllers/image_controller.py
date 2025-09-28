@@ -1,6 +1,6 @@
 """Image Controller - Handles HTTP requests for image operations"""
 import logging
-from typing import Tuple, Dict, Any, List
+from typing import Tuple, Dict, Any, List, Optional
 from business.image_business_service import ImageBusinessService, ImageGenerationError
 
 logger = logging.getLogger(__name__)
@@ -12,13 +12,14 @@ class ImageController:
     def __init__(self):
         self.business_service = ImageBusinessService()
 
-    def generate_image(self, prompt: str, size: str) -> Tuple[Dict[str, Any], int]:
+    def generate_image(self, prompt: str, size: str, title: Optional[str] = None) -> Tuple[Dict[str, Any], int]:
         """
         Generate image via business service
 
         Args:
             prompt: Image generation prompt
             size: Image size specification
+            title: Optional image title
 
         Returns:
             Tuple of (response_data, status_code)
@@ -28,7 +29,7 @@ class ImageController:
             return {"error": "Missing prompt or size"}, 400
 
         try:
-            result = self.business_service.generate_image(prompt, size)
+            result = self.business_service.generate_image(prompt, size, title)
             return result, 200
 
         except ImageGenerationError as e:
