@@ -68,12 +68,30 @@
         .generated-image-card {
             mat-card-content {
                 padding: 0;
-                height: calc(100% - 120px);
+                height: calc(100% - 160px); // Increased for card actions
                 overflow: hidden;
 
                 app-image-detail-panel {
                     display: block;
                     height: 100%;
+                }
+            }
+
+            mat-card-actions {
+                padding: 1rem 1.5rem 1.5rem 1.5rem;
+                background: #f8f9fa;
+
+                .detail-actions {
+                    display: flex;
+                    gap: 0.5rem;
+                    align-items: center;
+                }
+
+                button {
+                    i {
+                        margin-right: 8px;
+                        font-size: 14px;
+                    }
                 }
             }
         }
@@ -89,6 +107,33 @@
     display: flex;
     gap: $spacing-10;
     align-items: flex-start;
+}
+
+.title-input {
+    flex: 1;
+    padding: $spacing-10 $spacing-12;
+    border: 1px solid $border-light;
+    border-radius: $border-radius-lg;
+    font-size: $font-base;
+    font-family: $font-family-base;
+    transition: $transition-fast;
+    box-sizing: border-box;
+
+    &:focus {
+        @include input-focus-state($primary-color);
+    }
+}
+
+.title-dropdown-container {
+    position: relative;
+    display: inline-block;
+}
+
+.char-counter {
+    font-size: $font-sm;
+    color: $text-muted;
+    text-align: right;
+    margin-top: $spacing-xs;
 }
 
 .form-group label {

@@ -17,7 +17,8 @@ class ImageService:
         file_path: str,
         local_url: str,
         model_used: str,
-        prompt_hash: str
+        prompt_hash: str,
+        title: Optional[str] = None
     ) -> Optional[GeneratedImage]:
         """
         Save generated image metadata to database
@@ -34,7 +35,8 @@ class ImageService:
                 file_path=file_path,
                 local_url=local_url,
                 model_used=model_used,
-                prompt_hash=prompt_hash
+                prompt_hash=prompt_hash,
+                title=title
             )
             db.add(generated_image)
             db.commit()

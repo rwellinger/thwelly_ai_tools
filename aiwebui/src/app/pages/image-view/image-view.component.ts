@@ -212,38 +212,25 @@ export class ImageViewComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
 
-    async loadImageDetail(image: ImageData) {
-        this.isLoading = true;
 
-        try {
-            const url = this.apiConfig.endpoints.image.detail(image.id);
-            this.selectedImage = await firstValueFrom(
-                this.http.get<any>(url)
-            );
-        } catch (error: any) {
-            this.selectedImage = image;
-        } finally {
-            this.isLoading = false;
-        }
+    selectImage(image: ImageData) {
+        this.selectedImage = image;
 
-        // Load blob URL for secure image display
-        if (this.selectedImage?.url) {
-            this.imageBlobService.getImageBlobUrl(this.selectedImage.url).subscribe({
+        // Load blob URL for modal display
+        if (image?.url) {
+            this.imageBlobService.getImageBlobUrl(image.url).subscribe({
                 next: (blobUrl) => {
                     this.selectedImageBlobUrl = blobUrl;
                 },
                 error: (error) => {
-                    console.error('Failed to load image blob:', error);
+                    console.error('Failed to load image blob for modal:', error);
                     this.selectedImageBlobUrl = '';
                 }
             });
         } else {
             this.selectedImageBlobUrl = '';
         }
-    }
 
-    selectImage(image: ImageData) {
-        this.loadImageDetail(image);
         // Measure dimensions when image changes
         setTimeout(() => this.measureDimensions(), 100);
     }
@@ -276,13 +263,15 @@ export class ImageViewComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     downloadImage(imageUrl: string) {
-        // Create a temporary anchor element to trigger the download
-        const link = document.createElement('a');
-        link.href = imageUrl;
-        link.download = ''; // This will use the filename from the URL
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
+        // Use authenticated download via ImageBlobService
+        const filename = this.getImageFilename();
+        this.imageBlobService.downloadImage(imageUrl, filename);
+    }
+
+    private getImageFilename(): string {
+        const title = this.selectedImage?.title || (this.selectedImage ? this.getDisplayTitle(this.selectedImage) : '') || 'image';
+        const sanitized = title.replace(/[^a-zA-Z0-9]/g, '_').substring(0, 50);
+        return `${sanitized}.png`;
     }
 
     onImageError(event: Event): void {
@@ -534,42 +523,15 @@ export class ImageViewComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     // Handlers for shared image detail panel
-    async onTitleChanged(newTitle: string) {
-        if (!this.selectedImage) return;
-
-        this.isLoading = true;
-        try {
-            const updatedImage = await firstValueFrom(
-                this.http.put<any>(this.apiConfig.endpoints.image.update(this.selectedImage.id), {
-                    title: newTitle.trim()
-                })
-            );
-
-            // Update selected image with new data
-            this.selectedImage = {
-                ...this.selectedImage,
-                title: updatedImage.title,
-                tags: updatedImage.tags,
-                updated_at: updatedImage.updated_at
-            };
-
-            // Update in images list
-            const imageIndex = this.images.findIndex(img => img.id === this.selectedImage!.id);
-            if (imageIndex !== -1) {
-                this.images[imageIndex] = {...this.selectedImage};
-            }
-
-            // No need to update filtered images as we use server-side filtering
-
-        } catch (error: any) {
-            this.notificationService.error(`Error updating title: ${error.message}`);
-        } finally {
-            this.isLoading = false;
-        }
+    onTitleChanged() {
+        // Refresh the list to reflect changes
+        this.loadImages(this.currentPage);
     }
 
-    onDownloadImage(imageUrl: string) {
-        this.downloadImage(imageUrl);
+    onDownloadImage() {
+        if (this.selectedImage?.url) {
+            this.downloadImage(this.selectedImage.url);
+        }
     }
 
     onPreviewImage() {

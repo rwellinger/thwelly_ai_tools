@@ -7,6 +7,13 @@ from pathlib import Path
 
 class OpenAIService:
 
+    # Size to filename mapping for realistic image selection
+    SIZE_IMAGE_MAPPING = {
+        "1024x1024": "82ce2c8095_1757869305.png",  # Square format
+        "1792x1024": "f3e7cd8a1f_1757759963.png",  # Landscape format
+        "1024x1792": "984499c38e_1758053831.png"   # Portrait format
+    }
+
     def generate_image(self, prompt, model="dall-e-3", size="1024x1024", quality="standard", n=1):
         # Extract delay from prompt
         delay_seconds = self._extract_delay_from_prompt(prompt)
@@ -16,45 +23,48 @@ class OpenAIService:
 
         test_number = self._extract_test_number(prompt)
 
-        base_dir = Path(__file__).parent.parent.parent
-        data_path = base_dir / "data/openai" / test_number / "response.json"
+        # Handle error cases with test numbers
+        if test_number == "0002":
+            base_dir = Path(__file__).parent.parent.parent
+            data_path = base_dir / "data/openai" / test_number / "response.json"
 
-        if not data_path.exists():
-            return {
-                "error": f"Mock data not found for test number {test_number}",
-                "code": "mock_not_found"
-            }
+            if not data_path.exists():
+                return {
+                    "error": f"Mock data not found for test number {test_number}",
+                    "code": "mock_not_found"
+                }
 
-        with open(data_path, 'r') as f:
-            response_data = json.load(f)
+            with open(data_path, 'r') as f:
+                response_data = json.load(f)
 
-        # Update timestamp to current time for realistic mock behavior
+            # Check if this is an error response and return appropriate HTTP status
+            if 'error' in response_data:
+                error_type = response_data['error'].get('type', '')
+                if 'invalid_api_key' in error_type:
+                    from flask import abort
+                    abort(401, description=response_data)
+                elif 'rate_limit' in error_type:
+                    from flask import abort
+                    abort(429, description=response_data)
+                else:
+                    from flask import abort
+                    abort(400, description=response_data)
+
+            return response_data
+
+        # For success cases (0001 or default), use size-based image selection
+        filename = self.SIZE_IMAGE_MAPPING.get(size, self.SIZE_IMAGE_MAPPING["1024x1024"])
+
+        # Generate success response with size-appropriate image
         current_timestamp = int(time.time())
-        if 'created' in response_data:
-            response_data['created'] = current_timestamp
-
-        # Update URLs to point to mock server with correct base URL
-        if 'data' in response_data and isinstance(response_data['data'], list):
-            for item in response_data['data']:
-                if 'url' in item:
-                    # Extract filename from existing URL
-                    old_url = item['url']
-                    filename = old_url.split('/')[-1]
-                    # Generate new URL pointing to mock server
-                    item['url'] = f"http://localhost:3080/static/images/{filename}"
-
-        # Check if this is an error response and return appropriate HTTP status
-        if 'error' in response_data:
-            error_type = response_data['error'].get('type', '')
-            if 'invalid_api_key' in error_type:
-                from flask import abort
-                abort(401, description=response_data)
-            elif 'rate_limit' in error_type:
-                from flask import abort
-                abort(429, description=response_data)
-            else:
-                from flask import abort
-                abort(400, description=response_data)
+        response_data = {
+            "created": current_timestamp,
+            "data": [
+                {
+                    "url": f"http://localhost:3080/static/images/{filename}"
+                }
+            ]
+        }
 
         return response_data
 

@@ -1,7 +1,11 @@
-import { Component, Input, Output, EventEmitter, ViewChild, ElementRef, OnChanges, SimpleChanges, inject } from '@angular/core';
+import { Component, Input, Output, EventEmitter, ViewChild, ElementRef, OnInit, OnChanges, SimpleChanges, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { HttpClient } from '@angular/common/http';
+import { firstValueFrom } from 'rxjs';
 import { ImageBlobService } from '../../services/ui/image-blob.service';
+import { NotificationService } from '../../services/ui/notification.service';
+import { ApiConfigService } from '../../services/config/api-config.service';
 
 @Component({
   selector: 'app-image-detail-panel',
@@ -10,19 +14,30 @@ import { ImageBlobService } from '../../services/ui/image-blob.service';
   templateUrl: './image-detail-panel.component.html',
   styleUrl: './image-detail-panel.component.scss'
 })
-export class ImageDetailPanelComponent implements OnChanges {
+export class ImageDetailPanelComponent implements OnInit, OnChanges {
   private imageBlobService = inject(ImageBlobService);
+  private notificationService = inject(NotificationService);
+  private apiConfigService = inject(ApiConfigService);
+  private http = inject(HttpClient);
+
   imageBlobUrl: string = '';
   @Input() image: any = null;
+  @Input() imageId: string | null = null;
   @Input() showEditTitle: boolean = true;
   @Input() title: string = 'Image Details';
   @Input() showMetaInfo: string[] = ['model', 'size', 'created'];
   @Input() placeholderText: string = 'Select an image from the list to view details';
   @Input() placeholderIcon: string = 'fas fa-image';
+  @Input() isGenerating: boolean = false;
+  @Input() showActionButtons: boolean = true;
+
+  // Component state
+  isLoading = false;
+  loadingError: string | null = null;
 
   @Output() titleChanged = new EventEmitter<string>();
-  @Output() downloadClicked = new EventEmitter<string>();
-  @Output() previewClicked = new EventEmitter<void>();
+  @Output() downloadOriginal = new EventEmitter<void>();
+  @Output() previewImage = new EventEmitter<void>();
 
   @ViewChild('titleInput') titleInput!: ElementRef;
 
@@ -38,10 +53,25 @@ export class ImageDetailPanelComponent implements OnChanges {
     });
   }
 
-  saveTitle() {
-    if (!this.image) return;
-    this.titleChanged.emit(this.editTitleValue);
-    this.editingTitle = false;
+  async saveTitle() {
+    if (!this.image || !this.imageId) return;
+
+    try {
+      await firstValueFrom(
+        this.http.put<any>(this.apiConfigService.endpoints.image.update(this.imageId), {
+          title: this.editTitleValue.trim()
+        })
+      );
+
+      this.editingTitle = false;
+      this.titleChanged.emit(this.editTitleValue);
+
+      // Auto-refresh to show updated data
+      await this.reloadImage();
+
+    } catch (error: any) {
+      this.notificationService.error(`Error updating title: ${error.message}`);
+    }
   }
 
   cancelEditTitle() {
@@ -49,22 +79,35 @@ export class ImageDetailPanelComponent implements OnChanges {
     this.editTitleValue = '';
   }
 
-  onDownload() {
-    if (this.image?.url) {
-      // Use authenticated download instead of window.open
-      this.imageBlobService.downloadImage(this.image.url, this.getImageFilename());
+  onDownloadOriginal() {
+    this.downloadOriginal.emit();
+  }
+
+  onPreview() {
+    this.previewImage.emit();
+  }
+
+  ngOnInit() {
+    if (this.imageId) {
+      this.loadImageFromDB(this.imageId);
     }
   }
 
-  private getImageFilename(): string {
-    const title = this.image?.title || this.image?.prompt || 'image';
-    const sanitized = title.replace(/[^a-zA-Z0-9]/g, '_').substring(0, 50);
-    return `${sanitized}.png`;
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['imageId'] && this.imageId && this.imageId !== changes['imageId'].previousValue) {
+      this.loadImageFromDB(this.imageId);
+    } else if (changes['image'] && this.image?.url) {
+      // Load blob URL when image changes
+      this.loadImageBlob();
+    } else if (!this.image) {
+      this.imageBlobUrl = '';
+    }
   }
 
-  ngOnChanges(changes: SimpleChanges): void {
-    if (changes['image'] && this.image?.url) {
-      // Load blob URL when image changes
+  private loadImageBlob() {
+    console.log('🖼️ Loading blob for URL:', this.image?.url);
+    console.log('🖼️ Image object:', this.image);
+    if (this.image?.url) {
       this.imageBlobService.getImageBlobUrl(this.image.url).subscribe({
         next: (blobUrl) => {
           this.imageBlobUrl = blobUrl;
@@ -74,13 +117,41 @@ export class ImageDetailPanelComponent implements OnChanges {
           this.imageBlobUrl = '';
         }
       });
-    } else if (!this.image) {
-      this.imageBlobUrl = '';
     }
   }
 
-  onPreview() {
-    this.previewClicked.emit();
+  public async reloadImage() {
+    if (this.imageId) {
+      await this.loadImageFromDB(this.imageId);
+    }
+  }
+
+  private async loadImageFromDB(imageId: string) {
+    console.log('🔍 Loading image with ID:', imageId);
+    this.isLoading = true;
+    this.loadingError = null;
+
+    try {
+      const response = await firstValueFrom(
+        this.http.get<any>(this.apiConfigService.endpoints.image.detail(imageId))
+      );
+
+      if (response && response.data) {
+        this.image = response.data;
+      } else {
+        this.image = response;
+      }
+
+      // Load the blob URL for the image
+      this.loadImageBlob();
+
+    } catch (error: any) {
+      this.loadingError = `Failed to load image: ${error.message}`;
+      this.notificationService.error(`Error loading image details: ${error.message}`);
+      this.image = null;
+    } finally {
+      this.isLoading = false;
+    }
   }
 
   getDisplayTitle(image: any): string {
