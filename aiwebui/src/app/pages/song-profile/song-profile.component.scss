@@ -8,13 +8,11 @@
   &.embedded {
     // Embedded mode overrides
     .account-content {
-      margin: 0;
       background: transparent;
     }
 
     .account-info-section {
       border: none;
-      padding: 0;
       box-shadow: none;
       background: transparent;
     }

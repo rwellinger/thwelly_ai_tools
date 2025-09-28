@@ -4,20 +4,33 @@
 /* ===== SONG VIEW CARD LAYOUT ===== */
 
 .song-view-container {
-  min-height: calc(100vh - 200px);
+  height: 100vh;
+  overflow: hidden;
+
+  &.master-detail-layout {
+    display: grid;
+    grid-template-columns: 35fr 45fr;
+    gap: 0;
+  }
 
   .song-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 3rem;
-    margin: 0 auto;
+    display: contents;
+
+    .song-library-section {
+      height: 100vh;
+      overflow-y: auto;
+      overflow-x: hidden;
+      padding: $spacing-md;
+      border-right: 1px solid $border-light;
+    }
 
     .song-library-card {
-      height: fit-content;
-      min-height: 450px;
+      height: calc(100vh - 2rem);
       box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
       border-radius: 12px;
       overflow: hidden;
+      display: flex;
+      flex-direction: column;
 
       mat-card-header {
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -41,12 +54,20 @@
       }
     }
 
+    .song-details-section {
+      height: 100vh;
+      overflow-y: auto;
+      overflow-x: hidden;
+      padding: $spacing-md;
+    }
+
     .song-details-card {
-      height: fit-content;
-      min-height: 450px;
+      height: calc(100vh - 2rem);
       box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
       border-radius: 12px;
       overflow: hidden;
+      display: flex;
+      flex-direction: column;
 
       mat-card-header {
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -381,6 +402,9 @@
 /* Remove top spacing from list-content to connect with workflow tabs */
 .list-content {
     padding-top: 0 !important;
+    flex: 1;
+    overflow-y: auto;
+    min-height: 0;
 }
 
 /* Controls styling for cards */
@@ -513,13 +537,16 @@
 /* ===== SONG LIST PANEL (Inside Card) ===== */
 .song-list-panel {
     @include list-container-layout();
-    height: calc(100vh - 360px);
-    max-height: none;
+    flex: 1;
+    min-height: 0;
     overflow: hidden;
     padding: 0.75rem 1rem;
+    display: flex;
+    flex-direction: column;
 
     .list-header {
         margin-bottom: 1rem;
+        flex-shrink: 0;
     }
 }
 
@@ -1231,8 +1258,8 @@ tr.on-work {
         }
 
         .song-list-panel {
-            height: calc(100vh - 420px);
-            max-height: none;
+            flex: 1;
+            min-height: 0;
             padding: 0.75rem 1rem;
         }
     }

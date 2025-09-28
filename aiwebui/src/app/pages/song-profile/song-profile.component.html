@@ -12,12 +12,6 @@
   </div>
 
   <div class="account-content">
-      <!-- Loading State -->
-      <div *ngIf="isLoading" class="loading-state">
-          <i class="fas fa-spinner fa-spin"></i>
-          <p>Account Information wird geladen...</p>
-      </div>
-
       <!-- Account Information -->
       <div class="account-info-section" *ngIf="!isLoading">
           <div class="account-result-section">
@@ -67,12 +61,6 @@
                       </div>
                   </div>
 
-                  <!-- Refresh Button for Embedded Mode -->
-                  <div class="embedded-actions" *ngIf="isEmbedded">
-                      <button type="button" (click)="loadBillingInfo()" [disabled]="isLoading" class="refresh-button-small">
-                          <i class="fas fa-refresh"></i> Refresh
-                      </button>
-                  </div>
               </div>
 
               <div *ngIf="!billingInfo" class="no-account">

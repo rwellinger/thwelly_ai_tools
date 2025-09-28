@@ -1,1 +1,53 @@
-/* App component specific styles (currently empty) */
+@import '../scss/variables';
+@import '../scss/mixins';
+
+.app-layout {
+    display: flex;
+    height: 100vh;
+    overflow: hidden;
+}
+
+.main-content {
+    margin-left: 15vw;
+    width: 85vw;
+    overflow-y: auto;
+    overflow-x: hidden;
+    height: 100vh;
+    background: $background-white;
+
+    /* Grid for master-detail pages */
+    &.master-detail {
+        display: grid;
+        grid-template-columns: 35fr 45fr;
+        gap: 0;
+        height: 100vh;
+    }
+
+    /* Full width for profile pages or when no side menu */
+    &.full-width {
+        margin-left: 0;
+        width: 100vw;
+        display: block;
+        padding: $spacing-lg $spacing-md;
+        max-width: 100%;
+        box-sizing: border-box;
+    }
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+    .app-layout {
+        grid-template-columns: 1fr;
+        position: relative;
+    }
+
+    .main-content {
+        margin-left: 0;
+
+        &.master-detail {
+            grid-template-columns: 1fr;
+            grid-template-rows: 1fr auto;
+            gap: $spacing-md;
+        }
+    }
+}
