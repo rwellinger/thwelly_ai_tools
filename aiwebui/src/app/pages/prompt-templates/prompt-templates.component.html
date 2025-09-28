@@ -21,28 +21,10 @@
                         <div class="list-header">
                             <h2>Prompt Templates</h2>
                             <div class="pagination-info-badge" *ngIf="templates.length > 0">
-                                {{ filteredTemplates.length }} templates
+                                {{ templates.length }} templates
                             </div>
                         </div>
 
-                        <div class="search-controls">
-                            <div class="search-input-container">
-                                <input type="text"
-                                       #searchInput
-                                       [(ngModel)]="searchTerm"
-                                       (input)="onSearchChange($event)"
-                                       placeholder="Search templates..."
-                                       class="search-input">
-                                <i class="fas fa-search search-icon"></i>
-                                <button type="button"
-                                        class="clear-search-btn"
-                                        (click)="clearSearch()"
-                                        *ngIf="searchTerm"
-                                        title="Clear search">
-                                    <i class="fas fa-times"></i>
-                                </button>
-                            </div>
-                        </div>
 
                         <div class="template-list-container" [class.loading]="isLoading">
                             <div class="loading-overlay" *ngIf="isLoading">
@@ -52,9 +34,9 @@
                                 </div>
                             </div>
 
-                            <div class="template-list" *ngIf="filteredTemplates.length > 0">
+                            <div class="template-list" *ngIf="templates.length > 0">
                                 <div class="template-item"
-                                     *ngFor="let template of filteredTemplates; trackBy: trackByTemplate"
+                                     *ngFor="let template of templates; trackBy: trackByTemplate"
                                      [class.selected]="selectedTemplate?.category === template.category && selectedTemplate?.action === template.action"
                                      (click)="selectTemplate(template)">
 
@@ -80,14 +62,11 @@
                                 </div>
                             </div>
 
-                            <div class="no-templates" *ngIf="filteredTemplates.length === 0 && !isLoading">
-                                <i class="fas fa-search"></i>
-                                <p>{{ searchTerm ? 'No templates found matching your search' : 'No templates available' }}</p>
+                            <div class="no-templates" *ngIf="templates.length === 0 && !isLoading">
+                                <i class="fas fa-file-alt"></i>
+                                <p>No templates available</p>
                             </div>
                         </div>
-
-                        <!-- Spacer for visual consistency with other view pages -->
-                        <div class="pagination-spacer"></div>
                     </div>
                 </mat-card-content>
                 <mat-card-actions align="end">

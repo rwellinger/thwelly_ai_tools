@@ -4,7 +4,7 @@
 /* ===== PROMPT TEMPLATES CARD LAYOUT ===== */
 
 .prompt-templates-container {
-  min-height: calc(100vh - 300px);
+  min-height: calc(100vh - 240px);
 
   .templates-grid {
     display: grid;
@@ -72,7 +72,7 @@
 
 /* Template List Panel (Inside Card) */
 .template-list-panel {
-    height: calc(100vh - 405px);
+    height: calc(100vh - 345px);
     max-height: none;
     overflow: hidden;
     padding: 0.75rem 1rem;
@@ -104,78 +104,13 @@
     padding: 4px 8px;
 }
 
-/* Pagination-like spacer to match visual structure of other views */
-.pagination-spacer {
-    margin-top: $spacing-20 !important;
-    padding: $spacing-15 !important;
-    background: linear-gradient(135deg,
-                rgba(248,249,250,0.8) 0%,
-                rgba(255,255,255,0.9) 100%) !important;
-    border-radius: $border-radius-xl !important;
-    box-shadow: 0 2px 12px rgba(0,0,0,0.08) !important;
-    border-top: 1px solid $border-light !important;
-    border-bottom: 1px solid $border-light !important;
-    min-height: 40px !important;
-}
 
-/* Search Controls */
-.search-controls {
-    padding: $spacing-15 $spacing-20;
-    border-bottom: 1px solid $border-light;
-}
-
-.search-input-container {
-    position: relative;
-    display: flex;
-    align-items: center;
-}
-
-.search-input {
-    width: 100%;
-    padding: $spacing-xs $spacing-12;
-    padding-left: 40px;
-    padding-right: 40px;
-    border: 1px solid $border-light;
-    border-radius: $border-radius-sm;
-    font-size: $font-sm;
-    margin-bottom: 5px;
-    box-sizing: border-box;
-
-    &:focus {
-        @include input-focus-state($primary-color);
-    }
-}
-
-.search-icon {
-    position: absolute;
-    left: 12px;
-    color: $text-secondary;
-    font-size: $font-sm;
-}
-
-.clear-search-btn {
-    position: absolute;
-    right: 8px;
-    background: none;
-    border: none;
-    color: $text-secondary;
-    cursor: pointer;
-    padding: 4px;
-    border-radius: $border-radius-sm;
-    transition: all 0.2s ease;
-
-    &:hover {
-        color: $danger-color;
-        background: rgba($danger-color, 0.1);
-    }
-}
 
 /* Template List */
 .template-list-container {
     flex: 1;
-
     position: relative;
-    max-height: 380px;
+    overflow: hidden;
 }
 
 .loading-overlay {
@@ -198,6 +133,9 @@
 }
 
 .template-list {
+    overflow-y: auto;
+    overflow-x: hidden;
+    max-height: 100%;
 }
 
 .template-item {

@@ -2,7 +2,7 @@ import {Routes} from '@angular/router';
 import { AuthGuard } from './guards/auth.guard';
 
 export const routes: Routes = [
-    {path: '', redirectTo: '/imagegen', pathMatch: 'full'},
+    {path: '', redirectTo: '/imageview', pathMatch: 'full'},
     {
         path: 'login',
         loadComponent: () => import('./auth/login/login.component').then(m => m.LoginComponent)
