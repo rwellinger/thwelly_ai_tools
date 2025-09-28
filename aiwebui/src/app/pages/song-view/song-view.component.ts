@@ -29,7 +29,7 @@ export class SongViewComponent implements OnInit, OnDestroy {
   selectedSongId: string | null = null;
   pagination: any = {
     total: 0,
-    limit: 12,
+    limit: 17,
     offset: 0,
     has_more: false
   };

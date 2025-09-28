@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, inject } from '@angular/core';
+import { Component, OnInit, OnDestroy, ViewChild, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
@@ -41,6 +41,8 @@ import { User } from '../../models/user.model';
   styleUrl: './user-profile.component.scss'
 })
 export class UserProfileComponent implements OnInit, OnDestroy {
+  @ViewChild(SongProfileComponent) songProfileComponent!: SongProfileComponent;
+
   userForm: FormGroup;
   currentUser: User | null = null;
   isLoading = false;
@@ -250,5 +252,14 @@ export class UserProfileComponent implements OnInit, OnDestroy {
       hour: '2-digit',
       minute: '2-digit'
     });
+  }
+
+  /**
+   * Refresh Mureka account information
+   */
+  public refreshMurekaAccount(): void {
+    if (this.songProfileComponent) {
+      this.songProfileComponent.loadBillingInfo();
+    }
   }
 }

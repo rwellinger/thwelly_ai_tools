@@ -1,183 +1,197 @@
-<app-header></app-header>
+<div class="user-profile-container master-detail-layout">
+    <!-- Main Content Grid -->
+    <div class="profile-grid">
 
-<div class="user-profile-container">
-  <!-- Main Content Grid -->
-  <div class="profile-grid">
-    <!-- User Profile Section (Right) -->
-    <div class="user-section">
-      <mat-card class="profile-card">
-        <mat-card-header>
-          <mat-card-title>
-            <i class="fas fa-user"></i>
-            User Profile
-          </mat-card-title>
-          <mat-card-subtitle>
-            Personal Information and Settings
-          </mat-card-subtitle>
-        </mat-card-header>
+        <!-- User Profile Section (Right) -->
+        <div class="user-section">
+            <mat-card class="profile-card">
+                <mat-card-header>
+                    <mat-card-title>
+                        <i class="fas fa-user"></i>
+                        User Profile
+                    </mat-card-title>
+                    <mat-card-subtitle>
+                        Personal Information and Settings
+                    </mat-card-subtitle>
+                </mat-card-header>
 
-        <mat-card-content>
-          <div class="user-info" *ngIf="currentUser">
-            <!-- Avatar Section -->
-            <div class="avatar-section">
-              <div class="avatar">
-                <i class="fas fa-user-circle"></i>
-              </div>
-              <div class="user-details">
-                <h3>{{ getUserDisplayName() }}</h3>
-                <p class="email">{{ currentUser.email }}</p>
-                <div class="badges">
+                <mat-card-content>
+                    <div class="user-info" *ngIf="currentUser">
+                        <!-- Avatar Section -->
+                        <div class="avatar-section">
+                            <div class="avatar">
+                                <i class="fas fa-user-circle"></i>
+                            </div>
+                            <div class="user-details">
+                                <h3>{{ getUserDisplayName() }}</h3>
+                                <p class="email">{{ currentUser.email }}</p>
+                                <div class="badges">
                   <span class="badge" [class.active]="currentUser.is_active">
                     <i class="fas fa-circle"></i>
-                    {{ currentUser.is_active ? 'Active' : 'Inactive' }}
+                      {{ currentUser.is_active ? 'Active' : 'Inactive' }}
                   </span>
-                  <span class="badge" [class.verified]="currentUser.is_verified">
+                                    <span class="badge" [class.verified]="currentUser.is_verified">
                     <i class="fas fa-check-circle"></i>
-                    {{ currentUser.is_verified ? 'Verified' : 'Not verified' }}
+                                        {{ currentUser.is_verified ? 'Verified' : 'Not verified' }}
                   </span>
-                </div>
-              </div>
-            </div>
+                                </div>
+                            </div>
+                        </div>
 
-            <!-- Account Information -->
-            <div class="account-info">
-              <div class="info-row">
+                        <!-- Account Information -->
+                        <div class="account-info">
+                            <div class="info-row">
                 <span class="label">
                   <i class="fas fa-calendar-plus"></i>
                   Member since:
                 </span>
-                <span class="value">{{ formatDate(currentUser.created_at) }}</span>
-              </div>
-              <div class="info-row" *ngIf="currentUser.last_login">
+                                <span class="value">{{ formatDate(currentUser.created_at) }}</span>
+                            </div>
+                            <div class="info-row" *ngIf="currentUser.last_login">
                 <span class="label">
                   <i class="fas fa-clock"></i>
                   Last login:
                 </span>
-                <span class="value">{{ formatDate(currentUser.last_login) }}</span>
-              </div>
-            </div>
+                                <span class="value">{{ formatDate(currentUser.last_login) }}</span>
+                            </div>
+                        </div>
 
-            <!-- Edit Form -->
-            <form [formGroup]="userForm" (ngSubmit)="saveProfile()" class="edit-form" [class.readonly-mode]="!isEditing">
-              <div class="form-row">
-                <mat-form-field appearance="outline" class="half-width" [class.readonly-field]="!isEditing">
-                  <mat-label>First Name</mat-label>
-                  <input
-                    matInput
-                    formControlName="first_name"
-                    [readonly]="!isEditing"
-                    [class.readonly-input]="!isEditing"
-                    placeholder="Enter first name">
-                  <mat-error *ngIf="hasFieldError('first_name') && isEditing">
-                    {{ getErrorMessage('first_name') }}
-                  </mat-error>
-                </mat-form-field>
+                        <!-- Edit Form -->
+                        <form [formGroup]="userForm" (ngSubmit)="saveProfile()" class="edit-form"
+                              [class.readonly-mode]="!isEditing">
+                            <div class="form-row">
+                                <mat-form-field appearance="outline" class="half-width"
+                                                [class.readonly-field]="!isEditing">
+                                    <mat-label>First Name</mat-label>
+                                    <input
+                                            matInput
+                                            formControlName="first_name"
+                                            [readonly]="!isEditing"
+                                            [class.readonly-input]="!isEditing"
+                                            placeholder="Enter first name">
+                                    <mat-error *ngIf="hasFieldError('first_name') && isEditing">
+                                        {{ getErrorMessage('first_name') }}
+                                    </mat-error>
+                                </mat-form-field>
 
-                <mat-form-field appearance="outline" class="half-width" [class.readonly-field]="!isEditing">
-                  <mat-label>Last Name</mat-label>
-                  <input
-                    matInput
-                    formControlName="last_name"
-                    [readonly]="!isEditing"
-                    [class.readonly-input]="!isEditing"
-                    placeholder="Enter last name">
-                  <mat-error *ngIf="hasFieldError('last_name') && isEditing">
-                    {{ getErrorMessage('last_name') }}
-                  </mat-error>
-                </mat-form-field>
-              </div>
+                                <mat-form-field appearance="outline" class="half-width"
+                                                [class.readonly-field]="!isEditing">
+                                    <mat-label>Last Name</mat-label>
+                                    <input
+                                            matInput
+                                            formControlName="last_name"
+                                            [readonly]="!isEditing"
+                                            [class.readonly-input]="!isEditing"
+                                            placeholder="Enter last name">
+                                    <mat-error *ngIf="hasFieldError('last_name') && isEditing">
+                                        {{ getErrorMessage('last_name') }}
+                                    </mat-error>
+                                </mat-form-field>
+                            </div>
 
-              <!-- Email (Always Read-only) -->
-              <mat-form-field appearance="outline" class="full-width readonly-field">
-                <mat-label>Email</mat-label>
-                <input
-                  matInput
-                  [value]="currentUser.email"
-                  readonly
-                  class="readonly-input"
-                  placeholder="Email address">
-                <mat-hint>Email cannot be changed</mat-hint>
-              </mat-form-field>
-            </form>
-          </div>
+                            <!-- Email (Always Read-only) -->
+                            <mat-form-field appearance="outline" class="full-width readonly-field">
+                                <mat-label>Email</mat-label>
+                                <input
+                                        matInput
+                                        [value]="currentUser.email"
+                                        readonly
+                                        class="readonly-input"
+                                        placeholder="Email address">
+                                <mat-hint>Email cannot be changed</mat-hint>
+                            </mat-form-field>
+                        </form>
+                    </div>
 
-          <!-- Loading State -->
-          <div class="loading-state" *ngIf="isLoading && !currentUser">
-            <i class="fas fa-spinner fa-spin"></i>
-            <p>Loading profile...</p>
-          </div>
-        </mat-card-content>
+                    <!-- Loading State -->
+                    <div class="loading-state" *ngIf="isLoading && !currentUser">
+                        <i class="fas fa-spinner fa-spin"></i>
+                        <p>Loading profile...</p>
+                    </div>
+                </mat-card-content>
 
-        <mat-card-actions align="end">
-          <!-- Edit Mode Actions -->
-          <div class="action-buttons" *ngIf="isEditing">
-            <button
-              mat-button
-              type="button"
-              (click)="cancelEditing()"
-              [disabled]="isLoading">
-              <i class="fas fa-times"></i>
-              Cancel
-            </button>
-            <button
-              mat-raised-button
-              color="primary"
-              type="button"
-              (click)="saveProfile()"
-              [disabled]="userForm.invalid || isLoading">
+                <mat-card-actions align="end">
+                    <!-- Edit Mode Actions -->
+                    <div class="action-buttons" *ngIf="isEditing">
+                        <button
+                                mat-button
+                                type="button"
+                                (click)="cancelEditing()"
+                                [disabled]="isLoading">
+                            <i class="fas fa-times"></i>
+                            Cancel
+                        </button>
+                        <button
+                                mat-raised-button
+                                color="primary"
+                                type="button"
+                                (click)="saveProfile()"
+                                [disabled]="userForm.invalid || isLoading">
               <span *ngIf="isLoading">
                 <i class="fas fa-spinner fa-spin"></i>
                 Saving...
               </span>
-              <span *ngIf="!isLoading">
+                            <span *ngIf="!isLoading">
                 <i class="fas fa-save"></i>
                 Save
               </span>
-            </button>
-          </div>
+                        </button>
+                    </div>
 
-          <!-- View Mode Actions -->
-          <div class="action-buttons" *ngIf="!isEditing">
-            <button
-              mat-button
-              color="accent"
-              type="button"
-              (click)="openPasswordChangeModal()">
-              <i class="fas fa-key"></i>
-              Change Password
-            </button>
-            <button
-              mat-raised-button
-              color="primary"
-              type="button"
-              (click)="startEditing()">
-              <i class="fas fa-edit"></i>
-              Edit
-            </button>
-          </div>
-        </mat-card-actions>
-      </mat-card>
-    </div>
+                    <!-- View Mode Actions -->
+                    <div class="action-buttons" *ngIf="!isEditing">
+                        <button
+                                mat-button
+                                color="accent"
+                                type="button"
+                                (click)="openPasswordChangeModal()">
+                            <i class="fas fa-key"></i>
+                            Change Password
+                        </button>
+                        <button
+                                mat-raised-button
+                                color="primary"
+                                type="button"
+                                (click)="startEditing()">
+                            <i class="fas fa-edit"></i>
+                            Edit
+                        </button>
+                    </div>
+                </mat-card-actions>
+            </mat-card>
+        </div>
 
-    <!-- Mureka Profile Section (Left) -->
-    <div class="mureka-section">
-      <mat-card class="profile-card">
-        <mat-card-header>
-          <mat-card-title>
-            <i class="fas fa-music"></i>
-            Mureka Account
-          </mat-card-title>
-          <mat-card-subtitle>
-            Current Billing Information and Account Status
-          </mat-card-subtitle>
-        </mat-card-header>
-        <mat-card-content>
-          <!-- Embed the existing SongProfile component -->
-          <app-song-profile [isEmbedded]="true"></app-song-profile>
-        </mat-card-content>
-      </mat-card>
+        <!-- Mureka Profile Section (Left) -->
+        <div class="mureka-section">
+            <mat-card class="profile-card">
+                <mat-card-header>
+                    <mat-card-title>
+                        <i class="fas fa-music"></i>
+                        Mureka Account
+                    </mat-card-title>
+                    <mat-card-subtitle>
+                        Current Billing Information and Account Status
+                    </mat-card-subtitle>
+                </mat-card-header>
+                <mat-card-content>
+                    <!-- Embed the existing SongProfile component -->
+                    <app-song-profile [isEmbedded]="true"></app-song-profile>
+                </mat-card-content>
+                <mat-card-actions align="end">
+                    <div class="action-buttons">
+                        <button
+                                mat-raised-button
+                                color="primary"
+                                type="button"
+                                (click)="refreshMurekaAccount()"
+                                [disabled]="isLoading">
+                            <i class="fas fa-refresh"></i>
+                            Refresh
+                        </button>
+                    </div>
+                </mat-card-actions>
+            </mat-card>
+        </div>
     </div>
-  </div>
 </div>
 
-<app-footer></app-footer>

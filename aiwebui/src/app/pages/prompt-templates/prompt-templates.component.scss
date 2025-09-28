@@ -4,17 +4,38 @@
 /* ===== PROMPT TEMPLATES CARD LAYOUT ===== */
 
 .prompt-templates-container {
-  min-height: calc(100vh - 240px);
+  height: 100vh;
+  overflow: hidden;
+
+  &.master-detail-layout {
+    display: grid;
+    grid-template-columns: 35fr 45fr;
+    gap: 0;
+  }
 
   .templates-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 3rem;
-    margin: 0 auto;
+    display: contents;
+
+    .template-library-section {
+      height: 100vh;
+      overflow-y: auto;
+      overflow-x: hidden;
+      padding: $spacing-md;
+      border-right: 1px solid $border-light;
+    }
+
+    .template-details-section {
+      height: 100vh;
+      overflow-y: auto;
+      overflow-x: hidden;
+      padding: $spacing-md;
+    }
 
     .template-library-card,
     .template-details-card {
-      height: fit-content;
+      height: calc(100vh - 2rem);
+      display: flex;
+      flex-direction: column;
       min-height: 500px;
       box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
       border-radius: 12px;

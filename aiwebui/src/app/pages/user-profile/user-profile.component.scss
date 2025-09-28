@@ -2,7 +2,15 @@
 @import '../../../scss/mixins';
 
 .user-profile-container {
-  min-height: calc(100vh - 300px);
+  height: 100vh;
+  overflow: hidden;
+  padding-bottom: 25px;
+
+  &.master-detail-layout {
+    display: grid;
+    grid-template-columns: 35fr 45fr;
+    gap: 0;
+  }
 
   .page-header {
     text-align: center;
@@ -10,13 +18,24 @@
   }
 
   .profile-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 3rem;
-    margin: 0 auto;
+    display: contents;
+
+    .user-section,
+    .mureka-section {
+      height: 100vh;
+      overflow-y: auto;
+      overflow-x: hidden;
+      padding: $spacing-md;
+    }
+
+    .user-section {
+      border-right: 1px solid $border-light;
+    }
 
     .profile-card {
-      height: fit-content;
+      height: calc(100vh - 2rem);
+      display: flex;
+      flex-direction: column;
       box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
       border-radius: 12px;
       overflow: hidden;
@@ -48,6 +67,10 @@
 
       mat-card-content {
         padding: 1.5rem;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+
       }
 
       mat-card-actions {
@@ -300,31 +323,6 @@
       }
     }
 
-    // Mureka Section Specific Styles
-    .mureka-section {
-      mat-card-content {
-        padding: 1.5rem;
-
-        app-song-profile {
-          display: block;
-
-          // Override some styles to fit within the card
-          ::ng-deep {
-            .song-profile-container {
-              padding: 0;
-              background: transparent;
-              min-height: auto;
-            }
-
-            .profile-card {
-              box-shadow: none;
-              border-radius: 0;
-              margin: 0;
-            }
-          }
-        }
-      }
-    }
   }
 }
 

@@ -1,0 +1,113 @@
+<aside class="side-menu">
+    <!-- Logo and Brand Section -->
+    <div class="brand-section">
+        <div class="logo">
+            <i class="fa-duotone fa-solid fa-toolbox"></i>
+        </div>
+        <div class="brand">
+            <span class="brand-text">thWelly's AI Toolbox</span>
+            <span class="version-text">v{{ version }}</span>
+        </div>
+    </div>
+
+    <!-- Navigation Section -->
+    <nav class="nav-section">
+        <div class="nav-group">
+            <span class="group-label">
+                <i class="fas fa-image"></i>
+                Picture
+            </span>
+            <div class="group-items">
+                <a routerLink="/imageview" routerLinkActive="active">
+                    <i class="fas fa-images"></i>
+                    Gallery
+                </a>
+                <a routerLink="/imagegen" routerLinkActive="active">
+                    <i class="fas fa-plus"></i>
+                    Create
+                </a>
+            </div>
+        </div>
+
+        <div class="nav-group">
+            <span class="group-label">
+                <i class="fas fa-music"></i>
+                Music
+            </span>
+            <div class="group-items">
+                <a routerLink="/songview" routerLinkActive="active">
+                    <i class="fas fa-list"></i>
+                    Library
+                </a>
+                <a routerLink="/songgen" routerLinkActive="active">
+                    <i class="fas fa-plus"></i>
+                    Create
+                </a>
+            </div>
+        </div>
+
+        <div class="nav-group">
+            <span class="group-label">
+                <i class="fas fa-external-link-alt"></i>
+                External
+            </span>
+            <div class="group-items">
+                <a href="https://macstudio" class="external-link" target="_blank">
+                    <i class="fas fa-comments"></i>
+                    AI Chat
+                </a>
+                <a href="https://platform.openai.com/usage" class="external-link" target="_blank">
+                    <i class="fas fa-chart-line"></i>
+                    AI Usage
+                </a>
+                <a href="https://www.paraphrasetool.ai/humanize-ai-text" class="external-link" target="_blank">
+                    <i class="fas fa-user-edit"></i>
+                    Humanize
+                </a>
+            </div>
+        </div>
+
+        <div class="nav-group">
+            <span class="group-label">
+                <i class="fas fa-cogs"></i>
+                Settings
+            </span>
+            <div class="group-items">
+                <a routerLink="/prompt-templates" routerLinkActive="active">
+                    <i class="fas fa-file-text"></i>
+                    Templates
+                </a>
+            </div>
+        </div>
+
+        <div class="nav-group" *ngIf="authState && authState.isAuthenticated">
+            <span class="group-label">
+                <i class="fas fa-user"></i>
+                {{ getFirstName() }}
+            </span>
+            <div class="group-items">
+                <a routerLink="/profile" routerLinkActive="active">
+                    <i class="fas fa-user-circle"></i>
+                    Profile
+                </a>
+                <a href="javascript:void(0)" (click)="onLogout()" class="logout-link">
+                    <i class="fas fa-sign-out-alt"></i>
+                    Logout
+                </a>
+            </div>
+        </div>
+
+        <!-- Login Button (when not authenticated) -->
+        <div class="auth-section" *ngIf="authState && !authState.isAuthenticated">
+            <a routerLink="/login" class="login-button">
+                <i class="fas fa-sign-in-alt"></i>
+                Login
+            </a>
+        </div>
+    </nav>
+
+    <!-- Footer Section -->
+    <div class="footer-section">
+        <p>© 2025 <a href="https://macstudio" class="external-link" target="_blank">thWelly</a></p>
+    </div>
+</aside>

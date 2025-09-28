@@ -4,7 +4,14 @@
 /* ===== IMAGE VIEW CARD LAYOUT ===== */
 
 .image-view-container {
-  min-height: calc(100vh - 300px);
+  height: 100vh;
+  overflow: hidden;
+
+  &.master-detail-layout {
+    display: grid;
+    grid-template-columns: 35fr 45fr;
+    gap: 0;
+  }
 
   .controls-container {
     margin-bottom: 2rem;
@@ -41,15 +48,28 @@
   }
 
   .image-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 3rem;
-    margin: 0 auto;
+    display: contents;
+
+    .image-gallery-section {
+      height: 100vh;
+      overflow-y: auto;
+      overflow-x: hidden;
+      padding: $spacing-md;
+      border-right: 1px solid $border-light;
+    }
+
+    .image-details-section {
+      height: 100vh;
+      overflow-y: auto;
+      overflow-x: hidden;
+      padding: $spacing-md;
+    }
 
     .image-gallery-card,
     .image-details-card {
-      height: fit-content;
-      min-height: 500px;
+      height: calc(100vh - 2rem);
+      display: flex;
+      flex-direction: column;
       box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
       border-radius: 12px;
       overflow: hidden;
@@ -276,7 +296,6 @@
 .master-detail-container {
     @include master-detail-layout($spacing-20, 40%, calc(100vh - 320px));
     min-height: 500px;
-    max-height: 70vh;
     overflow: hidden;
 }
 
@@ -284,7 +303,7 @@
 /* ===== IMAGE LIST PANEL (Inside Card) ===== */
 .image-list-panel {
     @include list-container-layout();
-    height: calc(100vh - 360px);
+    height: 100%;
     max-height: none;
     overflow: hidden;
     padding: 0.75rem 1rem;
@@ -807,7 +826,7 @@ td.size-col {
         }
 
         .image-list-panel {
-            height: calc(100vh - 420px);
+            height: 100%;
             max-height: none;
             padding: 0.75rem 1rem;
         }
