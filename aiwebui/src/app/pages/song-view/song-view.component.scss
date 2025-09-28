@@ -14,7 +14,7 @@
 
     .song-library-card {
       height: fit-content;
-      min-height: 500px;
+      min-height: 450px;
       box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
       border-radius: 12px;
       overflow: hidden;
@@ -43,7 +43,7 @@
 
     .song-details-card {
       height: fit-content;
-      min-height: 500px;
+      min-height: 450px;
       box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
       border-radius: 12px;
       overflow: hidden;
@@ -85,7 +85,7 @@
       }
 
       mat-card-actions {
-        padding: 1rem 1.5rem 1.5rem 1.5rem;
+        padding: 0.75rem 1.5rem 1rem 1.5rem;
         background: #f8f9fa;
 
         .detail-actions {
@@ -158,10 +158,12 @@
 
     .player-bar {
         width: 100%;
+        max-width: 90%;
+        margin: 0 auto;
         background: $background-light;
         border-radius: $border-radius-sm;
-        padding: $spacing-12;
-        min-height: 60px;
+        padding: $spacing-sm;
+        min-height: 50px;
         display: flex;
         align-items: center;
 

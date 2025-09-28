@@ -2,11 +2,11 @@
 
 footer {
     font-size: $font-xs;
-    background: $background-light;
+    background: transparent;
     color: $text-muted;
     text-align: center;
-    padding: $spacing-md $spacing-20;
-    margin-top: $spacing-sm;
+    padding: $spacing-6 $spacing-md;
+    margin-top: $spacing-6;
     border-top: 1px solid $border-light;
     font-weight: $font-weight-normal;
 }

@@ -15,7 +15,7 @@
     .song-creation-card,
     .generated-song-card {
       height: fit-content;
-      min-height: 500px;
+      min-height: 450px;
       box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
       border-radius: 12px;
       overflow: hidden;
@@ -43,11 +43,11 @@
 
       mat-card-content {
         padding: 1rem;
-        min-height: 400px;
+        min-height: 350px;
       }
 
       mat-card-actions {
-        padding: 1rem 1.5rem 1.5rem 1.5rem;
+        padding: 0.75rem 1.5rem 1rem 1.5rem;
         background: #f8f9fa;
 
         .cost-info {
@@ -232,7 +232,7 @@ form .segment-control {
 
 .lyrics-input {
     flex: 1;
-    min-height: 160px;
+    min-height: 120px;
     padding: $spacing-12;
     border: 1px solid $border-light;
     border-radius: $border-radius-lg;
@@ -246,7 +246,7 @@ form .segment-control {
 
 .prompt-input {
     flex: 1;
-    min-height: 120px;
+    min-height: 100px;
     padding: $spacing-12;
     border: 1px solid $border-light;
     border-radius: $border-radius-lg;
@@ -621,10 +621,12 @@ form .segment-control {
 
     .player-bar {
         width: 100%;
+        max-width: 90%;
+        margin: 0 auto;
         background: $background-light;
         border-radius: $border-radius-sm;
-        padding: $spacing-12;
-        min-height: 60px;
+        padding: $spacing-sm;
+        min-height: 50px;
         display: flex;
         align-items: center;
 
