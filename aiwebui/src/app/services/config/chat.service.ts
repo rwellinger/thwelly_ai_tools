@@ -2,6 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { ApiConfigService } from './api-config.service';
 import { PromptConfigService } from './prompt-config.service';
+import { LyricArchitectureService } from '../lyric-architecture.service';
 import { firstValueFrom } from 'rxjs';
 
 interface UnifiedChatRequest {
@@ -35,6 +36,7 @@ export class ChatService {
   private http = inject(HttpClient);
   private apiConfig = inject(ApiConfigService);
   private promptConfig = inject(PromptConfigService);
+  private architectureService = inject(LyricArchitectureService);
 
   private async validateAndCallUnified(category: string, action: string, inputText: string): Promise<string> {
     const template = await firstValueFrom(this.promptConfig.getPromptTemplateAsync(category, action));
@@ -77,7 +79,63 @@ export class ChatService {
   }
 
   async generateLyrics(inputText: string): Promise<string> {
-    return this.validateAndCallUnified('lyrics', 'generate', inputText);
+    return this.generateLyricsWithArchitecture(inputText);
+  }
+
+  async generateLyricsWithArchitecture(inputText: string): Promise<string> {
+    const template = await firstValueFrom(this.promptConfig.getPromptTemplateAsync('lyrics', 'generate'));
+    if (!template) {
+      throw new Error(`Template lyrics/generate not found in database`);
+    }
+
+    // Get current architecture configuration
+    const architectureString = this.architectureService.generateArchitectureString();
+
+    console.log('=== LYRIC ARCHITECTURE DEBUG ===');
+    console.log('Input text:', inputText);
+    console.log('Original pre_condition:', template.pre_condition);
+    console.log('Architecture string:', architectureString);
+
+    // Enhance pre_condition with architecture if it exists
+    let enhancedPreCondition = template.pre_condition || '';
+    if (architectureString.trim()) {
+      enhancedPreCondition = architectureString + '\n\n' + enhancedPreCondition;
+      console.log('✅ Architecture added to pre_condition');
+    } else {
+      console.log('ℹ️ No architecture configured, using template as-is');
+    }
+
+    console.log('Enhanced pre_condition:', enhancedPreCondition);
+    console.log('Template model:', template.model);
+    console.log('Template temperature:', template.temperature);
+    console.log('Template max_tokens:', template.max_tokens);
+    console.log('Post_condition:', template.post_condition);
+    console.log('=================================');
+
+    // Validate template has all required parameters
+    if (!template.model) {
+      throw new Error(`Template lyrics/generate is missing model parameter`);
+    }
+    if (template.temperature === undefined || template.temperature === null) {
+      throw new Error(`Template lyrics/generate is missing temperature parameter`);
+    }
+    if (!template.max_tokens) {
+      throw new Error(`Template lyrics/generate is missing max_tokens parameter`);
+    }
+
+    const request: UnifiedChatRequest = {
+      pre_condition: enhancedPreCondition,
+      post_condition: template.post_condition || '',
+      input_text: inputText,
+      temperature: template.temperature,
+      max_tokens: template.max_tokens,
+      model: template.model
+    };
+
+    const data: ChatResponse = await firstValueFrom(
+      this.http.post<ChatResponse>(this.apiConfig.endpoints.chat.generateUnified, request)
+    );
+    return data.response;
   }
 
   async translateLyric(prompt: string): Promise<string> {

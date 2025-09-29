@@ -1,6 +1,7 @@
 import {Component, OnInit, ViewEncapsulation, inject, HostListener, ViewChild, ElementRef} from '@angular/core';
 import {FormBuilder, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
 import {CommonModule} from '@angular/common';
+import {MatDialog} from '@angular/material/dialog';
 import {SongService} from '../../services/business/song.service';
 import {ApiConfigService} from '../../services/config/api-config.service';
 import {NotificationService} from '../../services/ui/notification.service';
@@ -9,6 +10,8 @@ import {MatSnackBarModule} from '@angular/material/snack-bar';
 import {MatCardModule} from '@angular/material/card';
 import {SongDetailPanelComponent} from '../../components/song-detail-panel/song-detail-panel.component';
 import {ProgressService} from '../../services/ui/progress.service';
+import {LyricArchitectModalComponent} from '../../components/lyric-architect-modal/lyric-architect-modal.component';
+import {LyricArchitectureService} from '../../services/lyric-architecture.service';
 
 @Component({
     selector: 'app-song-generator',
@@ -53,6 +56,8 @@ export class SongGeneratorComponent implements OnInit {
     private notificationService = inject(NotificationService);
     private chatService = inject(ChatService);
     private progressService = inject(ProgressService);
+    private dialog = inject(MatDialog);
+    private architectureService = inject(LyricArchitectureService);
 
     ngOnInit() {
         this.songForm = this.fb.group({
@@ -502,14 +507,34 @@ export class SongGeneratorComponent implements OnInit {
         this.showLyricsDropdown = false;
     }
 
-    selectLyricsAction(action: 'generate' | 'translate') {
+    selectLyricsAction(action: 'generate' | 'translate' | 'architecture') {
         this.closeLyricsDropdown();
 
         if (action === 'generate') {
             this.generateLyrics();
         } else if (action === 'translate') {
             this.translateLyrics();
+        } else if (action === 'architecture') {
+            this.openLyricArchitectModal();
         }
+    }
+
+    openLyricArchitectModal(): void {
+        const dialogRef = this.dialog.open(LyricArchitectModalComponent, {
+            width: '800px',
+            maxWidth: '90vw',
+            maxHeight: '90vh',
+            disableClose: false,
+            autoFocus: true
+        });
+
+        dialogRef.afterClosed().subscribe(result => {
+            if (result && result.architectureString) {
+                this.notificationService.success('Song architecture updated successfully');
+                console.log('Architecture applied:', result.architectureString);
+                // The architecture will be used in the next lyric generation
+            }
+        });
     }
 
     toggleStyleDropdown() {
