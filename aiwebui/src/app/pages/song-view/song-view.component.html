@@ -13,8 +13,7 @@
             Browse and manage your generated songs
           </mat-card-subtitle>
         </mat-card-header>
-        <mat-card-content>
-          <div class="song-list-panel">
+        <div class="song-list-panel">
         <div class="list-header">
             <h2>Available Songs</h2>
             <div class="pagination-info-badge" *ngIf="pagination.total > 0">
@@ -174,8 +173,7 @@
           <div *ngIf="isLoadingSongs" class="loading-message">
             <i class="fas fa-spinner fa-spin"></i> Loading songs...
           </div>
-          </div>
-        </mat-card-content>
+        </div>
         <mat-card-actions align="end">
           <div class="library-actions">
             <!-- Main controls -->

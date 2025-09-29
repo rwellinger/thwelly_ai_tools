@@ -52,6 +52,12 @@
           font-size: 0.9rem;
         }
       }
+
+      .song-list-panel {
+        flex: 1;
+        padding: 0.75rem 1rem;
+        overflow: hidden;
+      }
     }
 
     .song-details-section {
@@ -404,7 +410,9 @@
     padding-top: 0 !important;
     flex: 1;
     overflow-y: auto;
+    overflow-x: hidden;
     min-height: 0;
+    width: 100%;
 }
 
 /* Controls styling for cards */
@@ -471,9 +479,10 @@
 
 /* Checkbox column styling */
 .checkbox-col {
-    width: 40px !important;
+    width: 45px !important;
+    max-width: 45px !important;
     text-align: center !important;
-    padding: $spacing-sm 4px !important;
+    padding: $spacing-6 4px !important;
 }
 
 .checkbox-col input[type="checkbox"] {
@@ -484,12 +493,13 @@
 /* Icon column styling for instrumental/vocal indicator */
 .icon-col {
     width: 30px !important;
+    max-width: 30px !important;
     text-align: center !important;
-    padding: $spacing-sm 4px !important;
+    padding: $spacing-6 2px !important;
 }
 
 .icon-col i {
-    font-size: 14px;
+    font-size: 12px;
     color: $text-secondary;
     transition: color 0.2s ease;
 }
@@ -537,16 +547,13 @@
 /* ===== SONG LIST PANEL (Inside Card) ===== */
 .song-list-panel {
     @include list-container-layout();
-    flex: 1;
-    min-height: 0;
+    height: 100%;
+    max-height: none;
     overflow: hidden;
-    padding: 0.75rem 1rem;
-    display: flex;
-    flex-direction: column;
+    overflow-x: hidden;
 
     .list-header {
         margin-bottom: 1rem;
-        flex-shrink: 0;
     }
 }
 
@@ -578,12 +585,102 @@
 // Table cell and row styling now handled by list-table-styling mixin
 
 .lyrics-col {
-    width: 50%;
-    max-width: 200px;
+    width: 55%;
+    min-width: 0;
+    max-width: 55%;
     word-break: break-word;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+}
+
+/* Fixed column widths for table-layout: fixed */
+/* When selection mode is active */
+.result-table th:nth-child(1), /* Checkbox */
+.result-table td:nth-child(1) {
+    width: 45px;
+    max-width: 45px;
+}
+
+.result-table th:nth-child(2), /* Icon when selection mode active */
+.result-table td:nth-child(2) {
+    width: 30px;
+    max-width: 30px;
+}
+
+.result-table th:nth-child(3), /* Title when selection mode active */
+.result-table td:nth-child(3) {
+    width: 50%;
+    max-width: 50%;
+}
+
+.result-table th:nth-child(4), /* Model when selection mode active */
+.result-table td:nth-child(4) {
+    width: 18%;
+    max-width: 18%;
+}
+
+.result-table th:nth-child(5), /* Created when selection mode active */
+.result-table td:nth-child(5) {
+    width: 12%;
+    max-width: 12%;
+}
+
+/* When selection mode is NOT active (no checkbox column) */
+.result-table th.icon-col,
+.result-table td.icon-col {
+    width: 30px;
+    max-width: 30px;
+}
+
+.result-table th.lyrics-col,
+.result-table td.lyrics-col {
+    width: 55%;
+    max-width: 55%;
+}
+
+.result-table th:nth-child(3):not(.lyrics-col), /* Model when no selection mode */
+.result-table td:nth-child(3):not(.lyrics-col) {
+    width: 20%;
+    max-width: 20%;
+}
+
+.result-table th:nth-child(4):not(.lyrics-col), /* Created when no selection mode */
+.result-table td:nth-child(4):not(.lyrics-col) {
+    width: 15%;
+    max-width: 15%;
+}
+
+/* Responsive column adjustments */
+@media (max-width: 1200px) {
+    .lyrics-col {
+        min-width: 100px;
+    }
+}
+
+@media (max-width: 900px) {
+    .lyrics-col {
+        min-width: 80px;
+    }
+
+    .icon-col {
+        width: 25px !important;
+    }
+
+    .checkbox-col {
+        width: 35px !important;
+    }
+}
+
+@media (max-width: 600px) {
+    .result-table th:nth-child(4),
+    .result-table td:nth-child(4) {
+        display: none; /* Hide Model column on small screens */
+    }
+
+    .lyrics-col {
+        min-width: 60px;
+    }
 }
 
 .choices-count {
@@ -873,6 +970,10 @@ tr.on-work {
     border-collapse: separate;
     border-spacing: 0;
     position: relative;
+    table-layout: fixed;
+    width: 100%;
+    max-width: 100%;
+    overflow-x: hidden;
 }
 
 .result-table tbody tr {
@@ -973,6 +1074,13 @@ tr.on-work {
     transition: all 0.3s ease;
     border-bottom: 1px solid rgba(222,226,230,0.6);
     vertical-align: middle;
+    padding: $spacing-6;
+    line-height: 1.2;
+}
+
+.result-table th {
+    padding: $spacing-6;
+    line-height: 1.2;
 }
 
 /* Loading state animation */
@@ -1258,8 +1366,8 @@ tr.on-work {
         }
 
         .song-list-panel {
-            flex: 1;
-            min-height: 0;
+            height: 100%;
+            max-height: none;
             padding: 0.75rem 1rem;
         }
     }
@@ -1286,6 +1394,18 @@ tr.on-work {
     .result-table td {
         padding: $spacing-6;
         font-size: $font-sm;
+    }
+
+    .icon-col {
+        width: 25px !important;
+    }
+
+    .icon-col i {
+        font-size: 10px;
+    }
+
+    .checkbox-col {
+        width: 35px !important;
     }
 }
 
