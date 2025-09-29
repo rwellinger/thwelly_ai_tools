@@ -63,7 +63,6 @@ export class LyricArchitectModalComponent implements OnInit, OnDestroy {
       // Adding new section from available sections
       const sectionDef = event.previousContainer.data[event.previousIndex] as SongSectionDefinition;
       const sectionType = sectionDef.section;
-      console.log('Adding section:', sectionType, 'from definition:', sectionDef);
       this.addSection(sectionType);
     }
   }
@@ -77,9 +76,7 @@ export class LyricArchitectModalComponent implements OnInit, OnDestroy {
 
   addSection(section: SongSection): void {
     try {
-      console.log('Attempting to add section:', section);
       this.config = this.architectureService.addSection(section);
-      console.log('Section added successfully, new config:', this.config);
     } catch (error: any) {
       console.error('Error adding section:', error);
       this.notificationService.error(error.message);

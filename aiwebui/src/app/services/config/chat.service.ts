@@ -90,27 +90,11 @@ export class ChatService {
 
     // Get current architecture configuration
     const architectureString = this.architectureService.generateArchitectureString();
-
-    console.log('=== LYRIC ARCHITECTURE DEBUG ===');
-    console.log('Input text:', inputText);
-    console.log('Original pre_condition:', template.pre_condition);
-    console.log('Architecture string:', architectureString);
-
     // Enhance pre_condition with architecture if it exists
     let enhancedPreCondition = template.pre_condition || '';
     if (architectureString.trim()) {
       enhancedPreCondition = architectureString + '\n\n' + enhancedPreCondition;
-      console.log('✅ Architecture added to pre_condition');
-    } else {
-      console.log('ℹ️ No architecture configured, using template as-is');
     }
-
-    console.log('Enhanced pre_condition:', enhancedPreCondition);
-    console.log('Template model:', template.model);
-    console.log('Template temperature:', template.temperature);
-    console.log('Template max_tokens:', template.max_tokens);
-    console.log('Post_condition:', template.post_condition);
-    console.log('=================================');
 
     // Validate template has all required parameters
     if (!template.model) {

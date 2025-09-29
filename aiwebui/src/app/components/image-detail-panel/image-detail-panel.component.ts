@@ -105,8 +105,6 @@ export class ImageDetailPanelComponent implements OnInit, OnChanges {
   }
 
   private loadImageBlob() {
-    console.log('🖼️ Loading blob for URL:', this.image?.url);
-    console.log('🖼️ Image object:', this.image);
     if (this.image?.url) {
       this.imageBlobService.getImageBlobUrl(this.image.url).subscribe({
         next: (blobUrl) => {
@@ -127,7 +125,6 @@ export class ImageDetailPanelComponent implements OnInit, OnChanges {
   }
 
   private async loadImageFromDB(imageId: string) {
-    console.log('🔍 Loading image with ID:', imageId);
     this.isLoading = true;
     this.loadingError = null;
 

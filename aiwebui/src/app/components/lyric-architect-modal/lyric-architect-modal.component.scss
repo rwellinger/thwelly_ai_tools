@@ -4,8 +4,9 @@
   .dialog-content {
     padding: 0;
     margin: 0;
-    overflow: visible;
+    overflow: hidden;
     min-height: 500px;
+    max-height: 85vh;
     width: 800px;
     max-width: 90vw;
   }
@@ -15,7 +16,8 @@
     grid-template-columns: 1fr 1fr;
     gap: $spacing-lg;
     padding: $spacing-lg;
-    min-height: 500px;
+    height: 100%;
+    overflow: hidden;
   }
 
   // Song Structure Panel (Left Side)
@@ -63,10 +65,32 @@
 
     .song-structure-list {
       min-height: 300px;
+      max-height: 475px;
       border: 2px dashed $border-light;
       border-radius: $border-radius-sm;
       padding: $spacing-sm;
       transition: border-color 0.3s ease;
+      overflow-y: auto;
+      padding-right: $spacing-xs;
+
+      // Custom scrollbar styling
+      &::-webkit-scrollbar {
+        width: 6px;
+      }
+
+      &::-webkit-scrollbar-track {
+        background: $background-light;
+        border-radius: 3px;
+      }
+
+      &::-webkit-scrollbar-thumb {
+        background: $border-light;
+        border-radius: 3px;
+
+        &:hover {
+          background: $text-secondary;
+        }
+      }
 
       &.cdk-drop-list-dragging {
         border-color: $primary-color;
@@ -115,7 +139,6 @@
       display: flex;
       flex-direction: column;
       gap: $spacing-sm;
-      min-height: 300px;
     }
   }
 
@@ -309,22 +332,29 @@
   @media (max-width: 768px) {
     .dialog-content {
       width: 95vw;
-      max-height: 80vh;
-      overflow-y: auto;
+      max-height: 90vh;
+      overflow: hidden;
     }
 
     .architecture-container {
       grid-template-columns: 1fr;
-      grid-template-rows: auto auto;
+      grid-template-rows: 1fr 1fr;
       gap: $spacing-md;
       padding: $spacing-md;
+      height: 100%;
     }
 
-    .song-structure-panel,
-    .available-sections-panel {
-      .song-structure-list,
-      .available-sections-list {
+    .song-structure-panel {
+      .song-structure-list {
         min-height: 200px;
+        max-height: 300px;
+        overflow-y: auto;
+      }
+    }
+
+    .available-sections-panel {
+      .available-sections-list {
+        // No height restrictions on mobile for available sections
       }
     }
   }

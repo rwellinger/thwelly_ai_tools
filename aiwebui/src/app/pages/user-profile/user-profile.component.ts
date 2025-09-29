@@ -222,9 +222,6 @@ export class UserProfileComponent implements OnInit, OnDestroy {
     dialogRef.afterClosed()
       .pipe(takeUntil(this.destroy$))
       .subscribe(result => {
-        if (result) {
-          console.log('Password changed successfully');
-        }
       });
   }
 

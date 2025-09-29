@@ -123,7 +123,6 @@ export class SongGeneratorComponent implements OnInit {
                 // Store song_id if provided by backend
                 if (data.song_id) {
                     this.currentSongId = data.song_id;
-                    console.log('Song ID stored:', this.currentSongId);
                 }
                 await this.checkSongStatus(data.task_id, false);
             } else {
@@ -152,7 +151,6 @@ export class SongGeneratorComponent implements OnInit {
                 // Store song_id if provided by backend
                 if (data.song_id) {
                     this.currentSongId = data.song_id;
-                    console.log('Instrumental ID stored:', this.currentSongId);
                 }
                 await this.checkSongStatus(data.task_id, true);
             } else {
@@ -200,20 +198,13 @@ export class SongGeneratorComponent implements OnInit {
     }
 
     async renderResultTask(data: any): Promise<void> {
-        console.log('=== renderResultTask called ===');
-        console.log('data:', data);
-        console.log('currentSongId:', this.currentSongId);
-
         // Only use DB loading - no more MUREKA result fallback
         if (this.currentSongId && (data.status === 'SUCCESS' || data.status === 'succeeded')) {
-            console.log('Song generated successfully, refreshing detail panel');
             this.result = '';
             // Einfach das Detail Panel refreshen - Daten sind bereits in DB
             if (this.songDetailPanel) {
-                console.log('Calling reloadSong with songId:', this.currentSongId);
                 // Sicherstellen dass die songId gesetzt ist bevor wir reloadSong aufrufen
                 this.songDetailPanel.songId = this.currentSongId;
-
                 await this.songDetailPanel.reloadSong();
             }
             return;
@@ -222,7 +213,6 @@ export class SongGeneratorComponent implements OnInit {
             this.result = 'Error: Song generation failed.';
             this.notificationService.error('Song generation failed');
         }
-        // Bei PROGRESS oder anderen Status einfach nichts machen
     }
 
 
@@ -531,8 +521,6 @@ export class SongGeneratorComponent implements OnInit {
         dialogRef.afterClosed().subscribe(result => {
             if (result && result.architectureString) {
                 this.notificationService.success('Song architecture updated successfully');
-                console.log('Architecture applied:', result.architectureString);
-                // The architecture will be used in the next lyric generation
             }
         });
     }
