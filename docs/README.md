@@ -107,7 +107,7 @@ Das Mac KI-Service System ist eine persönliche KI-basierte Multimedia-Generieru
 
 ### 3.1 Fachlicher Kontext
 
-![Fachlicher Kontext](images/3.1_fachlicher_kontext.png)
+<img src="images/3.1_fachlicher_kontext.png" alt="Fachlicher Kontext" style="zoom:150%;" />
 
 *Abbildung 3.1: Fachlicher Kontext - Überblick über die wichtigsten Akteure und Systeme*
 
@@ -135,12 +135,15 @@ Das Mac KI-Service System ist eine persönliche KI-basierte Multimedia-Generieru
 - **Containerisiert**: Docker für konsistente Deployments
 
 ### 4.2 Technologie-Stack
-- **Frontend**: Angular 18.2.13 + TypeScript + Angular Material + SCSS
-- **Backend**: Python Flask + SQLAlchemy + Alembic
-- **Async Processing**: Celery + Redis
-- **Database**: PostgreSQL 15
-- **Proxy**: Nginx (Produktion)
-- **Container**: Docker + Docker Compose
+- **Frontend**: Angular 18.2.13 + TypeScript + Angular Material + SCSS + RxJS
+- **Backend**: Python Flask 3.1.2 + SQLAlchemy 2.0 + Pydantic 2.0 + Alembic 1.13
+- **API Documentation**: Flask-APISpec + OpenAPI/Swagger
+- **Authentication**: Flask-CORS + PyJWT + BCrypt
+- **Async Processing**: Celery 5.4 + Redis 5.0
+- **Database**: PostgreSQL 15 + psycopg2-binary
+- **Web Server**: Gunicorn (Produktion), Flask Dev Server (Entwicklung)
+- **Proxy**: Nginx 1.23.3 (Produktion)
+- **Container**: Docker + Docker Compose (Colima auf macOS)
 
 ---
 
@@ -148,7 +151,7 @@ Das Mac KI-Service System ist eine persönliche KI-basierte Multimedia-Generieru
 
 ### 5.1 Systemübersicht
 
-![Systemübersicht](images/5.1_systemuebersicht.png)
+<img src="images/5.1_systemuebersicht.png" alt="Systemübersicht" style="zoom:150%;" />
 
 *Abbildung 5.1: Systemübersicht - Architektonische Schichten und Komponenten*
 
@@ -156,40 +159,52 @@ Das Mac KI-Service System ist eine persönliche KI-basierte Multimedia-Generieru
 
 #### 5.2.1 aiwebui (Frontend)
 
-![Angular Projektstruktur](images/5.2.1_angular_projektstruktur.png)
+<img src="images/5.2.1_angular_projektstruktur.png" alt="Angular Projektstruktur" style="zoom: 67%;" />
 
-*Abbildung 5.2.1: Angular Projektstruktur - Komponenten, Services und Module des Frontend*
+*Abbildung 5.2.1: Angular Projektstruktur - Komponenten, Services und Module dess Frontend*
 
-- **Technologie**: Angular 18 + TypeScript + SCSS
-- **Komponenten**:
-  - `image-generator`: UI für Bildgenerierung
-  - `image-view`: Anzeige generierter Bilder
-  - `song-generator`: UI für Musikgenerierung
-  - `song-view`: Anzeige generierter Songs
-  - `song-profil`: Mureka Account-Informationen
-  - `settings`: Systemkonfiguration und Einstellungen
-  - `prompt-templates`: Template-Management für Prompts
+- **Technologie**: Angular 18.2.13 + TypeScript + SCSS + Angular Material
+- **Struktur**:
+  ```
+  src/app/
+  ├── components/    # Shared Components
+  ├── pages/         # Feature Pages
+  │   ├── image-generator/    # UI für Bildgenerierung
+  │   ├── image-view/         # Anzeige generierter Bilder
+  │   ├── song-generator/     # UI für Musikgenerierung
+  │   ├── song-view/          # Anzeige generierter Songs
+  │   ├── song-profile/       # Mureka Account-Informationen
+  │   ├── user-profile/       # Benutzerprofilseite
+  │   └── prompt-templates/   # Template-Management für Prompts
+  ├── services/      # API Services & Business Logic
+  ├── models/        # TypeScript Interfaces & Models
+  ├── pipes/         # Custom Angular Pipes
+  ├── guards/        # Route Guards
+  ├── interceptors/  # HTTP Interceptors
+  └── auth/          # Authentication Logic
+  ```
 - **Services**: API-Integration, Konfiguration, Prompt-Management, Notifications
 - **Shared Components**: Header, Footer, Detail-Panels, Audio-Player, Progress-Overlay
-- **Build**: `npm run build:prod` → Deployment nach `forwardproxy/html`
+- **Dependencies**: Angular Material, RxJS, ngx-cookie-service, compromise
+- **Build**: `npm run build:prod` → Deployment nach `forwardproxy/html/aiwebui`
 
 #### 5.2.2 aiproxysrv (Backend API)
-- **Technologie**: Python Flask + SQLAlchemy
+- **Technologie**: Python Flask + SQLAlchemy + Pydantic
 - **Struktur**:
   ```
   src/
-  ├── api/           # Controllers & Routes
-  │   ├── app.py     # Flask App Factory
-  │   ├── image_routes.py    # Bildgenerierung API
-  │   ├── song_routes.py     # Musikgenerierung API
-  │   ├── chat_routes.py     # Chat API
-  │   ├── prompt_routes.py   # Prompt Templates API
-  │   └── redis_routes.py    # Redis Management API
-  ├── db/            # Models & Database
-  ├── celery_app/    # Async Processing
-  ├── config/        # Konfiguration
-  ├── mureka/        # Mureka Integration
-  └── alembic/       # DB Migrations
+  ├── api/           # API Layer (Business Logic & Routing)
+  ├── business/      # Core Business Logic Services
+  ├── db/            # Models & Database Connection
+  ├── schemas/       # Pydantic Data Schemas
+  ├── celery_app/    # Async Processing (Mureka API)
+  ├── config/        # Configuration (reads .env)
+  ├── utils/         # Utility Functions
+  ├── mureka/        # Mureka Integration Functions
+  ├── alembic/       # DB Migrations
+  ├── server.py      # Dev Server (PyCharm)
+  ├── wsgi.py        # Prod Entry (Gunicorn)
+  └── worker.py      # Celery Worker
   ```
 
 #### 5.2.3 aitestmock (Test Mock Server)
@@ -243,8 +258,8 @@ MacBook Air M4 (32GB RAM)
 ├── Docker colima
 │   └── PostgreSQL Container (Port 5432)
 ├── Local Services
-│   ├── Flask Dev Server (server.py)
-│   ├── Celery Worker (worker.py)
+│   ├── Flask Dev Server (src/server.py)
+│   ├── Celery Worker (src/worker.py)
 │   ├── Angular Dev Server (ng serve)
 │   └── AI Test Mock Server (aitestmock) - Optional für Kostensenkung
 └── Configuration
@@ -516,13 +531,13 @@ services:
 **Migration Commands:**
 ```bash
 # Neue Migration erstellen
-alembic revision --autogenerate -m "description"
+cd src && alembic revision --autogenerate -m "description"
 
 # Migrationen anwenden
-alembic upgrade head
+cd src && alembic upgrade head
 
 # Aktuelle Version prüfen
-alembic current
+cd src && alembic current
 ```
 
 **Wichtige Überlegungen:**
@@ -534,6 +549,6 @@ alembic current
 ---
 
 *Dokument erstellt am: 01.09.2025*
-*Zuletzt aktualisiert: 23.09.2025*
+*Zuletzt aktualisiert: 29.09.2025*
 *Version: 1.5*
 *Autor: Rob (rob.wellinger@gmail.com)*

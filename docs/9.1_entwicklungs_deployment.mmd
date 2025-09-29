@@ -11,8 +11,8 @@ graph TB
         end
 
         subgraph "Local Services"
-            FLASK[Flask Dev Server<br/>server.py:5050]
-            CELERY_DEV[Celery Worker<br/>worker.py:6379]
+            FLASK[Flask Dev Server<br/>src/server.py:5050]
+            CELERY_DEV[Celery Worker<br/>src/worker.py:6379]
             ANGULAR[Angular Dev<br/>ng serve:4200]
             MOCK[AI Test Mock<br/>aitestmock:8000]
         end

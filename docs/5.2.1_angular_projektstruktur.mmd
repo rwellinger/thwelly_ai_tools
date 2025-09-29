@@ -1,102 +1,61 @@
-graph TB
-    subgraph "aiwebui (Angular 18)"
-        subgraph "Core"
-            APP[app.component.ts<br/>Main App Component]
-            ROUTES[app.routes.ts<br/>Route Configuration]
-            CONFIG[app.config.ts<br/>App Configuration]
-        end
-
-        subgraph "Features"
-            subgraph "Image Generation"
-                IMG_GEN[image-generator.component.ts<br/>Bildgenerierung UI]
-                IMG_VIEW[image-view.component.ts<br/>Bildergalerie & Anzeige]
-            end
-
-            subgraph "Song Generation"
-                SONG_GEN[song-generator.component.ts<br/>Musikgenerierung UI]
-                SONG_VIEW[song-view.component.ts<br/>Song-Liste & Wiedergabe]
-                SONG_PROF[song-profile.component.ts<br/>Mureka Account Info]
-            end
-
-            subgraph "Settings & Configuration"
-                SETTINGS[settings.component.ts<br/>Systemkonfiguration]
-                PROMPT_TMPL[prompt-templates.component.ts<br/>Template-Management]
-            end
-        end
-
-        subgraph "Shared Components"
-            HEADER[header.component.ts<br/>Navigation & Header]
-            FOOTER[footer.component.ts<br/>Footer Component]
-            IMG_DETAIL[image-detail-panel.component.ts<br/>Bild Detail Panel]
-            SONG_DETAIL[song-detail-panel.component.ts<br/>Song Detail Panel]
-            AUDIO_PLAYER[popup-audio-player.component.ts<br/>Audio Player Popup]
-            PROGRESS[progress-overlay.component.ts<br/>Progress Indicator]
-        end
-
-        subgraph "Services"
-            API_CONFIG[api-config.service.ts<br/>API Konfiguration]
-            SONG_SVC[song.service.ts<br/>Song API Calls]
-            PROMPT_SVC[prompt.service.ts<br/>Template API Calls]
-            NOTIFY_SVC[notification.service.ts<br/>User Notifications]
-        end
-
-        subgraph "Pipes"
-            DISPLAY_PIPE[display-name.pipe.ts<br/>Display Name Formatting]
-        end
+flowchart TB
+    subgraph PRESENTATION["🖥️ Presentation Layer"]
+        direction LR
+        IMG_GEN[🖼️ Image Generator]
+        SONG_GEN[🎵 Song Generator]
+        IMG_VIEW[👁️ Image View]
+        SONG_VIEW[🎧 Song View]
+        PROFILE[👤 Profile]
+        TEMPLATES[📝 Templates]
     end
 
-    subgraph "Backend Integration"
-        API[aiproxysrv API<br/>Flask Backend]
+    subgraph COMPONENT["🧩 Component Layer"]
+        direction LR
+        HEADER[📱 Header]
+        FOOTER[📱 Footer]
+        DETAIL_PANEL[📋 Detail Panel]
+        AUDIO_PLAYER[🎵 Audio Player]
+        PROGRESS[⏳ Progress Overlay]
     end
 
-    subgraph "Build & Deploy"
-        BUILD[npm run build:prod]
-        DEPLOY[forwardproxy/html/aiwebui<br/>Static Files]
+    subgraph SERVICE["⚙️ Service Layer"]
+        direction LR
+        API_SVC[🌐 API Services]
+        DATA_SVC[💾 Data Services]
+        NOTIFY_SVC[🔔 Notification]
+        CONFIG_SVC[⚙️ Config]
     end
 
-    %% Connections
-    APP --> ROUTES
-    APP --> CONFIG
+    subgraph INFRASTRUCTURE["🛠️ Infrastructure Layer"]
+        direction LR
+        MODELS[📊 Models]
+        PIPES[🔄 Pipes]
+        GUARDS[🛡️ Guards]
+        INTERCEPTORS[🔗 Interceptors]
+        AUTH[🔐 Auth]
+    end
 
-    IMG_GEN --> API_CONFIG
-    IMG_GEN --> NOTIFY_SVC
-    IMG_VIEW --> API_CONFIG
-    IMG_VIEW --> IMG_DETAIL
+    subgraph EXTERNAL["🌐 External Systems"]
+        direction LR
+        BACKEND[🖥️ aiproxysrv API]
+        BUILD[📦 Production Build]
+    end
 
-    SONG_GEN --> SONG_SVC
-    SONG_GEN --> NOTIFY_SVC
-    SONG_VIEW --> SONG_SVC
-    SONG_VIEW --> SONG_DETAIL
-    SONG_VIEW --> AUDIO_PLAYER
-    SONG_PROF --> SONG_SVC
-
-    SETTINGS --> PROMPT_SVC
-    PROMPT_TMPL --> PROMPT_SVC
-
-    SONG_SVC --> API_CONFIG
-    PROMPT_SVC --> API_CONFIG
-    API_CONFIG --> API
-
-    HEADER --> ROUTES
-
-    DISPLAY_PIPE --> SONG_VIEW
-    DISPLAY_PIPE --> SONG_DETAIL
-
-    BUILD --> DEPLOY
+    %% Layer Dependencies
+    PRESENTATION --> COMPONENT
+    COMPONENT --> SERVICE
+    SERVICE --> INFRASTRUCTURE
+    SERVICE --> EXTERNAL
 
     %% Styling
-    classDef core fill:#e1f5fe
-    classDef feature fill:#f3e5f5
-    classDef shared fill:#e8f5e8
-    classDef service fill:#fff3e0
-    classDef pipe fill:#fce4ec
-    classDef backend fill:#f1f8e9
-    classDef build fill:#fff8e1
+    classDef presentationStyle fill:#E8F5E8,stroke:#4CAF50,stroke-width:2px
+    classDef componentStyle fill:#E3F2FD,stroke:#2196F3,stroke-width:2px
+    classDef serviceStyle fill:#FFF3E0,stroke:#FF9800,stroke-width:2px
+    classDef infrastructureStyle fill:#FCE4EC,stroke:#E91E63,stroke-width:2px
+    classDef externalStyle fill:#F3E5F5,stroke:#9C27B0,stroke-width:2px
 
-    class APP,ROUTES,CONFIG core
-    class IMG_GEN,IMG_VIEW,SONG_GEN,SONG_VIEW,SONG_PROF,SETTINGS,PROMPT_TMPL feature
-    class HEADER,FOOTER,IMG_DETAIL,SONG_DETAIL,AUDIO_PLAYER,PROGRESS shared
-    class API_CONFIG,SONG_SVC,PROMPT_SVC,NOTIFY_SVC service
-    class DISPLAY_PIPE pipe
-    class API backend
-    class BUILD,DEPLOY build
+    class IMG_GEN,SONG_GEN,IMG_VIEW,SONG_VIEW,PROFILE,TEMPLATES presentationStyle
+    class HEADER,FOOTER,DETAIL_PANEL,AUDIO_PLAYER,PROGRESS componentStyle
+    class API_SVC,DATA_SVC,NOTIFY_SVC,CONFIG_SVC serviceStyle
+    class MODELS,PIPES,GUARDS,INTERCEPTORS,AUTH infrastructureStyle
+    class BACKEND,BUILD externalStyle
