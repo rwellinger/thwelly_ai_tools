@@ -202,6 +202,15 @@ form .segment-control {
     padding-right: 40px;
 }
 
+.lyrics-char-count {
+    font-size: $font-sm;
+    color: $text-muted;
+    text-align: right;
+    margin-top: 4px;
+    font-style: italic;
+    padding-right: 40px;
+}
+
 .disabled-section {
     opacity: 0.5;
     pointer-events: none;

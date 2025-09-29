@@ -515,6 +515,14 @@
     margin: 0;
 }
 
+.character-count {
+    text-align: right;
+    font-size: $font-xs;
+    color: $text-muted;
+    margin-top: $spacing-6;
+    font-style: italic;
+}
+
 /* ===== SONG PROMPT ===== */
 .song-prompt {
     background-color: $background-light;

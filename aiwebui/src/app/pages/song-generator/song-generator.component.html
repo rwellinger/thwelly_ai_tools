@@ -133,6 +133,9 @@
                             </div>
                         </div>
                     </div>
+                    <div class="lyrics-char-count" *ngIf="songForm.get('lyrics')?.value">
+                        {{ songForm.get('lyrics')?.value?.length || 0 }} characters
+                    </div>
                     <div class="instrumental-notice" *ngIf="isInstrumental()">
                         <i class="fas fa-info-circle"></i>
                         Lyrics are disabled for instrumental songs
@@ -154,7 +157,7 @@
                             <button
                                 type="button"
                                 (click)="toggleStyleDropdown()"
-                                [disabled]="isLoading || isImprovingPrompt || isTranslatingLyrics || isGeneratingLyrics || isTranslatingStylePrompt || !songForm.get('prompt')?.value?.trim()"
+                                [disabled]="isLoading || isImprovingPrompt || isTranslatingLyrics || isGeneratingLyrics || isTranslatingStylePrompt"
                                 class="magic-icon-button"
                                 title="Music style actions">
                                 <i class="fas fa-ellipsis-vertical" *ngIf="!isImprovingPrompt && !isTranslatingStylePrompt"></i>
@@ -173,7 +176,7 @@
                                 <button
                                     type="button"
                                     class="dropdown-item"
-                                    [disabled]="isLoading || isImprovingPrompt || isTranslatingLyrics || isGeneratingLyrics || isTranslatingStylePrompt"
+                                    [disabled]="isLoading || isImprovingPrompt || isTranslatingLyrics || isGeneratingLyrics || isTranslatingStylePrompt || !songForm.get('prompt')?.value?.trim()"
                                     (click)="selectStyleAction('enhance')">
                                     <i class="fas fa-wand-magic-sparkles"></i>
                                     <span>Enhance Style Prompt</span>
@@ -182,7 +185,7 @@
                                 <button
                                     type="button"
                                     class="dropdown-item"
-                                    [disabled]="isLoading || isImprovingPrompt || isTranslatingLyrics || isGeneratingLyrics || isTranslatingStylePrompt"
+                                    [disabled]="isLoading || isImprovingPrompt || isTranslatingLyrics || isGeneratingLyrics || isTranslatingStylePrompt || !songForm.get('prompt')?.value?.trim()"
                                     (click)="selectStyleAction('translate')">
                                     <i class="fas fa-language"></i>
                                     <span>Translate to English</span>
