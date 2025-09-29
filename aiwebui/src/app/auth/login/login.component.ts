@@ -67,15 +67,9 @@ export class LoginComponent implements OnInit, OnDestroy {
       this.authService.login(credentials)
         .pipe(takeUntil(this.destroy$))
         .subscribe({
-          next: (response) => {
-            if (response.success) {
-              // Navigation handled by auth state subscription
-              console.log('Login successful');
-            }
-          },
+          next: (response) => {},
           error: (error) => {
             console.error('Login error:', error);
-            // Error handled by auth state subscription
           }
         });
     } else {

@@ -51,6 +51,11 @@ FLASK_SERVER_HOST = os.getenv("FLASK_SERVER_HOST", "0.0.0.0")
 DEBUG = os.getenv("DEBUG", "false").lower() == "true"
 
 # --------------------------------------------------
+# Chat Debug Config
+# --------------------------------------------------
+CHAT_DEBUG_LOGGING = os.getenv("CHAT_DEBUG_LOGGING", "false").lower() == "true"
+
+# --------------------------------------------------
 # Image Storage Config
 # --------------------------------------------------
 IMAGES_DIR = os.getenv("IMAGES_DIR", "./images" if DEBUG else "/images")

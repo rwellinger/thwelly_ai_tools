@@ -14,6 +14,7 @@ from db.database import get_db
 from utils.prompt_processor import PromptProcessor
 from schemas.chat_schemas import ChatRequest, ChatResponse, ChatErrorResponse, UnifiedChatRequest
 from schemas.common_schemas import ErrorResponse
+from config.settings import CHAT_DEBUG_LOGGING
 
 api_chat_v1 = Blueprint("api_chat_v1", __name__, url_prefix="/api/v1/ollama/chat")
 
@@ -54,22 +55,26 @@ def generate_unified(body: UnifiedChatRequest):
         if body.max_tokens is None:
             raise ValueError("Max_tokens parameter is required but not provided by template")
 
-        # Log all parameters for debugging
-        input_text_short = body.input_text[:50] + "..." if len(body.input_text) > 50 else body.input_text
+        # Conditional logging based on .env setting
+        if CHAT_DEBUG_LOGGING:
+            input_text_short = body.input_text[:50] + "..." if len(body.input_text) > 50 else body.input_text
 
-        print("=== UNIFIED CHAT REQUEST ===")
-        print(f"Model: {body.model}")
-        print(f"Temperature: {body.temperature}")
-        print(f"Max Tokens: {body.max_tokens}")
-        print(f"Pre-condition: '{body.pre_condition}'")
-        print(f"Input Text: '{input_text_short}'")
-        print(f"Post-condition: '{body.post_condition}'")
-        print("============================")
-
-        # Construct the complete prompt
-        full_prompt = body.pre_condition + ": " + body.input_text + " " + body.post_condition
-        full_prompt_short = full_prompt[:100] + "..." if len(full_prompt) > 100 else full_prompt
-        print(f"Full prompt constructed: '{full_prompt_short}'")
+            print("=== UNIFIED CHAT REQUEST ===")
+            print(f"Model: {body.model}")
+            print(f"Temperature: {body.temperature}")
+            print(f"Max Tokens: {body.max_tokens}")
+            print("----------------------------")
+            print(f"Pre-condition: '{body.pre_condition}'")
+            print(f"Input Text: '{input_text_short}'")
+            print(f"Post-condition: '{body.post_condition}'")
+            print()
+            print("--- FINAL PROMPT SENT TO OLLAMA ---")
+            structured_prompt = f"[INSTRUCTION] {body.pre_condition} [USER] {body.input_text} [FORMAT] {body.post_condition}"
+            print(structured_prompt)
+            print("============================")
+        else:
+            # Minimal logging
+            print(f"Chat request: Model={body.model}, Input length={len(body.input_text)}")
 
         response_data, status_code = chat_controller.generate_chat(
             model=body.model,

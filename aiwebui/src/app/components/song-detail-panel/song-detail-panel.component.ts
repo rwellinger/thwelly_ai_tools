@@ -254,11 +254,6 @@ export class SongDetailPanelComponent implements OnInit, OnChanges {
     }
 
     async onUpdateRating(choiceId: string, rating: number | null) {
-        console.log('=== Rating Update ===');
-        console.log('choiceId:', choiceId);
-        console.log('new rating:', rating);
-        console.log('current choice data:', this.song?.choices?.find((c: any) => c.id === choiceId));
-
         try {
             await this.songService.updateChoiceRating(choiceId, rating);
 

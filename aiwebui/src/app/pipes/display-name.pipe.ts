@@ -17,18 +17,15 @@ export class DisplayNamePipe implements PipeTransform {
   private async loadCompromise() {
     this.loadAttempts++;
     try {
-      console.log(`Attempting to load compromise (attempt ${this.loadAttempts})`);
       const compromise = await import('compromise');
       this.nlp = compromise.default;
       this.compromiseLoadState = 'loaded';
-      console.log('Compromise loaded successfully');
     } catch (error) {
       console.error('Failed to load compromise:', error);
       this.compromiseLoadState = 'failed';
 
       // Retry logic
       if (this.loadAttempts < this.maxLoadAttempts) {
-        console.log(`Retrying compromise load in 2 seconds (attempt ${this.loadAttempts + 1}/${this.maxLoadAttempts})`);
         setTimeout(() => this.loadCompromise(), 2000);
       } else {
         console.error(`Compromise loading failed after ${this.maxLoadAttempts} attempts. Using fallback strategy.`);
@@ -62,8 +59,6 @@ export class DisplayNamePipe implements PipeTransform {
   }
 
   private intelligentFallback(prompt: string): string {
-    console.log(`Using intelligent fallback for: "${prompt}"`);
-
     // 1. First try to find sentence boundaries
     const sentenceEnd = /[.!?]+\s+/;
     const sentenceMatch = prompt.match(sentenceEnd);
@@ -71,7 +66,6 @@ export class DisplayNamePipe implements PipeTransform {
     if (sentenceMatch && sentenceMatch.index !== undefined) {
       const sentence = prompt.substring(0, sentenceMatch.index + 1).trim();
       if (sentence.length <= 30) {
-        console.log('Fallback: Found complete sentence');
         return sentence;
       }
     }
@@ -84,7 +78,6 @@ export class DisplayNamePipe implements PipeTransform {
       if (conjunctionMatch && conjunctionMatch.index !== undefined && conjunctionMatch.index <= 30) {
         const part = prompt.substring(0, conjunctionMatch.index).trim();
         if (part.length > 27) { // Only if meaningful length
-          console.log('Fallback: Split at conjunction');
           return part + '...';
         }
       }
@@ -94,12 +87,8 @@ export class DisplayNamePipe implements PipeTransform {
     if (prompt.length > 30) {
       const truncated = prompt.substring(0, 27);
       const lastSpace = truncated.lastIndexOf(' ');
-      const result = (lastSpace > 25 ? truncated.substring(0, lastSpace) : truncated) + '...';
-      console.log('Fallback: Split at word boundary');
-      return result;
+      return (lastSpace > 25 ? truncated.substring(0, lastSpace) : truncated) + '...';
     }
-
-    console.log('Fallback: Using full prompt (short enough)');
     return prompt;
   }
 }
