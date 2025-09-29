@@ -67,7 +67,7 @@ export class LoginComponent implements OnInit, OnDestroy {
       this.authService.login(credentials)
         .pipe(takeUntil(this.destroy$))
         .subscribe({
-          next: (response) => {},
+          next: () => {},
           error: (error) => {
             console.error('Login error:', error);
           }

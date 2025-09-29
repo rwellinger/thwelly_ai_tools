@@ -221,7 +221,7 @@ export class UserProfileComponent implements OnInit, OnDestroy {
 
     dialogRef.afterClosed()
       .pipe(takeUntil(this.destroy$))
-      .subscribe(result => {
+      .subscribe(() => {
       });
   }
 
