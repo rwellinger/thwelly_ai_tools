@@ -6,6 +6,7 @@ import {HttpClient} from '@angular/common/http';
 import {SongService} from '../../services/business/song.service';
 import {ApiConfigService} from '../../services/config/api-config.service';
 import {NotificationService} from '../../services/ui/notification.service';
+import {UserSettingsService} from '../../services/user-settings.service';
 import {MatSnackBarModule} from '@angular/material/snack-bar';
 import {MatCardModule} from '@angular/material/card';
 import {MatButtonModule} from '@angular/material/button';
@@ -27,7 +28,7 @@ export class SongViewComponent implements OnInit, OnDestroy {
   selectedSongId: string | null = null;
   pagination: any = {
     total: 0,
-    limit: 19,
+    limit: 10, // Will be overridden by user settings
     offset: 0,
     has_more: false
   };
@@ -102,6 +103,7 @@ export class SongViewComponent implements OnInit, OnDestroy {
   private songService = inject(SongService);
   private apiConfig = inject(ApiConfigService);
   private notificationService = inject(NotificationService);
+  private settingsService = inject(UserSettingsService);
   private http = inject(HttpClient);
 
   constructor() {
@@ -128,12 +130,21 @@ export class SongViewComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     (window as any).angularComponentRef = this;
-    this.loadSongs();
+    this.loadUserSettings();
   }
 
   ngOnDestroy() {
     this.destroy$.next();
     this.destroy$.complete();
+  }
+
+  private loadUserSettings() {
+    this.settingsService.getSettings()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(settings => {
+        this.pagination.limit = settings.songListLimit;
+        this.loadSongs();
+      });
   }
 
   async loadSongs(page: number = 0) {

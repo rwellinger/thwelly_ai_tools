@@ -101,6 +101,55 @@
                                 <mat-hint>Email cannot be changed</mat-hint>
                             </mat-form-field>
                         </form>
+
+                        <!-- User Settings Section -->
+                        <div class="settings-section" *ngIf="currentSettings">
+                            <h4 class="settings-title">
+                                <i class="fas fa-cog"></i>
+                                User Settings
+                            </h4>
+
+                            <form [formGroup]="settingsForm" class="settings-form">
+                                <div class="form-row">
+                                    <mat-form-field appearance="outline" class="half-width">
+                                        <mat-label>Songs per page</mat-label>
+                                        <input
+                                                matInput
+                                                type="number"
+                                                formControlName="songListLimit"
+                                                (blur)="updateSongListLimit()"
+                                                min="5"
+                                                max="100"
+                                                placeholder="Number of songs">
+                                        <mat-hint>5-100 songs per page</mat-hint>
+                                    </mat-form-field>
+
+                                    <mat-form-field appearance="outline" class="half-width">
+                                        <mat-label>Images per page</mat-label>
+                                        <input
+                                                matInput
+                                                type="number"
+                                                formControlName="imageListLimit"
+                                                (blur)="updateImageListLimit()"
+                                                min="5"
+                                                max="100"
+                                                placeholder="Number of images">
+                                        <mat-hint>5-100 images per page</mat-hint>
+                                    </mat-form-field>
+                                </div>
+
+                                <div class="settings-actions">
+                                    <button
+                                            mat-button
+                                            type="button"
+                                            color="warn"
+                                            (click)="resetSettingsToDefaults()">
+                                        <i class="fas fa-undo"></i>
+                                        Reset to Defaults
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
                     </div>
 
                     <!-- Loading State -->

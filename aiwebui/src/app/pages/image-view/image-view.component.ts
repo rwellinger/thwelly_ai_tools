@@ -14,6 +14,7 @@ import {HttpClient} from '@angular/common/http';
 import {ImageBlobService} from '../../services/ui/image-blob.service';
 import {ApiConfigService} from '../../services/config/api-config.service';
 import {NotificationService} from '../../services/ui/notification.service';
+import {UserSettingsService} from '../../services/user-settings.service';
 import {MatSnackBarModule} from '@angular/material/snack-bar';
 import {MatCardModule} from '@angular/material/card';
 import {MatButtonModule} from '@angular/material/button';
@@ -59,7 +60,7 @@ export class ImageViewComponent implements OnInit, AfterViewInit, OnDestroy {
     currentPage = 0;
     pagination: PaginationInfo = {
         has_more: false,
-        limit: 19,
+        limit: 10, // Will be overridden by user settings
         offset: 0,
         total: 0
     };
@@ -101,6 +102,7 @@ export class ImageViewComponent implements OnInit, AfterViewInit, OnDestroy {
     private imageBlobService = inject(ImageBlobService);
     private apiConfig = inject(ApiConfigService);
     private notificationService = inject(NotificationService);
+    private settingsService = inject(UserSettingsService);
 
     constructor() {
         // Setup search debouncing
@@ -121,12 +123,21 @@ export class ImageViewComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     ngOnInit() {
-        this.loadImages();
+        this.loadUserSettings();
     }
 
     ngOnDestroy() {
         this.destroy$.next();
         this.destroy$.complete();
+    }
+
+    private loadUserSettings() {
+        this.settingsService.getSettings()
+            .pipe(takeUntil(this.destroy$))
+            .subscribe(settings => {
+                this.pagination.limit = settings.imageListLimit;
+                this.loadImages();
+            });
     }
 
     ngAfterViewInit() {

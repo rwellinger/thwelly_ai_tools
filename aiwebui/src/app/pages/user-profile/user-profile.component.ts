@@ -17,7 +17,9 @@ import { PasswordChangeModalComponent } from '../../components/password-change-m
 import { UserService } from '../../services/business/user.service';
 import { AuthService } from '../../services/business/auth.service';
 import { NotificationService } from '../../services/ui/notification.service';
+import { UserSettingsService } from '../../services/user-settings.service';
 import { User } from '../../models/user.model';
+import { UserSettings } from '../../models/user-settings.model';
 
 @Component({
   selector: 'app-user-profile',
@@ -40,7 +42,9 @@ export class UserProfileComponent implements OnInit, OnDestroy {
   @ViewChild(SongProfileComponent) songProfileComponent!: SongProfileComponent;
 
   userForm: FormGroup;
+  settingsForm: FormGroup;
   currentUser: User | null = null;
+  currentSettings: UserSettings | null = null;
   isLoading = false;
   isEditing = false;
 
@@ -50,17 +54,24 @@ export class UserProfileComponent implements OnInit, OnDestroy {
   private userService = inject(UserService);
   private authService = inject(AuthService);
   private notificationService = inject(NotificationService);
+  private settingsService = inject(UserSettingsService);
 
   constructor() {
     this.userForm = this.fb.group({
       first_name: ['', [Validators.required, Validators.minLength(2)]],
       last_name: ['', [Validators.required, Validators.minLength(2)]]
     });
+
+    this.settingsForm = this.fb.group({
+      songListLimit: [10, [Validators.required, Validators.min(5), Validators.max(100)]],
+      imageListLimit: [10, [Validators.required, Validators.min(5), Validators.max(100)]]
+    });
   }
 
   ngOnInit(): void {
     this.loadUserProfile();
     this.subscribeToAuthState();
+    this.loadUserSettings();
   }
 
   ngOnDestroy(): void {
@@ -257,5 +268,47 @@ export class UserProfileComponent implements OnInit, OnDestroy {
     if (this.songProfileComponent) {
       this.songProfileComponent.loadBillingInfo();
     }
+  }
+
+  /**
+   * Load user settings from the service
+   */
+  private loadUserSettings(): void {
+    this.settingsService.getSettings()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(settings => {
+        this.currentSettings = settings;
+        this.settingsForm.patchValue(settings);
+      });
+  }
+
+  /**
+   * Update song list limit setting
+   */
+  public updateSongListLimit(): void {
+    const value = this.settingsForm.get('songListLimit')?.value;
+    if (value && value >= 5 && value <= 100) {
+      this.settingsService.updateSongListLimit(value);
+      this.notificationService.success('Song list limit updated');
+    }
+  }
+
+  /**
+   * Update image list limit setting
+   */
+  public updateImageListLimit(): void {
+    const value = this.settingsForm.get('imageListLimit')?.value;
+    if (value && value >= 5 && value <= 100) {
+      this.settingsService.updateImageListLimit(value);
+      this.notificationService.success('Image list limit updated');
+    }
+  }
+
+  /**
+   * Reset settings to defaults
+   */
+  public resetSettingsToDefaults(): void {
+    this.settingsService.resetToDefaults();
+    this.notificationService.success('Settings reset to defaults');
   }
 }

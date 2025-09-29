@@ -303,6 +303,53 @@
             }
           }
         }
+
+        .settings-section {
+          margin-top: 2rem;
+          padding-top: 1.5rem;
+          border-top: 1px solid $border-light;
+
+          .settings-title {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin: 0 0 1.5rem 0;
+            color: $text-primary;
+            font-size: 1.1rem;
+            font-weight: 500;
+
+            i {
+              color: $primary-color;
+              font-size: 1rem;
+            }
+          }
+
+          .settings-form {
+            .form-row {
+              display: flex;
+              gap: 1rem;
+              margin-bottom: 1rem;
+
+              .half-width {
+                flex: 1;
+              }
+            }
+
+            .settings-actions {
+              display: flex;
+              justify-content: flex-end;
+              margin-top: 1rem;
+              padding-top: 1rem;
+              border-top: 1px solid $border-light;
+
+              button {
+                display: flex;
+                align-items: center;
+                gap: 0.5rem;
+              }
+            }
+          }
+        }
       }
 
       .loading-state {
@@ -412,6 +459,15 @@
             .form-row {
               flex-direction: column;
               gap: 0;
+            }
+          }
+
+          .settings-section {
+            .settings-form {
+              .form-row {
+                flex-direction: column;
+                gap: 0;
+              }
             }
           }
         }
