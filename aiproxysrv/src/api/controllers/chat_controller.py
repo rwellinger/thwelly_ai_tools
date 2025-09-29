@@ -29,8 +29,8 @@ class ChatController:
         if not model or not prompt:
             return {"error": "Missing model or prompt"}, 400
 
-        # Build full prompt
-        full_prompt = f"{pre_condition or ''}{prompt}{post_condition or ''}"
+        # Build full prompt optimized for gpt-oss:20b with clear instruction separation
+        full_prompt = f"[INSTRUCTION] {pre_condition or ''} [USER] {prompt} [FORMAT] {post_condition or ''}"
 
         try:
             print(f"Generating chat with model {model}, prompt: {full_prompt[:50]}{'...' if len(full_prompt) > 50 else ''}", file=sys.stderr)

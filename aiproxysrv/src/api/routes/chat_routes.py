@@ -63,15 +63,15 @@ def generate_unified(body: UnifiedChatRequest):
             print(f"Model: {body.model}")
             print(f"Temperature: {body.temperature}")
             print(f"Max Tokens: {body.max_tokens}")
+            print("----------------------------")
             print(f"Pre-condition: '{body.pre_condition}'")
             print(f"Input Text: '{input_text_short}'")
             print(f"Post-condition: '{body.post_condition}'")
+            print()
+            print("--- FINAL PROMPT SENT TO OLLAMA ---")
+            structured_prompt = f"[INSTRUCTION] {body.pre_condition} [USER] {body.input_text} [FORMAT] {body.post_condition}"
+            print(structured_prompt)
             print("============================")
-
-            # Construct the complete prompt for display
-            full_prompt = body.pre_condition + ": " + body.input_text + " " + body.post_condition
-            full_prompt_short = full_prompt[:1024] + "..." if len(full_prompt) > 1024 else full_prompt
-            print(f"Full prompt constructed: '{full_prompt_short}'")
         else:
             # Minimal logging
             print(f"Chat request: Model={body.model}, Input length={len(body.input_text)}")
