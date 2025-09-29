@@ -164,6 +164,15 @@
                                 <button
                                     type="button"
                                     class="dropdown-item"
+                                    [disabled]="isLoading"
+                                    (click)="selectStyleAction('chooser')">
+                                    <i class="fas fa-sliders"></i>
+                                    <span>Style Chooser</span>
+                                </button>
+                                <div class="dropdown-divider"></div>
+                                <button
+                                    type="button"
+                                    class="dropdown-item"
                                     [disabled]="isLoading || isImprovingPrompt || isTranslatingLyrics || isGeneratingLyrics || isTranslatingStylePrompt"
                                     (click)="selectStyleAction('enhance')">
                                     <i class="fas fa-wand-magic-sparkles"></i>
@@ -264,7 +273,8 @@
             <!-- Audio Player -->
             <div class="player-bar">
               <!-- Hidden Audio Element -->
-              <audio #audioPlayer
+              <audio *ngIf="audioUrl"
+                     #audioPlayer
                      [src]="audioUrl"
                      (timeupdate)="onTimeUpdate()"
                      (loadedmetadata)="onLoadedMetadata()"

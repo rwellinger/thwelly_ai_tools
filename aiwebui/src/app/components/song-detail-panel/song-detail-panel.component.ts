@@ -6,6 +6,7 @@ import {firstValueFrom} from 'rxjs';
 import {SongService} from '../../services/business/song.service';
 import {NotificationService} from '../../services/ui/notification.service';
 import {ApiConfigService} from '../../services/config/api-config.service';
+import {MUSIC_STYLE_CATEGORIES} from '../../models/music-style-chooser.model';
 
 @Component({
     selector: 'app-song-detail-panel',
@@ -64,11 +65,8 @@ export class SongDetailPanelComponent implements OnInit, OnChanges {
     selectedWorkflow = '';
     showLyricsDialog = false;
 
-    // Tag categories from song-view
-    tagCategories = {
-        style: ['pop', 'rock', 'alternative', 'jazz', 'classical', 'electronic', 'hip-hop', 'country', 'folk', 'blues', 'reggae'],
-        theme: ['love', 'friendship', 'adventure', 'nostalgia', 'hope', 'struggle', 'celebration', 'mystery', 'nature', 'dreams']
-    };
+    // Tag categories from shared constants
+    tagCategories = MUSIC_STYLE_CATEGORIES;
 
     // Workflow options
     workflowOptions = [

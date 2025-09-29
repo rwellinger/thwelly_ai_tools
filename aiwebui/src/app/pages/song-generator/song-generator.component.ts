@@ -12,6 +12,8 @@ import {SongDetailPanelComponent} from '../../components/song-detail-panel/song-
 import {ProgressService} from '../../services/ui/progress.service';
 import {LyricArchitectModalComponent} from '../../components/lyric-architect-modal/lyric-architect-modal.component';
 import {LyricArchitectureService} from '../../services/lyric-architecture.service';
+import {MusicStyleChooserModalComponent} from '../../components/music-style-chooser-modal/music-style-chooser-modal.component';
+import {MusicStyleChooserService} from '../../services/music-style-chooser.service';
 
 @Component({
     selector: 'app-song-generator',
@@ -58,6 +60,7 @@ export class SongGeneratorComponent implements OnInit {
     private progressService = inject(ProgressService);
     private dialog = inject(MatDialog);
     private architectureService = inject(LyricArchitectureService);
+    private musicStyleChooserService = inject(MusicStyleChooserService);
 
     ngOnInit() {
         this.songForm = this.fb.group({
@@ -525,6 +528,28 @@ export class SongGeneratorComponent implements OnInit {
         });
     }
 
+    openMusicStyleChooserModal(): void {
+        const isInstrumental = this.isInstrumental();
+        const dialogRef = this.dialog.open(MusicStyleChooserModalComponent, {
+            width: '1100px',
+            maxWidth: '95vw',
+            maxHeight: '90vh',
+            disableClose: false,
+            autoFocus: true,
+            data: { isInstrumental }
+        });
+
+        dialogRef.afterClosed().subscribe(result => {
+            if (result && result.stylePrompt) {
+                // Apply the generated style prompt to the form
+                this.songForm.patchValue({
+                    prompt: result.stylePrompt
+                });
+                this.notificationService.success('Music style selection applied successfully');
+            }
+        });
+    }
+
     toggleStyleDropdown() {
         this.showStyleDropdown = !this.showStyleDropdown;
     }
@@ -533,13 +558,15 @@ export class SongGeneratorComponent implements OnInit {
         this.showStyleDropdown = false;
     }
 
-    selectStyleAction(action: 'enhance' | 'translate') {
+    selectStyleAction(action: 'enhance' | 'translate' | 'chooser') {
         this.closeStyleDropdown();
 
         if (action === 'enhance') {
             this.improvePrompt();
         } else if (action === 'translate') {
             this.translateStylePrompt();
+        } else if (action === 'chooser') {
+            this.openMusicStyleChooserModal();
         }
     }
 
