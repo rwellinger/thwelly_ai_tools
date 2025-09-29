@@ -122,6 +122,38 @@
         }
       }
     }
+
+    .song-library-card {
+      mat-card-actions {
+        padding: 0.75rem 1.5rem 1rem 1.5rem;
+        background: #f8f9fa;
+
+        .library-actions {
+          width: 100%;
+
+          .action-groups {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            gap: 2rem;
+
+            .action-group-left {
+              display: flex;
+              gap: 0.5rem;
+              align-items: center;
+              flex: 1;
+            }
+
+            .action-group-right {
+              display: flex;
+              gap: 0.5rem;
+              align-items: center;
+            }
+          }
+        }
+      }
+    }
   }
 }
 
@@ -479,10 +511,10 @@
 
 /* Checkbox column styling */
 .checkbox-col {
-    width: 45px !important;
-    max-width: 45px !important;
+    width: 35px !important;
+    max-width: 35px !important;
     text-align: center !important;
-    padding: $spacing-6 4px !important;
+    padding: $spacing-6 2px !important;
 }
 
 .checkbox-col input[type="checkbox"] {
@@ -585,9 +617,9 @@
 // Table cell and row styling now handled by list-table-styling mixin
 
 .lyrics-col {
-    width: 55%;
+    width: 57%;
     min-width: 0;
-    max-width: 55%;
+    max-width: 57%;
     word-break: break-word;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -598,8 +630,8 @@
 /* When selection mode is active */
 .result-table th:nth-child(1), /* Checkbox */
 .result-table td:nth-child(1) {
-    width: 45px;
-    max-width: 45px;
+    width: 35px;
+    max-width: 35px;
 }
 
 .result-table th:nth-child(2), /* Icon when selection mode active */
@@ -610,8 +642,8 @@
 
 .result-table th:nth-child(3), /* Title when selection mode active */
 .result-table td:nth-child(3) {
-    width: 50%;
-    max-width: 50%;
+    width: 52%;
+    max-width: 52%;
 }
 
 .result-table th:nth-child(4), /* Model when selection mode active */
@@ -635,8 +667,8 @@
 
 .result-table th.lyrics-col,
 .result-table td.lyrics-col {
-    width: 55%;
-    max-width: 55%;
+    width: 57%;
+    max-width: 57%;
 }
 
 .result-table th:nth-child(3):not(.lyrics-col), /* Model when no selection mode */

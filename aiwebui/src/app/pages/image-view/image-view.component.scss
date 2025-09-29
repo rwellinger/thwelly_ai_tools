@@ -102,6 +102,38 @@
       }
     }
 
+    .image-gallery-card {
+      mat-card-actions {
+        padding: 0.75rem 1.5rem 1rem 1.5rem;
+        background: #f8f9fa;
+
+        .gallery-actions {
+          width: 100%;
+
+          .action-groups {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            gap: 2rem;
+
+            .action-group-left {
+              display: flex;
+              gap: 0.5rem;
+              align-items: center;
+              flex: 1;
+            }
+
+            .action-group-right {
+              display: flex;
+              gap: 0.5rem;
+              align-items: center;
+            }
+          }
+        }
+      }
+    }
+
     .image-details-card {
       mat-card-content {
         app-image-detail-panel {
@@ -192,9 +224,10 @@
 
 /* Checkbox column styling */
 .checkbox-col {
-    width: 40px !important;
+    width: 35px !important;
+    max-width: 35px !important;
     text-align: center !important;
-    padding: $spacing-sm 4px !important;
+    padding: $spacing-6 2px !important;
 }
 
 .checkbox-col input[type="checkbox"] {
@@ -339,8 +372,8 @@
 }
 
 .title-col {
-    width: 55%;
-    max-width: 300px;
+    width: 60%;
+    max-width: none;
     word-break: break-word;
     overflow: hidden;
     text-overflow: ellipsis;

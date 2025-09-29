@@ -133,27 +133,33 @@
         </mat-card-content>
         <mat-card-actions align="end">
           <div class="gallery-actions">
-            <!-- Main controls -->
-            <button mat-button type="button" (click)="loadImages(0)" [disabled]="isLoading">
-              <i class="fas fa-refresh"></i> Refresh
-            </button>
-            <button mat-button type="button" (click)="toggleSelectionMode()" [disabled]="isLoading"
-                    [class.active]="isSelectionMode">
-              <i class="fas fa-check-square"></i> {{ isSelectionMode ? 'Exit Select' : 'Select Mode' }}
-            </button>
+            <div class="action-groups">
+              <!-- Left Group: Selection controls - only visible in selection mode -->
+              <div class="action-group-left">
+                <ng-container *ngIf="isSelectionMode">
+                  <button mat-button type="button" (click)="selectAllImages()" [disabled]="isLoading">
+                    <i class="fas fa-check-double"></i> Select All
+                  </button>
+                  <button mat-button type="button" (click)="deselectAllImages()" [disabled]="isLoading || selectedImageIds.size === 0">
+                    <i class="fas fa-square"></i> Deselect All
+                  </button>
+                  <button mat-raised-button color="warn" type="button" (click)="bulkDeleteImages()" [disabled]="isLoading || selectedImageIds.size === 0">
+                    <i class="fas fa-trash"></i> Delete ({{ selectedImageIds.size }})
+                  </button>
+                </ng-container>
+              </div>
 
-            <!-- Selection controls - only visible in selection mode -->
-            <ng-container *ngIf="isSelectionMode">
-              <button mat-button type="button" (click)="selectAllImages()" [disabled]="isLoading">
-                <i class="fas fa-check-double"></i> Select All
-              </button>
-              <button mat-button type="button" (click)="deselectAllImages()" [disabled]="isLoading || selectedImageIds.size === 0">
-                <i class="fas fa-square"></i> Deselect All
-              </button>
-              <button mat-raised-button color="warn" type="button" (click)="bulkDeleteImages()" [disabled]="isLoading || selectedImageIds.size === 0">
-                <i class="fas fa-trash"></i> Delete ({{ selectedImageIds.size }})
-              </button>
-            </ng-container>
+              <!-- Right Group: Main controls -->
+              <div class="action-group-right">
+                <button mat-button type="button" (click)="loadImages(0)" [disabled]="isLoading">
+                  <i class="fas fa-refresh"></i> Refresh
+                </button>
+                <button mat-button type="button" (click)="toggleSelectionMode()" [disabled]="isLoading"
+                        [class.active]="isSelectionMode">
+                  <i class="fas fa-check-square"></i> {{ isSelectionMode ? 'Exit Select' : 'Select Mode' }}
+                </button>
+              </div>
+            </div>
           </div>
         </mat-card-actions>
       </mat-card>
