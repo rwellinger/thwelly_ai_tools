@@ -4,8 +4,6 @@ import {FormsModule} from '@angular/forms';
 import {Subject, debounceTime, distinctUntilChanged, takeUntil, firstValueFrom} from 'rxjs';
 import {HttpClient} from '@angular/common/http';
 import {SongService} from '../../services/business/song.service';
-import {HeaderComponent} from '../../components/header/header.component';
-import {FooterComponent} from '../../components/footer/footer.component';
 import {ApiConfigService} from '../../services/config/api-config.service';
 import {NotificationService} from '../../services/ui/notification.service';
 import {MatSnackBarModule} from '@angular/material/snack-bar';
@@ -16,7 +14,7 @@ import {SongDetailPanelComponent} from '../../components/song-detail-panel/song-
 @Component({
   selector: 'app-song-view',
   standalone: true,
-  imports: [CommonModule, FormsModule, HeaderComponent, FooterComponent, MatSnackBarModule, MatCardModule, MatButtonModule, SongDetailPanelComponent],
+  imports: [CommonModule, FormsModule, MatSnackBarModule, MatCardModule, MatButtonModule, SongDetailPanelComponent],
   templateUrl: './song-view.component.html',
   styleUrl: './song-view.component.scss',
   encapsulation: ViewEncapsulation.None
@@ -29,7 +27,7 @@ export class SongViewComponent implements OnInit, OnDestroy {
   selectedSongId: string | null = null;
   pagination: any = {
     total: 0,
-    limit: 17,
+    limit: 19,
     offset: 0,
     has_more: false
   };

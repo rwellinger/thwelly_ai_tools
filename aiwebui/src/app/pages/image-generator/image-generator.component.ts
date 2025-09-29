@@ -4,8 +4,6 @@ import {CommonModule} from '@angular/common';
 import {HttpClient} from '@angular/common/http';
 import {firstValueFrom} from 'rxjs';
 import {ImageBlobService} from '../../services/ui/image-blob.service';
-import {HeaderComponent} from '../../components/header/header.component';
-import {FooterComponent} from '../../components/footer/footer.component';
 import {ApiConfigService} from '../../services/config/api-config.service';
 import {NotificationService} from '../../services/ui/notification.service';
 import {ImageService} from '../../services/business/image.service';
@@ -19,7 +17,7 @@ import {ProgressService} from '../../services/ui/progress.service';
 @Component({
     selector: 'app-image-generator',
     standalone: true,
-    imports: [CommonModule, ReactiveFormsModule, HeaderComponent, FooterComponent, MatSnackBarModule, MatCardModule, MatButtonModule, ImageDetailPanelComponent],
+    imports: [CommonModule, ReactiveFormsModule, MatSnackBarModule, MatCardModule, MatButtonModule, ImageDetailPanelComponent],
     templateUrl: './image-generator.component.html',
     styleUrl: './image-generator.component.scss'
 })

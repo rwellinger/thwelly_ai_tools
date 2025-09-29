@@ -138,15 +138,6 @@
         }
     }
 
-    &.logout-link {
-        color: $danger-color;
-
-        &:hover {
-            color: darken($danger-color, 10%);
-            background-color: rgba($danger-color, 0.1);
-            transform: translateX(4px);
-        }
-    }
 }
 
 /* External Links Styling */
@@ -200,7 +191,7 @@
 
 /* Footer Section */
 .footer-section {
-    padding: $spacing-md;
+    padding: $spacing-xl;
     border-top: 1px solid rgba(white, 0.1);
     flex-shrink: 0;
     text-align: center;

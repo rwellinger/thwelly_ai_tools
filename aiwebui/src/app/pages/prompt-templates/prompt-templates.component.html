@@ -7,10 +7,10 @@
                 <mat-card-header>
                     <mat-card-title>
                         <i class="fas fa-file-alt"></i>
-                        Template Library
+                        Prompt Template Library
                     </mat-card-title>
                     <mat-card-subtitle>
-                        Browse and manage your prompt templates
+                        Browse and manage your prompts
                     </mat-card-subtitle>
                 </mat-card-header>
                 <mat-card-content>
@@ -82,10 +82,10 @@
                 <mat-card-header>
                     <mat-card-title>
                         <i class="fas fa-info-circle"></i>
-                        Template Details
+                        Prompt Template Details
                     </mat-card-title>
                     <mat-card-subtitle>
-                        View and edit detailed information about selected template
+                        View and edit detailed information about selected prompts
                     </mat-card-subtitle>
                 </mat-card-header>
                 <mat-card-content>
@@ -131,21 +131,21 @@
                                 <div class="detail-section">
                                     <span class="field-label">Model:</span>
                                     <div
-                                        class="readonly-field">{{ selectedTemplate.model || 'Default (llama3.2:3b)' }}
+                                            class="readonly-field">{{ selectedTemplate.model || 'Default (llama3.2:3b)' }}
                                     </div>
                                 </div>
 
                                 <div class="detail-section">
                                     <span class="field-label">Temperature:</span>
                                     <div
-                                        class="readonly-field">{{ selectedTemplate.temperature !== null ? selectedTemplate.temperature : 'Default (0.7)' }}
+                                            class="readonly-field">{{ selectedTemplate.temperature !== null ? selectedTemplate.temperature : 'Default (0.7)' }}
                                     </div>
                                 </div>
 
                                 <div class="detail-section">
                                     <span class="field-label">Max Tokens:</span>
                                     <div
-                                        class="readonly-field">{{ selectedTemplate.max_tokens !== null && selectedTemplate.max_tokens !== undefined ? selectedTemplate.max_tokens + ' ' + getTokensToWordsHint(selectedTemplate.max_tokens) : 'Default (2048)' }}
+                                            class="readonly-field">{{ selectedTemplate.max_tokens !== null && selectedTemplate.max_tokens !== undefined ? selectedTemplate.max_tokens + ' ' + getTokensToWordsHint(selectedTemplate.max_tokens) : 'Default (2048)' }}
                                     </div>
                                 </div>
 
@@ -164,12 +164,12 @@
                                         <div class="meta-item">
                                             <i class="fas fa-calendar meta-icon"></i>
                                             <span
-                                                class="meta-value">{{ formatDate(selectedTemplate.created_at) }}</span>
+                                                    class="meta-value">{{ formatDate(selectedTemplate.created_at) }}</span>
                                         </div>
                                         <div class="meta-item" *ngIf="selectedTemplate.updated_at">
                                             <i class="fas fa-sync meta-icon"></i>
                                             <span
-                                                class="meta-value">{{ formatDate(selectedTemplate.updated_at) }}</span>
+                                                    class="meta-value">{{ formatDate(selectedTemplate.updated_at) }}</span>
                                         </div>
                                     </div>
                                 </div>

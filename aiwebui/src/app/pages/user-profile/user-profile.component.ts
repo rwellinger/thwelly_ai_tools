@@ -11,8 +11,6 @@ import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 
-import { HeaderComponent } from '../../components/header/header.component';
-import { FooterComponent } from '../../components/footer/footer.component';
 import { SongProfileComponent } from '../song-profile/song-profile.component';
 import { PasswordChangeModalComponent } from '../../components/password-change-modal/password-change-modal.component';
 
@@ -33,8 +31,6 @@ import { User } from '../../models/user.model';
     MatCardModule,
     MatIconModule,
     MatSnackBarModule,
-    HeaderComponent,
-    FooterComponent,
     SongProfileComponent
   ],
   templateUrl: './user-profile.component.html',

@@ -120,8 +120,15 @@
     min-height: 0;
     min-width: 0;
     overflow: hidden;
-    padding: 0 $spacing-20; // Add left and right padding
+    padding: $spacing-15;
 }
+
+.image-display img:hover {
+    transform: scale(1.05) rotate(1deg);
+    box-shadow: 0 8px 30px rgba(0,0,0,0.2);
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
 
 /* ===== TITLE EDITING ===== */
 .image-title-section {

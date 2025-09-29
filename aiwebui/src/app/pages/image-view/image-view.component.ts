@@ -12,8 +12,6 @@ import {CommonModule} from '@angular/common';
 import {FormsModule} from '@angular/forms';
 import {HttpClient} from '@angular/common/http';
 import {ImageBlobService} from '../../services/ui/image-blob.service';
-import {HeaderComponent} from '../../components/header/header.component';
-import {FooterComponent} from '../../components/footer/footer.component';
 import {ApiConfigService} from '../../services/config/api-config.service';
 import {NotificationService} from '../../services/ui/notification.service';
 import {MatSnackBarModule} from '@angular/material/snack-bar';
@@ -47,7 +45,7 @@ interface PaginationInfo {
 @Component({
     selector: 'app-image-view',
     standalone: true,
-    imports: [CommonModule, FormsModule, HeaderComponent, FooterComponent, MatSnackBarModule, MatCardModule, MatButtonModule, DisplayNamePipe, ImageDetailPanelComponent],
+    imports: [CommonModule, FormsModule, MatSnackBarModule, MatCardModule, MatButtonModule, DisplayNamePipe, ImageDetailPanelComponent],
     templateUrl: './image-view.component.html',
     styleUrl: './image-view.component.scss',
     encapsulation: ViewEncapsulation.None

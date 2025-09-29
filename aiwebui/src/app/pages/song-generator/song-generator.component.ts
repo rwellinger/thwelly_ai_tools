@@ -2,8 +2,6 @@ import {Component, OnInit, ViewEncapsulation, inject, HostListener, ViewChild, E
 import {FormBuilder, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
 import {CommonModule} from '@angular/common';
 import {SongService} from '../../services/business/song.service';
-import {HeaderComponent} from '../../components/header/header.component';
-import {FooterComponent} from '../../components/footer/footer.component';
 import {ApiConfigService} from '../../services/config/api-config.service';
 import {NotificationService} from '../../services/ui/notification.service';
 import {ChatService} from '../../services/config/chat.service';
@@ -15,7 +13,7 @@ import {ProgressService} from '../../services/ui/progress.service';
 @Component({
     selector: 'app-song-generator',
     standalone: true,
-    imports: [CommonModule, ReactiveFormsModule, HeaderComponent, FooterComponent, MatSnackBarModule, MatCardModule, SongDetailPanelComponent],
+    imports: [CommonModule, ReactiveFormsModule, MatSnackBarModule, MatCardModule, SongDetailPanelComponent],
     templateUrl: './song-generator.component.html',
     styleUrl: './song-generator.component.scss',
     encapsulation: ViewEncapsulation.None
