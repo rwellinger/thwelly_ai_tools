@@ -15,6 +15,7 @@ env_template
 
 # Ignoriere temporäre Dateien und Verzeichnisse (z.B. von IDEs)
 __pycache__
+*.pyc
 *.pyo
 *.pyd
 src/aiproxysrv.egg-info
