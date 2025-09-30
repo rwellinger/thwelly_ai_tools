@@ -55,6 +55,7 @@ services:
       - REDIS_URL=redis://redis:6379
       - CELERY_BROKER_URL=redis://redis:6379
       - CELERY_RESULT_BACKEND=redis://redis:6379
+      - CELERYD_HIJACK_ROOT_LOGGER=False
     volumes:
       - .:/app
     networks:
