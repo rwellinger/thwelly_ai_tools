@@ -6,11 +6,15 @@ import { CookieService } from 'ngx-cookie-service';
 
 import { routes } from './app.routes';
 import { authInterceptor } from './interceptors/auth.interceptor';
+import { errorInterceptor } from './interceptors/error.interceptor';
 
 export const appConfig: ApplicationConfig = {
   providers: [
     provideRouter(routes),
-    provideHttpClient(withInterceptors([authInterceptor])),
+    provideHttpClient(withInterceptors([
+      authInterceptor,
+      errorInterceptor  // Must run after authInterceptor
+    ])),
     provideAnimationsAsync(),
     CookieService
   ]

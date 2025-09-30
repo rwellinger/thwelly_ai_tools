@@ -15,11 +15,18 @@ from .routes.redis_routes import api_redis_v1
 from .routes.chat_routes import api_chat_v1
 from .routes.prompt_routes import api_prompt_v1
 from .routes.user_routes import api_user_v1
-
+from pathlib import Path
+import tomli
 
 def create_app():
     """Flask App Factory with OpenAPI/Swagger Integration"""
     app = Flask(__name__)
+
+    # Load version from pyproject.toml
+    pyproject_path = Path(__file__).parent.parent.parent / "pyproject.toml"
+    with open(pyproject_path, "rb") as f:
+        pyproject_data = tomli.load(f)
+    version = pyproject_data["project"]["version"]
 
     # Add ProxyFix middleware to handle reverse proxy headers
     app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1, x_port=1, x_prefix=1)
@@ -58,7 +65,7 @@ def create_app():
     # OpenAPI/Swagger Configuration
     spec = APISpec(
         title='thWellys AI-Proxy API',
-        version='1.6.4',
+        version=version,
         openapi_version='3.0.2',
         info=dict(
             description='API für AI-Services: Bildgenerierung, Musikgenerierung und Chat-Integration',

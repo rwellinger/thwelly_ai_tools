@@ -1,5 +1,7 @@
 import {Injectable, inject} from '@angular/core';
 import {MatSnackBar, MatSnackBarRef, TextOnlySnackBar} from '@angular/material/snack-bar';
+import {HttpErrorResponse} from '@angular/common/http';
+import {extractErrorMessage} from '../../utils/error-extractor';
 
 export enum NotificationType {
     SUCCESS = 'success',
@@ -34,6 +36,15 @@ export class NotificationService {
             verticalPosition: 'top',
             horizontalPosition: 'right'
         });
+    }
+
+    /**
+     * Display error message extracted from HttpErrorResponse
+     * Uses error-extractor utility to parse backend error structures
+     */
+    errorFromResponse(error: HttpErrorResponse | Error | any, duration: number = 6000): void {
+        const errorMessage = extractErrorMessage(error);
+        this.error(errorMessage, duration);
     }
 
     info(message: string, duration: number = 4000): void {

@@ -129,12 +129,15 @@ export class SongGeneratorComponent implements OnInit {
                 }
                 await this.checkSongStatus(data.task_id, false);
             } else {
+                // Business logic error (not HTTP error)
                 this.notificationService.error('Error initiating song generation.');
                 this.result = 'Error initiating song generation.';
+                this.isLoading = false;  // Reset loading state
             }
         } catch (err: any) {
-            this.notificationService.error(`Error: ${err.message}`);
-            this.result = `Error: ${err.message}`;
+            // Error notification is handled by error.interceptor
+            this.result = `Error: ${err.message || 'Song generation failed'}`;
+            this.isLoading = false;  // Reset loading state on error
         }
     }
 
@@ -157,12 +160,15 @@ export class SongGeneratorComponent implements OnInit {
                 }
                 await this.checkSongStatus(data.task_id, true);
             } else {
+                // Business logic error (not HTTP error)
                 this.notificationService.error('Error initiating instrumental generation.');
                 this.result = 'Error initiating instrumental generation.';
+                this.isLoading = false;  // Reset loading state
             }
         } catch (err: any) {
-            this.notificationService.error(`Error: ${err.message}`);
-            this.result = `Error: ${err.message}`;
+            // Error notification is handled by error.interceptor
+            this.result = `Error: ${err.message || 'Instrumental generation failed'}`;
+            this.isLoading = false;  // Reset loading state on error
         }
     }
 
@@ -191,8 +197,8 @@ export class SongGeneratorComponent implements OnInit {
                     await new Promise(resolve => setTimeout(resolve, interval));
                 }
             } catch (error: any) {
-                this.notificationService.error(`Error fetching status: ${error.message}`);
-                this.result = `Error fetching status: ${error.message}`;
+                // Error notification is handled by error.interceptor
+                this.result = `Error fetching status: ${error.message || 'Status check failed'}`;
                 completed = true;
             }
         }
@@ -442,7 +448,7 @@ export class SongGeneratorComponent implements OnInit {
             );
             this.songForm.patchValue({prompt: this.removeQuotes(improvedPrompt)});
         } catch (error: any) {
-            this.notificationService.error(`Error improving prompt: ${error.message}`);
+            // Error notification is handled by error.interceptor
         } finally {
             this.isImprovingPrompt = false;
         }
@@ -464,7 +470,7 @@ export class SongGeneratorComponent implements OnInit {
             );
             this.songForm.patchValue({lyrics: this.removeQuotes(generatedLyrics)});
         } catch (error: any) {
-            this.notificationService.error(`Error generating lyrics: ${error.message}`);
+            // Error notification is handled by error.interceptor
         } finally {
             this.isGeneratingLyrics = false;
         }
@@ -486,7 +492,7 @@ export class SongGeneratorComponent implements OnInit {
             );
             this.songForm.patchValue({lyrics: this.removeQuotes(translatedLyrics)});
         } catch (error: any) {
-            this.notificationService.error(`Error translating lyrics: ${error.message}`);
+            // Error notification is handled by error.interceptor
         } finally {
             this.isTranslatingLyrics = false;
         }
@@ -586,7 +592,7 @@ export class SongGeneratorComponent implements OnInit {
             );
             this.songForm.patchValue({prompt: this.removeQuotes(translatedPrompt)});
         } catch (error: any) {
-            this.notificationService.error(`Error translating style prompt: ${error.message}`);
+            // Error notification is handled by error.interceptor
         } finally {
             this.isTranslatingStylePrompt = false;
         }
@@ -676,7 +682,7 @@ export class SongGeneratorComponent implements OnInit {
             );
             this.songForm.patchValue({title: this.removeQuotes(generatedTitle)});
         } catch (error: any) {
-            this.notificationService.error(`Error generating title: ${error.message}`);
+            // Error notification is handled by error.interceptor
         } finally {
             this.isGeneratingTitle = false;
         }
