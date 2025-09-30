@@ -123,13 +123,14 @@ export class ImageGeneratorComponent implements OnInit {
                         });
                     }
                 } else {
+                    // Business logic error (not HTTP error)
                     this.notificationService.error('Error generating image.');
                 }
             } catch (error: any) {
+                // Error notification is handled by error.interceptor
                 console.error('DEBUG: Image generation failed:', error);
                 console.error('DEBUG: Error message:', error.message);
                 console.error('DEBUG: Full error object:', error);
-                this.notificationService.error(`Error: ${error.message}`);
             } finally {
                 this.isLoading = false;
             }
@@ -206,7 +207,7 @@ export class ImageGeneratorComponent implements OnInit {
             );
             this.promptForm.patchValue({prompt: this.removeQuotes(improvedPrompt)});
         } catch (error: any) {
-            this.notificationService.error(`Error improving prompt: ${error.message}`);
+            // Error notification is handled by error.interceptor
         } finally {
             this.isImprovingPrompt = false;
         }
@@ -228,7 +229,7 @@ export class ImageGeneratorComponent implements OnInit {
             );
             this.promptForm.patchValue({prompt: this.removeQuotes(translatedPrompt)});
         } catch (error: any) {
-            this.notificationService.error(`Error translating prompt: ${error.message}`);
+            // Error notification is handled by error.interceptor
         } finally {
             this.isTranslatingPrompt = false;
         }
@@ -272,7 +273,7 @@ export class ImageGeneratorComponent implements OnInit {
             );
             this.promptForm.patchValue({title: this.removeQuotes(generatedTitle)});
         } catch (error: any) {
-            this.notificationService.error(`Error generating title: ${error.message}`);
+            // Error notification is handled by error.interceptor
         } finally {
             this.isGeneratingTitle = false;
         }

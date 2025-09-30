@@ -13,13 +13,6 @@ IMAGES_DIR=/Users/robertw/Workspace/mac_ki_service/aiproxysrv/images
 # Base URL for image downloads (DEV: http://localhost:5050/api/v1/image, PROD: https://macstudio/aiproxysrv/api/v1/image)
 IMAGE_BASE_URL=http://localhost:5050/api/v1/image
 
-# Control if physical files should be deleted when images are deleted (optional, defaults to true)
-# Only uncomment and set to false in special cases where you want to keep files but delete DB records
-# DELETE_PHYSICAL_FILES=false
-# Chat Debug Logging - Shows detailed prompt construction (true/false)
-CHAT_DEBUG_LOGGING=false
-LOG_LEVEL=INFO
-
 # ==================================================
 # CELERY CONFIGURATION
 # ==================================================
@@ -76,6 +69,13 @@ OPENAI_MODEL=dall-e-3
 # ==================================================
 # Debug Mode (true/false)
 DEBUG=true
+
+# Control if physical files should be deleted when images are deleted (optional, defaults to true)
+# Only uncomment and set to false in special cases where you want to keep files but delete DB records
+# DELETE_PHYSICAL_FILES=false
+# Chat Debug Logging - Shows detailed prompt construction (true/false)
+CHAT_DEBUG_LOGGING=false
+LOG_LEVEL=INFO
 
 # Maximum lyrics length for song generation (in characters)
 MAX_LYRICS_LENGTH=4000
