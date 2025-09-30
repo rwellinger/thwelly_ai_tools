@@ -391,7 +391,11 @@ def create_app():
     @app.errorhandler(ValidationError)
     def handle_pydantic_validation_error(error):
         """Handle Pydantic validation errors with HTTP 400"""
-        print(f"Pydantic ValidationError: {error}", file=sys.stderr)
+
+        # Auffälliges Logging zu stdout (ASCII-only)
+        print("=" * 80, file=sys.stdout)
+        print("*** PYDANTIC VALIDATION ERROR ***", file=sys.stdout)
+        print(f"Error: {error}", file=sys.stdout)
 
         # Extract field-specific error messages
         error_details = []
@@ -399,6 +403,9 @@ def create_app():
             field = '.'.join(str(x) for x in err['loc'])
             message = err['msg']
             error_details.append(f"{field}: {message}")
+            print(f"  - {field}: {message}", file=sys.stdout)
+
+        print("=" * 80, file=sys.stdout)
 
         error_message = "; ".join(error_details) if error_details else str(error)
         return jsonify({
@@ -414,11 +421,14 @@ def create_app():
         # Check if this is likely a validation error from our Pydantic validators
         validation_keywords = ['must be one of', 'must be a valid', 'must be either', 'Field required']
         if any(keyword in error_str for keyword in validation_keywords):
-            print(f"Pydantic Validator ValueError: {error}", file=sys.stderr)
+            print("=" * 80, file=sys.stdout)
+            print("*** PYDANTIC VALIDATOR ERROR ***", file=sys.stdout)
+            print(f"Error: {error}", file=sys.stdout)
+            print("=" * 80, file=sys.stdout)
             return jsonify({"error": error_str}), 400
 
         # For other ValueErrors, fall back to 500
-        print(f"General ValueError: {error}", file=sys.stderr)
+        print(f"ValueError: {error}", file=sys.stdout)
         return jsonify({"error": "An unexpected error occurred"}), 500
 
     @app.errorhandler(Exception)
