@@ -21,4 +21,7 @@ RUN pip install --no-cache-dir -e .
 
 
 EXPOSE 5050
-CMD ["gunicorn", "-w", "4", "-b", "0.0.0.0:5050", "--timeout", "180", "--limit-request-line", "16384", "--limit-request-field_size", "32768", "--limit-request-fields", "100", "wsgi:app"]
+CMD ["gunicorn", "-w", "4", "-b", "0.0.0.0:5050", \
+       "--timeout", "180", \
+       "--limit-request-field_size", "32768", \
+       "wsgi:app"]
