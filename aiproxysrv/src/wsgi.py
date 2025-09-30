@@ -1,10 +1,12 @@
 """
-WSGI Entry Point für Gunicorn
+WSGI Entry Point für Gunicorn (PRODUCTION)
 """
-import sys
 import tomli
+from utils.logger import logger, LoguruHandler
 from pathlib import Path
 from api.app import create_app
+from config.settings import FLASK_SERVER_PORT, FLASK_SERVER_HOST, DEBUG, LOG_LEVEL
+import logging
 
 # Read version from pyproject.toml
 try:
@@ -18,13 +20,13 @@ except Exception:
 # Flask-App erstellen
 app = create_app()
 
-# Worker startup message (wird in jedem Gunicorn Worker ausgeführt)
-print("=" * 80, file=sys.stdout, flush=True)
-print("*** AIPROXYSRV WORKER STARTED ***", file=sys.stdout, flush=True)
-print(f"*** Version: {version} ***", file=sys.stdout, flush=True)
-print("=" * 80, file=sys.stdout, flush=True)
-
 if __name__ == "__main__":
-    # Fallback für direkten Python-Start (Development)
-    from config.settings import FLASK_SERVER_PORT, FLASK_SERVER_HOST, DEBUG
+
+    flask_logger = logging.getLogger("werkzeug")
+    flask_logger.handlers = [LoguruHandler()]
+    flask_logger.setLevel(LOG_LEVEL)
+
+    logger.info("*** AIPROXYSRV SERVER STARTED ***")
+    logger.info(f"*** Version: {version} ***")
+
     app.run(host=FLASK_SERVER_HOST, port=FLASK_SERVER_PORT, debug=DEBUG)

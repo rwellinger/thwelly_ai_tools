@@ -5,6 +5,7 @@ This script inserts the title generation template for AI-powered song title crea
 """
 
 import sys
+from utils.logger import logger
 import os
 sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'src'))
 
@@ -39,7 +40,7 @@ def add_title_template():
         ).first()
 
         if existing:
-            print(f"Template 'titel/generate' already exists, updating...")
+            logger.info(f"Template 'titel/generate' already exists, updating...")
             # Update existing template
             existing.pre_condition = TITLE_TEMPLATE["pre_condition"]
             existing.post_condition = TITLE_TEMPLATE["post_condition"]
@@ -51,7 +52,7 @@ def add_title_template():
             existing.active = True
             operation = "updated"
         else:
-            print(f"Creating new template 'titel/generate'...")
+            logger.info(f"Creating new template 'titel/generate'...")
             # Create new template
             new_template = PromptTemplate(
                 category=TITLE_TEMPLATE["category"],
@@ -71,16 +72,12 @@ def add_title_template():
         # Commit the changes
         db.commit()
 
-        print(f"\n✅ Title template successfully {operation}!")
-        print(f"   Category: {TITLE_TEMPLATE['category']}")
-        print(f"   Action: {TITLE_TEMPLATE['action']}")
-        print(f"   Model: {TITLE_TEMPLATE['model']} (temp: {TITLE_TEMPLATE['temperature']}, max_tokens: {TITLE_TEMPLATE['max_tokens']})")
-        print(f"   Description: {TITLE_TEMPLATE['description']}")
+        logger.info(f"\nTitle template successfully {operation}!")
 
         return True
 
     except Exception as e:
-        print(f"\n❌ Error adding title template: {str(e)}")
+        logger.error("Error adding title template", error=str(e), stacktrace=e)
         db.rollback()
         return False
 
@@ -100,22 +97,14 @@ def verify_template():
         ).first()
 
         if template:
-            print(f"\n📊 Verification successful:")
-            print(f"   Template ID: {template.id}")
-            print(f"   Category/Action: {template.category}/{template.action}")
-            print(f"   Pre-condition: {template.pre_condition}")
-            print(f"   Post-condition: {template.post_condition}")
-            print(f"   Model: {template.model}")
-            print(f"   Temperature: {template.temperature}")
-            print(f"   Max tokens: {template.max_tokens}")
-            print(f"   Active: {template.active}")
+            logger.info(f"Verification successful")
             return True
         else:
-            print(f"\n❌ Verification failed: Template not found in database")
+            logger.warning(f"Verification failed: Template not found in database")
             return False
 
     except Exception as e:
-        print(f"\n❌ Error during verification: {str(e)}")
+        logger.error("Error during verification", error=str(e), stacktrace=e)
         return False
 
     finally:
@@ -123,14 +112,14 @@ def verify_template():
 
 
 if __name__ == "__main__":
-    print("🎵 Adding title generation template to database...")
+    logger.debug("Adding title generation template to database...")
 
     if add_title_template():
         if verify_template():
-            print("\n🎉 Title template setup completed successfully!")
+            logger.info("Title template setup completed successfully!")
         else:
-            print("\n⚠️  Template added but verification failed!")
+            logger.warning("Template added but verification failed!")
             sys.exit(1)
     else:
-        print("\n💥 Failed to add title template!")
+        logger.error("Failed to add title template!")
         sys.exit(1)

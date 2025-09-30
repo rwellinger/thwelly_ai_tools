@@ -1,8 +1,8 @@
 """Song Account Controller - Handles MUREKA account operations"""
-import sys
 import requests
 from typing import Tuple, Dict, Any
 from config.settings import MUREKA_API_KEY, MUREKA_BILLING_URL
+from utils.logger import logger
 
 
 class SongAccountController:
@@ -18,7 +18,7 @@ class SongAccountController:
                 "Authorization": f"Bearer {MUREKA_API_KEY}"
             }
 
-            print("Request URL", MUREKA_BILLING_URL)
+            logger.debug("Fetching MUREKA account info", url=MUREKA_BILLING_URL)
             response = requests.get(MUREKA_BILLING_URL, headers=headers, timeout=10)
             response.raise_for_status()
 
@@ -42,7 +42,7 @@ class SongAccountController:
     def check_balance(self) -> bool:
         """Check Balance"""
         try:
-            print(f"Request URL: {MUREKA_BILLING_URL}", file=sys.stderr)
+            logger.debug("Checking MUREKA balance", url=MUREKA_BILLING_URL)
             headers = {"Authorization": f"Bearer {MUREKA_API_KEY}"}
             account_response = requests.get(MUREKA_BILLING_URL, headers=headers, timeout=10)
 
@@ -51,12 +51,12 @@ class SongAccountController:
                 balance = account_data.get("balance", 0)
 
                 if balance <= 0:
-                    print(f"Insufficient MUREKA balance: {balance}", file=sys.stderr)
+                    logger.warning("Insufficient MUREKA balance", balance=balance)
                     return False
                 else:
-                    print(f"Account OK : {balance}", file=sys.stderr)
+                    logger.info("MUREKA account OK", balance=balance)
                     return True
 
         except Exception as e:
-            print(f"Could not check MUREKA balance: {e}", file=sys.stderr)
+            logger.error("Could not check MUREKA balance", error=str(e))
             return False

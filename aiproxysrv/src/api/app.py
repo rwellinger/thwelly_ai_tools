@@ -1,13 +1,13 @@
 """
 Flask App mit allen Blueprints + OpenAPI/Swagger Integration
 """
-import sys
 import traceback
 import yaml
 from flask import Flask, jsonify, Blueprint, render_template_string, Response
 from flask_cors import CORS
 from werkzeug.middleware.proxy_fix import ProxyFix
 from apispec import APISpec
+from utils.logger import logger
 from .routes.image_routes import api_image_v1
 from .routes.song_routes import api_song_v1, api_song_task_v1
 from .routes.instrumental_routes import api_instrumental_v1, api_instrumental_task_v1
@@ -304,7 +304,7 @@ def create_app():
 
                     except Exception as e:
                         # Skip problematic routes
-                        print(f"Warning: Could not process route {rule.rule}: {e}", file=sys.stderr)
+                        logger.warning(f"Could not process route {rule.rule}", error=str(e))
                         continue
 
             # Generate all paths automatically
@@ -312,8 +312,7 @@ def create_app():
 
             return jsonify(spec.to_dict())
         except Exception as e:
-            print(f"OpenAPI spec error: {e}", file=sys.stderr)
-            print(f"Stacktrace: {traceback.format_exc()}", file=sys.stderr)
+            logger.error("OpenAPI spec generation failed", error=str(e), stacktrace=traceback.format_exc())
             return jsonify({"error": f"OpenAPI generation failed: {str(e)}"}), 500
 
     @app.route("/api/openapi.yaml")
@@ -336,8 +335,7 @@ def create_app():
                     headers={'Content-Disposition': 'inline; filename="openapi.yaml"'}
                 )
         except Exception as e:
-            print(f"OpenAPI YAML spec error: {e}", file=sys.stderr)
-            print(f"Stacktrace: {traceback.format_exc()}", file=sys.stderr)
+            logger.error("OpenAPI YAML spec generation failed", error=str(e), stacktrace=traceback.format_exc())
             return jsonify({"error": f"OpenAPI YAML generation failed: {str(e)}"}), 500
 
     @app.route("/api/docs/")
@@ -371,27 +369,17 @@ def create_app():
     # Error Handler
     @app.errorhandler(404)
     def not_found(error):
-        print("=" * 80, file=sys.stdout)
-        print("*** 404 ERROR - Resource not found ***", file=sys.stdout)
-        print(f"Error: {error}", file=sys.stdout)
-        print("=" * 80, file=sys.stdout)
+        logger.warning("404 - Resource not found", error=str(error))
         return jsonify({"error": "Resource not found"}), 404
 
     @app.errorhandler(429)
     def subscription_error(error):
-        print("=" * 80, file=sys.stdout)
-        print("*** 429 ERROR - Rate limit exceeded ***", file=sys.stdout)
-        print(f"Error: {error}", file=sys.stdout)
-        print("=" * 80, file=sys.stdout)
+        logger.error("429 - Rate limit exceeded", error=str(error))
         return jsonify({"error": str(error)}), 429
 
     @app.errorhandler(500)
     def internal_error(error):
-        print("=" * 80, file=sys.stdout)
-        print("*** 500 ERROR - Internal server error ***", file=sys.stdout)
-        print(f"Error: {error}", file=sys.stdout)
-        print(f"Stacktrace: {traceback.format_exc()}", file=sys.stdout)
-        print("=" * 80, file=sys.stdout)
+        logger.error("500 - Internal server error", error=str(error), stacktrace=traceback.format_exc())
         return jsonify({"error": "Internal server error"}), 500
 
     # Add specific Pydantic ValidationError handler
@@ -401,20 +389,14 @@ def create_app():
     def handle_pydantic_validation_error(error):
         """Handle Pydantic validation errors with HTTP 400"""
 
-        # Auffälliges Logging zu stdout (ASCII-only)
-        print("=" * 80, file=sys.stdout)
-        print("*** PYDANTIC VALIDATION ERROR ***", file=sys.stdout)
-        print(f"Error: {error}", file=sys.stdout)
-
         # Extract field-specific error messages
         error_details = []
         for err in error.errors():
             field = '.'.join(str(x) for x in err['loc'])
             message = err['msg']
             error_details.append(f"{field}: {message}")
-            print(f"  - {field}: {message}", file=sys.stdout)
 
-        print("=" * 80, file=sys.stdout)
+        logger.error("Pydantic validation error", error=str(error), fields=error_details)
 
         error_message = "; ".join(error_details) if error_details else str(error)
         return jsonify({
@@ -430,25 +412,20 @@ def create_app():
         # Check if this is likely a validation error from our Pydantic validators
         validation_keywords = ['must be one of', 'must be a valid', 'must be either', 'Field required']
         if any(keyword in error_str for keyword in validation_keywords):
-            print("=" * 80, file=sys.stdout)
-            print("*** PYDANTIC VALIDATOR ERROR ***", file=sys.stdout)
-            print(f"Error: {error}", file=sys.stdout)
-            print("=" * 80, file=sys.stdout)
+            logger.error("Pydantic validator error", error=error_str)
             return jsonify({"error": error_str}), 400
 
         # For other ValueErrors, fall back to 500
-        print(f"ValueError: {error}", file=sys.stdout)
+        logger.error("ValueError", error=error_str)
         return jsonify({"error": "An unexpected error occurred"}), 500
 
     @app.errorhandler(Exception)
     def handle_general_exception(error):
         """Handle all other exceptions with HTTP 500"""
-        print("=" * 80, file=sys.stdout)
-        print("*** UNHANDLED EXCEPTION ***", file=sys.stdout)
-        print(f"Type: {type(error).__name__}", file=sys.stdout)
-        print(f"Error: {error}", file=sys.stdout)
-        print(f"Stacktrace:\n{traceback.format_exc()}", file=sys.stdout)
-        print("=" * 80, file=sys.stdout)
+        logger.error("Unhandled exception",
+                    error_type=type(error).__name__,
+                    error=str(error),
+                    stacktrace=traceback.format_exc())
         return jsonify({"error": "An unexpected error occurred"}), 500
 
     # Register Blueprints

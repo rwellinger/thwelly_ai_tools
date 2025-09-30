@@ -1,7 +1,6 @@
 """
 DALL-E Image Generation Routes with Pydantic validation
 """
-import sys
 import traceback
 from flask import Blueprint, request, jsonify, send_from_directory
 from flask_pydantic import validate
@@ -15,6 +14,7 @@ from schemas.image_schemas import (
     ImageDeleteResponse
 )
 from schemas.common_schemas import ErrorResponse
+from utils.logger import logger
 
 api_image_v1 = Blueprint("api_image_v1", __name__, url_prefix="/api/v1/image")
 
@@ -63,11 +63,10 @@ def list_images(query: ImageListRequest):
 def serve_image(filename):
     """Serve stored images"""
     try:
-        print(f"Serving image: {filename}", file=sys.stderr)
+        logger.debug("Serving image", filename=filename)
         return send_from_directory(IMAGES_DIR, filename)
     except Exception as e:
-        print(f"Error serving image {filename}: {type(e).__name__}: {e}", file=sys.stderr)
-        print(f"Stacktrace: {traceback.format_exc()}", file=sys.stderr)
+        logger.error("Error serving image", filename=filename, error=str(e), error_type=type(e).__name__, stacktrace=traceback.format_exc())
         return jsonify({"error": "Image not found"}), 404
 
 

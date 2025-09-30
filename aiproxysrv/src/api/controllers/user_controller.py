@@ -1,7 +1,6 @@
 """
 User Controller for handling user authentication and management
 """
-import sys
 from typing import Tuple, Dict, Any, Optional
 from datetime import datetime, timedelta
 from db.database import SessionLocal
@@ -15,6 +14,7 @@ from schemas.user_schemas import (
     UserResponse, UserListResponse, LogoutResponse
 )
 from schemas.common_schemas import ErrorResponse
+from utils.logger import logger
 
 
 class UserController:
@@ -63,7 +63,7 @@ class UserController:
         except ValueError as e:
             return self._format_error_response(str(e), 400)
         except Exception as e:
-            print(f"Error creating user: {e}", file=sys.stderr)
+            logger.error("Error creating user", error=str(e))
             return self._format_error_response("Internal server error", 500)
         finally:
             db.close()
@@ -99,7 +99,7 @@ class UserController:
             return self._format_success_response(response, 200)
 
         except Exception as e:
-            print(f"Error during login: {e}", file=sys.stderr)
+            logger.error("Error during login", error=str(e))
             return self._format_error_response("Internal server error", 500)
         finally:
             db.close()
@@ -125,7 +125,7 @@ class UserController:
             return self._format_success_response(user_response, 200)
 
         except Exception as e:
-            print(f"Error getting user profile: {e}", file=sys.stderr)
+            logger.error("Error getting user profile", error=str(e))
             return self._format_error_response("Internal server error", 500)
         finally:
             db.close()
@@ -153,7 +153,7 @@ class UserController:
             return self._format_success_response(response, 200)
 
         except Exception as e:
-            print(f"Error updating user: {e}", file=sys.stderr)
+            logger.error("Error updating user", error=str(e))
             return self._format_error_response("Internal server error", 500)
         finally:
             db.close()
@@ -179,7 +179,7 @@ class UserController:
             return self._format_success_response(response, 200)
 
         except Exception as e:
-            print(f"Error changing password: {e}", file=sys.stderr)
+            logger.error("Error changing password", error=str(e))
             return self._format_error_response("Internal server error", 500)
         finally:
             db.close()
@@ -204,7 +204,7 @@ class UserController:
             return self._format_success_response(response, 200)
 
         except Exception as e:
-            print(f"Error resetting password: {e}", file=sys.stderr)
+            logger.error("Error resetting password", error=str(e))
             return self._format_error_response("Internal server error", 500)
         finally:
             db.close()
@@ -225,7 +225,7 @@ class UserController:
             return self._format_success_response(response, 200)
 
         except Exception as e:
-            print(f"Error listing users: {e}", file=sys.stderr)
+            logger.error("Error listing users", error=str(e))
             return self._format_error_response("Internal server error", 500)
         finally:
             db.close()
@@ -241,5 +241,5 @@ class UserController:
                 }
             return None
         except Exception as e:
-            print(f"Error validating token: {e}", file=sys.stderr)
+            logger.error("Error validating token", error=str(e))
             return None

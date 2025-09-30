@@ -1,9 +1,9 @@
 """Song Creation Controller - Handles song and stem generation logic"""
-import sys
 import requests
 import time
 from datetime import datetime
 from typing import Tuple, Dict, Any
+from utils.logger import logger
 from config.settings import MUREKA_API_KEY, MUREKA_STATUS_ENDPOINT, MUREKA_STEM_GENERATE_ENDPOINT
 from celery_app import generate_song_task, generate_instrumental_task
 from db.song_service import song_service
@@ -27,10 +27,10 @@ class SongCreationController:
                 "error": "Insufficient MUREKA balance"
             }, 402  # Payment Required
 
-        print(f"Starting song generation", file=sys.stderr)
-        print(f"Lyrics length: {len(payload.get('lyrics', ''))} characters", file=sys.stderr)
-        print(f"Prompt: {payload.get('prompt', '')}", file=sys.stderr)
-        print(f"Model: {payload.get('model', '')}", file=sys.stderr)
+        logger.info("Starting song generation",
+                   lyrics_length=len(payload.get('lyrics', '')),
+                   prompt=payload.get('prompt', ''),
+                   model=payload.get('model', ''))
 
         task = generate_song_task.delay(payload)
 
@@ -44,14 +44,14 @@ class SongCreationController:
         )
         
         if not song:
-            print(f"Failed to create song record in database for task {task.id}", file=sys.stderr)
+            logger.warning("Failed to create song record in database", task_id=task.id)
             # Continue anyway - fallback to Redis-only mode
             return {
                 "task_id": task.id,
                 "status_url": f"{host_url}api/v1/song/status/{task.id}"
             }, 202
         else:
-            print(f"Created song record in database: id={song.id}, task_id={task.id}", file=sys.stderr)
+            logger.info("Created song record in database", song_id=song.id, task_id=task.id)
 
         return {
             "task_id": task.id,
@@ -71,9 +71,9 @@ class SongCreationController:
                 "error": "Insufficient MUREKA balance"
             }, 402  # Payment Required
 
-        print(f"Starting instrumental generation", file=sys.stderr)
-        print(f"Prompt: {payload.get('prompt', '')}", file=sys.stderr)
-        print(f"Model: {payload.get('model', '')}", file=sys.stderr)
+        logger.info("Starting instrumental generation",
+                   prompt=payload.get('prompt', ''),
+                   model=payload.get('model', ''))
 
         task = generate_instrumental_task.delay(payload)
 
@@ -88,14 +88,14 @@ class SongCreationController:
         )
 
         if not song:
-            print(f"Failed to create instrumental song record in database for task {task.id}", file=sys.stderr)
+            logger.warning("Failed to create instrumental song record in database", task_id=task.id)
             # Continue anyway - fallback to Redis-only mode
             return {
                 "task_id": task.id,
                 "status_url": f"{host_url}api/v1/instrumental/task/status/{task.id}"
             }, 202
         else:
-            print(f"Created instrumental song record in database: id={song.id}, task_id={task.id}", file=sys.stderr)
+            logger.info("Created instrumental song record in database", song_id=song.id, task_id=task.id)
 
         return {
             "task_id": task.id,
@@ -131,9 +131,10 @@ class SongCreationController:
                 }, 400
 
             mp3_url = choice.mp3_url
-            print(f"Starting stem generation for choice {choice_id}", file=sys.stderr)
-            print(f"Request URL: {MUREKA_STEM_GENERATE_ENDPOINT}", file=sys.stderr)
-            print(f"MP3 URL: {mp3_url}", file=sys.stderr)
+            logger.info("Starting stem generation",
+                       choice_id=choice_id,
+                       endpoint=MUREKA_STEM_GENERATE_ENDPOINT,
+                       mp3_url=mp3_url)
 
             # Prepare payload for MUREKA API
             mureka_payload = {"url": mp3_url}
@@ -150,7 +151,7 @@ class SongCreationController:
                 choice.stem_url = result['zip_url']
                 choice.stem_generated_at = datetime.utcnow()
                 db.commit()
-                print(f"Saved stem URL to database for choice {choice_id}: {result['zip_url']}", file=sys.stderr)
+                logger.info("Saved stem URL to database", choice_id=choice_id, stem_url=result['zip_url'])
 
             return {
                 "status": "SUCCESS",
@@ -159,7 +160,7 @@ class SongCreationController:
             }, 200
 
         except Exception as e:
-            print(f"Error on create stem: {e}", file=sys.stderr)
+            logger.error("Error on create stem", error=str(e))
             return {"error": str(e)}, 500
         finally:
             db.close()
@@ -169,8 +170,8 @@ class SongCreationController:
         try:
             headers = {"Authorization": f"Bearer {MUREKA_API_KEY}"}
 
-            print("Request URL", MUREKA_STATUS_ENDPOINT)
             song_info_url = f"{MUREKA_STATUS_ENDPOINT}/{job_id}"
+            logger.debug("Fetching song info from MUREKA", endpoint=MUREKA_STATUS_ENDPOINT, job_id=job_id)
 
             response = requests.get(song_info_url, headers=headers, timeout=10)
             response.raise_for_status()
@@ -187,5 +188,5 @@ class SongCreationController:
             }, 200
 
         except Exception as e:
-            print(f"Error on get song: {e}", file=sys.stderr)
+            logger.error("Error on get song", error=str(e))
             return {"error": str(e)}, 500

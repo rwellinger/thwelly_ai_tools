@@ -1,9 +1,9 @@
 """Image database service layer"""
-import sys
 from typing import Optional, List
 from sqlalchemy.orm import Session
 from db.database import SessionLocal
 from db.models import GeneratedImage
+from utils.logger import logger
 
 
 class ImageService:
@@ -41,13 +41,12 @@ class ImageService:
             db.add(generated_image)
             db.commit()
             db.refresh(generated_image)
-            print(f"Image metadata saved to database with ID: {generated_image.id}", file=sys.stderr)
+            logger.info("image_metadata_saved", image_id=str(generated_image.id), filename=filename, model=model_used, size=size)
             return generated_image
         except Exception as e:
             db.rollback()
-            print(f"Error saving image metadata to database: {type(e).__name__}: {e}", file=sys.stderr)
             import traceback
-            print(f"Stacktrace: {traceback.format_exc()}", file=sys.stderr)
+            logger.error("image_metadata_save_failed", error=str(e), error_type=type(e).__name__, stacktrace=traceback.format_exc())
             return None
         finally:
             db.close()
@@ -165,13 +164,14 @@ class ImageService:
             if image:
                 db.delete(image)
                 db.commit()
+                logger.info("image_metadata_deleted", image_id=str(image_id))
                 return True
+            logger.warning("image_not_found_for_deletion", image_id=str(image_id))
             return False
         except Exception as e:
             db.rollback()
-            print(f"Error deleting image metadata: {type(e).__name__}: {e}", file=sys.stderr)
             import traceback
-            print(f"Stacktrace: {traceback.format_exc()}", file=sys.stderr)
+            logger.error("image_metadata_deletion_failed", image_id=str(image_id), error=str(e), error_type=type(e).__name__, stacktrace=traceback.format_exc())
             return False
         finally:
             db.close()
@@ -192,13 +192,12 @@ class ImageService:
                 image.tags = tags.strip() if tags.strip() else None
 
             db.commit()
-            print(f"Image metadata updated successfully: {image_id}", file=sys.stderr)
+            logger.info("image_metadata_updated", image_id=str(image_id), title_updated=title is not None, tags_updated=tags is not None)
             return True
         except Exception as e:
             db.rollback()
-            print(f"Error updating image metadata: {type(e).__name__}: {e}", file=sys.stderr)
             import traceback
-            print(f"Stacktrace: {traceback.format_exc()}", file=sys.stderr)
+            logger.error("image_metadata_update_failed", image_id=str(image_id), error=str(e), error_type=type(e).__name__, stacktrace=traceback.format_exc())
             return False
         finally:
             db.close()
