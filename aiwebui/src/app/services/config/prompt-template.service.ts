@@ -56,7 +56,6 @@ export class PromptTemplateService {
       tap(() => {
         // Auto-refresh PromptConfigService cache after successful template update
         this.promptConfig.refreshCache().subscribe({
-          next: () => console.log('PromptConfigService cache refreshed successfully'),
           error: (error) => console.error('Failed to refresh PromptConfigService cache:', error)
         });
       }),

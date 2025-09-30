@@ -128,6 +128,21 @@
                                     </div>
                                 </div>
 
+                                <div class="template-meta-info">
+                                    <div class="meta-grid">
+                                        <div class="meta-item">
+                                            <i class="fas fa-calendar meta-icon"></i>
+                                            <span
+                                                    class="meta-value">{{ formatDate(selectedTemplate.created_at) }}</span>
+                                        </div>
+                                        <div class="meta-item" *ngIf="selectedTemplate.updated_at">
+                                            <i class="fas fa-sync meta-icon"></i>
+                                            <span
+                                                    class="meta-value">{{ formatDate(selectedTemplate.updated_at) }}</span>
+                                        </div>
+                                    </div>
+                                </div>
+
                                 <div class="detail-section">
                                     <span class="field-label">Model:</span>
                                     <div
@@ -157,21 +172,6 @@
                                 <div class="detail-section">
                                     <span class="field-label">Post-condition:</span>
                                     <div class="readonly-field multiline">{{ selectedTemplate.post_condition }}</div>
-                                </div>
-
-                                <div class="template-meta-info">
-                                    <div class="meta-grid">
-                                        <div class="meta-item">
-                                            <i class="fas fa-calendar meta-icon"></i>
-                                            <span
-                                                    class="meta-value">{{ formatDate(selectedTemplate.created_at) }}</span>
-                                        </div>
-                                        <div class="meta-item" *ngIf="selectedTemplate.updated_at">
-                                            <i class="fas fa-sync meta-icon"></i>
-                                            <span
-                                                    class="meta-value">{{ formatDate(selectedTemplate.updated_at) }}</span>
-                                        </div>
-                                    </div>
                                 </div>
                             </div>
 

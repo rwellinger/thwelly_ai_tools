@@ -107,8 +107,7 @@ export class UserProfileComponent implements OnInit, OnDestroy {
           this.updateFormValues();
           this.isLoading = false;
         },
-        error: (error) => {
-          console.error('Error loading user profile:', error);
+        error: () => {
           this.notificationService.error('Error loading profile');
           this.isLoading = false;
         }
@@ -200,7 +199,6 @@ export class UserProfileComponent implements OnInit, OnDestroy {
             this.isLoading = false;
           },
           error: (error) => {
-            console.error('Error updating profile:', error);
             this.notificationService.error(error.message || 'Error updating profile');
             this.isLoading = false;
           }

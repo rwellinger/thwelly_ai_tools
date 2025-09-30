@@ -670,7 +670,7 @@ export class SongGeneratorComponent implements OnInit {
             inputText = currentLyrics;
         } else {
             // Fallback constant
-            inputText = 'Generate a creative song title';
+            inputText = 'Generate a creative title for a song';
         }
 
         this.isGeneratingTitle = true;
@@ -680,12 +680,52 @@ export class SongGeneratorComponent implements OnInit {
                 'Generating Title...',
                 'AI is creating a song title for you'
             );
-            this.songForm.patchValue({title: this.removeQuotes(generatedTitle)});
+            const cleanedTitle = this.removeQuotes(generatedTitle);
+            const truncatedTitle = await this.truncateTitle(cleanedTitle);
+            this.songForm.patchValue({title: truncatedTitle});
         } catch (error: any) {
             // Error notification is handled by error.interceptor
         } finally {
             this.isGeneratingTitle = false;
         }
+    }
+
+    private async truncateTitle(title: string): Promise<string> {
+        if (!title || title.length <= 50) {
+            return title;
+        }
+
+        try {
+            // Try to use compromise for intelligent truncation
+            const compromise = await import('compromise');
+            const nlp = compromise.default;
+            const doc = nlp(title);
+            const sentences = doc.sentences();
+            const sentencesArray = sentences.out('text');
+
+            if (sentencesArray && sentencesArray.length > 0) {
+                const firstSentence = sentencesArray[0];
+                if (firstSentence && firstSentence.length > 0) {
+                    return firstSentence.length > 50 ? firstSentence.substring(0, 47) + '...' : firstSentence;
+                }
+            }
+        } catch (error) {
+            console.warn('Compromise processing failed for title truncation, using fallback:', error);
+        }
+
+        // Fallback: intelligent truncation at word boundary
+        return this.intelligentTruncate(title);
+    }
+
+    private intelligentTruncate(title: string): string {
+        if (title.length <= 50) {
+            return title;
+        }
+
+        // Try to break at word boundary
+        const truncated = title.substring(0, 47);
+        const lastSpace = truncated.lastIndexOf(' ');
+        return (lastSpace > 40 ? truncated.substring(0, lastSpace) : truncated) + '...';
     }
 
     toggleTitleDropdown() {

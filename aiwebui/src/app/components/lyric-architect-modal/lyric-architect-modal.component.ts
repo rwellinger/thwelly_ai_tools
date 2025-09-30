@@ -78,7 +78,6 @@ export class LyricArchitectModalComponent implements OnInit, OnDestroy {
     try {
       this.config = this.architectureService.addSection(section);
     } catch (error: any) {
-      console.error('Error adding section:', error);
       this.notificationService.error(error.message);
     }
   }

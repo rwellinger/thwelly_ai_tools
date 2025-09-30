@@ -95,7 +95,6 @@
 .template-list-panel {
     height: calc(100vh - 345px);
     max-height: none;
-    overflow: hidden;
     padding: 0.75rem 1rem;
 
     .list-header {
@@ -328,6 +327,7 @@
 
 .detail-section {
     margin-bottom: $spacing-20;
+    margin-top: $spacing-20;
 
     label {
         display: block;
@@ -519,7 +519,9 @@
 .template-meta-info {
     margin-top: $spacing-20;
     padding-top: $spacing-15;
+    padding-bottom: $spacing-15;
     border-top: 1px solid $border-light;
+    border-bottom: 1px solid $border-light;
 }
 
 .meta-grid {

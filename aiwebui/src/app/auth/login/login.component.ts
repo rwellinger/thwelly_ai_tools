@@ -68,8 +68,8 @@ export class LoginComponent implements OnInit, OnDestroy {
         .pipe(takeUntil(this.destroy$))
         .subscribe({
           next: () => {},
-          error: (error) => {
-            console.error('Login error:', error);
+          error: () => {
+            // Error notification is handled by error.interceptor
           }
         });
     } else {

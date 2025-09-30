@@ -44,8 +44,7 @@ export class SideMenuComponent implements OnInit, OnDestroy {
         next: () => {
           this.router.navigate(['/login']);
         },
-        error: (error) => {
-          console.error('Logout error:', error);
+        error: () => {
           this.authService.forceLogout();
           this.router.navigate(['/login']);
         }

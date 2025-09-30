@@ -63,25 +63,12 @@ export class ImageGeneratorComponent implements OnInit {
     }
 
     async onSubmit() {
-        console.error('DEBUG: Form submitted');
-        console.error('DEBUG: Form valid?', this.promptForm.valid);
-        console.error('DEBUG: Form errors:', this.promptForm.errors);
         if (this.promptForm.valid) {
-            console.error('DEBUG: Form is valid');
             this.isLoading = true;
             this.result = '';
 
             try {
                 const formValue = this.promptForm.value;
-                console.error('DEBUG: Form values:', formValue);
-                console.error('DEBUG: API URL:', this.apiConfig.endpoints.image.generate);
-                console.error('DEBUG: Request payload:', {
-                    title: formValue.title?.trim() || null,
-                    prompt: formValue.prompt,
-                    size: formValue.size
-                });
-
-                console.error('DEBUG: Starting API call...');
                 const data = await firstValueFrom(
                     this.http.post<any>(this.apiConfig.endpoints.image.generate, {
                         title: formValue.title?.trim() || null,
@@ -89,13 +76,9 @@ export class ImageGeneratorComponent implements OnInit {
                         size: formValue.size
                     })
                 );
-                console.error('DEBUG: API call completed:', data);
 
                 if (data.url) {
                     // Store the generated image URL and ID
-                    console.error('DEBUG: Image generated:', data);
-                    console.error('DEBUG: Image URL:', data.url);
-                    console.error('DEBUG: Image ID:', data.id);
                     this.generatedImageUrl = data.url || '';
                     this.generatedImageId = data.id || null;
 
@@ -128,22 +111,9 @@ export class ImageGeneratorComponent implements OnInit {
                 }
             } catch (error: any) {
                 // Error notification is handled by error.interceptor
-                console.error('DEBUG: Image generation failed:', error);
-                console.error('DEBUG: Error message:', error.message);
-                console.error('DEBUG: Full error object:', error);
             } finally {
                 this.isLoading = false;
             }
-        } else {
-            console.error('DEBUG: Form is INVALID');
-            console.error('DEBUG: Form value:', this.promptForm.value);
-            console.error('DEBUG: All form errors:');
-            Object.keys(this.promptForm.controls).forEach(key => {
-                const control = this.promptForm.get(key);
-                if (control && control.errors) {
-                    console.error(`DEBUG: ${key} errors:`, control.errors);
-                }
-            });
         }
     }
 
@@ -261,7 +231,7 @@ export class ImageGeneratorComponent implements OnInit {
             inputText = this.promptForm.get('prompt')?.value?.trim();
         }
         if (!inputText) {
-            inputText = 'image';
+            inputText = 'Generate a creative title for an image';
         }
 
         this.isGeneratingTitle = true;
@@ -271,12 +241,52 @@ export class ImageGeneratorComponent implements OnInit {
                 'Generating Title...',
                 'AI is creating a title for your image'
             );
-            this.promptForm.patchValue({title: this.removeQuotes(generatedTitle)});
+            const cleanedTitle = this.removeQuotes(generatedTitle);
+            const truncatedTitle = await this.truncateTitle(cleanedTitle);
+            this.promptForm.patchValue({title: truncatedTitle});
         } catch (error: any) {
             // Error notification is handled by error.interceptor
         } finally {
             this.isGeneratingTitle = false;
         }
+    }
+
+    private async truncateTitle(title: string): Promise<string> {
+        if (!title || title.length <= 50) {
+            return title;
+        }
+
+        try {
+            // Try to use compromise for intelligent truncation
+            const compromise = await import('compromise');
+            const nlp = compromise.default;
+            const doc = nlp(title);
+            const sentences = doc.sentences();
+            const sentencesArray = sentences.out('text');
+
+            if (sentencesArray && sentencesArray.length > 0) {
+                const firstSentence = sentencesArray[0];
+                if (firstSentence && firstSentence.length > 0) {
+                    return firstSentence.length > 50 ? firstSentence.substring(0, 47) + '...' : firstSentence;
+                }
+            }
+        } catch (error) {
+            console.warn('Compromise processing failed for title truncation, using fallback:', error);
+        }
+
+        // Fallback: intelligent truncation at word boundary
+        return this.intelligentTruncate(title);
+    }
+
+    private intelligentTruncate(title: string): string {
+        if (title.length <= 50) {
+            return title;
+        }
+
+        // Try to break at word boundary
+        const truncated = title.substring(0, 47);
+        const lastSpace = truncated.lastIndexOf(' ');
+        return (lastSpace > 40 ? truncated.substring(0, lastSpace) : truncated) + '...';
     }
 
     toggleTitleDropdown() {
