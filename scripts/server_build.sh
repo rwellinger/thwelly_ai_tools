@@ -2,6 +2,6 @@
 
 # shellcheck disable=SC2164
 cd ../aiproxysrv
-docker-compose celery-worker down
-docker-compose aiproxysrv down
+docker-compose down celery-worker
+docker-compose down aiproxy-app
 docker-compose build --no-cache
