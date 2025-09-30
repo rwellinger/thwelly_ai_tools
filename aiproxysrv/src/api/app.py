@@ -371,18 +371,27 @@ def create_app():
     # Error Handler
     @app.errorhandler(404)
     def not_found(error):
-        print(f"404 Error - Resource not found: {error}", file=sys.stderr)
+        print("=" * 80, file=sys.stdout)
+        print("*** 404 ERROR - Resource not found ***", file=sys.stdout)
+        print(f"Error: {error}", file=sys.stdout)
+        print("=" * 80, file=sys.stdout)
         return jsonify({"error": "Resource not found"}), 404
 
     @app.errorhandler(429)
     def subscription_error(error):
-        print(f"429 Error - Rate limit exceeded: {error}", file=sys.stderr)
+        print("=" * 80, file=sys.stdout)
+        print("*** 429 ERROR - Rate limit exceeded ***", file=sys.stdout)
+        print(f"Error: {error}", file=sys.stdout)
+        print("=" * 80, file=sys.stdout)
         return jsonify({"error": str(error)}), 429
 
     @app.errorhandler(500)
     def internal_error(error):
-        print(f"500 Error - Internal server error: {error}", file=sys.stderr)
-        print(f"Stacktrace: {traceback.format_exc()}", file=sys.stderr)
+        print("=" * 80, file=sys.stdout)
+        print("*** 500 ERROR - Internal server error ***", file=sys.stdout)
+        print(f"Error: {error}", file=sys.stdout)
+        print(f"Stacktrace: {traceback.format_exc()}", file=sys.stdout)
+        print("=" * 80, file=sys.stdout)
         return jsonify({"error": "Internal server error"}), 500
 
     # Add specific Pydantic ValidationError handler
@@ -434,8 +443,12 @@ def create_app():
     @app.errorhandler(Exception)
     def handle_general_exception(error):
         """Handle all other exceptions with HTTP 500"""
-        print(f"Unhandled Exception: {type(error).__name__}: {error}", file=sys.stderr)
-        print(f"Stacktrace: {traceback.format_exc()}", file=sys.stderr)
+        print("=" * 80, file=sys.stdout)
+        print("*** UNHANDLED EXCEPTION ***", file=sys.stdout)
+        print(f"Type: {type(error).__name__}", file=sys.stdout)
+        print(f"Error: {error}", file=sys.stdout)
+        print(f"Stacktrace:\n{traceback.format_exc()}", file=sys.stdout)
+        print("=" * 80, file=sys.stdout)
         return jsonify({"error": "An unexpected error occurred"}), 500
 
     # Register Blueprints
