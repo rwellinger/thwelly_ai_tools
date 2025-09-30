@@ -2,8 +2,5 @@
 
 cd ../aiproxysrv
 
-docker-compose up celery-worker -d
-docker-compose up aiproxy-app -d
-
-
+docker-compose up celery-worker aiproxy-app -d
 docker ps
