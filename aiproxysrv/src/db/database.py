@@ -4,7 +4,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from config.settings import DATABASE_URL, DATABASE_ECHO
-from utils.logger import logger
+from utils.logger import logger  # Direct import to avoid circular dependency with utils.__init__
 
 def sanitize_url_for_logging(url):
     """Remove password from URL for safe logging"""
