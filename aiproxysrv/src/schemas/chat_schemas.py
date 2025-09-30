@@ -3,6 +3,7 @@ from pydantic import BaseModel, Field, validator
 from typing import Optional, Dict, Any
 from datetime import datetime
 from .common_schemas import BaseResponse
+from config.settings import MAX_CHAT_INPUT_LENGTH
 
 
 class ChatOptions(BaseModel):
@@ -26,7 +27,7 @@ class ChatOptions(BaseModel):
 class ChatRequest(BaseModel):
     """Schema for chat generation requests"""
     model: str = Field(..., description="AI model to use for generation")
-    prompt: str = Field(..., min_length=1, max_length=10000, description="Input prompt for generation")
+    prompt: str = Field(..., min_length=1, max_length=MAX_CHAT_INPUT_LENGTH, description="Input prompt for generation")
     pre_condition: Optional[str] = Field("", description="Text before user input")
     post_condition: Optional[str] = Field("", description="Text after user input")
     options: Optional[ChatOptions] = Field(default_factory=ChatOptions, description="Generation options")
@@ -87,7 +88,7 @@ class UnifiedChatRequest(BaseModel):
     """Schema for unified chat generation requests"""
     pre_condition: str = Field("", description="Text before user input")
     post_condition: str = Field("", description="Text after user input")
-    input_text: str = Field(..., min_length=1, max_length=10000, description="Input text for generation")
+    input_text: str = Field(..., min_length=1, max_length=MAX_CHAT_INPUT_LENGTH, description="Input text for generation")
     temperature: Optional[float] = Field(None, ge=0.0, le=2.0, description="Temperature for text generation (overrides template)")
     max_tokens: Optional[int] = Field(None, gt=0, le=4000, description="Maximum tokens to generate (overrides template)")
     model: Optional[str] = Field(None, description="AI model to use (overrides template)")

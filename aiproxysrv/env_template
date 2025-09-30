@@ -77,6 +77,12 @@ OPENAI_MODEL=dall-e-3
 # Debug Mode (true/false)
 DEBUG=true
 
+# Maximum lyrics length for song generation (in characters)
+MAX_LYRICS_LENGTH=4000
+
+# Maximum chat input length (in characters, excludes pre/post conditions)
+MAX_CHAT_INPUT_LENGTH=10000
+
 # ==================================================
 # Database PostgreSQL
 # ==================================================

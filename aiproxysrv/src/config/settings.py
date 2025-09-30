@@ -55,6 +55,12 @@ DEBUG = os.getenv("DEBUG", "false").lower() == "true"
 # --------------------------------------------------
 LOG_LEVEL = os.getenv("LOG_LEVEL", "DEBUG" if DEBUG else "WARNING")
 
+# --------------------------------------------------
+# Application Limits
+# --------------------------------------------------
+MAX_LYRICS_LENGTH = int(os.getenv("MAX_LYRICS_LENGTH", "4000"))
+MAX_CHAT_INPUT_LENGTH = int(os.getenv("MAX_CHAT_INPUT_LENGTH", "10000"))
+
 
 
 # --------------------------------------------------
