@@ -9,7 +9,7 @@ from .common_schemas import BaseResponse, PaginationResponse, StatusEnum
 class SongGenerateRequest(BaseModel):
     """Schema for song generation requests"""
     prompt: str = Field(..., min_length=1, max_length=500, description="Song generation prompt")
-    lyrics: Optional[str] = Field(None, max_length=2000, description="Custom lyrics (optional)")
+    lyrics: Optional[str] = Field(None, max_length=10000, description="Custom lyrics (optional)")
     title: Optional[str] = Field(None, min_length=1, max_length=50, description="Optional title for the song")
     model: str = Field("auto", description="Model to use for generation")
     style: Optional[str] = Field(None, max_length=100, description="Music style/genre")

@@ -463,4 +463,10 @@ def create_app():
     app.register_blueprint(api_prompt_v1)
     app.register_blueprint(api_user_v1)
 
+    # Startup message to confirm new code is loaded
+    print("=" * 80, file=sys.stdout)
+    print("*** AIPROXYSRV STARTED - ERROR HANDLERS ACTIVE ***", file=sys.stdout)
+    print("*** Version: 2025-09-30 with improved logging ***", file=sys.stdout)
+    print("=" * 80, file=sys.stdout)
+
     return app
