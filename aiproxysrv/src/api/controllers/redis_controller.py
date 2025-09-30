@@ -1,10 +1,10 @@
 """Redis Controller - Handles business logic for Redis operations"""
-import sys
 import traceback
 import redis
 import json
 from typing import Tuple, Dict, Any, List
 from config.settings import CELERY_BROKER_URL
+from utils.logger import logger
 
 
 class RedisController:
@@ -25,30 +25,29 @@ class RedisController:
             Tuple of (response_data, status_code)
         """
         try:
-            print(f"Connecting to Redis: {self.redis_url}", file=sys.stderr)
+            logger.debug("Connecting to Redis", redis_url=self.redis_url)
             r = self._get_redis_connection()
             pattern = "celery-task-meta-*"
-            
+
             tasks = []
             for key in r.scan_iter(match=pattern):
                 key_str = key.decode()
                 task_id = key_str[len("celery-task-meta-"):]
-                
+
                 meta_json = r.get(key)
                 meta_str = meta_json.decode() if meta_json else None
-                
+
                 tasks.append({
                     "key": key_str,
                     "task_id": task_id,
                     "meta": meta_str
                 })
-            
-            print(f"Retrieved {len(tasks)} tasks from Redis", file=sys.stderr)
+
+            logger.info("Retrieved tasks from Redis", task_count=len(tasks))
             return {"tasks": tasks}, 200
-            
+
         except Exception as e:
-            print(f"Error listing Redis tasks: {type(e).__name__}: {e}", file=sys.stderr)
-            print(f"Stacktrace: {traceback.format_exc()}", file=sys.stderr)
+            logger.error("Error listing Redis tasks", error=str(e), error_type=type(e).__name__, stacktrace=traceback.format_exc())
             return {"error": str(e)}, 500
     
     def list_redis_keys(self) -> Tuple[Dict[str, Any], int]:
@@ -87,10 +86,9 @@ class RedisController:
             
             tasks.sort(key=lambda t: t["created_at"], reverse=True)
             return {"tasks": tasks}, 200
-            
+
         except Exception as exc:
-            print(f"Error listing Redis keys: {type(exc).__name__}: {exc}", file=sys.stderr)
-            print(f"Stacktrace: {traceback.format_exc()}", file=sys.stderr)
+            logger.error("Error listing Redis keys", error=str(exc), error_type=type(exc).__name__, stacktrace=traceback.format_exc())
             return {"error": str(exc)}, 500
     
     def delete_redis_key(self, task_id: str) -> Tuple[Dict[str, Any], int]:
@@ -120,10 +118,9 @@ class RedisController:
                     "task_id": celery_task_id,
                     "status": "NOT FOUND"
                 }, 404
-                
+
         except Exception as exc:
-            print(f"Error deleting Redis key {task_id}: {type(exc).__name__}: {exc}", file=sys.stderr)
-            print(f"Stacktrace: {traceback.format_exc()}", file=sys.stderr)
+            logger.error("Error deleting Redis key", task_id=task_id, error=str(exc), error_type=type(exc).__name__, stacktrace=traceback.format_exc())
             return {
                 "task_id": task_id,
                 "status": "ERROR"

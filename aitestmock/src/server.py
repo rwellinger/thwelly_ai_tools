@@ -7,6 +7,20 @@ from pathlib import Path
 from api.openai import openai_routes
 from api.mureka import mureka_routes
 from api.chat import api_chat_mock
+import logging
+import tomli
+
+from config.settings import LOG_LEVEL
+from utils.logger import logger, LoguruHandler
+
+
+try:
+    pyproject_path = Path(__file__).parent.parent / "pyproject.toml"
+    with open(pyproject_path, "rb") as f:
+        pyproject_data = tomli.load(f)
+    version = pyproject_data.get("project", {}).get("version", "unknown")
+except Exception:
+    version = "unknown"
 
 
 def create_app():
@@ -33,6 +47,15 @@ def create_app():
 
 def main():
     app = create_app()
+
+    # Set rewrite internal logger
+    flask_logger = logging.getLogger("werkzeug")
+    flask_logger.handlers = [LoguruHandler()]
+    flask_logger.setLevel(LOG_LEVEL)
+
+    logger.info("*** AITESTMOCK STARTED ***")
+    logger.info(f"*** Version: {version} ***")
+
     app.run(host='0.0.0.0', port=3080, debug=app.config['DEBUG'])
 
 

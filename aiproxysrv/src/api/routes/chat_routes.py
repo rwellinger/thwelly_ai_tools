@@ -1,7 +1,6 @@
 """
 Chat Generation Routes - Ollama Integration with Pydantic validation
 """
-import sys
 import traceback
 import logging
 from flask import Blueprint, request, jsonify
@@ -15,6 +14,7 @@ from utils.prompt_processor import PromptProcessor
 from schemas.chat_schemas import ChatRequest, ChatResponse, ChatErrorResponse, UnifiedChatRequest
 from schemas.common_schemas import ErrorResponse
 from config.settings import CHAT_DEBUG_LOGGING
+from utils.logger import logger
 
 api_chat_v1 = Blueprint("api_chat_v1", __name__, url_prefix="/api/v1/ollama/chat")
 
@@ -58,23 +58,20 @@ def generate_unified(body: UnifiedChatRequest):
         # Conditional logging based on .env setting
         if CHAT_DEBUG_LOGGING:
             input_text_short = body.input_text[:50] + "..." if len(body.input_text) > 50 else body.input_text
-
-            print("=== UNIFIED CHAT REQUEST ===")
-            print(f"Model: {body.model}")
-            print(f"Temperature: {body.temperature}")
-            print(f"Max Tokens: {body.max_tokens}")
-            print("----------------------------")
-            print(f"Pre-condition: '{body.pre_condition}'")
-            print(f"Input Text: '{input_text_short}'")
-            print(f"Post-condition: '{body.post_condition}'")
-            print()
-            print("--- FINAL PROMPT SENT TO OLLAMA ---")
             structured_prompt = f"[INSTRUCTION] {body.pre_condition} [USER] {body.input_text} [FORMAT] {body.post_condition}"
-            print(structured_prompt)
-            print("============================")
+
+            logger.debug("Unified chat request",
+                model=body.model,
+                temperature=body.temperature,
+                max_tokens=body.max_tokens,
+                pre_condition=body.pre_condition,
+                input_text=input_text_short,
+                post_condition=body.post_condition,
+                final_prompt=structured_prompt
+            )
         else:
             # Minimal logging
-            print(f"Chat request: Model={body.model}, Input length={len(body.input_text)}")
+            logger.info("Chat request", model=body.model, input_length=len(body.input_text))
 
         response_data, status_code = chat_controller.generate_chat(
             model=body.model,

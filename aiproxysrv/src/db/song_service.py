@@ -1,6 +1,5 @@
 """Song Service - Database operations for song management"""
 import json
-import sys
 import redis
 import traceback
 from datetime import datetime
@@ -10,6 +9,7 @@ from sqlalchemy.exc import SQLAlchemyError
 from db.models import Song, SongChoice, SongStatus
 from db.database import get_db
 from config.settings import CELERY_BROKER_URL
+from utils.logger import logger
 
 
 class SongService:
@@ -40,19 +40,19 @@ class SongService:
                 db.add(song)
                 db.commit()
                 db.refresh(song)
-                
-                print(f"Created song record: task_id={task_id}, id={song.id}", file=sys.stderr)
+
+                logger.info("song_created", task_id=task_id, song_id=str(song.id), model=model, is_instrumental=is_instrumental)
                 return song
-                
+
             except SQLAlchemyError as e:
                 db.rollback()
-                print(f"Database error creating song: {e}", file=sys.stderr)
+                logger.error("song_creation_db_error", task_id=task_id, error=str(e), error_type=type(e).__name__)
                 raise
             finally:
                 db.close()
-                
+
         except Exception as e:
-            print(f"Error creating song: {e}", file=sys.stderr)
+            logger.error("song_creation_failed", task_id=task_id, error=str(e), error_type=type(e).__name__)
             return None
     
     def get_song_by_task_id(self, task_id: str) -> Optional[Song]:
@@ -61,14 +61,15 @@ class SongService:
             db = next(get_db())
             try:
                 song = db.query(Song).options(joinedload(Song.choices)).filter(Song.task_id == task_id).first()
-                print(f"Retrieved song by task_id {task_id}: {'Found' if song else 'Not found'}", file=sys.stderr)
                 if song:
-                    print(f"Song has {len(song.choices)} choices", file=sys.stderr)
+                    logger.debug("song_retrieved_by_task_id", task_id=task_id, song_id=str(song.id), choices_count=len(song.choices))
+                else:
+                    logger.debug("song_not_found_by_task_id", task_id=task_id)
                 return song
             finally:
                 db.close()
         except Exception as e:
-            print(f"Error getting song by task_id {task_id}: {e}", file=sys.stderr)
+            logger.error("error_getting_song_by_task_id", task_id=task_id, error=str(e), error_type=type(e).__name__)
             return None
     
     def get_song_by_job_id(self, job_id: str) -> Optional[Song]:
@@ -77,14 +78,15 @@ class SongService:
             db = next(get_db())
             try:
                 song = db.query(Song).options(joinedload(Song.choices)).filter(Song.job_id == job_id).first()
-                print(f"Retrieved song by job_id {job_id}: {'Found' if song else 'Not found'}", file=sys.stderr)
                 if song:
-                    print(f"Song has {len(song.choices)} choices", file=sys.stderr)
+                    logger.debug("song_retrieved_by_job_id", job_id=job_id, song_id=str(song.id), choices_count=len(song.choices))
+                else:
+                    logger.debug("song_not_found_by_job_id", job_id=job_id)
                 return song
             finally:
                 db.close()
         except Exception as e:
-            print(f"Error getting song by job_id {job_id}: {e}", file=sys.stderr)
+            logger.error("error_getting_song_by_job_id", job_id=job_id, error=str(e), error_type=type(e).__name__)
             return None
     
     def update_song_status(self, task_id: str, status: str, progress_info: Optional[Dict[str, Any]] = None, job_id: Optional[str] = None) -> bool:
@@ -94,28 +96,28 @@ class SongService:
             try:
                 song = db.query(Song).filter(Song.task_id == task_id).first()
                 if not song:
-                    print(f"Song not found for task_id: {task_id}", file=sys.stderr)
+                    logger.warning("song_not_found_for_status_update", task_id=task_id)
                     return False
-                
+
                 song.status = status
                 if progress_info:
                     song.progress_info = json.dumps(progress_info)
                 if job_id:
                     song.job_id = job_id
-                
+
                 db.commit()
-                print(f"Updated song status: task_id={task_id}, status={status}, job_id={job_id}", file=sys.stderr)
+                logger.info("song_status_updated", task_id=task_id, status=status, job_id=job_id, has_progress_info=bool(progress_info))
                 return True
-                
+
             except SQLAlchemyError as e:
                 db.rollback()
-                print(f"Database error updating song status: {e}", file=sys.stderr)
+                logger.error("song_status_update_db_error", task_id=task_id, error=str(e), error_type=type(e).__name__)
                 raise
             finally:
                 db.close()
-                
+
         except Exception as e:
-            print(f"Error updating song status: {e}", file=sys.stderr)
+            logger.error("song_status_update_failed", task_id=task_id, error=str(e), error_type=type(e).__name__)
             return False
     
     def update_song_result(self, task_id: str, result_data: Dict[str, Any]) -> bool:
@@ -125,12 +127,12 @@ class SongService:
             try:
                 song = db.query(Song).filter(Song.task_id == task_id).first()
                 if not song:
-                    print(f"Song not found for task_id: {task_id}", file=sys.stderr)
+                    logger.warning("song_not_found_for_result_update", task_id=task_id)
                     return False
-                
+
                 # Update status to SUCCESS
                 song.status = SongStatus.SUCCESS.value
-                
+
                 # Store complete MUREKA response
                 if 'result' in result_data and result_data['result']:
                     mureka_result = result_data['result']
@@ -140,12 +142,12 @@ class SongService:
                     # Update model with the actual model used by Mureka (not the request model)
                     if mureka_result.get('model'):
                         song.model = mureka_result.get('model')
-                        print(f"Updated song model to actual Mureka model: {song.model}", file=sys.stderr)
-                    
+                        logger.info("song_model_updated", task_id=task_id, model=song.model)
+
                     # Process choices array
                     choices_data = mureka_result.get('choices', [])
-                    print(f"Processing {len(choices_data)} choices for task_id={task_id}", file=sys.stderr)
-                    
+                    logger.info("processing_song_choices", task_id=task_id, choices_count=len(choices_data))
+
                     for choice_data in choices_data:
                         song_choice = SongChoice(
                             song_id=song.id,
@@ -160,28 +162,26 @@ class SongService:
                             tags=','.join(choice_data['tags']) if choice_data.get('tags') and isinstance(choice_data['tags'], list) else None
                         )
                         db.add(song_choice)
-                        print(f"Created choice {choice_data.get('index', 'N/A')}: {choice_data.get('url', 'No URL')}", file=sys.stderr)
-                
+                        logger.debug("song_choice_created", task_id=task_id, choice_index=choice_data.get('index'), has_url=bool(choice_data.get('url')))
+
                 # Set completion timestamp
                 if 'completed_at' in result_data:
                     from datetime import datetime
                     song.completed_at = datetime.fromtimestamp(result_data['completed_at'])
-                
+
                 db.commit()
-                print(f"Updated song result with {len(choices_data)} choices: task_id={task_id}", file=sys.stderr)
+                logger.info("song_result_updated", task_id=task_id, choices_count=len(choices_data))
                 return True
-                
+
             except SQLAlchemyError as e:
                 db.rollback()
-                print(f"Database error updating song result: {e}", file=sys.stderr)
-                print(f"Stacktrace: {traceback.format_exc()}", file=sys.stderr)
+                logger.error("song_result_update_db_error", task_id=task_id, error=str(e), error_type=type(e).__name__, stacktrace=traceback.format_exc())
                 raise
             finally:
                 db.close()
-                
+
         except Exception as e:
-            print(f"Error updating song result: {e}", file=sys.stderr)
-            print(f"Stacktrace: {traceback.format_exc()}", file=sys.stderr)
+            logger.error("song_result_update_failed", task_id=task_id, error=str(e), error_type=type(e).__name__, stacktrace=traceback.format_exc())
             return False
     
     def update_song_error(self, task_id: str, error_message: str) -> bool:
@@ -191,25 +191,25 @@ class SongService:
             try:
                 song = db.query(Song).filter(Song.task_id == task_id).first()
                 if not song:
-                    print(f"Song not found for task_id: {task_id}", file=sys.stderr)
+                    logger.warning("song_not_found_for_error_update", task_id=task_id)
                     return False
-                
+
                 song.status = SongStatus.FAILURE.value
                 song.error_message = error_message
-                
+
                 db.commit()
-                print(f"Updated song error: task_id={task_id}, error={error_message}", file=sys.stderr)
+                logger.info("song_error_updated", task_id=task_id, error_message=error_message)
                 return True
-                
+
             except SQLAlchemyError as e:
                 db.rollback()
-                print(f"Database error updating song error: {e}", file=sys.stderr)
+                logger.error("song_error_update_db_error", task_id=task_id, error=str(e), error_type=type(e).__name__)
                 raise
             finally:
                 db.close()
-                
+
         except Exception as e:
-            print(f"Error updating song error: {e}", file=sys.stderr)
+            logger.error("song_error_update_failed", task_id=task_id, error=str(e), error_type=type(e).__name__)
             return False
     
     def cleanup_redis_data(self, task_id: str) -> bool:
@@ -217,24 +217,22 @@ class SongService:
         try:
             r = self._get_redis_connection()
             
-            # Delete Celery task metadata 
+            # Delete Celery task metadata
             celery_key = f"celery-task-meta-{task_id}"
             deleted = r.delete(celery_key)
-            
+
             if deleted:
-                print(f"Successfully cleaned up Redis data for task_id: {task_id}", file=sys.stderr)
+                logger.info("redis_cleanup_successful", task_id=task_id, deleted_keys=deleted)
             else:
-                print(f"No Redis data found to cleanup for task_id: {task_id}", file=sys.stderr)
-            
+                logger.debug("redis_cleanup_no_data", task_id=task_id)
+
             return True
-            
+
         except redis.RedisError as e:
-            print(f"Redis error cleaning up data for {task_id}: {e}", file=sys.stderr)
-            print(f"Stacktrace: {traceback.format_exc()}", file=sys.stderr)
+            logger.error("redis_cleanup_error", task_id=task_id, error=str(e), error_type=type(e).__name__, stacktrace=traceback.format_exc())
             return False
         except Exception as e:
-            print(f"Error cleaning up Redis data for {task_id}: {e}", file=sys.stderr)
-            print(f"Stacktrace: {traceback.format_exc()}", file=sys.stderr)
+            logger.error("redis_cleanup_failed", task_id=task_id, error=str(e), error_type=type(e).__name__, stacktrace=traceback.format_exc())
             return False
     
     def bulk_cleanup_completed_songs(self, limit: int = 100) -> Dict[str, Any]:
@@ -261,16 +259,15 @@ class SongService:
                         cleanup_results["task_ids"].append(song.task_id)
                     else:
                         cleanup_results["errors"] += 1
-                
-                print(f"Bulk cleanup results: {cleanup_results}", file=sys.stderr)
+
+                logger.info("bulk_cleanup_completed", cleaned=cleanup_results["cleaned"], errors=cleanup_results["errors"], not_found=cleanup_results["not_found"])
                 return cleanup_results
-                
+
             finally:
                 db.close()
-                
+
         except Exception as e:
-            print(f"Error in bulk cleanup: {e}", file=sys.stderr)
-            print(f"Stacktrace: {traceback.format_exc()}", file=sys.stderr)
+            logger.error("bulk_cleanup_failed", error=str(e), error_type=type(e).__name__, stacktrace=traceback.format_exc())
             return {"error": str(e)}
     
     def get_song_choices(self, song_id) -> List[SongChoice]:
@@ -279,12 +276,12 @@ class SongService:
             db = next(get_db())
             try:
                 choices = db.query(SongChoice).filter(SongChoice.song_id == song_id).order_by(SongChoice.choice_index).all()
-                print(f"Retrieved {len(choices)} choices for song_id={song_id}", file=sys.stderr)
+                logger.debug("song_choices_retrieved", song_id=str(song_id), choices_count=len(choices))
                 return choices
             finally:
                 db.close()
         except Exception as e:
-            print(f"Error getting song choices for song_id {song_id}: {e}", file=sys.stderr)
+            logger.error("error_getting_song_choices", song_id=str(song_id), error=str(e), error_type=type(e).__name__)
             return []
     
     def get_choice_by_mureka_id(self, mureka_choice_id: str) -> Optional[SongChoice]:
@@ -293,12 +290,15 @@ class SongService:
             db = next(get_db())
             try:
                 choice = db.query(SongChoice).filter(SongChoice.mureka_choice_id == mureka_choice_id).first()
-                print(f"Retrieved choice by mureka_choice_id {mureka_choice_id}: {'Found' if choice else 'Not found'}", file=sys.stderr)
+                if choice:
+                    logger.debug("choice_retrieved_by_mureka_id", mureka_choice_id=mureka_choice_id, choice_id=str(choice.id))
+                else:
+                    logger.debug("choice_not_found_by_mureka_id", mureka_choice_id=mureka_choice_id)
                 return choice
             finally:
                 db.close()
         except Exception as e:
-            print(f"Error getting choice by mureka_choice_id {mureka_choice_id}: {e}", file=sys.stderr)
+            logger.error("error_getting_choice_by_mureka_id", mureka_choice_id=mureka_choice_id, error=str(e), error_type=type(e).__name__)
             return None
     
     def get_songs_paginated(self, limit: int = 20, offset: int = 0, status: str = None, search: str = '',
@@ -363,13 +363,12 @@ class SongService:
                         query = query.order_by(Song.created_at.asc())
 
                 songs = query.limit(limit).offset(offset).all()
-                print(f"Retrieved {len(songs)} songs with pagination (limit={limit}, offset={offset}, status={status}, search='{search}', workflow={workflow}, sort={sort_by}:{sort_direction})", file=sys.stderr)
+                logger.debug("songs_retrieved_paginated", count=len(songs), limit=limit, offset=offset, status=status, search=search, workflow=workflow, sort_by=sort_by, sort_direction=sort_direction)
                 return songs
             finally:
                 db.close()
         except Exception as e:
-            print(f"Error getting paginated songs: {e}", file=sys.stderr)
-            print(f"Stacktrace: {traceback.format_exc()}", file=sys.stderr)
+            logger.error("error_getting_paginated_songs", error=str(e), error_type=type(e).__name__, stacktrace=traceback.format_exc())
             return []
     
     def get_total_songs_count(self, status: str = None, search: str = '', workflow: str = None) -> int:
@@ -409,12 +408,12 @@ class SongService:
                     )
 
                 count = query.count()
-                print(f"Total songs count: {count} (status={status}, search='{search}', workflow={workflow})", file=sys.stderr)
+                logger.debug("total_songs_count_retrieved", count=count, status=status, search=search, workflow=workflow)
                 return count
             finally:
                 db.close()
         except Exception as e:
-            print(f"Error getting total songs count: {e}", file=sys.stderr)
+            logger.error("error_getting_total_songs_count", error=str(e), error_type=type(e).__name__)
             return 0
     
     def get_song_by_id(self, song_id) -> Optional[Song]:
@@ -434,14 +433,15 @@ class SongService:
                        .options(joinedload(Song.choices))
                        .filter(Song.id == song_id)
                        .first())
-                print(f"Retrieved song by ID {song_id}: {'Found' if song else 'Not found'}", file=sys.stderr)
                 if song:
-                    print(f"Song has {len(song.choices)} choices", file=sys.stderr)
+                    logger.debug("song_retrieved_by_id", song_id=str(song_id), choices_count=len(song.choices))
+                else:
+                    logger.debug("song_not_found_by_id", song_id=str(song_id))
                 return song
             finally:
                 db.close()
         except Exception as e:
-            print(f"Error getting song by ID {song_id}: {e}", file=sys.stderr)
+            logger.error("error_getting_song_by_id", song_id=str(song_id), error=str(e), error_type=type(e).__name__)
             return None
     
     def get_recent_songs(self, limit: int = 10) -> List[Song]:
@@ -462,12 +462,12 @@ class SongService:
                         .order_by(Song.created_at.desc())
                         .limit(limit)
                         .all())
-                print(f"Retrieved {len(songs)} recent songs", file=sys.stderr)
+                logger.debug("recent_songs_retrieved", count=len(songs), limit=limit)
                 return songs
             finally:
                 db.close()
         except Exception as e:
-            print(f"Error getting recent songs: {e}", file=sys.stderr)
+            logger.error("error_getting_recent_songs", error=str(e), error_type=type(e).__name__)
             return []
     
     def delete_song_by_id(self, song_id) -> bool:
@@ -487,18 +487,18 @@ class SongService:
                 if song:
                     db.delete(song)  # Cascade will delete choices
                     db.commit()
-                    print(f"Song {song_id} deleted successfully", file=sys.stderr)
+                    logger.info("song_deleted", song_id=str(song_id))
                     return True
+                logger.warning("song_not_found_for_deletion", song_id=str(song_id))
                 return False
             except SQLAlchemyError as e:
                 db.rollback()
-                print(f"Database error deleting song {song_id}: {e}", file=sys.stderr)
+                logger.error("song_deletion_db_error", song_id=str(song_id), error=str(e), error_type=type(e).__name__)
                 raise
             finally:
                 db.close()
         except Exception as e:
-            print(f"Error deleting song {song_id}: {type(e).__name__}: {e}", file=sys.stderr)
-            print(f"Stacktrace: {traceback.format_exc()}", file=sys.stderr)
+            logger.error("song_deletion_failed", song_id=str(song_id), error=str(e), error_type=type(e).__name__, stacktrace=traceback.format_exc())
             return False
 
     def update_song(self, song_id: str, update_data: Dict[str, Any]) -> Optional[Song]:
@@ -517,7 +517,7 @@ class SongService:
             try:
                 song = db.query(Song).filter(Song.id == song_id).first()
                 if not song:
-                    print(f"Song not found: {song_id}", file=sys.stderr)
+                    logger.warning("song_not_found_for_update", song_id=str(song_id))
                     return None
 
                 # Update allowed fields
@@ -542,7 +542,7 @@ class SongService:
                     'updated_at': song.updated_at
                 }
 
-                print(f"Song {song_id} updated successfully", file=sys.stderr)
+                logger.info("song_updated", song_id=str(song_id), fields_updated=list(update_data.keys()))
 
                 # Return a simple object with the data we need
                 class UpdatedSong:
@@ -557,14 +557,13 @@ class SongService:
 
             except SQLAlchemyError as e:
                 db.rollback()
-                print(f"Database error updating song {song_id}: {e}", file=sys.stderr)
+                logger.error("song_update_db_error", song_id=str(song_id), error=str(e), error_type=type(e).__name__)
                 raise
             finally:
                 db.close()
 
         except Exception as e:
-            print(f"Error updating song {song_id}: {type(e).__name__}: {e}", file=sys.stderr)
-            print(f"Stacktrace: {traceback.format_exc()}", file=sys.stderr)
+            logger.error("song_update_failed", song_id=str(song_id), error=str(e), error_type=type(e).__name__, stacktrace=traceback.format_exc())
             return None
 
     def update_choice_rating(self, choice_id: str, rating: Optional[int]) -> bool:
@@ -581,33 +580,32 @@ class SongService:
         try:
             # Validate rating value
             if rating is not None and rating not in [0, 1]:
-                print(f"Invalid rating value: {rating}. Must be None, 0, or 1", file=sys.stderr)
+                logger.warning("invalid_rating_value", choice_id=str(choice_id), rating=rating)
                 return False
 
             db = next(get_db())
             try:
                 choice = db.query(SongChoice).filter(SongChoice.id == choice_id).first()
                 if not choice:
-                    print(f"SongChoice not found: {choice_id}", file=sys.stderr)
+                    logger.warning("choice_not_found_for_rating_update", choice_id=str(choice_id))
                     return False
 
                 choice.rating = rating
                 choice.updated_at = datetime.utcnow()
 
                 db.commit()
-                print(f"Choice {choice_id} rating updated to {rating}", file=sys.stderr)
+                logger.info("choice_rating_updated", choice_id=str(choice_id), rating=rating)
                 return True
 
             except SQLAlchemyError as e:
                 db.rollback()
-                print(f"Database error updating choice rating {choice_id}: {e}", file=sys.stderr)
+                logger.error("choice_rating_update_db_error", choice_id=str(choice_id), error=str(e), error_type=type(e).__name__)
                 raise
             finally:
                 db.close()
 
         except Exception as e:
-            print(f"Error updating choice rating {choice_id}: {type(e).__name__}: {e}", file=sys.stderr)
-            print(f"Stacktrace: {traceback.format_exc()}", file=sys.stderr)
+            logger.error("choice_rating_update_failed", choice_id=str(choice_id), error=str(e), error_type=type(e).__name__, stacktrace=traceback.format_exc())
             return False
 
     def get_choice_by_id(self, choice_id: str) -> Optional[SongChoice]:
@@ -624,12 +622,15 @@ class SongService:
             db = next(get_db())
             try:
                 choice = db.query(SongChoice).filter(SongChoice.id == choice_id).first()
-                print(f"Retrieved choice by ID {choice_id}: {'Found' if choice else 'Not found'}", file=sys.stderr)
+                if choice:
+                    logger.debug("choice_retrieved_by_id", choice_id=str(choice_id))
+                else:
+                    logger.debug("choice_not_found_by_id", choice_id=str(choice_id))
                 return choice
             finally:
                 db.close()
         except Exception as e:
-            print(f"Error getting choice by ID {choice_id}: {e}", file=sys.stderr)
+            logger.error("error_getting_choice_by_id", choice_id=str(choice_id), error=str(e), error_type=type(e).__name__)
             return None
 
 

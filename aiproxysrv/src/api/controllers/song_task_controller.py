@@ -1,5 +1,4 @@
 """Song Task Controller - Handles task management logic"""
-import sys
 import requests
 import time
 import json
@@ -7,6 +6,7 @@ from typing import Tuple, Dict, Any
 from config.settings import MUREKA_API_KEY, MUREKA_STATUS_ENDPOINT
 from celery_app import celery_app, get_slot_status
 from db.song_service import song_service
+from utils.logger import logger
 
 
 class SongTaskController:
@@ -29,9 +29,9 @@ class SongTaskController:
         
         # First try to get status from database
         song = song_service.get_song_by_task_id(task_id)
-        
+
         if song:
-            print(f"{task_id} Found in database with status: {song.status}", file=sys.stderr)
+            logger.debug("Song found in database", task_id=task_id, status=song.status)
             
             response = {
                 "task_id": task_id,
@@ -102,13 +102,13 @@ class SongTaskController:
                 response["error"] = song.error_message
             
             return response, 200
-        
+
         # Fallback to Celery/Redis if not found in database
-        print(f"{task_id} Not found in database, checking Celery", file=sys.stderr)
+        logger.debug("Song not found in database, checking Celery", task_id=task_id)
         result = celery_app.AsyncResult(task_id)
 
         if result.state == 'PENDING':
-            print(f"{task_id} PENDING", file=sys.stderr)
+            logger.debug("Task is pending", task_id=task_id)
             return {
                 "task_id": task_id,
                 "status": "PENDING",
@@ -116,7 +116,7 @@ class SongTaskController:
             }, 200
 
         elif result.state == 'PROGRESS':
-            print(f"{task_id} PROGRESS", file=sys.stderr)
+            logger.debug("Task in progress", task_id=task_id)
             progress_info = result.info if isinstance(result.info, dict) else {}
             return {
                 "task_id": task_id,
@@ -125,7 +125,7 @@ class SongTaskController:
             }, 200
 
         elif result.state == 'SUCCESS':
-            print(f"{task_id} SUCCESS", file=sys.stderr)
+            logger.debug("Task completed successfully", task_id=task_id)
             task_result = result.result
             return {
                 "task_id": task_id,
@@ -134,7 +134,7 @@ class SongTaskController:
             }, 200
 
         elif result.state == 'FAILURE':
-            print(f"{task_id} FAILURE", file=sys.stderr)
+            logger.debug("Task failed", task_id=task_id)
             return {
                 "task_id": task_id,
                 "status": "FAILURE",
@@ -142,7 +142,7 @@ class SongTaskController:
             }, 200
 
         else:
-            print(f"{task_id} UNKNOWN", file=sys.stderr)
+            logger.debug("Unknown task state", task_id=task_id, state=result.state)
             return {
                 "task_id": task_id,
                 "status": result.state,
@@ -169,7 +169,7 @@ class SongTaskController:
                 }, 400
 
         except Exception as e:
-            print(f"Error on cancel task: {e}", file=sys.stderr)
+            logger.error("Error cancelling task", task_id=task_id, error=str(e))
             return {
                 "error": f"Failed to cancel task: {str(e)}"
             }, 500
@@ -183,7 +183,7 @@ class SongTaskController:
                 "message": "Task result deleted successfully"
             }, 200
         except Exception as e:
-            print(f"Error on delete task: {e}", file=sys.stderr)
+            logger.error("Error deleting task result", task_id=task_id, error=str(e))
             return {
                 "error": f"Failed to delete task result: {str(e)}"
             }, 500
@@ -194,7 +194,7 @@ class SongTaskController:
             headers = {"Authorization": f"Bearer {MUREKA_API_KEY}"}
             status_url = f"{MUREKA_STATUS_ENDPOINT}/{job_id}"
 
-            print("Request URL", MUREKA_STATUS_ENDPOINT)
+            logger.debug("Force completing task", job_id=job_id, url=MUREKA_STATUS_ENDPOINT)
             response = requests.get(status_url, headers=headers, timeout=10)
             response.raise_for_status()
             mureka_result = response.json()
@@ -220,7 +220,7 @@ class SongTaskController:
             }, 200
 
         except Exception as e:
-            print(f"Error on force complete task: {e}", file=sys.stderr)
+            logger.error("Error force completing task", job_id=job_id, error=str(e))
             return {"error": str(e)}, 500
     
     def get_queue_status(self) -> Tuple[Dict[str, Any], int]:
@@ -229,5 +229,5 @@ class SongTaskController:
             slot_status = get_slot_status()
             return slot_status, 200
         except Exception as e:
-            print(f"Error on get queue status: {e}", file=sys.stderr)
+            logger.error("Error getting queue status", error=str(e))
             return {"error": str(e)}, 500

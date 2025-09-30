@@ -1,8 +1,8 @@
 """
 Error Handler für MUREKA API
 """
-import sys
 from requests import HTTPError
+from utils.logger import logger
 
 
 def analyze_429_error_type(error_message: str) -> str:
@@ -35,16 +35,16 @@ def handle_http_error(task, error: HTTPError) -> dict:
     """Behandelt HTTP-Fehler von der MUREKA API"""
     resp = error.response
     status_code = resp.status_code
-    
-    print(f"Task {task.request.id}: HTTP Error {status_code} from MUREKA API", file=sys.stderr)
+
+    logger.error("HTTP Error from MUREKA API", task_id=task.request.id, status_code=status_code)
 
     try:
         error_body = resp.json()
         message = error_body.get("message") or error_body.get("error") or resp.text
-        print(f"Task {task.request.id}: Error body: {error_body}", file=sys.stderr)
+        logger.debug("MUREKA error body", task_id=task.request.id, error_body=error_body)
     except ValueError:
         message = resp.text or resp.reason
-        print(f"Task {task.request.id}: Raw error response: {resp.text}", file=sys.stderr)
+        logger.debug("MUREKA raw error response", task_id=task.request.id, response_text=resp.text)
 
     error_payload = {
         "status": "ERROR",
@@ -58,7 +58,7 @@ def handle_http_error(task, error: HTTPError) -> dict:
         error_type = analyze_429_error_type(message)
         error_payload["error_type"] = error_type
 
-        print(f"Task {task.request.id}: 429 Error Type: {error_type}", file=sys.stderr)
+        logger.error("MUREKA 429 Error", task_id=task.request.id, error_type=error_type)
 
         rate_headers = {
             "Retry-After": resp.headers.get("Retry-After"),
@@ -67,7 +67,7 @@ def handle_http_error(task, error: HTTPError) -> dict:
             "X-RateLimit-Reset": resp.headers.get("X-RateLimit-Reset"),
         }
         rate_limit_info = {k: v for k, v in rate_headers.items() if v}
-        print(f"Task {task.request.id}: Rate limit headers: {rate_limit_info}", file=sys.stderr)
+        logger.debug("Rate limit headers", task_id=task.request.id, rate_limit_info=rate_limit_info)
         error_payload["rate_limit_info"] = rate_limit_info
 
     return error_payload
@@ -75,7 +75,7 @@ def handle_http_error(task, error: HTTPError) -> dict:
 
 def handle_general_error(task, error: Exception) -> dict:
     """Behandelt allgemeine Fehler"""
-    print(f"Task {task.request.id}: General error: {type(error).__name__}: {error}", file=sys.stderr)
+    logger.error("General error", task_id=task.request.id, error_type=type(error).__name__, error=str(error))
     return {
         "status": "ERROR",
         "http_code": None,

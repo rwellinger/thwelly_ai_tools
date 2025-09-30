@@ -1,8 +1,8 @@
 """Chat Controller - Handles business logic for chat operations"""
-import sys
 import traceback
 import requests
 from typing import Tuple, Dict, Any
+from utils.logger import logger
 from config.settings import OLLAMA_URL, OLLAMA_TIMEOUT
 
 
@@ -33,7 +33,8 @@ class ChatController:
         full_prompt = f"[INSTRUCTION] {pre_condition or ''} [USER] {prompt} [FORMAT] {post_condition or ''}"
 
         try:
-            print(f"Generating chat with model {model}, prompt: {full_prompt[:50]}{'...' if len(full_prompt) > 50 else ''}", file=sys.stderr)
+            prompt_preview = full_prompt[:50] + ('...' if len(full_prompt) > 50 else '')
+            logger.info("Generating chat", model=model, prompt_preview=prompt_preview)
 
             # Call Ollama API
             response_data = self._call_ollama_api(model, full_prompt, temperature, max_tokens)
@@ -41,15 +42,17 @@ class ChatController:
             # Clean response (remove context)
             cleaned_response = self._clean_ollama_response(response_data)
 
-            print(f"Chat generated successfully with model {model}", file=sys.stderr)
+            logger.info("Chat generated successfully", model=model)
             return cleaned_response, 200
 
         except OllamaAPIError as e:
-            print(f"Ollama API Error during chat generation: {e}", file=sys.stderr)
+            logger.error("Ollama API Error during chat generation", error=str(e))
             return {"error": f"Ollama API Error: {e}"}, 500
         except Exception as e:
-            print(f"Unexpected error in chat generation: {type(e).__name__}: {e}", file=sys.stderr)
-            print(f"Stacktrace: {traceback.format_exc()}", file=sys.stderr)
+            logger.error("Unexpected error in chat generation",
+                        error_type=type(e).__name__,
+                        error=str(e),
+                        stacktrace=traceback.format_exc())
             return {"error": f"Unexpected Error: {e}"}, 500
 
     def _call_ollama_api(self, model: str, prompt: str, temperature: float, max_tokens: int) -> Dict[str, Any]:
@@ -69,7 +72,7 @@ class ChatController:
         }
 
         api_url = f"{OLLAMA_URL}/api/generate"
-        print(f"Calling Ollama API: {api_url}", file=sys.stderr)
+        logger.debug("Calling Ollama API", api_url=api_url)
 
         try:
             resp = requests.post(
@@ -78,18 +81,20 @@ class ChatController:
                 json=payload,
                 timeout=OLLAMA_TIMEOUT
             )
-            print(f"Ollama API Response Status: {resp.status_code}", file=sys.stderr)
+            logger.debug("Ollama API response received", status_code=resp.status_code)
             resp.raise_for_status()
         except requests.exceptions.RequestException as e:
-            print(f"Ollama API Network Error: {type(e).__name__}: {e}", file=sys.stderr)
+            logger.error("Ollama API Network Error", error_type=type(e).__name__, error=str(e))
             raise OllamaAPIError(f"Network Error: {e}")
         except Exception as e:
-            print(f"Unexpected Ollama API error: {type(e).__name__}: {e}", file=sys.stderr)
-            print(f"Stacktrace: {traceback.format_exc()}", file=sys.stderr)
+            logger.error("Unexpected Ollama API error",
+                        error_type=type(e).__name__,
+                        error=str(e),
+                        stacktrace=traceback.format_exc())
             raise OllamaAPIError(f"Network Error: {e}")
 
         if resp.status_code != 200:
-            print(f"Ollama API Error Response: {resp.text}", file=sys.stderr)
+            logger.error("Ollama API Error Response", status_code=resp.status_code, response_text=resp.text)
             try:
                 error_data = resp.json()
                 raise OllamaAPIError(error_data)
@@ -98,11 +103,10 @@ class ChatController:
 
         try:
             resp_json = resp.json()
-            print(f"Ollama API response received", file=sys.stderr)
+            logger.debug("Ollama API response parsed successfully")
             return resp_json
         except ValueError as e:
-            print(f"Error parsing Ollama API response: {e}", file=sys.stderr)
-            print(f"Response content: {resp.text}", file=sys.stderr)
+            logger.error("Error parsing Ollama API response", error=str(e), response_text=resp.text)
             raise OllamaAPIError(f"Invalid API response format: {e}")
 
     def _clean_ollama_response(self, response_data: Dict[str, Any]) -> Dict[str, Any]:

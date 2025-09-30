@@ -1,7 +1,6 @@
 """
 MUREKA Generation Client - Standard song generation
 """
-import sys
 import logging
 import time
 from typing import Dict, Any
@@ -11,8 +10,7 @@ from config.settings import (
     MUREKA_STATUS_ENDPOINT
 )
 from .base_client import MurekaBaseClient
-
-logger = logging.getLogger(__name__)
+from utils.logger import logger
 
 
 class MurekaGenerationClient(MurekaBaseClient):
@@ -26,8 +24,7 @@ class MurekaGenerationClient(MurekaBaseClient):
         allowed_params = ["lyrics", "prompt", "model"]
         mureka_payload = self._clean_payload(payload, allowed_params)
 
-        print(f"Starting MUREKA generation - Endpoint: {MUREKA_GENERATE_ENDPOINT}", file=sys.stderr)
-        print(f"Sending payload: {mureka_payload}", file=sys.stderr)
+        logger.info("Starting MUREKA generation", endpoint=MUREKA_GENERATE_ENDPOINT, payload=mureka_payload)
 
         response = self._make_request(
             "POST",
@@ -38,7 +35,7 @@ class MurekaGenerationClient(MurekaBaseClient):
 
         response_data = response.json()
         job_id = response_data.get("id")
-        print(f"MUREKA generation started successfully. Job ID: {job_id}", file=sys.stderr)
+        logger.info("MUREKA generation started successfully", job_id=job_id)
         return response_data
 
     def check_status(self, job_id: str) -> Dict[str, Any]:
@@ -46,12 +43,12 @@ class MurekaGenerationClient(MurekaBaseClient):
         headers = self._get_headers()
         status_url = f"{MUREKA_STATUS_ENDPOINT}/{job_id}"
 
-        print(f"Checking MUREKA status: {status_url}", file=sys.stderr)
+        logger.debug("Checking MUREKA status", job_id=job_id, status_url=status_url)
 
         response = self._make_request("GET", status_url, headers=headers)
 
         status_data = response.json()
-        print(f"MUREKA status for job {job_id}: {status_data.get('status')}", file=sys.stderr)
+        logger.debug("MUREKA status response", job_id=job_id, status=status_data.get('status'))
         return status_data
 
     def wait_for_completion(self, task, job_id: str) -> Dict[str, Any]:
@@ -72,20 +69,20 @@ class MurekaGenerationClient(MurekaBaseClient):
                 )
 
                 if current_status == "succeeded":
-                    print(f"MUREKA job completed: {job_id}")
+                    logger.info("MUREKA job completed", job_id=job_id)
                     return self._clean_response_data(status_response)
 
                 elif current_status in ["failed", "cancelled"]:
                     error_reason = status_response.get("failed_reason", "Song processing failed")
-                    print(f"MUREKA job failed: {job_id} - {error_reason}")
+                    logger.error("MUREKA job failed", job_id=job_id, error_reason=error_reason)
                     raise Exception(f"Job failed: {error_reason}")
 
                 elif current_status in ["preparing", "queued", "running", "timeouted"]:
-                    print(f"MUREKA job {job_id}: {current_status}")
+                    logger.debug("MUREKA job status", job_id=job_id, status=current_status)
                     time.sleep(poll_interval)
 
                 else:
-                    print(f"Unknown MUREKA status: {current_status} for job {job_id}")
+                    logger.error("Unknown MUREKA status", job_id=job_id, status=current_status)
                     time.sleep(poll_interval)
 
             except HTTPError as e:
@@ -98,8 +95,10 @@ class MurekaGenerationClient(MurekaBaseClient):
                     raise
 
             except Exception as e:
-                print(f"Unexpected error in MUREKA polling: {type(e).__name__}: {e}", file=sys.stderr)
-                print(f"Stacktrace: {sys.exc_info()}", file=sys.stderr)
+                logger.error("Unexpected error in MUREKA polling",
+                           error_type=type(e).__name__,
+                           error=str(e),
+                           job_id=job_id)
                 raise
 
         total_elapsed = time.time() - start_time

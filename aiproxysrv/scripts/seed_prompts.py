@@ -6,6 +6,7 @@ This script reads the current templates from the TypeScript service and inserts 
 
 import sys
 import os
+from utils.logger import logger
 sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'src'))
 
 from sqlalchemy.orm import Session
@@ -76,10 +77,10 @@ def seed_prompt_templates():
         updated_count = 0
 
         for category, actions in TEMPLATES.items():
-            print(f"\nProcessing category: {category}")
+            logger.info(f"\nProcessing category: {category}")
 
             for action, template_data in actions.items():
-                print(f"  Processing action: {action}")
+                logger.info(f"  Processing action: {action}")
 
                 # Check if template already exists
                 existing = db.query(PromptTemplate).filter(
@@ -88,7 +89,7 @@ def seed_prompt_templates():
                 ).first()
 
                 if existing:
-                    print(f"    Template exists, updating...")
+                    logger.info(f"    Template exists, updating...")
                     # Update existing template
                     existing.pre_condition = template_data["pre_condition"]
                     existing.post_condition = template_data["post_condition"]
@@ -98,7 +99,7 @@ def seed_prompt_templates():
                     existing.active = True
                     updated_count += 1
                 else:
-                    print(f"    Creating new template...")
+                    logger.info(f"    Creating new template...")
                     # Create new template
                     new_template = PromptTemplate(
                         category=category,
@@ -116,15 +117,11 @@ def seed_prompt_templates():
         # Commit all changes
         db.commit()
 
-        print(f"\n✅ Seeding completed successfully!")
-        print(f"   - Inserted: {inserted_count} new templates")
-        print(f"   - Updated:  {updated_count} existing templates")
-        print(f"   - Total:    {inserted_count + updated_count} templates processed")
-
+        logger.info(f"Seeding completed successfully!")
         return True
 
     except Exception as e:
-        print(f"\n❌ Error during seeding: {str(e)}")
+        logger.error("Error during seeding", error=str(e), stacktrace=e)
         db.rollback()
         return False
 
@@ -139,8 +136,8 @@ def verify_templates():
     try:
         templates = db.query(PromptTemplate).filter(PromptTemplate.active == True).all()
 
-        print(f"\n📊 Verification Results:")
-        print(f"   Total active templates in DB: {len(templates)}")
+        logger.debug(f"Verification Results:")
+        logger.debug(f"   Total active templates in DB: {len(templates)}")
 
         # Group by category for display
         by_category = {}
@@ -155,7 +152,7 @@ def verify_templates():
         return True
 
     except Exception as e:
-        print(f"\n❌ Error during verification: {str(e)}")
+        logger.error("Error during verification", error=str(e), stacktrace=e)
         return False
 
     finally:
@@ -163,11 +160,11 @@ def verify_templates():
 
 
 if __name__ == "__main__":
-    print("🌱 Starting prompt template seeding...")
+    logger.debug("Starting prompt template seeding...")
 
     if seed_prompt_templates():
         verify_templates()
-        print("\n🎉 All done!")
+        logger.debug("All done!")
     else:
-        print("\n💥 Seeding failed!")
+        logger.error("Seeding failed!")
         sys.exit(1)
