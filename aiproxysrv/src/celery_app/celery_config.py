@@ -25,6 +25,10 @@ celery_app.conf.update(
     worker_prefetch_multiplier=1,
     task_acks_late=True,
 
+    # Disable Celery's logging hijacking - we use loguru via signals
+    worker_hijack_root_logger=False,
+    worker_log_color=False,
+
     # Tasks automatisch entdecken
     include=['celery_app.tasks'],
     # Tasks auch explizit importieren beim App-Start
