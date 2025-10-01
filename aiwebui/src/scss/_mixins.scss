@@ -291,9 +291,6 @@
     }
 }
 
-// 5a. Legacy Table Styling - DEPRECATED: Use list-table-styling instead
-// Kept for backward compatibility only - will be removed in future versions
-
 // 6. Modal/Overlay - Standardized modal overlay for all components
 @mixin modal-overlay($bg-opacity: 0.7, $z-index: 1500, $blur: false) {
     position: fixed;
@@ -706,4 +703,350 @@
     0%, 20% { opacity: 0; }
     50% { opacity: 1; }
     80%, 100% { opacity: 0; }
+}
+
+// 16. Enhanced Table Styling with Animations
+@mixin enhanced-table-styling() {
+    border-collapse: separate;
+    border-spacing: 0;
+    position: relative;
+    table-layout: fixed;
+    width: 100%;
+    max-width: 100%;
+    overflow-x: hidden;
+
+    tbody tr {
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        position: relative;
+        cursor: pointer;
+
+        &:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0,123,255,0.15), 0 3px 10px rgba(0,0,0,0.1);
+            background: linear-gradient(135deg, rgba(255,255,255,0.9) 0%, rgba(248,249,250,0.95) 100%) !important;
+            z-index: 10;
+
+            td {
+                border-color: rgba(0,123,255,0.2) !important;
+            }
+        }
+
+        &.selected {
+            background: linear-gradient(135deg, rgba(0,123,255,0.08) 0%, rgba(0,123,255,0.12) 100%) !important;
+            border-left: 4px solid $primary-color !important;
+            box-shadow: 0 4px 15px rgba(0,123,255,0.1);
+
+            &:hover {
+                background: linear-gradient(135deg, rgba(0,123,255,0.12) 0%, rgba(0,123,255,0.18) 100%) !important;
+                box-shadow: 0 8px 25px rgba(0,123,255,0.2), 0 3px 10px rgba(0,0,0,0.1);
+            }
+        }
+
+        &:nth-child(even) {
+            background: linear-gradient(135deg, rgba(248,249,250,0.5) 0%, rgba(248,249,250,0.8) 100%);
+        }
+
+        &:nth-child(odd) {
+            background: rgba(255,255,255,0.8);
+        }
+    }
+
+    thead th {
+        background: linear-gradient(135deg, rgba(0,123,255,0.95) 0%, rgba(0,123,255,1) 100%);
+        color: white;
+        text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+        border: none;
+        position: sticky;
+        top: 0;
+        z-index: 100;
+        backdrop-filter: blur(10px);
+        box-shadow: 0 2px 8px rgba(0,123,255,0.3);
+
+        &:first-child {
+            border-radius: $border-radius-lg 0 0 0;
+        }
+
+        &:last-child {
+            border-radius: 0 $border-radius-lg 0 0;
+        }
+    }
+
+    td {
+        transition: all 0.3s ease;
+        border-bottom: 1px solid rgba(222,226,230,0.6);
+        vertical-align: middle;
+    }
+
+    button {
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        border-radius: $border-radius-lg !important;
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        position: relative;
+        overflow: hidden;
+
+        &:before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            transition: left 0.5s;
+        }
+
+        &:hover:before {
+            left: 100%;
+        }
+
+        &:hover {
+            transform: translateY(-2px) scale(1.05);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+        }
+    }
+
+    &.loading tbody tr {
+        opacity: 0.6;
+        pointer-events: none;
+
+        td {
+            background: linear-gradient(90deg, rgba(248,249,250,0.8) 25%, rgba(233,236,239,0.8) 50%, rgba(248,249,250,0.8) 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.5s infinite;
+        }
+    }
+
+    @keyframes shimmer {
+        0% { background-position: -200% 0; }
+        100% { background-position: 200% 0; }
+    }
+}
+
+// 17. Enhanced Search Input with Clear Button
+@mixin enhanced-search-input() {
+    .search-input-container {
+        position: relative;
+        display: flex;
+        align-items: center;
+    }
+
+    .search-input {
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        position: relative;
+        background: linear-gradient(135deg, rgba(255,255,255,0.9) 0%, rgba(248,249,250,0.95) 100%);
+        border: 2px solid transparent;
+        backdrop-filter: blur(10px);
+        flex: 1;
+        padding-right: 40px;
+
+        &:focus {
+            transform: translateY(-2px);
+            background: rgba(255,255,255,0.98);
+            border-color: $primary-color;
+            box-shadow: 0 8px 25px rgba(0,123,255,0.2), 0 0 0 4px rgba(0,123,255,0.1);
+        }
+
+        &:hover:not(:focus) {
+            border-color: rgba(0,123,255,0.3);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+    }
+
+    .clear-search-button {
+        position: absolute;
+        right: 8px;
+        top: 50%;
+        transform: translateY(-50%);
+        background: none;
+        border: none;
+        color: $text-secondary;
+        cursor: pointer;
+        padding: 4px;
+        border-radius: 50%;
+        width: 24px;
+        height: 24px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s ease;
+        z-index: 2;
+
+        &:hover:not(:disabled) {
+            background-color: rgba(0,0,0,0.1);
+            color: $text-primary;
+        }
+
+        &:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        i {
+            font-size: 12px;
+        }
+    }
+}
+
+// 18. Enhanced Controls Buttons with Animations
+@mixin enhanced-controls-buttons() {
+    .controls-buttons button {
+        position: relative;
+        overflow: hidden;
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+
+        &:before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.6s;
+        }
+
+        &:hover:before {
+            left: 100%;
+        }
+
+        &:hover {
+            transform: translateY(-2px) scale(1.02);
+        }
+
+        &.active {
+            animation: glow-success 2s infinite alternate;
+        }
+    }
+
+    @keyframes glow-success {
+        from {
+            box-shadow: 0 2px 6px rgba(40,167,69,0.3);
+        }
+        to {
+            box-shadow: 0 4px 15px rgba(40,167,69,0.5);
+        }
+    }
+}
+
+// 19. Selection Row Highlighting
+@mixin selection-row-highlighting() {
+    .result-table tr.selection-selected {
+        background: linear-gradient(135deg, rgba(255,193,7,0.15) 0%, rgba(255,193,7,0.25) 100%) !important;
+        border-left: 4px solid $warning-color !important;
+        box-shadow: 0 2px 8px rgba(255,193,7,0.2);
+        animation: pulse-selection 2s infinite;
+
+        &:hover {
+            background: linear-gradient(135deg, rgba(255,193,7,0.25) 0%, rgba(255,193,7,0.35) 100%) !important;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(255,193,7,0.3), 0 3px 10px rgba(0,0,0,0.1);
+        }
+    }
+
+    @keyframes pulse-selection {
+        0%, 100% {
+            box-shadow: 0 2px 8px rgba(255,193,7,0.2);
+        }
+        50% {
+            box-shadow: 0 4px 15px rgba(255,193,7,0.35);
+        }
+    }
+}
+
+// 20. Enhanced Pagination with Animations
+@mixin enhanced-pagination-styling() {
+    .pagination-container {
+        margin-top: $spacing-20;
+        padding: $spacing-15;
+        background: linear-gradient(135deg, rgba(248,249,250,0.8) 0%, rgba(255,255,255,0.9) 100%);
+        border-radius: $border-radius-xl;
+        box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+    }
+
+    .pagination-pill {
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        position: relative;
+        overflow: hidden;
+
+        &:hover {
+            transform: translateY(-2px) scale(1.05);
+            box-shadow: 0 6px 20px rgba(0,123,255,0.3);
+        }
+
+        &.active {
+            background: linear-gradient(135deg, $primary-color 0%, lighten($primary-color, 10%) 100%);
+            box-shadow: 0 4px 15px rgba(0,123,255,0.4);
+            animation: glow-active 2s infinite alternate;
+        }
+
+        &:disabled {
+            opacity: 0.6;
+            transform: none !important;
+        }
+    }
+
+    @keyframes glow-active {
+        from {
+            box-shadow: 0 4px 15px rgba(0,123,255,0.4);
+        }
+        to {
+            box-shadow: 0 6px 25px rgba(0,123,255,0.6);
+        }
+    }
+}
+
+// 21. Enhanced No Results/Loading Messages
+@mixin enhanced-empty-state-messages() {
+    .no-songs-message,
+    .no-results-message,
+    .no-images-message,
+    .loading-message {
+        padding: 40px;
+        text-align: center;
+        color: $text-muted;
+        background: linear-gradient(135deg, rgba(248,249,250,0.5) 0%, rgba(255,255,255,0.8) 100%);
+        border-radius: $border-radius-xl;
+        border: 2px dashed rgba(222,226,230,0.8);
+        margin: $spacing-20;
+        position: relative;
+        overflow: hidden;
+
+        &:before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent 30%, rgba(0,123,255,0.05) 50%, transparent 70%);
+            animation: shimmer-background 3s infinite;
+        }
+    }
+
+    .loading-message i {
+        font-size: $font-3xl;
+        color: $primary-color;
+        animation: spin-pulse 1.5s infinite ease-in-out;
+        filter: drop-shadow(0 2px 4px rgba(0,123,255,0.3));
+    }
+
+    @keyframes shimmer-background {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+
+    @keyframes spin-pulse {
+        0%, 100% {
+            transform: rotate(0deg) scale(1);
+            opacity: 1;
+        }
+        50% {
+            transform: rotate(180deg) scale(1.1);
+            opacity: 0.8;
+        }
+    }
 }

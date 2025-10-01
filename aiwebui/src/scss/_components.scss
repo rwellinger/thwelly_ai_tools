@@ -146,3 +146,71 @@
 .card-elevation-1 { @include elevation(1); }
 .card-elevation-2 { @include elevation(2); }
 .card-elevation-3 { @include elevation(3); }
+
+// ===== DROPDOWN MENU (Shared across generators) =====
+.dropdown-menu {
+    position: absolute;
+    top: calc(100% + $spacing-xs);
+    right: 0;
+    background: $background-white;
+    border: 1px solid $border-light;
+    border-radius: $border-radius-lg;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    min-width: 220px;
+    z-index: 1000;
+    overflow: hidden;
+    animation: dropdown-fade-in 0.15s ease-out;
+}
+
+.dropdown-item {
+    width: 100%;
+    padding: $spacing-10 $spacing-15;
+    border: none;
+    background: transparent;
+    display: flex;
+    align-items: center;
+    gap: $spacing-10;
+    font-size: $font-base;
+    font-family: $font-family-base;
+    color: $text-primary;
+    cursor: pointer;
+    transition: $transition-fast;
+    text-align: left;
+
+    &:hover:not(:disabled) {
+        background-color: $background-light;
+    }
+
+    &:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+
+    i {
+        width: 16px;
+        flex-shrink: 0;
+        color: $ai-color;
+    }
+
+    span {
+        flex: 1;
+        font-weight: $font-weight-medium;
+    }
+
+    .action-spinner {
+        margin-left: auto;
+        color: $ai-color;
+        font-size: $font-sm;
+    }
+}
+
+@keyframes dropdown-fade-in {
+    from {
+        opacity: 0;
+        transform: translateY(-4px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
