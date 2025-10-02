@@ -1,10 +1,15 @@
+# CRITICAL: Never include secrets in Docker images!
+.env
+.env*
+!.env_template
+alembic.ini
+
 README.md
 images
 docker-compose-postgres.yaml
 docker-compose.yml
 dockerfile
 .dockerignore
-
 
 # Ignoriere virtuelle Umgebungen
 venv/
