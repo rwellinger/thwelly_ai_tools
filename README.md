@@ -41,10 +41,12 @@ A full-stack platform for AI-powered image and music generation with Python back
 # Supports both AMD64 (Intel/AMD) and ARM64 (Apple Silicon)
 docker pull ghcr.io/rwellinger/aiproxysrv-app:latest
 docker pull ghcr.io/rwellinger/celery-worker-app:latest
+docker pull ghcr.io/rwellinger/aiwebui-app:latest
 
 # Or use a specific version
-docker pull ghcr.io/rwellinger/aiproxysrv-app:v2.0.0
-docker pull ghcr.io/rwellinger/celery-worker-app:v2.0.0
+docker pull ghcr.io/rwellinger/aiproxysrv-app:v2.0.1
+docker pull ghcr.io/rwellinger/celery-worker-app:v2.0.1
+docker pull ghcr.io/rwellinger/aiwebui-app:v2.0.1
 
 # Configure environment and start
 cd aiproxysrv
