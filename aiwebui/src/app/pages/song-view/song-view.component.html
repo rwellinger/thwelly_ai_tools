@@ -78,7 +78,7 @@
 
             <table class="result-table">
                 <thead>
-                <tr>
+                <tr [class.has-checkbox]="isSelectionMode">
                     <th *ngIf="isSelectionMode" class="checkbox-col">
                         <input type="checkbox"
                                [checked]="selectedSongIds.size === filteredSongs.length && filteredSongs.length > 0"
@@ -97,6 +97,7 @@
                 </thead>
                 <tbody>
                 <tr *ngFor="let song of filteredSongs; trackBy: trackBySong"
+                    [class.has-checkbox]="isSelectionMode"
                     [class.selected]="selectedSong?.id === song.id"
                     [class.selection-selected]="isSelectionMode && selectedSongIds.has(song.id)"
                     [class.in-use]="song.workflow === 'inUse'"

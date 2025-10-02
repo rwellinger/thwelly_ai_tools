@@ -591,102 +591,107 @@
 
 // Table cell and row styling now handled by list-table-styling mixin
 
+/* Table uses grid layout for flexible columns */
+.result-table {
+    display: table;
+    width: 100%;
+
+    thead, tbody {
+        display: table-row-group;
+    }
+
+    tr {
+        display: grid;
+        grid-template-columns: 30px minmax(120px, 1fr) minmax(100px, 150px) minmax(90px, 130px);
+
+        &.has-checkbox {
+            grid-template-columns: 35px 30px minmax(120px, 1fr) minmax(90px, 130px) minmax(80px, 110px);
+        }
+    }
+}
+
+/* Checkbox column when selection mode is active */
+.checkbox-col {
+    width: 100% !important;
+    max-width: 100% !important;
+    text-align: center !important;
+    padding: $spacing-6 2px !important;
+}
+
+/* Icon column */
+.icon-col {
+    width: 100% !important;
+    max-width: 100% !important;
+    text-align: center !important;
+    padding: $spacing-6 2px !important;
+}
+
+/* Title column - flexible */
 .lyrics-col {
-    width: 57%;
     min-width: 0;
-    max-width: 57%;
     word-break: break-word;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
 }
 
-/* Fixed column widths for table-layout: fixed */
-/* When selection mode is active */
-.result-table th:nth-child(1), /* Checkbox */
-.result-table td:nth-child(1) {
-    width: 35px;
-    max-width: 35px;
-}
-
-.result-table th:nth-child(2), /* Icon when selection mode active */
-.result-table td:nth-child(2) {
-    width: 30px;
-    max-width: 30px;
-}
-
-.result-table th:nth-child(3), /* Title when selection mode active */
-.result-table td:nth-child(3) {
-    width: 52%;
-    max-width: 52%;
-}
-
-.result-table th:nth-child(4), /* Model when selection mode active */
-.result-table td:nth-child(4) {
-    width: 18%;
-    max-width: 18%;
-}
-
-.result-table th:nth-child(5), /* Created when selection mode active */
-.result-table td:nth-child(5) {
-    width: 12%;
-    max-width: 12%;
-}
-
-/* When selection mode is NOT active (no checkbox column) */
-.result-table th.icon-col,
-.result-table td.icon-col {
-    width: 30px;
-    max-width: 30px;
-}
-
-.result-table th.lyrics-col,
-.result-table td.lyrics-col {
-    width: 57%;
-    max-width: 57%;
-}
-
-.result-table th:nth-child(3):not(.lyrics-col), /* Model when no selection mode */
-.result-table td:nth-child(3):not(.lyrics-col) {
-    width: 20%;
-    max-width: 20%;
-}
-
-.result-table th:nth-child(4):not(.lyrics-col), /* Created when no selection mode */
-.result-table td:nth-child(4):not(.lyrics-col) {
-    width: 15%;
-    max-width: 15%;
+/* Model and Created columns */
+.result-table th:not(.checkbox-col):not(.icon-col):not(.lyrics-col),
+.result-table td:not(.checkbox-col):not(.icon-col):not(.lyrics-col) {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 /* Responsive column adjustments */
 @media (max-width: 1200px) {
-    .lyrics-col {
-        min-width: 100px;
+    .result-table tr {
+        grid-template-columns: 30px minmax(100px, 1fr) minmax(80px, 120px) minmax(80px, 100px);
+
+        &.has-checkbox {
+            grid-template-columns: 35px 30px minmax(100px, 1fr) minmax(70px, 100px) minmax(70px, 90px);
+        }
     }
 }
 
 @media (max-width: 900px) {
-    .lyrics-col {
-        min-width: 80px;
+    .result-table tr {
+        grid-template-columns: 25px minmax(80px, 1fr) minmax(70px, 100px) minmax(70px, 90px);
+
+        &.has-checkbox {
+            grid-template-columns: 35px 25px minmax(80px, 1fr) minmax(60px, 90px) minmax(60px, 80px);
+        }
     }
 
     .icon-col {
-        width: 25px !important;
-    }
-
-    .checkbox-col {
-        width: 35px !important;
+        width: 100% !important;
+        max-width: 100% !important;
     }
 }
 
 @media (max-width: 600px) {
-    .result-table th:nth-child(4),
-    .result-table td:nth-child(4) {
-        display: none; /* Hide Model column on small screens */
+    .result-table tr {
+        grid-template-columns: 25px minmax(60px, 1fr) minmax(60px, 80px);
+
+        &.has-checkbox {
+            grid-template-columns: 35px 25px minmax(60px, 1fr) minmax(60px, 80px);
+        }
     }
 
-    .lyrics-col {
-        min-width: 60px;
+    /* Hide Model column on small screens */
+    .result-table th:nth-child(4),
+    .result-table td:nth-child(4) {
+        display: none;
+    }
+
+    .result-table tr.has-checkbox th:nth-child(4),
+    .result-table tr.has-checkbox td:nth-child(4) {
+        display: grid;
+    }
+
+    .result-table tr.has-checkbox th:nth-child(5),
+    .result-table tr.has-checkbox td:nth-child(5) {
+        display: none;
     }
 }
 
