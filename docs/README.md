@@ -1,181 +1,181 @@
-# ARC42 Architektur Dokumentation - Mac KI Service
+# ARC42 Architecture Documentation - Mac AI Service
 
-## Inhaltsverzeichnis
+## Table of Contents
 
-1. [Einführung und Ziele](#1-einführung-und-ziele)
-   - [1.1 Aufgabenstellung](#11-aufgabenstellung)
-   - [1.2 Qualitätsziele](#12-qualitätsziele)
-   - [1.3 Stakeholder](#13-stakeholder)
-2. [Randbedingungen](#2-randbedingungen)
-   - [2.1 Technische Randbedingungen](#21-technische-randbedingungen)
-   - [2.2 Organisatorische Randbedingungen](#22-organisatorische-randbedingungen)
-3. [Kontextabgrenzung](#3-kontextabgrenzung)
-   - [3.1 Fachlicher Kontext](#31-fachlicher-kontext)
-   - [3.2 Technischer Kontext](#32-technischer-kontext)
-4. [Lösungsstrategie](#4-lösungsstrategie)
-   - [4.1 Architekturansatz](#41-architekturansatz)
-   - [4.2 Technologie-Stack](#42-technologie-stack)
-5. [Bausteinsicht](#5-bausteinsicht)
-   - [5.1 Systemübersicht](#51-systemübersicht)
-   - [5.2 Komponenten-Details](#52-komponenten-details)
-6. [Laufzeitsicht](#6-laufzeitsicht)
-   - [6.1 Bildgenerierung (Synchron)](#61-bildgenerierung-synchron)
-   - [6.2 Musikgenerierung (Asynchron)](#62-musikgenerierung-asynchron)
-7. [Verteilungssicht](#7-verteilungssicht)
-   - [7.1 Entwicklungsumgebung](#71-entwicklungsumgebung)
-   - [7.2 Produktionsumgebung](#72-produktionsumgebung)
-   - [7.3 Netzwerk-Architektur](#73-netzwerk-architektur)
-8. [API Dokumentation](#8-api-dokumentation)
-9. [Deployment-Grafik](#9-deployment-grafik)
-   - [9.1 Entwicklungs-Deployment](#91-entwicklungs-deployment)
-   - [9.2 Produktions-Deployment](#92-produktions-deployment)
-   - [9.3 Container-Orchestrierung](#93-container-orchestrierung)
-10. [Wichtigste Prozesse](#10-wichtigste-prozesse)
-    - [10.1 Song-Generierung Workflow](#101-song-generierung-workflow)
+1. [Introduction and Goals](#1-introduction-and-goals)
+   - [1.1 Requirements Overview](#11-requirements-overview)
+   - [1.2 Quality Goals](#12-quality-goals)
+   - [1.3 Stakeholders](#13-stakeholders)
+2. [Constraints](#2-constraints)
+   - [2.1 Technical Constraints](#21-technical-constraints)
+   - [2.2 Organizational Constraints](#22-organizational-constraints)
+3. [Context Boundary](#3-context-boundary)
+   - [3.1 Business Context](#31-business-context)
+   - [3.2 Technical Context](#32-technical-context)
+4. [Solution Strategy](#4-solution-strategy)
+   - [4.1 Architecture Approach](#41-architecture-approach)
+   - [4.2 Technology Stack](#42-technology-stack)
+5. [Building Block View](#5-building-block-view)
+   - [5.1 System Overview](#51-system-overview)
+   - [5.2 Component Details](#52-component-details)
+6. [Runtime View](#6-runtime-view)
+   - [6.1 Image Generation (Synchronous)](#61-image-generation-synchronous)
+   - [6.2 Music Generation (Asynchronous)](#62-music-generation-asynchronous)
+7. [Deployment View](#7-deployment-view)
+   - [7.1 Development Environment](#71-development-environment)
+   - [7.2 Production Environment](#72-production-environment)
+   - [7.3 Network Architecture](#73-network-architecture)
+8. [API Documentation](#8-api-documentation)
+9. [Deployment Diagrams](#9-deployment-diagrams)
+   - [9.1 Development Deployment](#91-development-deployment)
+   - [9.2 Production Deployment](#92-production-deployment)
+   - [9.3 Container Orchestration](#93-container-orchestration)
+10. [Key Processes](#10-key-processes)
+    - [10.1 Song Generation Workflow](#101-song-generation-workflow)
     - [10.2 Error Handling & Retry Logic](#102-error-handling--retry-logic)
-    - [10.3 Health Check Prozess](#103-health-check-prozess)
-    - [10.4 Backup & Recovery Prozess](#104-backup--recovery-prozess)
-11. [Qualitätsanforderungen](#11-qualitätsanforderungen)
+    - [10.3 Health Check Process](#103-health-check-process)
+    - [10.4 Backup & Recovery Process](#104-backup--recovery-process)
+11. [Quality Requirements](#11-quality-requirements)
     - [11.1 Performance](#111-performance)
     - [11.2 Security](#112-security)
     - [11.3 Monitoring](#113-monitoring)
-12. [Glossar](#12-glossar)
-13. [Datenbank-Schema](#13-datenbank-schema)
-    - [13.1 Entity-Relationship-Diagramm](#131-entity-relationship-diagramm)
-    - [13.2 Tabellen-Übersicht](#132-tabellen-übersicht)
-    - [13.3 Beziehungen und Constraints](#133-beziehungen-und-constraints)
-    - [13.4 Migration und Wartung](#134-migration-und-wartung)
+12. [Glossary](#12-glossary)
+13. [Database Schema](#13-database-schema)
+    - [13.1 Entity-Relationship Diagram](#131-entity-relationship-diagram)
+    - [13.2 Table Overview](#132-table-overview)
+    - [13.3 Relationships and Constraints](#133-relationships-and-constraints)
+    - [13.4 Migration and Maintenance](#134-migration-and-maintenance)
 
-## Abbildungsverzeichnis
+## Figure Index
 
-- [Abbildung 3.1: Fachlicher Kontext](#31-fachlicher-kontext) - `images/3.1_fachlicher_kontext.png`
-- [Abbildung 5.1: Systemübersicht](#51-systemübersicht) - `images/5.1_systemuebersicht.png`
-- [Abbildung 5.2.1: Angular Projektstruktur](#521-aiwebui-frontend) - `images/5.2.1_angular_projektstruktur.png`
-- [Abbildung 6.1: Bildgenerierung (Synchron)](#61-bildgenerierung-synchron) - `images/6.1_bildgenerierung.png`
-- [Abbildung 6.2: Musikgenerierung (Asynchron)](#62-musikgenerierung-asynchron) - `images/6.2_musikgenerierung.png`
-- [Abbildung 7.3: Netzwerk-Architektur](#73-netzwerk-architektur) - `images/7.3_netzwerk_architektur.png`
-- [Abbildung 9.1: Entwicklungs-Deployment](#91-entwicklungs-deployment) - `images/9.1_entwicklungs_deployment.png`
-- [Abbildung 9.2: Produktions-Deployment](#92-produktions-deployment) - `images/9.2_produktions_deployment.png`
-- [Abbildung 10.1: Song-Generierung Workflow](#101-song-generierung-workflow) - `images/10.1_song_generierung_workflow.png`
-- [Abbildung 10.2: Error Handling & Retry Logic](#102-error-handling--retry-logic) - `images/10.2_error_handling.png`
-- [Abbildung 10.3: Health Check Prozess](#103-health-check-prozess) - `images/10.3_health_check.png`
-- [Abbildung 10.4: Backup & Recovery Prozess](#104-backup--recovery-prozess) - `images/10.4_backup_recovery.png`
-- [Abbildung 13.1: Datenbank Schema](#131-entity-relationship-diagramm) - `images/13_database_schema.png`
-
----
-
-## 1. Einführung und Ziele
-
-### 1.1 Aufgabenstellung
-Das Mac KI-Service System ist eine persönliche KI-basierte Multimedia-Generierungsplattform, die folgende Hauptfunktionen bietet:
-- **Bildgenerierung** via DALL-E 3 (OpenAI API)
-- **Musikgenerierung** via Mureka API
-- **Asynchrone Verarbeitung** für zeitaufwendige Generierungsprozesse
-- **Ollama Modelle Chat** für Prompt Verbesserungen via Prompt Templates
-- **Web-basierte Benutzeroberfläche** für einfache Bedienung
-
-### 1.2 Qualitätsziele
-| Priorität | Qualitätsziel      | Motivation                                              |
-| --------- | ------------------ | ------------------------------------------------------- |
-| 1         | **Verfügbarkeit**  | System muss 24/7 verfügbar sein für persönliche Nutzung |
-| 2         | **Performance**    | Schnelle Response-Zeiten für API-Aufrufe                |
-| 3         | **Skalierbarkeit** | Erweiterung um weitere KI-Services möglich              |
-| 4         | **Wartbarkeit**    | Einfache Deployment und Updates                         |
-
-### 1.3 Stakeholder
-- **Robert Wellinger (Entwickler/Nutzer)**: Aktuell einziger Nutzer und Entwickler des Systems
+- [Figure 3.1: Business Context](#31-business-context) - `images/3.1_fachlicher_kontext.png`
+- [Figure 5.1: System Overview](#51-system-overview) - `images/5.1_systemuebersicht.png`
+- [Figure 5.2.1: Angular Project Structure](#521-aiwebui-frontend) - `images/5.2.1_angular_projektstruktur.png`
+- [Figure 6.1: Image Generation (Synchronous)](#61-image-generation-synchronous) - `images/6.1_bildgenerierung.png`
+- [Figure 6.2: Music Generation (Asynchronous)](#62-music-generation-asynchronous) - `images/6.2_musikgenerierung.png`
+- [Figure 7.3: Network Architecture](#73-network-architecture) - `images/7.3_netzwerk_architektur.png`
+- [Figure 9.1: Development Deployment](#91-development-deployment) - `images/9.1_entwicklungs_deployment.png`
+- [Figure 9.2: Production Deployment](#92-production-deployment) - `images/9.2_produktions_deployment.png`
+- [Figure 10.1: Song Generation Workflow](#101-song-generation-workflow) - `images/10.1_song_generierung_workflow.png`
+- [Figure 10.2: Error Handling & Retry Logic](#102-error-handling--retry-logic) - `images/10.2_error_handling.png`
+- [Figure 10.3: Health Check Process](#103-health-check-process) - `images/10.3_health_check.png`
+- [Figure 10.4: Backup & Recovery Process](#104-backup--recovery-process) - `images/10.4_backup_recovery.png`
+- [Figure 13.1: Database Schema](#131-entity-relationship-diagram) - `images/13_database_schema.png`
 
 ---
 
-## 2. Randbedingungen
+## 1. Introduction and Goals
 
-### 2.1 Technische Randbedingungen
-- **Hardware**: Apple Silicon (M1 Max, M4) Architektur
-- **Betriebssystem**: macOS
-- **Containerisierung**: Docker (via colima)
-- **Python Version**: Python 3 mit miniconda3
-- **Entwicklungsumgebung**: PyCharm Pro (ARM64)
+### 1.1 Requirements Overview
+The Mac AI Service System is a personal AI-based multimedia generation platform offering the following main features:
+- **Image Generation** via DALL-E 3 (OpenAI API)
+- **Music Generation** via Mureka API
+- **Asynchronous Processing** for time-intensive generation processes
+- **Ollama Model Chat** for prompt improvements via prompt templates
+- **Web-based User Interface** for easy operation
 
-### 2.2 Organisatorische Randbedingungen
-- Persönliches Projekt (keine Team-Entwicklung)
-- Entwicklungs- und Produktionsumgebung getrennt
-- .env-Dateien nicht in Git (API-Keys, Passwörter)
+### 1.2 Quality Goals
+| Priority | Quality Goal       | Motivation                                             |
+| -------- | ------------------ | ------------------------------------------------------ |
+| 1        | **Availability**   | System must be available 24/7 for personal use         |
+| 2        | **Performance**    | Fast response times for API calls                      |
+| 3        | **Scalability**    | Extension with additional AI services possible         |
+| 4        | **Maintainability**| Easy deployment and updates                            |
+
+### 1.3 Stakeholders
+- **Robert Wellinger (Developer/User)**: Currently the only user and developer of the system
 
 ---
 
-## 3. Kontextabgrenzung
+## 2. Constraints
 
-### 3.1 Fachlicher Kontext
+### 2.1 Technical Constraints
+- **Hardware**: Apple Silicon (M1 Max, M4) architecture
+- **Operating System**: macOS
+- **Containerization**: Docker (via colima)
+- **Python Version**: Python 3 with miniconda3
+- **Development Environment**: PyCharm Pro (ARM64)
 
-<img src="images/3.1_fachlicher_kontext.png" alt="Fachlicher Kontext" style="zoom:150%;" />
+### 2.2 Organizational Constraints
+- Personal project (no team development)
+- Development and production environments separated
+- .env files not in Git (API keys, passwords)
 
-*Abbildung 3.1: Fachlicher Kontext - Überblick über die wichtigsten Akteure und Systeme*
+---
 
-### 3.2 Technischer Kontext
+## 3. Context Boundary
 
-**Externe Schnittstellen:**
-- **OpenAI API**: DALL-E 3 für Bildgenerierung (HTTPS/REST)
-- **Mureka API**: Musikgenerierung (HTTPS/REST)
-- **AI Test Mock**: Mock-Server für Development/Testing (HTTP/REST) - Kostensenkung
+### 3.1 Business Context
 
-**Interne Schnittstellen:**
-- **Frontend ↔ Backend**: REST API (JSON über HTTPS)
+<img src="images/3.1_fachlicher_kontext.png" alt="Business Context" style="zoom:150%;" />
+
+*Figure 3.1: Business Context - Overview of the main actors and systems*
+
+### 3.2 Technical Context
+
+**External Interfaces:**
+- **OpenAI API**: DALL-E 3 for image generation (HTTPS/REST)
+- **Mureka API**: Music generation (HTTPS/REST)
+- **AI Test Mock**: Mock server for development/testing (HTTP/REST) - Cost reduction
+
+**Internal Interfaces:**
+- **Frontend ↔ Backend**: REST API (JSON over HTTPS)
 - **Backend ↔ Database**: PostgreSQL (SQL)
 - **Backend ↔ Cache**: Redis (Key-Value)
-- **Ollama LLM**: Diverse AI Modells Chats (HTTPS/REST)
+- **Ollama LLM**: Various AI model chats (HTTPS/REST)
 
 ---
 
-## 4. Lösungsstrategie
+## 4. Solution Strategy
 
-### 4.1 Architekturansatz
-- **Microservice-orientiert**: Getrennte Services für verschiedene Funktionen
-- **Event-driven**: Asynchrone Verarbeitung via Celery
-- **API-First**: REST API als zentrale Schnittstelle
-- **Containerisiert**: Docker für konsistente Deployments
+### 4.1 Architecture Approach
+- **Microservice-oriented**: Separate services for different functions
+- **Event-driven**: Asynchronous processing via Celery
+- **API-First**: REST API as central interface
+- **Containerized**: Docker for consistent deployments
 
-### 4.2 Technologie-Stack
+### 4.2 Technology Stack
 - **Frontend**: Angular 18.2.13 + TypeScript + Angular Material + SCSS + RxJS
 - **Backend**: Python Flask 3.1.2 + SQLAlchemy 2.0 + Pydantic 2.0 + Alembic 1.13
 - **API Documentation**: Flask-APISpec + OpenAPI/Swagger
 - **Authentication**: Flask-CORS + PyJWT + BCrypt
 - **Async Processing**: Celery 5.4 + Redis 5.0
 - **Database**: PostgreSQL 15 + psycopg2-binary
-- **Web Server**: Gunicorn (Produktion), Flask Dev Server (Entwicklung)
-- **Proxy**: Nginx 1.23.3 (Produktion)
-- **Container**: Docker + Docker Compose (Colima auf macOS)
+- **Web Server**: Gunicorn (Production), Flask Dev Server (Development)
+- **Proxy**: Nginx 1.23.3 (Production)
+- **Container**: Docker + Docker Compose (Colima on macOS)
 
 ---
 
-## 5. Bausteinsicht
+## 5. Building Block View
 
-### 5.1 Systemübersicht
+### 5.1 System Overview
 
-<img src="images/5.1_systemuebersicht.png" alt="Systemübersicht" style="zoom:150%;" />
+<img src="images/5.1_systemuebersicht.png" alt="System Overview" style="zoom:150%;" />
 
-*Abbildung 5.1: Systemübersicht - Architektonische Schichten und Komponenten*
+*Figure 5.1: System Overview - Architectural layers and components*
 
-### 5.2 Komponenten-Details
+### 5.2 Component Details
 
 #### 5.2.1 aiwebui (Frontend)
 
-<img src="images/5.2.1_angular_projektstruktur.png" alt="Angular Projektstruktur" style="zoom: 67%;" />
+<img src="images/5.2.1_angular_projektstruktur.png" alt="Angular Project Structure" style="zoom: 67%;" />
 
-*Abbildung 5.2.1: Angular Projektstruktur - Komponenten, Services und Module dess Frontend*
+*Figure 5.2.1: Angular Project Structure - Components, services and modules of the frontend*
 
-- **Technologie**: Angular 18.2.13 + TypeScript + SCSS + Angular Material
-- **Struktur**:
+- **Technology**: Angular 18.2.13 + TypeScript + SCSS + Angular Material
+- **Structure**:
   ```
   src/app/
   ├── components/    # Shared Components
   ├── pages/         # Feature Pages
-  │   ├── image-generator/    # UI für Bildgenerierung
-  │   ├── image-view/         # Anzeige generierter Bilder
-  │   ├── song-generator/     # UI für Musikgenerierung
-  │   ├── song-view/          # Anzeige generierter Songs
-  │   ├── song-profile/       # Mureka Account-Informationen
-  │   ├── user-profile/       # Benutzerprofilseite
-  │   └── prompt-templates/   # Template-Management für Prompts
+  │   ├── image-generator/    # UI for image generation
+  │   ├── image-view/         # Display of generated images
+  │   ├── song-generator/     # UI for music generation
+  │   ├── song-view/          # Display of generated songs
+  │   ├── song-profile/       # Mureka account information
+  │   ├── user-profile/       # User profile page
+  │   └── prompt-templates/   # Template management for prompts
   ├── services/      # API Services & Business Logic
   ├── models/        # TypeScript Interfaces & Models
   ├── pipes/         # Custom Angular Pipes
@@ -183,13 +183,13 @@ Das Mac KI-Service System ist eine persönliche KI-basierte Multimedia-Generieru
   ├── interceptors/  # HTTP Interceptors
   └── auth/          # Authentication Logic
   ```
-- **Services**: API-Integration, Konfiguration, Prompt-Management, Notifications
-- **Shared Components**: Header, Footer, Detail-Panels, Audio-Player, Progress-Overlay
+- **Services**: API integration, configuration, prompt management, notifications
+- **Shared Components**: Header, footer, detail panels, audio player, progress overlay
 - **Dependencies**: Angular Material, RxJS, ngx-cookie-service, compromise
-- **Build**: `npm run build:prod` → Deployment nach `forwardproxy/html/aiwebui`
+- **Build**: `npm run build:prod` → Deployment to `forwardproxy/html/aiwebui`
 
 #### 5.2.2 aiproxysrv (Backend API)
-- **Technologie**: Python Flask + SQLAlchemy + Pydantic
+- **Technology**: Python Flask + SQLAlchemy + Pydantic
 - **Struktur**:
   ```
   src/
@@ -208,48 +208,48 @@ Das Mac KI-Service System ist eine persönliche KI-basierte Multimedia-Generieru
   ```
 
 #### 5.2.3 aitestmock (Test Mock Server)
-- **Technologie**: Python Flask
-- **Zweck**: Mock-Server für OpenAI und Mureka APIs zur Kostensenkung in Entwicklung/Testing
-- **Struktur**:
+- **Technology**: Python Flask
+- **Purpose**: Mock server for OpenAI and Mureka APIs to reduce costs in development/testing
+- **Structure**:
   ```
   src/           # Source Code
   data/          # JSON Response Templates
   static/        # Mock Images, Audio Files (FLAC/MP3/ZIP)
   ```
-- **Test-Szenarien**:
-  - **Bildgenerierung**: Prompt mit "0001" → Success, "0002" → Invalid Token Error
-  - **Song-Generierung**: Lyrics mit "0001" → Success, "0002" → Invalid Token, "0003" → Generation Failed
-  - **Timing**: Style-Prompt "30s" → 30 Sekunden Sync Duration
+- **Test Scenarios**:
+  - **Image Generation**: Prompt with "0001" → Success, "0002" → Invalid Token Error
+  - **Song Generation**: Lyrics with "0001" → Success, "0002" → Invalid Token, "0003" → Generation Failed
+  - **Timing**: Style-Prompt "30s" → 30 seconds sync duration
 
 #### 5.2.4 forwardproxy (Nginx)
-- **Technologie**: Nginx 1.23.3
-- **Funktionen**:
-  - HTTPS Terminierung (TLS 1.3)
-  - Rate Limiting (5req/s)
-  - Static File Serving
-  - API Proxy zu aiproxysrv:5050
+- **Technology**: Nginx 1.23.3
+- **Functions**:
+  - HTTPS termination (TLS 1.3)
+  - Rate limiting (5req/s)
+  - Static file serving
+  - API proxy to aiproxysrv:5050
 
 ---
 
-## 6. Laufzeitsicht
+## 6. Runtime View
 
-### 6.1 Bildgenerierung (Synchron)
+### 6.1 Image Generation (Synchronous)
 
-![Bildgenerierung](images/6.1_bildgenerierung.png)
+![Image Generation](images/6.1_bildgenerierung.png)
 
-*Abbildung 6.1: Bildgenerierung (Synchron) - Sequenzdiagramm des Bildgenerierungsprozesses*
+*Figure 6.1: Image Generation (Synchronous) - Sequence diagram of the image generation process*
 
-### 6.2 Musikgenerierung (Asynchron)
+### 6.2 Music Generation (Asynchronous)
 
-![Musikgenerierung](images/6.2_musikgenerierung.png)
+![Music Generation](images/6.2_musikgenerierung.png)
 
-*Abbildung 6.2: Musikgenerierung (Asynchron) - Sequenzdiagramm des asynchronen Musikgenerierungsprozesses*
+*Figure 6.2: Music Generation (Asynchronous) - Sequence diagram of the asynchronous music generation process*
 
 ---
 
-## 7. Verteilungssicht
+## 7. Deployment View
 
-### 7.1 Entwicklungsumgebung
+### 7.1 Development Environment
 ```
 MacBook Air M4 (32GB RAM)
 ├── Host macOS
@@ -261,12 +261,12 @@ MacBook Air M4 (32GB RAM)
 │   ├── Flask Dev Server (src/server.py)
 │   ├── Celery Worker (src/worker.py)
 │   ├── Angular Dev Server (ng serve)
-│   └── AI Test Mock Server (aitestmock) - Optional für Kostensenkung
+│   └── AI Test Mock Server (aitestmock) - Optional for cost reduction
 └── Configuration
-    └── .env Dateien mit Mock-API URLs statt echter OpenAI/Mureka APIs
+    └── .env files with Mock-API URLs instead of real OpenAI/Mureka APIs
 ```
 
-### 7.2 Produktionsumgebung
+### 7.2 Production Environment
 ```
 Mac Studio M1 Max (32GB RAM) - IP: 10.0.1.120
 ├── Host macOS
@@ -286,44 +286,44 @@ Mac Studio M1 Max (32GB RAM) - IP: 10.0.1.120
     └── images-data (Volume)
 ```
 
-### 7.3 Netzwerk-Architektur
+### 7.3 Network Architecture
 
-![Netzwerk-Architektur](images/7.3_netzwerk_architektur.png)
+![Network Architecture](images/7.3_netzwerk_architektur.png)
 
-*Abbildung 7.3: Netzwerk-Architektur - Produktionsumgebung mit Docker-Netzwerk und Host-Services*
+*Figure 7.3: Network Architecture - Production environment with Docker network and host services*
 
 ---
 
-## 8. API Dokumentation
+## 8. API Documentation
 
-Die vollständige API-Dokumentation ist automatisch generiert und immer aktuell verfügbar:
+The complete API documentation is automatically generated and always available up-to-date:
 
-- **Swagger UI**: `http://localhost:5050/api/docs/` (interaktive Dokumentation)
+- **Swagger UI**: `http://localhost:5050/api/docs/` (interactive documentation)
 - **OpenAPI JSON**: `http://localhost:5050/api/openapi.json`
 - **OpenAPI YAML**: `http://localhost:5050/api/openapi.yaml`
 
-Die Dokumentation wird automatisch aus dem Python-Code generiert (Code-First Ansatz) und ist daher immer synchron mit der Implementierung.
+The documentation is automatically generated from the Python code (code-first approach) and is therefore always in sync with the implementation.
 
 ---
 
-## 9. Deployment-Grafik
+## 9. Deployment Diagrams
 
-### 9.1 Entwicklungs-Deployment
+### 9.1 Development Deployment
 
-![Entwicklungs-Deployment](images/9.1_entwicklungs_deployment.png)
+![Development Deployment](images/9.1_entwicklungs_deployment.png)
 
-*Abbildung 9.1: Entwicklungs-Deployment - Lokale Entwicklungsumgebung mit Mock-Services*
+*Figure 9.1: Development Deployment - Local development environment with mock services*
 
-### 9.2 Produktions-Deployment
+### 9.2 Production Deployment
 
-![Produktions-Deployment](images/9.2_produktions_deployment.png)
+![Production Deployment](images/9.2_produktions_deployment.png)
 
-*Abbildung 9.2: Produktions-Deployment - Vollständige Docker-basierte Produktionsumgebung*
+*Figure 9.2: Production Deployment - Complete Docker-based production environment*
 
-### 9.3 Container-Orchestrierung
+### 9.3 Container Orchestration
 
 ```yaml
-# Vereinfachte docker-compose.yml Struktur
+# Simplified docker-compose.yml structure
 services:
   postgres:
     image: postgres:15-alpine
@@ -357,198 +357,198 @@ services:
 
 ---
 
-## 10. Wichtigste Prozesse
+## 10. Key Processes
 
-### 10.1 Song-Generierung Workflow
+### 10.1 Song Generation Workflow
 
-![Song-Generierung Workflow](images/10.1_song_generierung_workflow.png)
+![Song Generation Workflow](images/10.1_song_generierung_workflow.png)
 
-*Abbildung 10.1: Song-Generierung Workflow - Zustandsdiagramm des kompletten Song-Generierungsprozesses*
+*Figure 10.1: Song Generation Workflow - State diagram of the complete song generation process*
 
 ### 10.2 Error Handling & Retry Logic
 
 ![Error Handling](images/10.2_error_handling.png)
 
-*Abbildung 10.2: Error Handling & Retry Logic - Flussdiagramm der Fehlerbehandlung und Retry-Mechanismen*
+*Figure 10.2: Error Handling & Retry Logic - Flow diagram of error handling and retry mechanisms*
 
-### 10.3 Health Check Prozess
+### 10.3 Health Check Process
 
-![Health Check Prozess](images/10.3_health_check.png)
+![Health Check Process](images/10.3_health_check.png)
 
-*Abbildung 10.3: Health Check Prozess - Überwachung und Monitoring aller Services*
+*Figure 10.3: Health Check Process - Monitoring and supervision of all services*
 
-### 10.4 Backup & Recovery Prozess
+### 10.4 Backup & Recovery Process
 
 ![Backup & Recovery](images/10.4_backup_recovery.png)
 
-*Abbildung 10.4: Backup & Recovery Prozess - Sicherung und Wiederherstellung der Daten*
+*Figure 10.4: Backup & Recovery Process - Data backup and restoration*
 
 ---
 
-## 11. Qualitätsanforderungen
+## 11. Quality Requirements
 
 ### 11.1 Performance
-- **API Response Time**: < 200ms für Standard-Requests
-- **Image Generation**: < 30s für DALL-E 3 Calls
-- **Song Generation**: 2-5 Minuten (abhängig von Mureka)
-- **Concurrent Users**: 1 (persönliche Nutzung)
+- **API Response Time**: < 200ms for standard requests
+- **Image Generation**: < 30s for DALL-E 3 calls
+- **Song Generation**: 2-5 minutes (depending on Mureka)
+- **Concurrent Users**: 1 (personal use)
 
 ### 11.2 Security
-- **HTTPS**: TLS 1.3 Verschlüsselung
+- **HTTPS**: TLS 1.3 encryption
 - **Rate Limiting**: 5 req/s via Nginx
-- **API Keys**: Secure Storage in .env files
-- **CORS**: Konfiguriert für Frontend-Domain
+- **API Keys**: Secure storage in .env files
+- **CORS**: Configured for frontend domain
 
 ### 11.3 Monitoring
-- **Health Checks**: Alle Services alle 30s
-- **Logging**: Strukturierte Logs via Python logging
-- **Alerts**: Container-Restart bei Health Check Failures
+- **Health Checks**: All services every 30s
+- **Logging**: Structured logs via Python logging
+- **Alerts**: Container restart on health check failures
 
 ---
 
-## 12. Glossar
+## 12. Glossary
 
-| Begriff        | Definition                                                                      |
+| Term           | Definition                                                                      |
 | -------------- | ------------------------------------------------------------------------------- |
-| **DALL-E 3**   | OpenAI's Bildgenerierungs-KI                                                    |
-| **Mureka**     | Song-Generierungs-API Service                                                   |
-| **Celery**     | Python Task Queue für asynchrone Verarbeitung                                   |
-| **Colima**     | Container Runtime für macOS (Docker Alternative)                                |
-| **Alembic**    | Database Migration Tool für SQLAlchemy                                          |
-| **Task ID**    | Celery Task Identifier für Async Operations                                     |
-| **Job ID**     | Mureka Job Identifier für Song Generation                                       |
-| **Choice**     | Einzelne Musikvariante von Mureka (meist 2 pro Generation)                      |
-| **Ollama**     | Open-Source LLM Runtime für lokale Chat-Generierung (10.0.1.120:11434)         |
-| **Chat API**   | Ollama-basierte Text-Generierung für Conversational AI mit 4 Endpunkten         |
-| **AI Magic Functions** | Template-basierte intelligente Prompt-Erweiterung via prompt_templates   |
-| **Prompt Templates** | Wiederverwendbare Prompt-Vorlagen mit pre/post conditions und AI-Parametern |
-| **Template Processing** | Automatische Prompt-Optimierung mit model, temperature, max_tokens       |
-| **Settings**   | Frontend-Komponente für Systemkonfiguration und Benutzereinstellungen           |
-| **Entity-Relationship** | Datenbankschema mit 4 Tabellen und definierten Beziehungen                |
-| **aitestmock** | Mock-Server für OpenAI und Mureka APIs zur Kostensenkung in Development/Testing |
+| **DALL-E 3**   | OpenAI's image generation AI                                                    |
+| **Mureka**     | Song generation API service                                                     |
+| **Celery**     | Python task queue for asynchronous processing                                   |
+| **Colima**     | Container runtime for macOS (Docker alternative)                                |
+| **Alembic**    | Database migration tool for SQLAlchemy                                          |
+| **Task ID**    | Celery task identifier for async operations                                     |
+| **Job ID**     | Mureka job identifier for song generation                                       |
+| **Choice**     | Single music variant from Mureka (usually 2 per generation)                     |
+| **Ollama**     | Open-source LLM runtime for local chat generation (10.0.1.120:11434)           |
+| **Chat API**   | Ollama-based text generation for conversational AI with 4 endpoints             |
+| **AI Magic Functions** | Template-based intelligent prompt enhancement via prompt_templates       |
+| **Prompt Templates** | Reusable prompt templates with pre/post conditions and AI parameters       |
+| **Template Processing** | Automatic prompt optimization with model, temperature, max_tokens        |
+| **Settings**   | Frontend component for system configuration and user preferences                |
+| **Entity-Relationship** | Database schema with 4 tables and defined relationships                   |
+| **aitestmock** | Mock server for OpenAI and Mureka APIs for cost reduction in development/testing |
 
 ---
 
-## 13. Datenbank-Schema
+## 13. Database Schema
 
-### 13.1 Entity-Relationship-Diagramm
+### 13.1 Entity-Relationship Diagram
 
 ![Database Schema](images/13_database_schema.png)
 
-*Abbildung 13.1: Datenbank Schema - Entity-Relationship-Diagramm aller Tabellen und Beziehungen*
+*Figure 13.1: Database Schema - Entity-relationship diagram of all tables and relationships*
 
-### 13.2 Tabellen-Übersicht
+### 13.2 Table Overview
 
 #### 13.2.1 songs
-**Zweck**: Haupttabelle für Song-Generierung und -Verwaltung
+**Purpose**: Main table for song generation and management
 
-| Spalte | Typ | Beschreibung |
+| Column | Type | Description |
 |--------|-----|-------------|
 | `id` | UUID | Primary Key |
 | `task_id` | VARCHAR(255) | Celery Task ID (unique) |
 | `job_id` | VARCHAR(255) | MUREKA Job ID |
-| `lyrics` | TEXT | Song-Text Input |
-| `prompt` | TEXT | Style-Prompt für Generierung |
-| `model` | VARCHAR(100) | Generierungsmodell (default: "chirp-v3-5") |
-| `title` | VARCHAR(500) | Benutzerdefinierter Titel |
-| `tags` | VARCHAR(1000) | Benutzerdefinierte Tags |
+| `lyrics` | TEXT | Song text input |
+| `prompt` | TEXT | Style prompt for generation |
+| `model` | VARCHAR(100) | Generation model (default: "chirp-v3-5") |
+| `title` | VARCHAR(500) | User-defined title |
+| `tags` | VARCHAR(1000) | User-defined tags |
 | `workflow` | VARCHAR(50) | Status: onWork, inUse, notUsed |
 | `status` | VARCHAR(50) | PENDING, PROGRESS, SUCCESS, FAILURE, CANCELLED |
-| `progress_info` | TEXT | JSON Progress-Details |
-| `error_message` | TEXT | Fehlerinformationen |
-| `mureka_response` | TEXT | Vollständige MUREKA Response (JSON) |
-| `mureka_status` | VARCHAR(100) | MUREKA-spezifischer Status |
-| `created_at` | TIMESTAMP | Erstellungszeitpunkt |
-| `updated_at` | TIMESTAMP | Letzte Aktualisierung |
-| `completed_at` | TIMESTAMP | Abschlusszeitpunkt |
+| `progress_info` | TEXT | JSON progress details |
+| `error_message` | TEXT | Error information |
+| `mureka_response` | TEXT | Complete MUREKA response (JSON) |
+| `mureka_status` | VARCHAR(100) | MUREKA-specific status |
+| `created_at` | TIMESTAMP | Creation timestamp |
+| `updated_at` | TIMESTAMP | Last update |
+| `completed_at` | TIMESTAMP | Completion timestamp |
 
 #### 13.2.2 song_choices
-**Zweck**: Einzelne Song-Varianten von MUREKA (1:N zu songs)
+**Purpose**: Individual song variants from MUREKA (1:N to songs)
 
-| Spalte | Typ | Beschreibung |
+| Column | Type | Description |
 |--------|-----|-------------|
 | `id` | UUID | Primary Key |
-| `song_id` | UUID | Foreign Key zu songs.id |
+| `song_id` | UUID | Foreign Key to songs.id |
 | `mureka_choice_id` | VARCHAR(255) | MUREKA Choice Identifier |
-| `choice_index` | INTEGER | Index im choices Array |
-| `mp3_url` | VARCHAR(1000) | MP3 Datei URL |
-| `flac_url` | VARCHAR(1000) | FLAC Datei URL |
-| `video_url` | VARCHAR(1000) | Video Datei URL |
-| `image_url` | VARCHAR(1000) | Cover-Bild URL |
-| `duration` | FLOAT | Dauer in Millisekunden |
-| `title` | VARCHAR(500) | Choice-Titel |
-| `tags` | VARCHAR(1000) | Choice-Tags |
-| `rating` | INTEGER | Bewertung (0=thumbs down, 1=thumbs up) |
-| `created_at` | TIMESTAMP | Erstellungszeitpunkt |
-| `updated_at` | TIMESTAMP | Letzte Aktualisierung |
+| `choice_index` | INTEGER | Index in choices array |
+| `mp3_url` | VARCHAR(1000) | MP3 file URL |
+| `flac_url` | VARCHAR(1000) | FLAC file URL |
+| `video_url` | VARCHAR(1000) | Video file URL |
+| `image_url` | VARCHAR(1000) | Cover image URL |
+| `duration` | FLOAT | Duration in milliseconds |
+| `title` | VARCHAR(500) | Choice title |
+| `tags` | VARCHAR(1000) | Choice tags |
+| `rating` | INTEGER | Rating (0=thumbs down, 1=thumbs up) |
+| `created_at` | TIMESTAMP | Creation timestamp |
+| `updated_at` | TIMESTAMP | Last update |
 
 #### 13.2.3 generated_images
-**Zweck**: Generierte Bilder und Metadaten
+**Purpose**: Generated images and metadata
 
-| Spalte | Typ | Beschreibung |
+| Column | Type | Description |
 |--------|-----|-------------|
 | `id` | UUID | Primary Key |
-| `prompt` | TEXT | Generierungs-Prompt |
-| `size` | VARCHAR(20) | Bildgröße (z.B. "1024x1024") |
-| `filename` | VARCHAR(255) | Eindeutiger Dateiname |
-| `file_path` | VARCHAR(500) | Lokaler Dateipfad |
-| `local_url` | VARCHAR(500) | Lokale Zugriffs-URL |
-| `model_used` | VARCHAR(100) | Verwendetes Generierungsmodell |
-| `prompt_hash` | VARCHAR(32) | Prompt-Hash für Deduplizierung |
-| `title` | VARCHAR(255) | Benutzerdefinierter Titel |
-| `tags` | TEXT | Benutzerdefinierte Tags |
-| `created_at` | TIMESTAMP | Erstellungszeitpunkt |
-| `updated_at` | TIMESTAMP | Letzte Aktualisierung |
+| `prompt` | TEXT | Generation prompt |
+| `size` | VARCHAR(20) | Image size (e.g. "1024x1024") |
+| `filename` | VARCHAR(255) | Unique filename |
+| `file_path` | VARCHAR(500) | Local file path |
+| `local_url` | VARCHAR(500) | Local access URL |
+| `model_used` | VARCHAR(100) | Generation model used |
+| `prompt_hash` | VARCHAR(32) | Prompt hash for deduplication |
+| `title` | VARCHAR(255) | User-defined title |
+| `tags` | TEXT | User-defined tags |
+| `created_at` | TIMESTAMP | Creation timestamp |
+| `updated_at` | TIMESTAMP | Last update |
 
 #### 13.2.4 prompt_templates
-**Zweck**: AI-Prompt Templates für verschiedene Kategorien und Aktionen
+**Purpose**: AI prompt templates for various categories and actions
 
-| Spalte | Typ | Beschreibung |
+| Column | Type | Description |
 |--------|-----|-------------|
 | `id` | INTEGER | Primary Key |
-| `category` | VARCHAR(50) | Template-Kategorie (images, songs, lyrics) |
-| `action` | VARCHAR(50) | Template-Aktion (generate, enhance, translate) |
-| `pre_condition` | TEXT | Text vor dem Prompt |
-| `post_condition` | TEXT | Text nach dem Prompt |
-| `description` | TEXT | Template-Beschreibung |
-| `version` | VARCHAR(10) | Template-Version |
-| `model` | VARCHAR(50) | Ollama Model-Hint |
-| `temperature` | FLOAT | Ollama Temperature (0.0-2.0) |
-| `max_tokens` | INTEGER | Maximale Token-Anzahl |
-| `active` | BOOLEAN | Template ist aktiv |
-| `created_at` | TIMESTAMP | Erstellungszeitpunkt |
-| `updated_at` | TIMESTAMP | Letzte Aktualisierung |
+| `category` | VARCHAR(50) | Template category (images, songs, lyrics) |
+| `action` | VARCHAR(50) | Template action (generate, enhance, translate) |
+| `pre_condition` | TEXT | Text before the prompt |
+| `post_condition` | TEXT | Text after the prompt |
+| `description` | TEXT | Template description |
+| `version` | VARCHAR(10) | Template version |
+| `model` | VARCHAR(50) | Ollama model hint |
+| `temperature` | FLOAT | Ollama temperature (0.0-2.0) |
+| `max_tokens` | INTEGER | Maximum token count |
+| `active` | BOOLEAN | Template is active |
+| `created_at` | TIMESTAMP | Creation timestamp |
+| `updated_at` | TIMESTAMP | Last update |
 
-### 13.3 Beziehungen und Constraints
+### 13.3 Relationships and Constraints
 
-- **songs ↔ song_choices**: 1:N Beziehung mit CASCADE DELETE
+- **songs ↔ song_choices**: 1:N relationship with CASCADE DELETE
 - **Unique Constraints**: `songs.task_id`, `generated_images.filename`
-- **Indexes**: Auf `task_id`, `job_id`, `song_id` für Performance
+- **Indexes**: On `task_id`, `job_id`, `song_id` for performance
 - **Foreign Keys**: `song_choices.song_id` → `songs.id`
 
-### 13.4 Migration und Wartung
+### 13.4 Migration and Maintenance
 
 **Migration Commands:**
 ```bash
-# Neue Migration erstellen
+# Create new migration
 cd src && alembic revision --autogenerate -m "description"
 
-# Migrationen anwenden
+# Apply migrations
 cd src && alembic upgrade head
 
-# Aktuelle Version prüfen
+# Check current version
 cd src && alembic current
 ```
 
-**Wichtige Überlegungen:**
-- UUID als Primary Keys für bessere Skalierbarkeit
-- JSON-Felder für flexible Metadaten-Speicherung
-- Timestamps für Audit-Trail
-- Cascade Deletes für Datenintegrität
+**Important Considerations:**
+- UUID as primary keys for better scalability
+- JSON fields for flexible metadata storage
+- Timestamps for audit trail
+- Cascade deletes for data integrity
 
 ---
 
-*Dokument erstellt am: 01.09.2025*
-*Zuletzt aktualisiert: 29.09.2025*
+*Document created: 01.09.2025*
+*Last updated: 29.09.2025*
 *Version: 1.5*
-*Autor: Rob (rob.wellinger@gmail.com)*
+*Author: Rob (rob.wellinger@gmail.com)*
