@@ -522,11 +522,133 @@ location /aiproxysrv/api/v1/newservice {
 ❌ Expose internal service ports directly
 ❌ Use weak SSL/TLS configurations
 
+## Docker Build & GitHub Actions
+
+### Multi-Platform Docker Images
+
+The project uses GitHub Actions to automatically build and publish multi-platform Docker images (AMD64 and ARM64) to GitHub Container Registry (ghcr.io).
+
+**Workflow**: `.github/workflows/docker-build.yml`
+
+### Published Images
+
+All images are available at `ghcr.io/rwellinger/`:
+
+- `aiwebui-app:latest` - Angular 18 frontend (Nginx-based)
+- `aiproxysrv-app:latest` - FastAPI backend server
+- `celery-worker-app:latest` - Celery async worker
+
+### Triggering Builds
+
+**Automatic on version tag:**
+```bash
+git tag v1.0.0
+git push origin v1.0.0
+```
+
+**Manual trigger:**
+- Go to GitHub Actions → "Build and Push Multi-Platform Docker Images" → Run workflow
+
+### Build Process
+
+The GitHub Actions workflow:
+1. **Sets up multi-platform support** (QEMU + Docker Buildx)
+2. **Builds for AMD64 and ARM64** architectures
+3. **Tags images** with version and `latest`
+4. **Pushes to GitHub Container Registry**
+
+### Using Pre-Built Images
+
+**Pull images:**
+```bash
+docker pull ghcr.io/rwellinger/aiwebui-app:latest
+docker pull ghcr.io/rwellinger/aiproxysrv-app:latest
+docker pull ghcr.io/rwellinger/celery-worker-app:latest
+```
+
+**Use in docker-compose:**
+```yaml
+services:
+  aiwebui:
+    image: ghcr.io/rwellinger/aiwebui-app:latest
+    # or specific version
+    # image: ghcr.io/rwellinger/aiwebui-app:v1.0.0
+```
+
+### Local Multi-Platform Build
+
+**Build aiwebui locally:**
+```bash
+cd aiwebui
+
+# AMD64 + ARM64 build
+docker buildx build \
+  --platform linux/amd64,linux/arm64 \
+  --target production \
+  -t aiwebui-app:local \
+  .
+
+# Single platform (faster for testing)
+docker build \
+  --target production \
+  -t aiwebui-app:local \
+  .
+```
+
+### Image Registry Authentication
+
+For private repositories, authenticate before pulling:
+```bash
+# Login to GitHub Container Registry
+echo $GITHUB_TOKEN | docker login ghcr.io -u USERNAME --password-stdin
+
+# Pull image
+docker pull ghcr.io/rwellinger/aiwebui-app:latest
+```
+
+### Image Tags
+
+- `latest` - Most recent build from main branch
+- `v1.0.0` - Specific version tag
+- Platform-specific manifests automatically selected based on host architecture
+
+### Build Targets
+
+The `aiwebui` Dockerfile has multiple stages:
+
+**Development:**
+```dockerfile
+FROM node:18-alpine AS development
+# Development dependencies and dev server
+```
+
+**Build:**
+```dockerfile
+FROM node:18-alpine AS build
+# Production build artifacts
+```
+
+**Production:**
+```dockerfile
+FROM nginx:alpine AS production
+# Optimized Nginx image with built artifacts
+```
+
+**Usage:**
+```bash
+# Development image
+docker build --target development -t aiwebui:dev .
+
+# Production image (default)
+docker build --target production -t aiwebui:prod .
+```
+
 ## Related Documentation
 
 - **Backend API**: `../aiproxysrv/openai_impl.md`
 - **Frontend**: `../aiwebui/README.md`
 - **Nginx Documentation**: https://nginx.org/en/docs/
+- **GitHub Container Registry**: https://github.com/rwellinger/mac_ki_service/pkgs/container
 
 ## Quick Reference
 

@@ -63,10 +63,9 @@ https://github.com/rwellinger/thwelly_ai_tools/actions
 **Expected Duration:** 20-30 minutes
 
 The workflow builds:
-- `ghcr.io/rwellinger/aiproxysrv-app:v2.1.0`
-- `ghcr.io/rwellinger/aiproxysrv-app:latest`
-- `ghcr.io/rwellinger/celery-worker-app:v2.1.0`
-- `ghcr.io/rwellinger/celery-worker-app:latest`
+- `ghcr.io/rwellinger/aiproxysrv-app:v2.1.0` + `:latest`
+- `ghcr.io/rwellinger/celery-worker-app:v2.1.0` + `:latest`
+- `ghcr.io/rwellinger/aiwebui-app:v2.1.0` + `:latest`
 
 ### Step 5: Create GitHub Release (Optional)
 
@@ -85,6 +84,7 @@ gh release create v2.1.0 \
 \`\`\`bash
 docker pull ghcr.io/rwellinger/aiproxysrv-app:v2.1.0
 docker pull ghcr.io/rwellinger/celery-worker-app:v2.1.0
+docker pull ghcr.io/rwellinger/aiwebui-app:v2.1.0
 \`\`\`
 "
 ```
@@ -157,7 +157,10 @@ To save storage (500 MB free tier):
 ### Storage Limits
 
 - **Free Tier**: 500 MB package storage
-- **Per Release**: ~300 MB (both images)
+- **Per Release**: ~400-500 MB (all three images combined)
+  - aiproxysrv-app: ~150 MB
+  - celery-worker-app: ~150 MB
+  - aiwebui-app: ~50 MB
 - **Recommendation**: Keep only last 1-2 versions or use `latest` tag only
 
 ---
@@ -170,6 +173,7 @@ To save storage (500 MB free tier):
 # Pull the new version
 docker pull ghcr.io/rwellinger/aiproxysrv-app:v2.1.0
 docker pull ghcr.io/rwellinger/celery-worker-app:v2.1.0
+docker pull ghcr.io/rwellinger/aiwebui-app:v2.1.0
 
 # Update docker-compose.yml to use new version
 # Or use :latest tag (always pulls newest)
@@ -241,8 +245,12 @@ The workflow is configured in:
 
 **Builds:**
 - Multi-platform: `linux/amd64`, `linux/arm64`
-- Multi-stage: `app` and `worker` targets
+- Multi-stage: `app` and `worker` targets (aiproxysrv), `production` target (aiwebui)
 - Pushes to: `ghcr.io/rwellinger/*`
+- Three separate jobs run in parallel:
+  - `build-app` → `aiproxysrv-app`
+  - `build-worker` → `celery-worker-app`
+  - `build-webui` → `aiwebui-app`
 
 **Secrets:**
 - Uses `GITHUB_TOKEN` (automatically provided)

@@ -275,8 +275,11 @@ Mac Studio M1 Max (32GB RAM) - IP: 10.0.1.120
 │   ├── PostgreSQL (Container: postgres)
 │   ├── Redis (Container: redis)
 │   ├── Celery Worker (Container: celery-worker)
+│   │   └── Image: ghcr.io/rwellinger/celery-worker-app:latest
 │   ├── API Server (Container: aiproxysrv)
+│   │   └── Image: ghcr.io/rwellinger/aiproxysrv-app:latest
 │   └── Nginx Proxy (Container: forward-proxy)
+│       └── Image: ghcr.io/rwellinger/aiwebui-app:latest (serves Angular app)
 ├── Native Services
 │   ├── Ollama (Port 11434)
 │   └── Open WebUI
@@ -284,6 +287,8 @@ Mac Studio M1 Max (32GB RAM) - IP: 10.0.1.120
     ├── postgres-data (Volume)
     ├── redis-data (Volume)
     └── images-data (Volume)
+
+All images built via GitHub Actions (Multi-platform: AMD64 + ARM64)
 ```
 
 ### 7.3 Network Architecture
@@ -332,27 +337,39 @@ services:
     healthcheck: pg_isready
 
   redis:
-    image: redis:alpine  
+    image: redis:alpine
     ports: ["6379:6379"]
     volumes: [redis-data:/data]
     healthcheck: redis-cli ping
 
   celery-worker:
-    build: .
-    command: celery worker
+    image: ghcr.io/rwellinger/celery-worker-app:latest  # Pre-built from GitHub Actions
     depends_on: [postgres, redis]
-    volumes: [.:/app]
+    environment:
+      - DATABASE_URL
+      - REDIS_URL
+      - MUREKA_API_KEY
 
   aiproxy-app:
-    build: .
-    ports: ["5050:5050"] 
+    image: ghcr.io/rwellinger/aiproxysrv-app:latest  # Pre-built from GitHub Actions
+    ports: ["5050:8000"]
     depends_on: [postgres, celery-worker]
-    volumes: [.:/app, images-data:/images]
+    volumes: [images-data:/images]
+    environment:
+      - DATABASE_URL
+      - REDIS_URL
+      - OPENAI_API_KEY
 
   nginx:
-    image: nginx:1.23.3
+    image: ghcr.io/rwellinger/aiwebui-app:latest  # Pre-built Angular app with Nginx
     ports: ["80:80", "443:443"]
-    volumes: [./nginx/nginx.conf:/etc/nginx/nginx.conf]
+    volumes:
+      - ./certs:/etc/nginx/certs:ro
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+
+# All images are multi-platform (AMD64 + ARM64)
+# Built automatically via GitHub Actions on version tags
+# Workflow: .github/workflows/docker-build.yml
 ```
 
 ---
