@@ -36,7 +36,7 @@ services:
   celery-worker:
     container_name: celery-worker
     restart: unless-stopped
-    image: ghcr.io/rwellinger/celery-worker-app:v2.0.0
+    image: ghcr.io/rwellinger/celery-worker-app:v2.0.1
     pull_policy: always
     command: sh -c "alembic upgrade head && celery -A celery_app.celery_config:celery_app worker --loglevel=info --concurrency=1"
     user: "1000:1000"
@@ -66,7 +66,7 @@ services:
   aiproxy-app:
     container_name: aiproxysrv
     restart: unless-stopped
-    image: ghcr.io/rwellinger/aiproxysrv-app:v2.0.0
+    image: ghcr.io/rwellinger/aiproxysrv-app:v2.0.1
     pull_policy: always
     ports:
       - "5050:5050"

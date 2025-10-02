@@ -1,12 +1,13 @@
 services:
   nginx:
-    image: ghcr.io/rwellinger/aiwebui-app:latest
+    image: ghcr.io/rwellinger/aiwebui-app:v2.0.1
     container_name: forward-proxy
     restart: unless-stopped
     ports:
       - "80:80"
       - "443:443"
     volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
       - ./certs/webui.crt:/etc/ssl/certs/webui.crt:ro
       - ./certs/webui.key:/etc/ssl/private/webui.key:ro
       - ./logs:/var/log/nginx
