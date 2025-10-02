@@ -94,3 +94,45 @@ jobs:
             -t ${{ env.IMAGE_PREFIX }}/celery-worker-app:latest \
             --push \
             .
+
+  build-webui:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout code
+        run: |
+          git clone --depth 1 --branch ${{ github.ref_name }} https://github.com/${{ github.repository }}.git .
+
+      - name: Set up QEMU for multi-platform
+        run: |
+          docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
+
+      - name: Set up Docker Buildx
+        run: |
+          docker buildx create --name multiplatform --use --driver docker-container
+          docker buildx inspect --bootstrap
+
+      - name: Login to GitHub Container Registry
+        run: |
+          echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+
+      - name: Extract version from tag
+        id: version
+        run: |
+          VERSION=${GITHUB_REF#refs/tags/}
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "Building version: $VERSION"
+
+      - name: Build and push aiwebui-app
+        run: |
+          cd aiwebui
+          docker buildx build \
+            --platform linux/amd64,linux/arm64 \
+            --target production \
+            -t ${{ env.IMAGE_PREFIX }}/aiwebui-app:${{ steps.version.outputs.version }} \
+            -t ${{ env.IMAGE_PREFIX }}/aiwebui-app:latest \
+            --push \
+            .
